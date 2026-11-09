@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ארי משלוחים – הזמנת משלוח</title>
+<meta name="description" content="הזמנת משלוח מהירה – ממלאים פרטים ושולחים בווצאפ">
+<meta name="theme-color" content="#ff7a00">
+<style>
+  :root{
+    --brand:#ff7a00; --brand-soft:#fff4e8; --wa:#25d366;
+    --bg:#f3f4f6; --card:#fff; --text:#1f2937; --muted:#6b7280; --line:#d1d5db; --err:#dc2626;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
+  header{background:var(--brand);color:#fff;text-align:center;padding:22px 16px 18px}
+  header img{max-height:70px;max-width:200px;display:block;margin:0 auto 8px}
+  header h1{margin:0;font-size:24px}
+  header p{margin:6px 0 0;opacity:.92;font-size:15px}
+  main{max-width:520px;margin:0 auto;padding:16px}
+  .notice{background:#fef3c7;border:1px solid #f59e0b;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:14px;display:none}
+  .card{background:var(--card);border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 1px 4px #0001}
+  .card h2{margin:0 0 12px;font-size:17px;color:var(--brand)}
+  label{display:block;font-size:14px;margin:10px 0 4px;font-weight:600}
+  label .opt{font-weight:400;color:var(--muted)}
+  input,select,textarea{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--text)}
+  textarea{min-height:70px;resize:vertical}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--brand);border-color:var(--brand)}
+  .bad{border-color:var(--err)!important}
+  .errmsg{color:var(--err);font-size:13px;margin-top:3px;display:none}
+  .bad + .errmsg{display:block}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;position:relative}
+  .chips input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;top:0;right:0}
+  .chips label{flex:1 1 30%;margin:0;text-align:center;font-weight:500;border:1.5px solid var(--brand);color:var(--brand);border-radius:20px;padding:9px 6px;cursor:pointer;user-select:none}
+  .chips input:checked + label{background:var(--brand);color:#fff}
+  .chips input:focus-visible + label{outline:2px solid var(--text)}
+  .row{display:flex;gap:10px}.row>div{flex:1}
+  .price{background:var(--brand-soft);border-radius:12px;padding:14px;text-align:center;font-size:16px}
+  .price b{font-size:24px;color:var(--brand)}
+  .price small{display:block;color:var(--muted);margin-top:4px}
+  .check{display:flex;gap:8px;align-items:center;font-weight:400;margin-top:12px}
+  .check input{width:20px;height:20px}
+  button{width:100%;font:inherit;font-size:19px;font-weight:700;color:#fff;background:var(--wa);border:0;border-radius:12px;padding:15px;cursor:pointer;margin-top:4px}
+  button:active{transform:scale(.99)}
+  footer{text-align:center;color:var(--muted);font-size:13px;padding:8px 16px 28px}
+  footer a{color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <img src="logo.png" alt="" onerror="this.remove()">
+  <h1>🛵 ארי משלוחים</h1>
+  <p>ממלאים פרטים ← שולחים בווצאפ ← יוצאים לדרך</p>
+</header>
+
+<main>
+  <div class="notice" id="closedNotice"></div>
+
+  <form id="orderForm" novalidate>
+    <section class="card">
+      <h2>📦 איסוף מ:</h2>
+      <label for="pName">שם / שם העסק</label>
+      <input id="pName" autocomplete="organization" required>
+      <div class="errmsg">נא למלא שם</div>
+      <label for="pAddr">כתובת איסוף (רחוב, מספר, עיר)</label>
+      <input id="pAddr" autocomplete="street-address" required>
+      <div class="errmsg">נא למלא כתובת איסוף</div>
+      <label for="pPhone">טלפון</label>
+      <input id="pPhone" type="tel" inputmode="tel" autocomplete="tel" required>
+      <div class="errmsg">מספר טלפון לא תקין</div>
+    </section>
+
+    <section class="card">
+      <h2>📍 מסירה ל:</h2>
+      <label for="dName">שם המקבל</label>
+      <input id="dName" required>
+      <div class="errmsg">נא למלא שם מקבל</div>
+      <label for="dCity">עיר</label>
+      <select id="dCity" required></select>
+      <div class="errmsg">נא לבחור עיר</div>
+      <label for="dAddr">רחוב ומספר בית</label>
+      <input id="dAddr" required>
+      <div class="errmsg">נא למלא כתובת מסירה</div>
+      <label for="dPhone">טלפון המקבל</label>
+      <input id="dPhone" type="tel" inputmode="tel" required>
+      <div class="errmsg">מספר טלפון לא תקין</div>
+    </section>
+
+    <section class="card">
+      <h2>📋 פרטי המשלוח</h2>
+      <label>גודל</label>
+      <div class="chips" id="sizeChips"></div>
+      <label>מתי?</label>
+      <div class="chips" id="whenChips"></div>
+      <div id="whenTimeBox" style="display:none">
+        <label for="whenTime">מועד מבוקש</label>
+        <input id="whenTime" type="datetime-local">
+        <div class="errmsg">נא לבחור מועד</div>
+      </div>
+      <label>אמצעי תשלום</label>
+      <div class="chips" id="payChips"></div>
+      <label>מי משלם?</label>
+      <div class="chips" id="payerChips"></div>
+      <label for="notes">הערות <span class="opt">(קומה, קוד לבניין, מה בחבילה…)</span></label>
+      <textarea id="notes"></textarea>
+    </section>
+
+    <section class="card">
+      <div class="price" id="priceBox">בחרו עיר כדי לראות מחיר</div>
+      <label class="check"><input type="checkbox" id="remember" checked> לזכור את פרטי האיסוף שלי לפעם הבאה</label>
+    </section>
+
+    <button type="submit">שלח הזמנה בווצאפ ✅</button>
+  </form>
+</main>
+
+<footer>
+  ארי משלוחים · <a href="tel:0504848398">050-4848398</a><br>
+  לחיצה על הכפתור תפתח את ווצאפ עם ההזמנה מוכנה – רק ללחוץ "שלח"
+</footer>
+
+<script>
+/* =====================================================================
+   הגדרות העסק – כאן משנים מחירים, ערים ושעות פעילות
+   ===================================================================== */
+const CONFIG = {
+  whatsapp: "972504848398",          // המספר שאליו מגיעות ההזמנות (בלי 0 בהתחלה, עם 972)
+
+  // מחיר לפי עיר יעד (בשקלים). ⚠️ מחירים לדוגמה בלבד – להחליף במחירים האמיתיים!
+  cities: {
+    "תל אביב-יפו": 40,
+    "רמת גן": 45,
+    "גבעתיים": 45,
+    "בני ברק": 45,
+    "חולון": 50,
+    "בת ים": 50,
+    "פתח תקווה": 55,
+    "הרצליה": 60,
+    "ראשון לציון": 60,
+    "רעננה": 65,
+    "כפר סבא": 65,
+    "ירושלים": 120,
+    "חיפה": 150,
+  },
+
+  // תוספת למשלוח דחוף (0 = בלי תוספת)
+  urgentExtra: 20,
+
+  // שעות פעילות: 0=ראשון ... 6=שבת. null = סגור
+  hours: {
+    0: ["08:00", "20:00"],
+    1: ["08:00", "20:00"],
+    2: ["08:00", "20:00"],
+    3: ["08:00", "20:00"],
+    4: ["08:00", "20:00"],
+    5: ["08:00", "14:00"],
+    6: null,
+  },
+};
+
+const SIZES  = ["מעטפה", "חבילה קטנה", "חבילה גדולה"];
+const WHEN   = ["רגיל", "דחוף ⚡", "מתוזמן"];
+const PAY    = ["מזומן (סכום מדויק)", "ביט", "פייבוקס", "העברה בנקאית מראש"];
+const PAYER  = ["השולח", "המקבל"];
+const OTHER_CITY = "עיר אחרת";
+const STORE_KEY = "ariDelivery.pickup";
+
+/* ---------- בניית הטופס ---------- */
+const $ = id => document.getElementById(id);
+
+function chips(boxId, name, items) {
+  $(boxId).innerHTML = items.map((t, i) =>
+    `<input type="radio" name="${name}" id="${name}${i}" value="${t}" ${i === 0 ? "checked" : ""}>` +
+    `<label for="${name}${i}">${t}</label>`).join("");
+}
+chips("sizeChips", "size", SIZES);
+chips("whenChips", "when", WHEN);
+chips("payChips", "pay", PAY);
+chips("payerChips", "payer", PAYER);
+
+$("dCity").innerHTML = `<option value="">בחרו עיר…</option>` +
+  Object.keys(CONFIG.cities).map(c => `<option>${c}</option>`).join("") +
+  `<option>${OTHER_CITY}</option>`;
+
+const val = name => (document.querySelector(`input[name=${name}]:checked`) || {}).value;
+
+/* ---------- מחיר ---------- */
+function calcPrice() {
+  const city = $("dCity").value;
+  if (!city || city === OTHER_CITY) return null;
+  let p = CONFIG.cities[city];
+  if (val("when") === WHEN[1]) p += CONFIG.urgentExtra;
+  return p;
+}
+function showPrice() {
+  const city = $("dCity").value, box = $("priceBox");
+  if (!city) { box.textContent = "בחרו עיר כדי לראות מחיר"; return; }
+  if (city === OTHER_CITY) { box.innerHTML = "המחיר ייקבע בשיחה<small>נחזור אליכם עם הצעת מחיר</small>"; return; }
+  const extra = val("when") === WHEN[1] && CONFIG.urgentExtra ? `<small>כולל ₪${CONFIG.urgentExtra} תוספת דחוף</small>` : "";
+  box.innerHTML = `מחיר המשלוח: <b>₪${calcPrice()}</b>${extra}`;
+}
+$("dCity").addEventListener("change", showPrice);
+document.querySelectorAll("input[name=when]").forEach(r => r.addEventListener("change", () => {
+  $("whenTimeBox").style.display = val("when") === WHEN[2] ? "block" : "none";
+  showPrice();
+}));
+
+/* ---------- שעות פעילות ---------- */
+(function checkHours() {
+  const now = new Date(), h = CONFIG.hours[now.getDay()];
+  const hhmm = now.toTimeString().slice(0, 5);
+  if (h && hhmm >= h[0] && hhmm < h[1]) return;
+  const n = $("closedNotice");
+  n.textContent = "🌙 כרגע אנחנו מחוץ לשעות הפעילות. אפשר לשלוח הזמנה – נטפל בה בפתיחה הקרובה.";
+  n.style.display = "block";
+})();
+
+/* ---------- זכור אותי ---------- */
+try {
+  const saved = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+  if (saved) {
+    ["pName", "pAddr", "pPhone"].forEach(k => { if (saved[k]) $(k).value = saved[k]; });
+    if (saved.pay) { const r = document.querySelector(`input[name=pay][value="${saved.pay}"]`); if (r) r.checked = true; }
+  }
+} catch (e) {}
+
+/* ---------- בדיקות ---------- */
+const phoneOk = s => /^0\d{8,9}$/.test(s.replace(/\D/g, "").replace(/^972/, "0"));
+function check(id, ok) { $(id).classList.toggle("bad", !ok); return ok; }
+function validate() {
+  let ok = true;
+  ["pName", "pAddr", "dName", "dAddr", "dCity"].forEach(id => { ok = check(id, $(id).value.trim() !== "") && ok; });
+  ok = check("pPhone", phoneOk($("pPhone").value)) && ok;
+  ok = check("dPhone", phoneOk($("dPhone").value)) && ok;
+  if (val("when") === WHEN[2]) ok = check("whenTime", $("whenTime").value !== "") && ok;
+  return ok;
+}
+document.querySelectorAll("input,select").forEach(el => el.addEventListener("input", () => el.classList.remove("bad")));
+
+/* ---------- שליחה ---------- */
+const pad = n => String(n).padStart(2, "0");
+const waze = addr => "https://waze.com/ul?q=" + encodeURIComponent(addr) + "&navigate=yes";
+
+$("orderForm").addEventListener("submit", e => {
+  e.preventDefault();
+  if (!validate()) {
+    const first = document.querySelector(".bad");
+    if (first) { first.scrollIntoView({ behavior: "smooth", block: "center" }); first.focus(); }
+    return;
+  }
+  const now = new Date();
+  const orderNo = `${pad(now.getDate())}${pad(now.getMonth() + 1)}-${pad(now.getHours())}${pad(now.getMinutes())}`;
+  const city = $("dCity").value;
+  const fullDest = `${$("dAddr").value.trim()}, ${city === OTHER_CITY ? "" : city}`.replace(/, $/, "");
+  const price = calcPrice();
+  let when = val("when");
+  if (when === WHEN[2]) {
+    const t = new Date($("whenTime").value);
+    when += ` – ${pad(t.getDate())}/${pad(t.getMonth() + 1)} ${pad(t.getHours())}:${pad(t.getMinutes())}`;
+  }
+
+  const lines = [
+    `🛵 *הזמנה חדשה – ארי משלוחים*`,
+    `🔢 מס' הזמנה: ${orderNo}`,
+    `📅 ${pad(now.getDate())}/${pad(now.getMonth() + 1)} ${pad(now.getHours())}:${pad(now.getMinutes())}`,
+    ``,
+    `📦 *איסוף:* ${$("pName").value.trim()}`,
+    `${$("pAddr").value.trim()}`,
+    `📞 ${$("pPhone").value.trim()}`,
+    `🗺 ${waze($("pAddr").value.trim())}`,
+    ``,
+    `📍 *מסירה:* ${$("dName").value.trim()}`,
+    `${fullDest}`,
+    `📞 ${$("dPhone").value.trim()}`,
+    `🗺 ${waze(fullDest)}`,
+    ``,
+    `📏 ${val("size")} | ⏱ ${when}`,
+    `💰 ${val("pay")} – משלם ${val("payer")}`,
+    price !== null ? `💵 מחיר: ₪${price}` : `💵 מחיר: לתיאום (${city})`,
+  ];
+  const notes = $("notes").value.trim();
+  if (notes) lines.push(`📝 ${notes}`);
+
+  try {
+    if ($("remember").checked) {
+      localStorage.setItem(STORE_KEY, JSON.stringify({
+        pName: $("pName").value.trim(), pAddr: $("pAddr").value.trim(),
+        pPhone: $("pPhone").value.trim(), pay: val("pay"),
+      }));
+    } else localStorage.removeItem(STORE_KEY);
+  } catch (e) {}
+
+  window.location.href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(lines.join("\n"))}`;
+});
+</script>
+</body>
+</html>

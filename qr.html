@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ארי משלוחים – קוד QR</title>
+<style>
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:#fff;color:#1f2937;text-align:center}
+  .sheet{max-width:420px;margin:30px auto;padding:28px 20px;border:3px solid #ff7a00;border-radius:20px}
+  h1{margin:0 0 6px;font-size:30px;color:#ff7a00}
+  p{margin:6px 0;font-size:18px}
+  #qr{display:inline-block;margin:18px 0;padding:10px;background:#fff}
+  .url{font-size:14px;color:#6b7280;direction:ltr;word-break:break-all}
+  button{margin-top:16px;font:inherit;font-size:17px;padding:10px 26px;border:0;border-radius:10px;background:#ff7a00;color:#fff;cursor:pointer}
+  @media print{button{display:none}.sheet{margin:0 auto}}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <h1>🛵 ארי משלוחים</h1>
+  <p><b>צריכים משלוח? סרקו והזמינו!</b></p>
+  <div id="qr"></div>
+  <p>📞 050-4848398</p>
+  <div class="url" id="url"></div>
+  <button onclick="print()">🖨 הדפסה</button>
+</div>
+<script src="qrcode.js"></script>
+<script>
+  // הקישור לדף ההזמנות (התיקייה שבה נמצא הדף הזה)
+  const target = new URL("./", location.href).href;
+  document.getElementById("url").textContent = target;
+  const qr = qrcode(0, "M");
+  qr.addData(target);
+  qr.make();
+  document.getElementById("qr").innerHTML = qr.createSvgTag({ cellSize: 7, margin: 2 });
+</script>
+</body>
+</html>
