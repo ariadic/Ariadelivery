@@ -42,6 +42,12 @@
   .check input{width:20px;height:20px}
   button{width:100%;font:inherit;font-size:19px;font-weight:700;color:#fff;background:var(--wa);border:0;border-radius:12px;padding:15px;cursor:pointer;margin-top:4px}
   button:active{transform:scale(.99)}
+  .pending{border:2px solid #f59e0b;background:#fffbeb}
+  .pending h2{color:#b45309;font-size:16px;margin:0 0 6px}
+  .pending p{margin:0 0 10px;line-height:1.5}
+  .pending .btns{display:flex;gap:8px}
+  .pending button{font-size:16px;padding:11px;margin:0}
+  .pending .resend{background:#fff;color:#b45309;border:1.5px solid #f59e0b}
   .done{text-align:center}
   .done .big{font-size:56px}
   .done h2{font-size:22px;margin:6px 0}
@@ -60,6 +66,7 @@
 
 <main>
   <div class="notice" id="closedNotice"></div>
+  <div id="pendingBox"></div>
 
   <form id="orderForm" novalidate>
     <section class="card" id="pickupFixed" style="display:none">
@@ -350,7 +357,7 @@ $("orderForm").addEventListener("submit", e => {
     return;
   }
   const now = new Date();
-  const orderNo = `${pad(now.getDate())}${pad(now.getMonth() + 1)}-${pad(now.getHours())}${pad(now.getMinutes())}`;
+  const orderNo = `${pad(now.getDate())}${pad(now.getMonth() + 1)}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
   const label = $("dCity").value, d = destOf(label);
   const street = $("dAddr").value.trim();
   const fullDest = d ? `${street}, ${d.city}` : street;
@@ -399,7 +406,12 @@ $("orderForm").addEventListener("submit", e => {
 
   const text = lines.join("\n");
   const waLink = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(text)}`;
-  if (!CONFIG.callmebotApiKey) { window.location.href = waLink; return; }
+  if (!CONFIG.callmebotApiKey) {
+    addPending({ no: orderNo, summary: `${$("dName").value.trim()} – ${label}`, link: waLink });
+    resetForm();
+    window.location.href = waLink;
+    return;
+  }
 
   // שליחה ישירה
   const btn = document.querySelector("#orderForm button[type=submit]");
@@ -420,9 +432,48 @@ $("orderForm").addEventListener("submit", e => {
     .finally(() => { btn.disabled = false; btn.textContent = "שלח הזמנה ✅"; });
 });
 
-$("newOrder").addEventListener("click", () => {
+function resetForm() {
   ["dName", "dAddr", "dPhone", "notes", "greeting", "whenTime"].forEach(id => $(id).value = "");
   $("dCity").value = ""; showPrice();
+}
+
+/* ---------- הזמנות שעוד לא אושר שנשלחו בווצאפ ---------- */
+const PENDING_KEY = "ariDelivery.pending";
+function getPending() {
+  try { return JSON.parse(localStorage.getItem(PENDING_KEY) || "[]"); } catch (e) { return []; }
+}
+function setPending(list) {
+  try { localStorage.setItem(PENDING_KEY, JSON.stringify(list)); } catch (e) {}
+  renderPending();
+}
+function addPending(o) { setPending([...getPending().filter(x => x.no !== o.no), o]); }
+function renderPending() {
+  const box = $("pendingBox");
+  box.replaceChildren(...getPending().map(o => {
+    const card = document.createElement("section");
+    card.className = "card pending";
+    const h = document.createElement("h2"); h.textContent = `📤 הזמנה #${o.no} נשלחה בווצאפ?`;
+    const t = document.createElement("p"); t.textContent = o.summary;
+    const btns = document.createElement("div"); btns.className = "btns";
+    const yes = document.createElement("button"); yes.type = "button"; yes.textContent = "✅ כן, נשלחה";
+    yes.onclick = () => setPending(getPending().filter(x => x.no !== o.no));
+    const again = document.createElement("button"); again.type = "button"; again.className = "resend"; again.textContent = "🔁 שלחי שוב";
+    again.onclick = () => { window.location.href = o.link; };
+    btns.append(yes, again); card.append(h, t, btns);
+    return card;
+  }));
+}
+function showPendingOnReturn() {
+  renderPending();
+  if (getPending().length) window.scrollTo(0, 0);
+}
+if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+showPendingOnReturn();
+window.addEventListener("pageshow", showPendingOnReturn);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) showPendingOnReturn(); });
+
+$("newOrder").addEventListener("click", () => {
+  resetForm();
   $("doneCard").style.display = "none";
   $("orderForm").style.display = "block";
   window.scrollTo(0, 0);
