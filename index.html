@@ -42,6 +42,11 @@
   .check input{width:20px;height:20px}
   button{width:100%;font:inherit;font-size:19px;font-weight:700;color:#fff;background:var(--wa);border:0;border-radius:12px;padding:15px;cursor:pointer;margin-top:4px}
   button:active{transform:scale(.99)}
+  .done{text-align:center}
+  .done .big{font-size:56px}
+  .done h2{font-size:22px;margin:6px 0}
+  .done p{color:var(--muted);margin:0 0 14px}
+  #pickupFixedText{line-height:1.6}
   footer{text-align:center;color:var(--muted);font-size:13px;padding:8px 16px 28px}
   footer a{color:var(--muted)}
 </style>
@@ -57,7 +62,12 @@
   <div class="notice" id="closedNotice"></div>
 
   <form id="orderForm" novalidate>
-    <section class="card">
+    <section class="card" id="pickupFixed" style="display:none">
+      <h2>📦 איסוף מ:</h2>
+      <div id="pickupFixedText"></div>
+    </section>
+
+    <section class="card" id="pickupCard">
       <h2>📦 איסוף מ:</h2>
       <label for="pName">שם / שם העסק</label>
       <input id="pName" autocomplete="organization" required>
@@ -97,10 +107,14 @@
         <input id="whenTime" type="datetime-local">
         <div class="errmsg">נא לבחור מועד</div>
       </div>
-      <label>אמצעי תשלום</label>
-      <div class="chips" id="payChips"></div>
-      <label>מי משלם?</label>
-      <div class="chips" id="payerChips"></div>
+      <div id="payBox">
+        <label>אמצעי תשלום</label>
+        <div class="chips" id="payChips"></div>
+      </div>
+      <div id="payerBox">
+        <label>מי משלם?</label>
+        <div class="chips" id="payerChips"></div>
+      </div>
       <div id="greetingBox" style="display:none">
         <label for="greeting">💌 ברכה לכרטיס <span class="opt">(לא חובה)</span></label>
         <textarea id="greeting" placeholder="מזל טוב! באהבה, ..."></textarea>
@@ -111,16 +125,23 @@
 
     <section class="card">
       <div class="price" id="priceBox">בחרו יעד כדי לראות מחיר</div>
-      <label class="check"><input type="checkbox" id="remember" checked> לזכור את פרטי האיסוף שלי לפעם הבאה</label>
+      <label class="check" id="rememberRow"><input type="checkbox" id="remember" checked> לזכור את פרטי האיסוף שלי לפעם הבאה</label>
     </section>
 
     <button type="submit">שלח הזמנה בווצאפ ✅</button>
   </form>
+
+  <section class="card done" id="doneCard" style="display:none">
+    <div class="big">✅</div>
+    <h2>ההזמנה נשלחה!</h2>
+    <p id="doneText"></p>
+    <button type="button" id="newOrder">הזמנה חדשה</button>
+  </section>
 </main>
 
 <footer>
   ארי משלוחים · <a href="tel:0504848398">050-4848398</a><br>
-  לחיצה על הכפתור תפתח את ווצאפ עם ההזמנה מוכנה – רק ללחוץ "שלח"
+  <span id="footHint">לחיצה על הכפתור תפתח את ווצאפ עם ההזמנה מוכנה – רק ללחוץ "שלח"</span>
 </footer>
 
 <script>
@@ -129,6 +150,10 @@
    ===================================================================== */
 const CONFIG = {
   whatsapp: "972504848398",          // המספר שאליו מגיעות ההזמנות (בלי 0 בהתחלה, עם 972)
+
+  // שליחה ישירה בלי לפתוח ווצאפ אצל הלקוח (שירות CallMeBot).
+  // כשהמפתח ריק, הלקוח עובר לווצאפ ולוחץ "שלח" כמו קודם.
+  callmebotApiKey: "",
 
   // מחיר לפי עיר יעד (בשקלים). ⚠️ מחירים לדוגמה בלבד – להחליף במחירים האמיתיים!
   cities: {
@@ -152,16 +177,21 @@ const CONFIG = {
   //   prices   – מחירון משלו (יעד, עיר לניווט, מחיר). בלי prices = "מחיר לפי הסכם".
   //   sizes    – אפשרויות "מה שולחים" משלו (לא חובה)
   //   greeting – true = מופיע שדה "ברכה לכרטיס"
+  //   fixedPickup – true = פרטי האיסוף קבועים ולא מוצגים לעריכה
+  //   pay – אמצעי תשלום קבוע (לא מוצגת בחירה)
+  //   hidePayer – true = בלי "מי משלם?"
   //   urgentExtra – תוספת דחוף ללקוח הזה (לא חובה, ברירת מחדל 0)
   // את הקוד כדאי לבחור אקראי (אותיות ומספרים באנגלית) כדי שלא יהיה קל לנחש.
   customers: {
     "fl4x9": {
       name: "פרחי אודי ודורית",
       addr: "העצמאות 69, קרית אתא",
-      phone: "",
+      phone: "054-6665375",
+      fixedPickup: true,          // פרטי האיסוף קבועים – לא מוצגים ללקוח לעריכה
       title: "🌸 פרחי אודי ודורית",
       sizes: ["זר", "עציץ", "סידור / סל"],
-      greeting: true,
+      pay: "מזומן",               // אמצעי תשלום קבוע – לא מוצגת בחירה
+      hidePayer: true,            // בלי "מי משלם?"
       prices: [
         { label: "קרית אתא", city: "קרית אתא", price: 15 },
         { label: "קרית אתא – גבעת רם", city: "קרית אתא", price: 20 },
@@ -251,6 +281,16 @@ if (CUSTOMER) {
   document.title = (CUSTOMER.title || CUSTOMER.name) + " – ארי משלוחים";
   if (CUSTOMER.sizes) $("sizeLabel").textContent = "מה שולחים?";
   if (CUSTOMER.greeting) $("greetingBox").style.display = "block";
+  if (CUSTOMER.fixedPickup) {
+    $("pickupCard").style.display = "none";
+    $("rememberRow").style.display = "none";
+    $("pickupFixed").style.display = "block";
+    $("pickupFixedText").innerHTML = "";
+    [CUSTOMER.name, CUSTOMER.addr, CUSTOMER.phone && "📞 " + CUSTOMER.phone].filter(Boolean)
+      .forEach(t => { const d = document.createElement("div"); d.textContent = t; $("pickupFixedText").append(d); });
+  }
+  if (CUSTOMER.pay) $("payBox").style.display = "none";
+  if (CUSTOMER.hidePayer) $("payerBox").style.display = "none";
   if (AGREED) $("priceBox").textContent = "🤝 מחיר לפי הסכם";
 }
 
@@ -339,7 +379,7 @@ $("orderForm").addEventListener("submit", e => {
     `🗺 ${waze(fullDest)}`,
     ``,
     `📏 ${val("size")} | ⏱ ${when}`,
-    `💰 ${val("pay")} – משלם ${val("payer")}`,
+    `💰 ${(CUSTOMER && CUSTOMER.pay) || val("pay")}${CUSTOMER && CUSTOMER.hidePayer ? "" : " – משלם " + val("payer")}`,
     AGREED ? `💵 מחיר: לפי הסכם`
       : price !== null ? `💵 מחיר: ₪${price}` : `💵 מחיר: לתיאום (${label})`,
   ];
@@ -357,8 +397,40 @@ $("orderForm").addEventListener("submit", e => {
     } else localStorage.removeItem(STORE_KEY);
   } catch (e) {}
 
-  window.location.href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(lines.join("\n"))}`;
+  const text = lines.join("\n");
+  const waLink = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(text)}`;
+  if (!CONFIG.callmebotApiKey) { window.location.href = waLink; return; }
+
+  // שליחה ישירה
+  const btn = document.querySelector("#orderForm button[type=submit]");
+  btn.disabled = true; btn.textContent = "שולח…";
+  const api = "https://api.callmebot.com/whatsapp.php?phone=" + CONFIG.whatsapp +
+    "&text=" + encodeURIComponent(text) + "&apikey=" + encodeURIComponent(CONFIG.callmebotApiKey);
+  fetch(api, { mode: "no-cors" })
+    .then(() => {
+      $("orderForm").style.display = "none";
+      $("doneText").textContent = `מס' הזמנה ${orderNo} – ארי קיבל את ההזמנה בווצאפ`;
+      $("doneCard").style.display = "block";
+      window.scrollTo(0, 0);
+    })
+    .catch(() => {
+      // אם השליחה הישירה נכשלה – פותחים ווצאפ כגיבוי
+      window.location.href = waLink;
+    })
+    .finally(() => { btn.disabled = false; btn.textContent = "שלח הזמנה ✅"; });
 });
+
+$("newOrder").addEventListener("click", () => {
+  ["dName", "dAddr", "dPhone", "notes", "greeting", "whenTime"].forEach(id => $(id).value = "");
+  $("dCity").value = ""; showPrice();
+  $("doneCard").style.display = "none";
+  $("orderForm").style.display = "block";
+  window.scrollTo(0, 0);
+});
+if (CONFIG.callmebotApiKey) {
+  document.querySelector("#orderForm button[type=submit]").textContent = "שלח הזמנה ✅";
+  $("footHint").textContent = "ההזמנה נשלחת ישירות לארי בווצאפ";
+}
 </script>
 </body>
 </html>
