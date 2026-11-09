@@ -75,7 +75,7 @@
       <label for="dName">שם המקבל</label>
       <input id="dName" required>
       <div class="errmsg">נא למלא שם מקבל</div>
-      <label for="dCity">עיר</label>
+      <label for="dCity">עיר / שכונה</label>
       <select id="dCity" required></select>
       <div class="errmsg">נא לבחור עיר</div>
       <label for="dAddr">רחוב ומספר בית</label>
@@ -88,7 +88,7 @@
 
     <section class="card">
       <h2>📋 פרטי המשלוח</h2>
-      <label>גודל</label>
+      <label id="sizeLabel">גודל</label>
       <div class="chips" id="sizeChips"></div>
       <label>מתי?</label>
       <div class="chips" id="whenChips"></div>
@@ -101,12 +101,16 @@
       <div class="chips" id="payChips"></div>
       <label>מי משלם?</label>
       <div class="chips" id="payerChips"></div>
+      <div id="greetingBox" style="display:none">
+        <label for="greeting">💌 ברכה לכרטיס <span class="opt">(לא חובה)</span></label>
+        <textarea id="greeting" placeholder="מזל טוב! באהבה, ..."></textarea>
+      </div>
       <label for="notes">הערות <span class="opt">(קומה, קוד לבניין, מה בחבילה…)</span></label>
       <textarea id="notes"></textarea>
     </section>
 
     <section class="card">
-      <div class="price" id="priceBox">בחרו עיר כדי לראות מחיר</div>
+      <div class="price" id="priceBox">בחרו יעד כדי לראות מחיר</div>
       <label class="check"><input type="checkbox" id="remember" checked> לזכור את פרטי האיסוף שלי לפעם הבאה</label>
     </section>
 
@@ -143,12 +147,35 @@ const CONFIG = {
     "חיפה": 150,
   },
 
-  // לקוחות עם מחיר לפי הסכם. כל לקוח מקבל לינק אישי:
-  //   https://ariadic.github.io/Ariadelivery/?c=הקוד
-  // בלינק הזה פרטי האיסוף ממולאים מראש, לא מוצג מחיר, וההזמנה מגיעה מסומנת "לפי הסכם".
+  // לקוחות עם לינק אישי:  https://ariadic.github.io/Ariadelivery/?c=הקוד
+  // בלינק האישי פרטי האיסוף ממולאים מראש.
+  //   prices   – מחירון משלו (יעד, עיר לניווט, מחיר). בלי prices = "מחיר לפי הסכם".
+  //   sizes    – אפשרויות "מה שולחים" משלו (לא חובה)
+  //   greeting – true = מופיע שדה "ברכה לכרטיס"
+  //   urgentExtra – תוספת דחוף ללקוח הזה (לא חובה, ברירת מחדל 0)
   // את הקוד כדאי לבחור אקראי (אותיות ומספרים באנגלית) כדי שלא יהיה קל לנחש.
   customers: {
-    "pz7k": { name: "לקוח לדוגמה – למחוק", addr: "הרצל 1, תל אביב", phone: "050-0000000" },
+    "fl4x9": {
+      name: "פרחי אודי ודורית",
+      addr: "העצמאות 69, קרית אתא",
+      phone: "",
+      title: "🌸 פרחי אודי ודורית",
+      sizes: ["זר", "עציץ", "סידור / סל"],
+      greeting: true,
+      prices: [
+        { label: "קרית אתא", city: "קרית אתא", price: 15 },
+        { label: "קרית אתא – גבעת רם", city: "קרית אתא", price: 20 },
+        { label: "קרית אתא – טל", city: "קרית אתא", price: 20 },
+        { label: "קרית אתא – אלונים", city: "קרית אתא", price: 20 },
+        { label: "קרית חיים", city: "קרית חיים, חיפה", price: 25 },
+        { label: "קרית שמואל", city: "קרית שמואל, חיפה", price: 25 },
+        { label: "קרית ים", city: "קרית ים", price: 25 },
+        { label: "קרית מוצקין", city: "קרית מוצקין", price: 25 },
+        { label: "קרית ביאליק", city: "קרית ביאליק", price: 25 },
+        { label: "חיפה", city: "חיפה", price: 50 },
+        { label: "חיפה – דניה", city: "דניה, חיפה", price: 60 },
+      ],
+    },
   },
 
   // תוספת למשלוח דחוף (0 = בלי תוספת)
@@ -173,39 +200,72 @@ const PAYER  = ["השולח", "המקבל"];
 const OTHER_CITY = "עיר אחרת";
 const STORE_KEY = "ariDelivery.pickup";
 
-/* ---------- בניית הטופס ---------- */
 const $ = id => document.getElementById(id);
+const val = name => (document.querySelector(`input[name=${name}]:checked`) || {}).value;
 
+/* ---------- לקוח עם לינק אישי ---------- */
+const CUSTOMER_CODE = new URLSearchParams(location.search).get("c");
+const CUSTOMER = CUSTOMER_CODE && Object.prototype.hasOwnProperty.call(CONFIG.customers, CUSTOMER_CODE)
+  ? CONFIG.customers[CUSTOMER_CODE] : null;
+const AGREED = CUSTOMER && !CUSTOMER.prices;               // לקוח הסכם בלי מחירון = "לפי הסכם"
+
+// יעדים: [{label, city, price}]
+const DESTS = CUSTOMER && CUSTOMER.prices
+  ? CUSTOMER.prices
+  : Object.entries(CONFIG.cities).map(([c, p]) => ({ label: c, city: c, price: p }));
+const URGENT_EXTRA = CUSTOMER ? (CUSTOMER.urgentExtra || 0) : CONFIG.urgentExtra;
+const destOf = label => DESTS.find(d => d.label === label) || null;
+
+/* ---------- בניית הטופס ---------- */
 function chips(boxId, name, items) {
   $(boxId).innerHTML = items.map((t, i) =>
     `<input type="radio" name="${name}" id="${name}${i}" value="${t}" ${i === 0 ? "checked" : ""}>` +
     `<label for="${name}${i}">${t}</label>`).join("");
 }
-chips("sizeChips", "size", SIZES);
+chips("sizeChips", "size", (CUSTOMER && CUSTOMER.sizes) || SIZES);
 chips("whenChips", "when", WHEN);
 chips("payChips", "pay", PAY);
 chips("payerChips", "payer", PAYER);
 
-$("dCity").innerHTML = `<option value="">בחרו עיר…</option>` +
-  Object.keys(CONFIG.cities).map(c => `<option>${c}</option>`).join("") +
-  `<option>${OTHER_CITY}</option>`;
+const opt = t => { const o = document.createElement("option"); o.value = o.textContent = t; return o; };
+$("dCity").replaceChildren(Object.assign(opt("בחרו יעד…"), { value: "" }),
+  ...DESTS.map(d => opt(d.label)), opt(OTHER_CITY));
 
-const val = name => (document.querySelector(`input[name=${name}]:checked`) || {}).value;
+/* ---------- זכור אותי ---------- */
+try {
+  const saved = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+  if (saved && !CUSTOMER) {
+    ["pName", "pAddr", "pPhone"].forEach(k => { if (saved[k]) $(k).value = saved[k]; });
+  }
+  if (saved && saved.pay) { const r = document.querySelector(`input[name=pay][value="${saved.pay}"]`); if (r) r.checked = true; }
+  if (saved && CUSTOMER && saved.code === CUSTOMER_CODE && saved.pPhone) $("pPhone").value = saved.pPhone;
+} catch (e) {}
+
+if (CUSTOMER) {
+  $("pName").value = CUSTOMER.name || "";
+  $("pAddr").value = CUSTOMER.addr || "";
+  if (CUSTOMER.phone) $("pPhone").value = CUSTOMER.phone;
+  document.querySelector("header h1").textContent = CUSTOMER.title || "🛵 ארי משלוחים";
+  document.querySelector("header p").textContent = CUSTOMER.title
+    ? "משלוחים באמצעות ארי משלוחים 🛵" : `שלום ${CUSTOMER.name} 👋`;
+  document.title = (CUSTOMER.title || CUSTOMER.name) + " – ארי משלוחים";
+  if (CUSTOMER.sizes) $("sizeLabel").textContent = "מה שולחים?";
+  if (CUSTOMER.greeting) $("greetingBox").style.display = "block";
+  if (AGREED) $("priceBox").textContent = "🤝 מחיר לפי הסכם";
+}
 
 /* ---------- מחיר ---------- */
 function calcPrice() {
-  const city = $("dCity").value;
-  if (!city || city === OTHER_CITY) return null;
-  let p = CONFIG.cities[city];
-  if (val("when") === WHEN[1]) p += CONFIG.urgentExtra;
-  return p;
+  const d = destOf($("dCity").value);
+  if (!d || AGREED) return null;
+  return d.price + (val("when") === WHEN[1] ? URGENT_EXTRA : 0);
 }
 function showPrice() {
-  if (CUSTOMER) return;
-  const city = $("dCity").value, box = $("priceBox");
-  if (!city) { box.textContent = "בחרו עיר כדי לראות מחיר"; return; }
-  if (city === OTHER_CITY) { box.innerHTML = "המחיר ייקבע בשיחה<small>נחזור אליכם עם הצעת מחיר</small>"; return; }
-  const extra = val("when") === WHEN[1] && CONFIG.urgentExtra ? `<small>כולל ₪${CONFIG.urgentExtra} תוספת דחוף</small>` : "";
+  if (AGREED) return;
+  const label = $("dCity").value, box = $("priceBox");
+  if (!label) { box.textContent = "בחרו יעד כדי לראות מחיר"; return; }
+  if (label === OTHER_CITY) { box.innerHTML = "המחיר ייקבע בשיחה<small>נחזור אליכם עם הצעת מחיר</small>"; return; }
+  const extra = val("when") === WHEN[1] && URGENT_EXTRA ? `<small>כולל ₪${URGENT_EXTRA} תוספת דחוף</small>` : "";
   box.innerHTML = `מחיר המשלוח: <b>₪${calcPrice()}</b>${extra}`;
 }
 $("dCity").addEventListener("change", showPrice);
@@ -213,6 +273,7 @@ document.querySelectorAll("input[name=when]").forEach(r => r.addEventListener("c
   $("whenTimeBox").style.display = val("when") === WHEN[2] ? "block" : "none";
   showPrice();
 }));
+showPrice();
 
 /* ---------- שעות פעילות ---------- */
 (function checkHours() {
@@ -223,27 +284,6 @@ document.querySelectorAll("input[name=when]").forEach(r => r.addEventListener("c
   n.textContent = "🌙 כרגע אנחנו מחוץ לשעות הפעילות. אפשר לשלוח הזמנה – נטפל בה בפתיחה הקרובה.";
   n.style.display = "block";
 })();
-
-/* ---------- זכור אותי ---------- */
-try {
-  const saved = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
-  if (saved) {
-    ["pName", "pAddr", "pPhone"].forEach(k => { if (saved[k]) $(k).value = saved[k]; });
-    if (saved.pay) { const r = document.querySelector(`input[name=pay][value="${saved.pay}"]`); if (r) r.checked = true; }
-  }
-} catch (e) {}
-
-/* ---------- לקוח הסכם (לינק אישי) ---------- */
-const CUSTOMER_CODE = new URLSearchParams(location.search).get("c");
-const CUSTOMER = CUSTOMER_CODE && Object.prototype.hasOwnProperty.call(CONFIG.customers, CUSTOMER_CODE)
-  ? CONFIG.customers[CUSTOMER_CODE] : null;
-if (CUSTOMER) {
-  $("pName").value = CUSTOMER.name || "";
-  $("pAddr").value = CUSTOMER.addr || "";
-  $("pPhone").value = CUSTOMER.phone || "";
-  $("priceBox").innerHTML = "🤝 מחיר לפי הסכם";
-  document.querySelector("header p").textContent = `שלום ${CUSTOMER.name} 👋 ההזמנה לפי ההסכם שלנו`;
-}
 
 /* ---------- בדיקות ---------- */
 const phoneOk = s => /^0\d{8,9}$/.test(s.replace(/\D/g, "").replace(/^972/, "0"));
@@ -256,7 +296,7 @@ function validate() {
   if (val("when") === WHEN[2]) ok = check("whenTime", $("whenTime").value !== "") && ok;
   return ok;
 }
-document.querySelectorAll("input,select").forEach(el => el.addEventListener("input", () => el.classList.remove("bad")));
+document.querySelectorAll("input,select,textarea").forEach(el => el.addEventListener("input", () => el.classList.remove("bad")));
 
 /* ---------- שליחה ---------- */
 const pad = n => String(n).padStart(2, "0");
@@ -271,8 +311,10 @@ $("orderForm").addEventListener("submit", e => {
   }
   const now = new Date();
   const orderNo = `${pad(now.getDate())}${pad(now.getMonth() + 1)}-${pad(now.getHours())}${pad(now.getMinutes())}`;
-  const city = $("dCity").value;
-  const fullDest = `${$("dAddr").value.trim()}, ${city === OTHER_CITY ? "" : city}`.replace(/, $/, "");
+  const label = $("dCity").value, d = destOf(label);
+  const street = $("dAddr").value.trim();
+  const fullDest = d ? `${street}, ${d.city}` : street;
+  const destLine = d && d.label !== d.city ? `${street}, ${d.label}` : fullDest;
   const price = calcPrice();
   let when = val("when");
   if (when === WHEN[2]) {
@@ -282,7 +324,7 @@ $("orderForm").addEventListener("submit", e => {
 
   const lines = [
     `🛵 *הזמנה חדשה – ארי משלוחים*`,
-    ...(CUSTOMER ? [`🤝 *לקוח הסכם: ${CUSTOMER.name}*`] : []),
+    ...(CUSTOMER ? [`${AGREED ? "🤝 *לקוח הסכם" : "⭐ *לקוח"}: ${CUSTOMER.name}*`] : []),
     `🔢 מס' הזמנה: ${orderNo}`,
     `📅 ${pad(now.getDate())}/${pad(now.getMonth() + 1)} ${pad(now.getHours())}:${pad(now.getMinutes())}`,
     ``,
@@ -292,24 +334,26 @@ $("orderForm").addEventListener("submit", e => {
     `🗺 ${waze($("pAddr").value.trim())}`,
     ``,
     `📍 *מסירה:* ${$("dName").value.trim()}`,
-    `${fullDest}`,
+    destLine,
     `📞 ${$("dPhone").value.trim()}`,
     `🗺 ${waze(fullDest)}`,
     ``,
     `📏 ${val("size")} | ⏱ ${when}`,
     `💰 ${val("pay")} – משלם ${val("payer")}`,
-    CUSTOMER ? `💵 מחיר: לפי הסכם`
-      : price !== null ? `💵 מחיר: ₪${price}` : `💵 מחיר: לתיאום (${city})`,
+    AGREED ? `💵 מחיר: לפי הסכם`
+      : price !== null ? `💵 מחיר: ₪${price}` : `💵 מחיר: לתיאום (${label})`,
   ];
+  const greeting = $("greeting").value.trim();
+  if (CUSTOMER && CUSTOMER.greeting && greeting) lines.push(`💌 ברכה: ${greeting}`);
   const notes = $("notes").value.trim();
   if (notes) lines.push(`📝 ${notes}`);
 
   try {
     if ($("remember").checked) {
-      localStorage.setItem(STORE_KEY, JSON.stringify({
-        pName: $("pName").value.trim(), pAddr: $("pAddr").value.trim(),
-        pPhone: $("pPhone").value.trim(), pay: val("pay"),
-      }));
+      localStorage.setItem(STORE_KEY, JSON.stringify(CUSTOMER
+        ? { code: CUSTOMER_CODE, pPhone: $("pPhone").value.trim(), pay: val("pay") }
+        : { pName: $("pName").value.trim(), pAddr: $("pAddr").value.trim(),
+            pPhone: $("pPhone").value.trim(), pay: val("pay") }));
     } else localStorage.removeItem(STORE_KEY);
   } catch (e) {}
 
