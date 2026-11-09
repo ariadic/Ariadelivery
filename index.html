@@ -143,6 +143,14 @@ const CONFIG = {
     "חיפה": 150,
   },
 
+  // לקוחות עם מחיר לפי הסכם. כל לקוח מקבל לינק אישי:
+  //   https://ariadic.github.io/Ariadelivery/?c=הקוד
+  // בלינק הזה פרטי האיסוף ממולאים מראש, לא מוצג מחיר, וההזמנה מגיעה מסומנת "לפי הסכם".
+  // את הקוד כדאי לבחור אקראי (אותיות ומספרים באנגלית) כדי שלא יהיה קל לנחש.
+  customers: {
+    "pz7k": { name: "לקוח לדוגמה – למחוק", addr: "הרצל 1, תל אביב", phone: "050-0000000" },
+  },
+
   // תוספת למשלוח דחוף (0 = בלי תוספת)
   urgentExtra: 20,
 
@@ -193,6 +201,7 @@ function calcPrice() {
   return p;
 }
 function showPrice() {
+  if (CUSTOMER) return;
   const city = $("dCity").value, box = $("priceBox");
   if (!city) { box.textContent = "בחרו עיר כדי לראות מחיר"; return; }
   if (city === OTHER_CITY) { box.innerHTML = "המחיר ייקבע בשיחה<small>נחזור אליכם עם הצעת מחיר</small>"; return; }
@@ -223,6 +232,18 @@ try {
     if (saved.pay) { const r = document.querySelector(`input[name=pay][value="${saved.pay}"]`); if (r) r.checked = true; }
   }
 } catch (e) {}
+
+/* ---------- לקוח הסכם (לינק אישי) ---------- */
+const CUSTOMER_CODE = new URLSearchParams(location.search).get("c");
+const CUSTOMER = CUSTOMER_CODE && Object.prototype.hasOwnProperty.call(CONFIG.customers, CUSTOMER_CODE)
+  ? CONFIG.customers[CUSTOMER_CODE] : null;
+if (CUSTOMER) {
+  $("pName").value = CUSTOMER.name || "";
+  $("pAddr").value = CUSTOMER.addr || "";
+  $("pPhone").value = CUSTOMER.phone || "";
+  $("priceBox").innerHTML = "🤝 מחיר לפי הסכם";
+  document.querySelector("header p").textContent = `שלום ${CUSTOMER.name} 👋 ההזמנה לפי ההסכם שלנו`;
+}
 
 /* ---------- בדיקות ---------- */
 const phoneOk = s => /^0\d{8,9}$/.test(s.replace(/\D/g, "").replace(/^972/, "0"));
@@ -261,6 +282,7 @@ $("orderForm").addEventListener("submit", e => {
 
   const lines = [
     `🛵 *הזמנה חדשה – ארי משלוחים*`,
+    ...(CUSTOMER ? [`🤝 *לקוח הסכם: ${CUSTOMER.name}*`] : []),
     `🔢 מס' הזמנה: ${orderNo}`,
     `📅 ${pad(now.getDate())}/${pad(now.getMonth() + 1)} ${pad(now.getHours())}:${pad(now.getMinutes())}`,
     ``,
@@ -276,7 +298,8 @@ $("orderForm").addEventListener("submit", e => {
     ``,
     `📏 ${val("size")} | ⏱ ${when}`,
     `💰 ${val("pay")} – משלם ${val("payer")}`,
-    price !== null ? `💵 מחיר: ₪${price}` : `💵 מחיר: לתיאום (${city})`,
+    CUSTOMER ? `💵 מחיר: לפי הסכם`
+      : price !== null ? `💵 מחיר: ₪${price}` : `💵 מחיר: לתיאום (${city})`,
   ];
   const notes = $("notes").value.trim();
   if (notes) lines.push(`📝 ${notes}`);
