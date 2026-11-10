@@ -42,10 +42,21 @@
   .check input{width:20px;height:20px}
   button{width:100%;font:inherit;font-size:19px;font-weight:700;color:#fff;background:var(--wa);border:0;border-radius:12px;padding:15px;cursor:pointer;margin-top:4px}
   button:active{transform:scale(.99)}
-  .done{text-align:center}
-  .done .big{font-size:56px}
-  .done h2{font-size:22px;margin:6px 0}
-  .done p{color:var(--muted);margin:0 0 14px}
+  .pending{border:2px solid #f59e0b;background:#fffbeb}
+  .pending h2{color:#b45309;font-size:16px;margin:0 0 6px}
+  .pending p{margin:0 0 10px;line-height:1.5}
+  .pending .btns{display:flex;gap:8px}
+  .pending button{font-size:16px;padding:11px;margin:0}
+  .pending .resend{background:#fff;color:#b45309;border:1.5px solid #f59e0b}
+  button.secondary{background:#fff;color:var(--text);border:1.5px solid var(--line);font-size:16px;font-weight:600;padding:12px;margin-top:10px}
+  .stats{display:flex;gap:8px;margin-bottom:6px}
+  .stats div{flex:1;background:var(--brand-soft);border-radius:10px;padding:10px 6px;text-align:center;font-size:13px;color:var(--muted)}
+  .stats b{display:block;font-size:20px;color:var(--brand)}
+  h3.sub{font-size:15px;margin:14px 0 6px}
+  ul.hist{list-style:none;margin:0;padding:0}
+  ul.hist li{border-bottom:1px solid var(--line);padding:8px 0;font-size:14px;line-height:1.5}
+  ul.hist li:last-child{border-bottom:0}
+  ul.hist .meta{color:var(--muted);font-size:13px}
   #pickupFixedText{line-height:1.6}
   footer{text-align:center;color:var(--muted);font-size:13px;padding:8px 16px 28px}
   footer a{color:var(--muted)}
@@ -60,6 +71,7 @@
 
 <main>
   <div class="notice" id="closedNotice"></div>
+  <div id="pendingBox"></div>
 
   <form id="orderForm" novalidate>
     <section class="card" id="pickupFixed" style="display:none">
@@ -83,7 +95,8 @@
     <section class="card">
       <h2>📍 מסירה ל:</h2>
       <label for="dName">שם המקבל</label>
-      <input id="dName" required>
+      <input id="dName" list="recipients" autocomplete="off" required>
+      <datalist id="recipients"></datalist>
       <div class="errmsg">נא למלא שם מקבל</div>
       <label for="dCity">עיר / שכונה</label>
       <select id="dCity" required></select>
@@ -129,14 +142,17 @@
     </section>
 
     <button type="submit">שלח הזמנה בווצאפ ✅</button>
+    <button type="button" class="secondary" id="historyBtn">📋 ההזמנות שלי</button>
   </form>
 
-  <section class="card done" id="doneCard" style="display:none">
-    <div class="big">✅</div>
-    <h2>ההזמנה נשלחה!</h2>
-    <p id="doneText"></p>
-    <button type="button" id="newOrder">הזמנה חדשה</button>
+  <section class="card" id="historyCard" style="display:none">
+    <h2>📋 ההזמנות שלי</h2>
+    <div class="stats" id="historyStats"></div>
+    <h3 class="sub">היום</h3>
+    <ul class="hist" id="historyToday"></ul>
+    <button type="button" class="secondary" id="historyClose">חזרה להזמנה</button>
   </section>
+
 </main>
 
 <footer>
@@ -151,9 +167,9 @@
 const CONFIG = {
   whatsapp: "972504848398",          // המספר שאליו מגיעות ההזמנות (בלי 0 בהתחלה, עם 972)
 
-  // שליחה ישירה בלי לפתוח ווצאפ אצל הלקוח (שירות CallMeBot).
-  // כשהמפתח ריק, הלקוח עובר לווצאפ ולוחץ "שלח" כמו קודם.
-  callmebotApiKey: "",
+  // גיבוי: כתובת ה-Web App של Google Apps Script (ראו google-apps-script.gs).
+  // כל הזמנה נשמרת בטבלה ונשלחת במייל לפני שווצאפ נפתח. ריק = בלי גיבוי.
+  sheetUrl: "",
 
   // מחיר לפי עיר יעד (בשקלים). ⚠️ מחירים לדוגמה בלבד – להחליף במחירים האמיתיים!
   cities: {
@@ -350,7 +366,7 @@ $("orderForm").addEventListener("submit", e => {
     return;
   }
   const now = new Date();
-  const orderNo = `${pad(now.getDate())}${pad(now.getMonth() + 1)}-${pad(now.getHours())}${pad(now.getMinutes())}`;
+  const orderNo = `${pad(now.getDate())}${pad(now.getMonth() + 1)}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
   const label = $("dCity").value, d = destOf(label);
   const street = $("dAddr").value.trim();
   const fullDest = d ? `${street}, ${d.city}` : street;
@@ -399,38 +415,141 @@ $("orderForm").addEventListener("submit", e => {
 
   const text = lines.join("\n");
   const waLink = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(text)}`;
-  if (!CONFIG.callmebotApiKey) { window.location.href = waLink; return; }
+  const record = {
+    no: orderNo, time: now.toISOString(),
+    customer: CUSTOMER ? CUSTOMER.name : $("pName").value.trim(),
+    pickup: $("pAddr").value.trim(), pickupPhone: $("pPhone").value.trim(),
+    recipient: $("dName").value.trim(), dest: label, address: destLine, recipientPhone: $("dPhone").value.trim(),
+    item: val("size"), when,
+    pay: (CUSTOMER && CUSTOMER.pay) || val("pay"),
+    price: AGREED ? "לפי הסכם" : price !== null ? price : "לתיאום",
+    notes, message: text,
+  };
 
-  // שליחה ישירה
-  const btn = document.querySelector("#orderForm button[type=submit]");
-  btn.disabled = true; btn.textContent = "שולח…";
-  const api = "https://api.callmebot.com/whatsapp.php?phone=" + CONFIG.whatsapp +
-    "&text=" + encodeURIComponent(text) + "&apikey=" + encodeURIComponent(CONFIG.callmebotApiKey);
-  fetch(api, { mode: "no-cors" })
-    .then(() => {
-      $("orderForm").style.display = "none";
-      $("doneText").textContent = `מס' הזמנה ${orderNo} – ארי קיבל את ההזמנה בווצאפ`;
-      $("doneCard").style.display = "block";
-      window.scrollTo(0, 0);
-    })
-    .catch(() => {
-      // אם השליחה הישירה נכשלה – פותחים ווצאפ כגיבוי
-      window.location.href = waLink;
-    })
-    .finally(() => { btn.disabled = false; btn.textContent = "שלח הזמנה ✅"; });
+  backupToSheet(record);
+  saveHistory(record);
+  saveRecipient({ name: record.recipient, label, street, phone: record.recipientPhone });
+  addPending({ no: orderNo, summary: `${record.recipient} – ${label}`, link: waLink });
+  resetForm();
+  window.location.href = waLink;
 });
 
-$("newOrder").addEventListener("click", () => {
+/* ---------- גיבוי לטבלה ולמייל (Google Apps Script) ---------- */
+function backupToSheet(record) {
+  if (!CONFIG.sheetUrl) return;
+  const body = JSON.stringify(record);
+  // sendBeacon ממשיך לשלוח גם כשהדף עובר לווצאפ
+  let ok = false;
+  try { ok = navigator.sendBeacon(CONFIG.sheetUrl, new Blob([body], { type: "text/plain" })); } catch (e) {}
+  if (!ok) fetch(CONFIG.sheetUrl, { method: "POST", mode: "no-cors", keepalive: true, body }).catch(() => {});
+}
+
+/* ---------- היסטוריית הזמנות במכשיר ---------- */
+const scope = CUSTOMER_CODE && CUSTOMER ? CUSTOMER_CODE : "_";
+const HISTORY_KEY = "ariDelivery.history." + scope;
+const RECIP_KEY = "ariDelivery.recipients." + scope;
+const load = k => { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } };
+const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+
+function saveHistory(r) {
+  const cutoff = Date.now() - 100 * 24 * 3600 * 1000;           // שומרים ~3 חודשים
+  const list = (load(HISTORY_KEY) || []).filter(x => new Date(x.time).getTime() > cutoff);
+  list.push({ no: r.no, time: r.time, recipient: r.recipient, address: r.address, item: r.item, price: r.price });
+  save(HISTORY_KEY, list);
+}
+function renderHistory() {
+  const list = load(HISTORY_KEY) || [], now = new Date();
+  const sameDay = d => d.toDateString() === now.toDateString();
+  const sameMonth = d => d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  const today = list.filter(x => sameDay(new Date(x.time)));
+  const month = list.filter(x => sameMonth(new Date(x.time)));
+  const sum = a => a.reduce((t, x) => t + (typeof x.price === "number" ? x.price : 0), 0);
+  const stat = (n, t) => { const d = document.createElement("div"); const b = document.createElement("b"); b.textContent = n; d.append(b, t); return d; };
+  $("historyStats").replaceChildren(
+    stat(today.length, "משלוחים היום"), stat("₪" + sum(today), "סה״כ היום"),
+    stat(month.length, "משלוחים החודש"), stat("₪" + sum(month), "סה״כ החודש"));
+  $("historyToday").replaceChildren(...(today.length ? today.slice().reverse().map(x => {
+    const li = document.createElement("li");
+    const t = new Date(x.time);
+    li.append(`${x.recipient} – ${x.address}`);
+    const m = document.createElement("div"); m.className = "meta";
+    m.textContent = `#${x.no} · ${pad(t.getHours())}:${pad(t.getMinutes())} · ${x.item} · ${typeof x.price === "number" ? "₪" + x.price : x.price}`;
+    li.append(m); return li;
+  }) : [Object.assign(document.createElement("li"), { textContent: "עוד אין הזמנות היום" })]));
+}
+$("historyBtn").addEventListener("click", () => {
+  renderHistory();
+  $("orderForm").style.display = "none"; $("historyCard").style.display = "block"; window.scrollTo(0, 0);
+});
+$("historyClose").addEventListener("click", () => {
+  $("historyCard").style.display = "none"; $("orderForm").style.display = "block"; window.scrollTo(0, 0);
+});
+
+/* ---------- מקבלים חוזרים: השלמה אוטומטית ---------- */
+const recipKey = r => `${r.name} – ${r.street}, ${r.label}`;
+function saveRecipient(r) {
+  if (!r.name || !r.street) return;
+  const all = (load(RECIP_KEY) || []).filter(x => recipKey(x) !== recipKey(r));
+  all.unshift(r);
+  save(RECIP_KEY, all.slice(0, 200));
+  renderRecipients();
+}
+function renderRecipients() {
+  $("recipients").replaceChildren(...(load(RECIP_KEY) || []).map(r => {
+    const o = document.createElement("option"); o.value = recipKey(r); return o;
+  }));
+}
+renderRecipients();
+$("dName").addEventListener("input", () => {
+  const r = (load(RECIP_KEY) || []).find(x => recipKey(x) === $("dName").value);
+  if (!r) return;
+  $("dName").value = r.name; $("dAddr").value = r.street; $("dPhone").value = r.phone;
+  if ([...$("dCity").options].some(o => o.value === r.label)) $("dCity").value = r.label;
+  showPrice();
+  ["dName", "dAddr", "dPhone", "dCity"].forEach(id => $(id).classList.remove("bad"));
+});
+
+function resetForm() {
   ["dName", "dAddr", "dPhone", "notes", "greeting", "whenTime"].forEach(id => $(id).value = "");
   $("dCity").value = ""; showPrice();
-  $("doneCard").style.display = "none";
-  $("orderForm").style.display = "block";
-  window.scrollTo(0, 0);
-});
-if (CONFIG.callmebotApiKey) {
-  document.querySelector("#orderForm button[type=submit]").textContent = "שלח הזמנה ✅";
-  $("footHint").textContent = "ההזמנה נשלחת ישירות לארי בווצאפ";
 }
+
+/* ---------- הזמנות שעוד לא אושר שנשלחו בווצאפ ---------- */
+const PENDING_KEY = "ariDelivery.pending";
+function getPending() {
+  try { return JSON.parse(localStorage.getItem(PENDING_KEY) || "[]"); } catch (e) { return []; }
+}
+function setPending(list) {
+  try { localStorage.setItem(PENDING_KEY, JSON.stringify(list)); } catch (e) {}
+  renderPending();
+}
+function addPending(o) { setPending([...getPending().filter(x => x.no !== o.no), o]); }
+function renderPending() {
+  const box = $("pendingBox");
+  box.replaceChildren(...getPending().map(o => {
+    const card = document.createElement("section");
+    card.className = "card pending";
+    const h = document.createElement("h2"); h.textContent = `📤 הזמנה #${o.no} נשלחה בווצאפ?`;
+    const t = document.createElement("p"); t.textContent = o.summary;
+    const btns = document.createElement("div"); btns.className = "btns";
+    const yes = document.createElement("button"); yes.type = "button"; yes.textContent = "✅ כן, נשלחה";
+    yes.onclick = () => setPending(getPending().filter(x => x.no !== o.no));
+    const again = document.createElement("button"); again.type = "button"; again.className = "resend"; again.textContent = "🔁 שלחי שוב";
+    again.onclick = () => { window.location.href = o.link; };
+    btns.append(yes, again); card.append(h, t, btns);
+    return card;
+  }));
+}
+function showPendingOnReturn() {
+  renderPending();
+  if (getPending().length) window.scrollTo(0, 0);
+}
+if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+showPendingOnReturn();
+window.addEventListener("pageshow", showPendingOnReturn);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) showPendingOnReturn(); });
+
+
 </script>
 </body>
 </html>
