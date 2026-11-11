@@ -545,7 +545,9 @@ function renderHistory() {
         loadStatuses(recentNos);
         return;
       }
-      const merged = new Map(local.map(x => [x.no, x]));
+      forgetDeleted(d.deleted || []);
+      const gone = new Set(d.deleted || []);
+      const merged = new Map(local.filter(x => !gone.has(x.no)).map(x => [x.no, x]));
       const statuses = {};
       d.orders.forEach(o => {
         const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(o.date || ""), t = /^(\d{1,2}):(\d{2})/.exec(o.time || "") || [0, 0, 0];
@@ -595,6 +597,16 @@ function drawHistory(list) {
     : [Object.assign(document.createElement("li"), { textContent: "עוד אין הזמנות היום" })]));
   $("historyOlder").replaceChildren(...week.slice().reverse().map(item));
   $("historyOlderBox").style.display = "none";
+}
+
+// הזמנה שארי מחק בדף הניהול – מוחקים גם מהמכשיר (היסטוריה ותזכורות)
+function forgetDeleted(nos) {
+  if (!nos.length) return;
+  const gone = new Set(nos);
+  const h = load(HISTORY_KEY) || [];
+  if (h.some(x => gone.has(x.no))) save(HISTORY_KEY, h.filter(x => !gone.has(x.no)));
+  const pend = getPending();
+  if (pend.some(x => gone.has(x.no))) setPending(pend.filter(x => !gone.has(x.no)));
 }
 
 // סיכום – בלי הזמנות שארי סימן "לא פנוי" (לא בוצעו על ידו)
@@ -726,6 +738,7 @@ function syncWithSheet() {
       if (!d || !d.ok || !d.statuses) return;                     // קוד ישן בגוגל / שגיאה – לא נוגעים
       const st = d.statuses;
       if (pending.some(o => st[o.no])) setPending(getPending().filter(o => !st[o.no]));
+      forgetDeleted(Object.keys(st).filter(n => st[n] === "נמחקה"));
       recent.filter(x => !st[x.no] && Date.now() - new Date(x.time) > 2 * 60 * 1000).slice(0, 20)
         .forEach(x => {
           const rec = Object.assign({}, x, { resync: true });

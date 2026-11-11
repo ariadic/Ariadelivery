@@ -93,6 +93,8 @@
   .copyFrom button{font:inherit;font-size:15px;padding:9px 14px;border-radius:10px;border:1.5px solid var(--line);background:#fff;cursor:pointer}
   button.danger{width:100%;font:inherit;font-size:15px;padding:11px;border-radius:12px;border:1.5px solid #fca5a5;background:#fff;color:#b91c1c;cursor:pointer;margin-top:18px}
   .sheetLink{display:block;text-align:center;font-weight:600;color:#15803d;background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:11px;margin-bottom:12px;text-decoration:none}
+  .delOrder{display:block;margin:10px auto 0;font:inherit;font-size:13px;color:#b91c1c;background:none;border:0;cursor:pointer;padding:4px 8px}
+  .delOrder:disabled{opacity:.5}
   .empty{text-align:center;color:var(--muted);padding:30px 0}
 </style>
 </head>
@@ -366,7 +368,16 @@ function card(o) {
     el("div", { className: "row meta", textContent: [o.item, o.when, o.pay, o.price && (isNaN(o.price) ? o.price : "₪" + o.price)].filter(Boolean).join(" · ") }),
     o.notes ? el("div", { className: "row", textContent: "📝 " + o.notes }) : null,
     payRow,
-    acts);
+    acts,
+    el("button", { type: "button", className: "delOrder", textContent: "🗑 מחיקת ההזמנה", onclick: e => deleteOrder(o, e.target) }));
+}
+
+function deleteOrder(o, btn) {
+  if (!confirm(`למחוק את ההזמנה #${o.no} (${o.recipient} – ${o.address})?\nהיא תימחק מהטבלה ומהרשימה של הלקוח. אי אפשר לבטל.`)) return;
+  btn.disabled = true; btn.textContent = "מוחק…";
+  fetch(SHEET_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "deleteOrder", key, no: o.no }) })
+    .then(() => { orders = orders.filter(x => x !== o); render(); $("note").textContent = `🗑 הזמנה #${o.no} נמחקה`; setTimeout(load, 1500); })
+    .catch(() => { btn.disabled = false; btn.textContent = "🗑 מחיקת ההזמנה"; alert("המחיקה לא נשלחה – בדוק חיבור ונסה שוב"); });
 }
 
 function setPaid(o, paid, btn) {
