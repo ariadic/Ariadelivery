@@ -63,6 +63,7 @@
   .badge.picked{background:#dbeafe;color:#1d4ed8}
   .badge.done{background:#dcfce7;color:#15803d}
   .badge.no{background:#fee2e2;color:#b91c1c}
+  .paidY{color:#15803d;font-weight:600}.paidN{color:#c2410c;font-weight:600}
   ul.hist .warn{color:#b91c1c;font-size:13px;font-weight:600}
   .notice.off{background:#fef2f2;border-color:#dc2626;color:#991b1b;font-weight:600}
   .statusNote{color:var(--muted);font-size:12px;text-align:center;margin-top:8px}
@@ -255,6 +256,42 @@ const CONFIG = {
   },
 };
 
+/* =====================================================================
+   טעינת לקוחות ומחירונים מהטבלה בגוגל (נערכים מדף הניהול).
+   אם אין חיבור – משתמשים בעותק האחרון שנשמר במכשיר, ואחרת בהגדרות שבקוד למעלה.
+   ===================================================================== */
+(function boot() {
+  const code = new URLSearchParams(location.search).get("c") || "";
+  const CACHE = "ariDelivery.cfg." + (code || "_");
+  const apply = cfg => {
+    if (!cfg || !cfg.ok) return;
+    const fix = c => Object.assign({}, c, { prices: c.prices && c.prices.length ? c.prices : undefined,
+      sizes: c.sizes && c.sizes.length ? c.sizes : undefined, pay: c.pay || undefined });
+    if (code && cfg.customer) CONFIG.customers[code] = fix(cfg.customer);
+    if (cfg.defaults && cfg.defaults.prices && cfg.defaults.prices.length) {
+      CONFIG.defaultPrices = cfg.defaults.prices;
+      CONFIG.urgentExtra = cfg.defaults.urgentExtra || 0;
+    }
+  };
+  let started = false;
+  const go = () => { if (started) return; started = true; document.querySelector("main").style.visibility = ""; start(); };
+  if (!CONFIG.sheetUrl) return go();
+  document.querySelector("main").style.visibility = "hidden";
+  const fallback = () => { try { apply(JSON.parse(localStorage.getItem(CACHE) || "null")); } catch (e) {} go(); };
+  const timer = setTimeout(fallback, 4000);
+  fetch(CONFIG.sheetUrl + "?action=config&c=" + encodeURIComponent(code))
+    .then(r => r.json())
+    .then(cfg => {
+      if (started) return;
+      clearTimeout(timer);
+      if (!cfg || !cfg.ok || !("customer" in cfg)) return fallback();          // קוד ישן בגוגל
+      try { localStorage.setItem(CACHE, JSON.stringify(cfg)); } catch (e) {}
+      apply(cfg); go();
+    })
+    .catch(() => { if (!started) { clearTimeout(timer); fallback(); } });
+})();
+
+function start() {
 const SIZES  = ["מעטפה", "חבילה קטנה", "חבילה גדולה"];
 const WHEN   = ["רגיל", "דחוף ⚡", "מתוזמן"];
 const PAY    = ["מזומן (סכום מדויק)", "ביט", "פייבוקס", "העברה בנקאית מראש"];
@@ -274,7 +311,7 @@ const AGREED = CUSTOMER && !CUSTOMER.prices;               // לקוח הסכם 
 // יעדים: [{label, city, price}]
 const DESTS = CUSTOMER && CUSTOMER.prices
   ? CUSTOMER.prices
-  : Object.entries(CONFIG.cities).map(([c, p]) => ({ label: c, city: c, price: p }));
+  : CONFIG.defaultPrices || Object.entries(CONFIG.cities).map(([c, p]) => ({ label: c, city: c, price: p }));
 const URGENT_EXTRA = CUSTOMER ? (CUSTOMER.urgentExtra || 0) : CONFIG.urgentExtra;
 const destOf = label => DESTS.find(d => d.label === label) || null;
 
@@ -458,7 +495,7 @@ $("orderForm").addEventListener("submit", e => {
     item: val("size"), when,
     pay: (CUSTOMER && CUSTOMER.pay) || val("pay"),
     price: AGREED ? "לפי הסכם" : price !== null ? price : "לתיאום",
-    notes, message: text,
+    notes, message: text, code: CUSTOMER ? CUSTOMER_CODE : "",
   };
 
   backupToSheet(record);
@@ -492,8 +529,42 @@ function saveHistory(r) {
   list.push(r);                                                  // ההזמנה המלאה – לסנכרון לטבלה אם הגיבוי נכשל
   save(HISTORY_KEY, list);
 }
+// "ההזמנות שלי": מציגים מיד את מה שבמכשיר, ואז טוענים מהטבלה בגוגל –
+// כך הרשימה זהה בכל מכשיר (טלפון, מחשב) שפותח את הלינק האישי.
 function renderHistory() {
-  const list = load(HISTORY_KEY) || [], now = new Date();
+  const local = load(HISTORY_KEY) || [];
+  drawHistory(local);
+  if (!CONFIG.sheetUrl) return;
+  const recentNos = local.filter(x => Date.now() - new Date(x.time) < 100 * 24 * 3600 * 1000).map(x => x.no);
+  $("statusNote").textContent = "טוען הזמנות…";
+  fetch(CONFIG.sheetUrl + "?action=history&c=" + encodeURIComponent(CUSTOMER ? CUSTOMER_CODE : "") +
+        "&nos=" + encodeURIComponent(recentNos.slice(-300).join(",")))
+    .then(r => r.json())
+    .then(d => {
+      if (!d || !d.ok || !Array.isArray(d.orders)) {            // קוד ישן בגוגל – רק סטטוסים
+        loadStatuses(recentNos);
+        return;
+      }
+      const merged = new Map(local.map(x => [x.no, x]));
+      const statuses = {};
+      d.orders.forEach(o => {
+        const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(o.date || ""), t = /^(\d{1,2}):(\d{2})/.exec(o.time || "") || [0, 0, 0];
+        const time = m ? new Date(+m[3], m[2] - 1, +m[1], +t[1], +t[2]).toISOString() : (merged.get(o.no) || {}).time;
+        const price = o.price !== "" && !isNaN(o.price) ? Number(o.price) : o.price;
+        merged.set(o.no, Object.assign({}, merged.get(o.no), { no: o.no, time, recipient: o.recipient, address: o.address, item: o.item, price, paid: o.paid }));
+        statuses[o.no] = o.status;
+      });
+      const list = [...merged.values()].filter(x => x.time).sort((a, b) => new Date(a.time) - new Date(b.time));
+      drawHistory(list);
+      paintBadges(statuses);
+      const n = new Date();
+      $("statusNote").textContent = `עודכן ב-${pad(n.getHours())}:${pad(n.getMinutes())}`;
+    })
+    .catch(() => { $("statusNote").textContent = "לא הצלחנו לטעון מהטבלה כרגע – מוצגות ההזמנות מהמכשיר הזה"; });
+}
+
+function drawHistory(list) {
+  const now = new Date();
   const sameDay = d => d.toDateString() === now.toDateString();
   const sameMonth = d => d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
   const today = list.filter(x => sameDay(new Date(x.time)));
@@ -509,6 +580,11 @@ function renderHistory() {
     info.append(`${x.recipient} – ${x.address}`);
     const m = document.createElement("div"); m.className = "meta";
     m.textContent = `#${x.no} · ${sameDay(t) ? "" : pad(t.getDate()) + "/" + pad(t.getMonth() + 1) + " "}${pad(t.getHours())}:${pad(t.getMinutes())} · ${x.item} · ${typeof x.price === "number" ? "₪" + x.price : x.price}`;
+    if (typeof x.paid === "boolean") {
+      const pd = document.createElement("span");
+      pd.className = x.paid ? "paidY" : "paidN"; pd.textContent = x.paid ? " · 💰 שולם" : " · 💸 לא שולם";
+      m.append(pd);
+    }
     info.append(m);
     const badge = document.createElement("span");
     badge.className = "badge"; badge.dataset.no = x.no;
@@ -519,7 +595,6 @@ function renderHistory() {
     : [Object.assign(document.createElement("li"), { textContent: "עוד אין הזמנות היום" })]));
   $("historyOlder").replaceChildren(...week.slice().reverse().map(item));
   $("historyOlderBox").style.display = "none";
-  loadStatuses([...new Set([...today, ...week, ...month].map(x => x.no))]);
 }
 
 // סיכום – בלי הזמנות שארי סימן "לא פנוי" (לא בוצעו על ידו)
@@ -672,6 +747,7 @@ window.addEventListener("pageshow", showPendingOnReturn);
 document.addEventListener("visibilitychange", () => { if (!document.hidden) showPendingOnReturn(); });
 
 
+}
 </script>
 </body>
 </html>
