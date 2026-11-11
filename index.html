@@ -466,7 +466,7 @@ const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } cat
 function saveHistory(r) {
   const cutoff = Date.now() - 100 * 24 * 3600 * 1000;           // שומרים ~3 חודשים
   const list = (load(HISTORY_KEY) || []).filter(x => new Date(x.time).getTime() > cutoff);
-  list.push({ no: r.no, time: r.time, recipient: r.recipient, address: r.address, item: r.item, price: r.price });
+  list.push(r);                                                  // ההזמנה המלאה – לסנכרון לטבלה אם הגיבוי נכשל
   save(HISTORY_KEY, list);
 }
 function renderHistory() {
@@ -592,18 +592,36 @@ function renderPending() {
     return card;
   }));
 }
-// הזמנה שכבר נרשמה בטבלה בגוגל – ארי קיבל אותה, אין צורך בתזכורת
-function clearBackedUpPending() {
-  const list = getPending();
-  if (!CONFIG.sheetUrl || !list.length) return;
-  fetch(CONFIG.sheetUrl + "?action=status&nos=" + encodeURIComponent(list.map(o => o.no).join(",")))
+/* ---------- סנכרון עם הטבלה בגוגל ----------
+   - תזכורת "נשלחה בווצאפ?" נמחקת כשההזמנה כבר בטבלה (ארי קיבל אותה)
+   - הזמנה מ-14 הימים האחרונים שלא הגיעה לטבלה נשלחת שוב אוטומטית */
+let syncing = false;
+function syncWithSheet() {
+  if (!CONFIG.sheetUrl || syncing) return;
+  const pending = getPending();
+  const recent = (load(HISTORY_KEY) || []).filter(x => Date.now() - new Date(x.time) < 14 * 24 * 3600 * 1000);
+  const nos = [...new Set([...pending.map(o => o.no), ...recent.map(x => x.no)])];
+  if (!nos.length) return;
+  syncing = true;
+  fetch(CONFIG.sheetUrl + "?action=status&nos=" + encodeURIComponent(nos.join(",")))
     .then(r => r.json())
-    .then(d => { const st = d.statuses || {}; if (list.some(o => st[o.no])) setPending(getPending().filter(o => !st[o.no])); })
-    .catch(() => {});
+    .then(d => {
+      if (!d || !d.ok || !d.statuses) return;                     // קוד ישן בגוגל / שגיאה – לא נוגעים
+      const st = d.statuses;
+      if (pending.some(o => st[o.no])) setPending(getPending().filter(o => !st[o.no]));
+      recent.filter(x => !st[x.no] && Date.now() - new Date(x.time) > 2 * 60 * 1000).slice(0, 20)
+        .forEach(x => {
+          const rec = Object.assign({}, x, { resync: true });
+          if (!rec.message) rec.message = `🛵 הזמנה #${x.no} (נשלחה שוב מהגיבוי)\n📍 ${x.recipient} – ${x.address}\n📏 ${x.item}\n💵 ${typeof x.price === "number" ? "₪" + x.price : x.price}`;
+          fetch(CONFIG.sheetUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(rec) }).catch(() => {});
+        });
+    })
+    .catch(() => {})
+    .finally(() => { syncing = false; });
 }
 function showPendingOnReturn() {
   renderPending();
-  clearBackedUpPending();
+  syncWithSheet();
   if (getPending().length) window.scrollTo(0, 0);
 }
 if ("scrollRestoration" in history) history.scrollRestoration = "manual";

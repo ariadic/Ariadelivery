@@ -49,7 +49,7 @@ function doPost(e) {
     const to = NOTIFY_EMAIL || Session.getEffectiveUser().getEmail();
     MailApp.sendEmail({
       to: to,
-      subject: "🛵 הזמנה חדשה #" + o.no + " – " + clean(o.customer) + " ← " + clean(o.dest),
+      subject: (o.resync ? "🔁 הזמנה שלא נקלטה (נשלחה שוב) #" : "🛵 הזמנה חדשה #") + o.no + " – " + clean(o.customer) + " ← " + clean(o.dest),
       body: String(o.message).replace(/\*/g, ""),
     });
     return json({ ok: true });
