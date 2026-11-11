@@ -116,7 +116,21 @@ function getTab(name, headers) {
   }
   return sh;
 }
-const getCustSheet = () => getTab(CUST_SHEET, CUST_HEADERS);
+function getCustSheet() {
+  const sh = getTab(CUST_SHEET, CUST_HEADERS);
+  migrateJsonCustomers(sh);
+  return sh;
+}
+
+// גרסה קודמת שמרה כל לקוח כ-JSON בעמודה אחת – ממירים פעם אחת לטבלה קריאה
+function migrateJsonCustomers(sh) {
+  if (sh.getRange(1, 3).getDisplayValue() !== "הגדרות (לא לערוך ידנית)") return;
+  const old = body(sh, 3).map(r => { try { return { code: String(r[0]), c: JSON.parse(r[2]) }; } catch (e) { return null; } }).filter(Boolean);
+  const n = sh.getLastRow();
+  sh.getRange(1, 1, Math.max(n, 1), CUST_HEADERS.length).clearContent();
+  sh.getRange(1, 1, 1, CUST_HEADERS.length).setValues([CUST_HEADERS]).setFontWeight("bold");
+  old.forEach(x => saveCustomerData(x.code, x.c));
+}
 const getPriceSheet = () => getTab(PRICE_SHEET, PRICE_HEADERS);
 
 function body(sh, cols) { const n = sh.getLastRow(); return n > 1 ? sh.getRange(2, 1, n - 1, cols).getValues() : []; }
@@ -183,19 +197,23 @@ function saveCustomer(o) {
   if (!checkPassword(o.key)) return json({ ok: false, error: "סיסמה שגויה" });
   const code = str(o.code, 20);
   if (!/^[A-Za-z0-9_]{3,20}$/.test(code)) return json({ ok: false, error: "קוד לא תקין" });
-  const d = sanitizeCustomer(o.customer || {});
-  if (code !== DEFAULT_CODE && !d.name) return json({ ok: false, error: "חסר שם לקוח" });
+  if (code !== DEFAULT_CODE && !str((o.customer || {}).name, 80)) return json({ ok: false, error: "חסר שם לקוח" });
+  saveCustomerData(code, o.customer || {});
+  return json({ ok: true, code: code });
+}
+
+function saveCustomerData(code, c) {
+  const d = sanitizeCustomer(c);
   const isDef = code === DEFAULT_CODE;
   const name = isDef ? "מחירון כללי" : d.name;
   const yn = b => b ? "כן" : "לא";
   const row = [fromCode(code), name, d.addr, "'" + d.phone, d.title, yn(d.fixedPickup), d.pay, yn(d.hidePayer),
     yn(d.greeting), d.urgentExtra, d.sizes.join(", "), new Date()];
   if (d.phone === "") row[3] = "";
-  const sh = getCustSheet();
+  const sh = getTab(CUST_SHEET, CUST_HEADERS);
   const r = findCustRow(sh, code);
   if (r) sh.getRange(r, 1, 1, row.length).setValues([row]); else sh.appendRow(row);
   writePrices(code, name, d.prices);
-  return json({ ok: true, code: code });
 }
 
 function deleteCustomer(o) {
