@@ -46,12 +46,17 @@ function doPost(e) {
     ]);
     addStatusDropdown(sheet, sheet.getLastRow());
 
-    const to = NOTIFY_EMAIL || Session.getEffectiveUser().getEmail();
-    MailApp.sendEmail({
-      to: to,
-      subject: (o.resync ? "🔁 הזמנה שלא נקלטה (נשלחה שוב) #" : "🛵 הזמנה חדשה #") + o.no + " – " + clean(o.customer) + " ← " + clean(o.dest),
-      body: String(o.message).replace(/\*/g, ""),
-    });
+    // ההזמנה כבר שמורה בטבלה – תקלה במייל לא מבטלת אותה
+    try {
+      const to = NOTIFY_EMAIL || Session.getEffectiveUser().getEmail();
+      MailApp.sendEmail({
+        to: to,
+        subject: (o.resync ? "🔁 הזמנה שלא נקלטה (נשלחה שוב) #" : "🛵 הזמנה חדשה #") + o.no + " – " + clean(o.customer) + " ← " + clean(o.dest),
+        body: String(o.message).replace(/\*/g, ""),
+      });
+    } catch (mailErr) {
+      return json({ ok: true, saved: true, mailError: String(mailErr) });
+    }
     return json({ ok: true });
   } catch (err) {
     return json({ ok: false, error: String(err) });
