@@ -34,12 +34,14 @@ function doPost(e) {
     if (o && o.action === "setStatus") return setStatus(o);
     if (o && o.action === "setAvailability") return setAvailability(o);
     if (o && o.action === "setPaid") return setPaid(o);
+    if (o && o.action === "deleteOrder") return deleteOrder(o);
     if (o && o.action === "saveCustomer") return saveCustomer(o);
     if (o && o.action === "deleteCustomer") return deleteCustomer(o);
     if (!o || !o.no || !o.message) return json({ ok: false, error: "bad request" });
 
     const sheet = getSheet();
     if (findRow(sheet, o.no)) return json({ ok: true, duplicate: true });
+    if (isDeleted(o.no)) return json({ ok: true, deleted: true });       // הזמנה שנמחקה – לא להחזיר אותה
 
     const t = o.time ? new Date(o.time) : new Date();
     const tz = Session.getScriptTimeZone();
@@ -227,6 +229,29 @@ function deleteCustomer(o) {
   return json({ ok: true });
 }
 
+/* ---------- מחיקת הזמנה ----------
+   השורה נמחקת מהטבלה, ומספר ההזמנה נרשם בלשונית "נמחקו" – כדי שהאתר של הלקוח
+   לא ישלח אותה שוב (הגיבוי האוטומטי) ושהיא תיעלם גם מ"ההזמנות שלי" שלו. */
+const DELETED = "נמחקה";
+const DELETED_SHEET = "נמחקו";
+function getDeletedSheet() { return getTab(DELETED_SHEET, ["מס' הזמנה", "נמחקה ב", "לקוח", "מקבל", "כתובת", "מחיר"]); }
+let deletedCache = null;
+function isDeleted(no) {
+  if (!deletedCache) deletedCache = body(getDeletedSheet(), 1).map(r => String(r[0]).replace(/^'/, ""));
+  return deletedCache.indexOf(String(no)) !== -1;
+}
+function deleteOrder(o) {
+  if (!checkPassword(o.key)) return json({ ok: false, error: "סיסמה שגויה" });
+  const sheet = getSheet();
+  const row = findRow(sheet, o.no);
+  if (!row) return json({ ok: false, error: "הזמנה לא נמצאה" });
+  const r = sheet.getRange(row, 1, 1, HEADERS.length).getDisplayValues()[0];
+  getDeletedSheet().appendRow(["'" + o.no, new Date(), r[COL.customer - 1], r[COL.recipient - 1], r[COL.address - 1], r[COL.price - 1]]);
+  sheet.deleteRow(row);
+  deletedCache = null;
+  return json({ ok: true });
+}
+
 /* ---------- זמינות כללית (פנוי / לא פנוי) ---------- */
 function getAvailability() {
   const props = PropertiesService.getScriptProperties();
@@ -286,7 +311,7 @@ function doGet(e) {
         address: r[COL.address - 1], item: r[COL.item - 1], price: r[COL.price - 1], status: r[COL.status - 1],
         paid: r[COL.paid - 1] === "כן" });
     });
-    return json({ ok: true, orders: out });
+    return json({ ok: true, orders: out, deleted: wanted.filter(isDeleted) });
   }
 
   // ללקוח: רק הסטטוס של מספרי ההזמנות שהוא שלח – בלי פרטים אישיים
@@ -294,6 +319,7 @@ function doGet(e) {
     const wanted = String(p.nos || "").split(",").slice(0, 200);
     const out = {};
     rows.forEach(r => { if (wanted.indexOf(r[COL.no - 1]) !== -1) out[r[COL.no - 1]] = r[COL.status - 1]; });
+    wanted.filter(isDeleted).forEach(n => { out[n] = DELETED; });
     return json({ ok: true, statuses: out });
   }
 
