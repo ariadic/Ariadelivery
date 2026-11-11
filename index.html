@@ -57,6 +57,12 @@
   ul.hist li{border-bottom:1px solid var(--line);padding:8px 0;font-size:14px;line-height:1.5}
   ul.hist li:last-child{border-bottom:0}
   ul.hist .meta{color:var(--muted);font-size:13px}
+  ul.hist li{display:flex;gap:8px;align-items:flex-start;justify-content:space-between}
+  .badge{flex:none;font-size:13px;font-weight:700;border-radius:14px;padding:4px 10px;white-space:nowrap}
+  .badge.new{background:#f3f4f6;color:#4b5563}
+  .badge.picked{background:#dbeafe;color:#1d4ed8}
+  .badge.done{background:#dcfce7;color:#15803d}
+  .statusNote{color:var(--muted);font-size:12px;text-align:center;margin-top:8px}
   #pickupFixedText{line-height:1.6}
   footer{text-align:center;color:var(--muted);font-size:13px;padding:8px 16px 28px}
   footer a{color:var(--muted)}
@@ -150,6 +156,12 @@
     <div class="stats" id="historyStats"></div>
     <h3 class="sub">היום</h3>
     <ul class="hist" id="historyToday"></ul>
+    <div id="historyOlderBox" style="display:none">
+      <h3 class="sub">ימים קודמים שעוד לא נמסרו</h3>
+      <ul class="hist" id="historyOlder"></ul>
+    </div>
+    <div class="statusNote" id="statusNote"></div>
+    <button type="button" class="secondary" id="historyRefresh">🔄 רענון סטטוס</button>
     <button type="button" class="secondary" id="historyClose">חזרה להזמנה</button>
   </section>
 
@@ -454,7 +466,7 @@ const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } cat
 function saveHistory(r) {
   const cutoff = Date.now() - 100 * 24 * 3600 * 1000;           // שומרים ~3 חודשים
   const list = (load(HISTORY_KEY) || []).filter(x => new Date(x.time).getTime() > cutoff);
-  list.push({ no: r.no, time: r.time, recipient: r.recipient, address: r.address, item: r.item, price: r.price });
+  list.push(r);                                                  // ההזמנה המלאה – לסנכרון לטבלה אם הגיבוי נכשל
   save(HISTORY_KEY, list);
 }
 function renderHistory() {
@@ -468,19 +480,59 @@ function renderHistory() {
   $("historyStats").replaceChildren(
     stat(today.length, "משלוחים היום"), stat("₪" + sum(today), "סה״כ היום"),
     stat(month.length, "משלוחים החודש"), stat("₪" + sum(month), "סה״כ החודש"));
-  $("historyToday").replaceChildren(...(today.length ? today.slice().reverse().map(x => {
+  const week = list.filter(x => !sameDay(new Date(x.time)) && Date.now() - new Date(x.time) < 7 * 24 * 3600 * 1000);
+  const item = x => {
     const li = document.createElement("li");
     const t = new Date(x.time);
-    li.append(`${x.recipient} – ${x.address}`);
+    const info = document.createElement("div");
+    info.append(`${x.recipient} – ${x.address}`);
     const m = document.createElement("div"); m.className = "meta";
-    m.textContent = `#${x.no} · ${pad(t.getHours())}:${pad(t.getMinutes())} · ${x.item} · ${typeof x.price === "number" ? "₪" + x.price : x.price}`;
-    li.append(m); return li;
-  }) : [Object.assign(document.createElement("li"), { textContent: "עוד אין הזמנות היום" })]));
+    m.textContent = `#${x.no} · ${sameDay(t) ? "" : pad(t.getDate()) + "/" + pad(t.getMonth() + 1) + " "}${pad(t.getHours())}:${pad(t.getMinutes())} · ${x.item} · ${typeof x.price === "number" ? "₪" + x.price : x.price}`;
+    info.append(m);
+    const badge = document.createElement("span");
+    badge.className = "badge"; badge.dataset.no = x.no;
+    li.append(info, badge);
+    return li;
+  };
+  $("historyToday").replaceChildren(...(today.length ? today.slice().reverse().map(item)
+    : [Object.assign(document.createElement("li"), { textContent: "עוד אין הזמנות היום" })]));
+  $("historyOlder").replaceChildren(...week.slice().reverse().map(item));
+  $("historyOlderBox").style.display = "none";
+  loadStatuses([...today, ...week].map(x => x.no));
+}
+
+/* ---------- סטטוס משלוח (מהטבלה בגוגל) ---------- */
+const BADGES = { "חדשה": ["🕓 ממתין", "new"], "נאסף": ["🛵 בדרך", "picked"], "נמסר": ["✅ נמסר", "done"] };
+function paintBadges(statuses) {
+  document.querySelectorAll(".badge[data-no]").forEach(b => {
+    const st = statuses ? statuses[b.dataset.no] : undefined;
+    const [text, cls] = BADGES[st] || (statuses ? ["🕓 ממתין", "new"] : ["", ""]);
+    b.textContent = text; b.className = "badge " + cls;
+    // ימים קודמים: מציגים רק מה שעוד לא נמסר
+    const li = b.closest("li");
+    if (li.parentElement.id === "historyOlder") li.style.display = st === "נמסר" ? "none" : "";
+  });
+  const older = [...$("historyOlder").children].filter(li => li.style.display !== "none");
+  $("historyOlderBox").style.display = statuses && older.length ? "block" : "none";
+}
+function loadStatuses(nos) {
+  if (!CONFIG.sheetUrl || !nos.length) { $("statusNote").textContent = ""; return; }
+  $("statusNote").textContent = "בודק סטטוס משלוחים…";
+  paintBadges(null);
+  fetch(CONFIG.sheetUrl + "?action=status&nos=" + encodeURIComponent(nos.join(",")))
+    .then(r => r.json())
+    .then(d => {
+      paintBadges(d.statuses || {});
+      const n = new Date();
+      $("statusNote").textContent = `סטטוס עודכן ב-${pad(n.getHours())}:${pad(n.getMinutes())}`;
+    })
+    .catch(() => { $("statusNote").textContent = "לא הצלחנו לבדוק סטטוס כרגע – נסו שוב בעוד רגע"; });
 }
 $("historyBtn").addEventListener("click", () => {
   renderHistory();
   $("orderForm").style.display = "none"; $("historyCard").style.display = "block"; window.scrollTo(0, 0);
 });
+$("historyRefresh").addEventListener("click", renderHistory);
 $("historyClose").addEventListener("click", () => {
   $("historyCard").style.display = "none"; $("orderForm").style.display = "block"; window.scrollTo(0, 0);
 });
@@ -540,8 +592,36 @@ function renderPending() {
     return card;
   }));
 }
+/* ---------- סנכרון עם הטבלה בגוגל ----------
+   - תזכורת "נשלחה בווצאפ?" נמחקת כשההזמנה כבר בטבלה (ארי קיבל אותה)
+   - הזמנה מ-14 הימים האחרונים שלא הגיעה לטבלה נשלחת שוב אוטומטית */
+let syncing = false;
+function syncWithSheet() {
+  if (!CONFIG.sheetUrl || syncing) return;
+  const pending = getPending();
+  const recent = (load(HISTORY_KEY) || []).filter(x => Date.now() - new Date(x.time) < 14 * 24 * 3600 * 1000);
+  const nos = [...new Set([...pending.map(o => o.no), ...recent.map(x => x.no)])];
+  if (!nos.length) return;
+  syncing = true;
+  fetch(CONFIG.sheetUrl + "?action=status&nos=" + encodeURIComponent(nos.join(",")))
+    .then(r => r.json())
+    .then(d => {
+      if (!d || !d.ok || !d.statuses) return;                     // קוד ישן בגוגל / שגיאה – לא נוגעים
+      const st = d.statuses;
+      if (pending.some(o => st[o.no])) setPending(getPending().filter(o => !st[o.no]));
+      recent.filter(x => !st[x.no] && Date.now() - new Date(x.time) > 2 * 60 * 1000).slice(0, 20)
+        .forEach(x => {
+          const rec = Object.assign({}, x, { resync: true });
+          if (!rec.message) rec.message = `🛵 הזמנה #${x.no} (נשלחה שוב מהגיבוי)\n📍 ${x.recipient} – ${x.address}\n📏 ${x.item}\n💵 ${typeof x.price === "number" ? "₪" + x.price : x.price}`;
+          fetch(CONFIG.sheetUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(rec) }).catch(() => {});
+        });
+    })
+    .catch(() => {})
+    .finally(() => { syncing = false; });
+}
 function showPendingOnReturn() {
   renderPending();
+  syncWithSheet();
   if (getPending().length) window.scrollTo(0, 0);
 }
 if ("scrollRestoration" in history) history.scrollRestoration = "manual";

@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>ארי משלוחים – ניהול הזמנות</title>
+<meta name="theme-color" content="#ff7a00">
+<style>
+  :root{--brand:#ff7a00;--brand-soft:#fff4e8;--bg:#f3f4f6;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#d1d5db;--ok:#16a34a;--blue:#2563eb;--err:#dc2626}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
+  header{background:var(--brand);color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:0;z-index:2}
+  header h1{margin:0;font-size:19px}
+  header button{background:#ffffff26;color:#fff;border:1px solid #ffffff80;border-radius:10px;padding:7px 12px;font:inherit;font-size:14px;cursor:pointer}
+  main{max-width:640px;margin:0 auto;padding:14px 16px 40px}
+  .tabs{display:flex;gap:8px;margin-bottom:12px}
+  .tabs button{flex:1;font:inherit;font-size:15px;font-weight:600;padding:10px;border-radius:12px;border:1.5px solid var(--brand);background:#fff;color:var(--brand);cursor:pointer}
+  .tabs button.on{background:var(--brand);color:#fff}
+  .note{color:var(--muted);font-size:13px;text-align:center;margin:6px 0 12px}
+  .card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 1px 4px #0001}
+  .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .cust{font-weight:700;font-size:16px}
+  .meta{color:var(--muted);font-size:13px}
+  .badge{flex:none;font-size:13px;font-weight:700;border-radius:14px;padding:4px 10px;white-space:nowrap}
+  .badge.new{background:#f3f4f6;color:#4b5563}.badge.picked{background:#dbeafe;color:#1d4ed8}.badge.done{background:#dcfce7;color:#15803d}
+  .row{margin-top:8px;line-height:1.55}
+  .row a{color:var(--blue);text-decoration:none;font-weight:600}
+  .lbl{font-weight:700}
+  .acts{display:flex;gap:8px;margin-top:12px}
+  .acts button{flex:1;font:inherit;font-size:16px;font-weight:700;padding:12px 6px;border-radius:12px;border:0;color:#fff;cursor:pointer}
+  .acts .picked{background:var(--blue)}.acts .done{background:var(--ok)}
+  .acts .undo{flex:0 0 auto;background:#fff;color:var(--muted);border:1.5px solid var(--line);font-weight:500}
+  .acts button:disabled{opacity:.5}
+  .login{max-width:360px;margin:40px auto}
+  .login input{width:100%;font:inherit;font-size:17px;padding:12px;border:1px solid var(--line);border-radius:10px;margin:8px 0}
+  .login button{width:100%;font:inherit;font-size:17px;font-weight:700;padding:13px;border:0;border-radius:12px;background:var(--brand);color:#fff;cursor:pointer}
+  .err{color:var(--err);font-size:14px;min-height:20px}
+  .empty{text-align:center;color:var(--muted);padding:30px 0}
+</style>
+</head>
+<body>
+<header>
+  <h1>🛵 ניהול הזמנות</h1>
+  <button type="button" id="refresh">🔄 רענון</button>
+</header>
+<main>
+  <section class="card login" id="loginBox" style="display:none">
+    <h2 style="margin-top:0">כניסה</h2>
+    <p class="meta">הסיסמה שהגדרת ב-ADMIN_PASSWORD בקוד של גוגל. מקלידים פעם אחת – המכשיר יזכור.</p>
+    <input type="password" id="pw" autocomplete="current-password" placeholder="סיסמה">
+    <div class="err" id="loginErr"></div>
+    <button type="button" id="loginBtn">כניסה</button>
+  </section>
+
+  <div id="app" style="display:none">
+    <div class="tabs">
+      <button type="button" id="tabOpen" class="on">פתוחות</button>
+      <button type="button" id="tabDone">נמסרו (3 ימים)</button>
+    </div>
+    <div class="note" id="note"></div>
+    <div id="list"></div>
+  </div>
+</main>
+
+<script>
+// אותה כתובת כמו CONFIG.sheetUrl ב-index.html
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbyeVkFBCgZJMi6gE5yBoK-ydIinjDWaGL2zSAlOhnRfsai7hz45T8abdZ7cyP23ckowTQ/exec";
+const KEY_STORE = "ariDelivery.adminKey";
+const BADGES = { "חדשה": ["🕓 חדשה", "new"], "נאסף": ["🛵 נאסף", "picked"], "נמסר": ["✅ נמסר", "done"] };
+
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2, "0");
+const waze = a => "https://waze.com/ul?q=" + encodeURIComponent(a) + "&navigate=yes";
+const getKey = () => { try { return localStorage.getItem(KEY_STORE) || ""; } catch (e) { return ""; } };
+const setKey = k => { try { k ? localStorage.setItem(KEY_STORE, k) : localStorage.removeItem(KEY_STORE); } catch (e) {} };
+
+let orders = [], tab = "open", key = getKey();
+
+function el(tag, props, ...kids) {
+  const e = document.createElement(tag);
+  Object.assign(e, props || {});
+  kids.flat().forEach(k => k != null && e.append(k));
+  return e;
+}
+function link(text, href) { return el("a", { href, textContent: text, target: href.startsWith("http") ? "_blank" : "" }); }
+
+function showLogin(msg) {
+  $("app").style.display = "none"; $("loginBox").style.display = "block";
+  $("loginErr").textContent = msg || "";
+}
+
+function load() {
+  if (!key) return showLogin();
+  $("note").textContent = "טוען…";
+  fetch(SHEET_URL + "?action=list&key=" + encodeURIComponent(key))
+    .then(r => r.json())
+    .then(d => {
+      if (!d.ok) { setKey(""); key = ""; return showLogin(d.error || "שגיאה"); }
+      orders = d.orders || [];
+      $("loginBox").style.display = "none"; $("app").style.display = "block";
+      const n = new Date();
+      $("note").textContent = `עודכן ב-${pad(n.getHours())}:${pad(n.getMinutes())} · מתעדכן לבד כל דקה`;
+      render();
+    })
+    .catch(() => { $("note").textContent = "אין חיבור לטבלה כרגע – נסה רענון בעוד רגע"; });
+}
+
+function render() {
+  const shown = orders.filter(o => tab === "open" ? o.status !== "נמסר" : o.status === "נמסר");
+  $("tabOpen").textContent = `פתוחות (${orders.filter(o => o.status !== "נמסר").length})`;
+  if (!shown.length) {
+    $("list").replaceChildren(el("div", { className: "empty", textContent: tab === "open" ? "אין הזמנות פתוחות 🎉" : "אין משלוחים שנמסרו ב-3 הימים האחרונים" }));
+    return;
+  }
+  $("list").replaceChildren(...shown.map(card));
+}
+
+function card(o) {
+  const [bt, bc] = BADGES[o.status] || BADGES["חדשה"];
+  const acts = el("div", { className: "acts" });
+  if (o.status !== "נמסר") {
+    if (o.status !== "נאסף") acts.append(el("button", { type: "button", className: "picked", textContent: "🛵 נאסף", onclick: e => update(o, "נאסף", e.target) }));
+    acts.append(el("button", { type: "button", className: "done", textContent: "✅ נמסר", onclick: e => update(o, "נמסר", e.target) }));
+  }
+  if (o.status !== "חדשה") acts.append(el("button", { type: "button", className: "undo", textContent: "↩️ בטל", title: "החזר לשלב הקודם",
+    onclick: e => update(o, o.status === "נמסר" ? "נאסף" : "חדשה", e.target) }));
+
+  return el("section", { className: "card" },
+    el("div", { className: "top" },
+      el("div", {}, el("div", { className: "cust", textContent: o.customer || "לקוח" }),
+        el("div", { className: "meta", textContent: `#${o.no} · ${o.date} ${o.time}` })),
+      el("span", { className: "badge " + bc, textContent: bt })),
+    el("div", { className: "row" },
+      el("span", { className: "lbl", textContent: "📦 איסוף: " }), o.pickup, " ",
+      o.pickup ? link("ווייז", waze(o.pickup)) : null,
+      o.pickupPhone ? [" · ", link("📞 " + o.pickupPhone, "tel:" + o.pickupPhone)] : null),
+    el("div", { className: "row" },
+      el("span", { className: "lbl", textContent: "📍 מסירה: " }), `${o.recipient} – ${o.address} `,
+      link("ווייז", waze(o.address.replace(/ – [^,]*$/, ""))),
+      o.phone ? [" · ", link("📞 " + o.phone, "tel:" + o.phone)] : null),
+    el("div", { className: "row meta", textContent: [o.item, o.when, o.pay, o.price && (isNaN(o.price) ? o.price : "₪" + o.price)].filter(Boolean).join(" · ") }),
+    o.notes ? el("div", { className: "row", textContent: "📝 " + o.notes }) : null,
+    acts);
+}
+
+function update(o, status, btn) {
+  btn.disabled = true;
+  fetch(SHEET_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "setStatus", key, no: o.no, status }) })
+    .then(() => { o.status = status; render(); setTimeout(load, 1500); })
+    .catch(() => { btn.disabled = false; alert("העדכון לא נשלח – בדוק חיבור ונסה שוב"); });
+}
+
+$("loginBtn").onclick = () => { key = $("pw").value.trim(); if (!key) return; setKey(key); load(); };
+$("pw").addEventListener("keydown", e => { if (e.key === "Enter") $("loginBtn").click(); });
+$("refresh").onclick = load;
+$("tabOpen").onclick = () => { tab = "open"; $("tabOpen").classList.add("on"); $("tabDone").classList.remove("on"); render(); };
+$("tabDone").onclick = () => { tab = "done"; $("tabDone").classList.add("on"); $("tabOpen").classList.remove("on"); render(); };
+setInterval(() => { if (key && !document.hidden) load(); }, 60000);
+load();
+</script>
+</body>
+</html>
