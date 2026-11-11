@@ -110,7 +110,7 @@ function getTab(name, headers) {
   let sh = ss.getSheetByName(name);
   if (!sh) {
     getSheet();                                   // לוודא שגיליון ההזמנות נשאר ראשון
-    sh = ss.insertSheet(name);
+    sh = ss.insertSheet(name, ss.getSheets().length);     // תמיד בסוף – גיליון ההזמנות נשאר ראשון
     sh.appendRow(headers);
     sh.getRange(1, 1, 1, headers.length).setFontWeight("bold");
     sh.setFrozenRows(1);
@@ -352,8 +352,11 @@ function getSpreadsheet() {
   return ss;
 }
 
+// גיליון ההזמנות: הלשונית הראשונה שאינה לשונית עזר (לקוחות / מחירונים / נמחקו)
 function getSheet() {
-  const sheet = getSpreadsheet().getSheets()[0];
+  const aux = [CUST_SHEET, PRICE_SHEET, DELETED_SHEET];
+  const all = getSpreadsheet().getSheets();
+  const sheet = all.filter(s => aux.indexOf(s.getName()) === -1)[0] || all[0];
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(HEADERS);
     sheet.getRange(1, 1, 1, HEADERS.length).setFontWeight("bold");
