@@ -36,6 +36,17 @@
   .login input{width:100%;font:inherit;font-size:17px;padding:12px;border:1px solid var(--line);border-radius:10px;margin:8px 0}
   .login button{width:100%;font:inherit;font-size:17px;font-weight:700;padding:13px;border:0;border-radius:12px;background:var(--brand);color:#fff;cursor:pointer}
   .err{color:var(--err);font-size:14px;min-height:20px}
+  .addBtn{width:100%;font:inherit;font-size:16px;font-weight:700;padding:12px;border-radius:12px;border:2px dashed var(--brand);background:var(--brand-soft);color:var(--brand);cursor:pointer;margin-bottom:12px}
+  #addBox textarea{width:100%;min-height:150px;font:inherit;font-size:15px;padding:10px;border:1px solid var(--line);border-radius:10px;margin:8px 0}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 10px;margin-top:10px}
+  .grid label{min-width:0;font-size:13px;font-weight:600;color:var(--muted)}
+  .grid .wide{grid-column:1/-1}
+  .grid input,.grid select{display:block;width:100%;font:inherit;font-size:16px;color:var(--text);padding:9px 10px;border:1px solid var(--line);border-radius:10px;margin-top:3px;background:#fff}
+  .grid input.bad{border-color:var(--err)}
+  button.secondary{width:100%;font:inherit;font-size:16px;font-weight:600;padding:11px;border-radius:12px;border:1.5px solid var(--line);background:#fff;color:var(--text);cursor:pointer;margin-top:8px}
+  .saveBtn{width:100%;font:inherit;font-size:17px;font-weight:700;padding:13px;border:0;border-radius:12px;background:var(--ok);color:#fff;cursor:pointer;margin-top:6px}
+  .saveBtn:disabled{opacity:.6}
+  #parseMsg{color:var(--ok)}
   .empty{text-align:center;color:var(--muted);padding:30px 0}
 </style>
 </head>
@@ -59,8 +70,36 @@
       <button type="button" id="tabDone">נמסרו (3 ימים)</button>
     </div>
     <div class="note" id="note"></div>
+    <button type="button" class="addBtn" id="addOpen">➕ הוספת הזמנה ידנית</button>
     <div id="list"></div>
   </div>
+
+  <section class="card" id="addBox" style="display:none">
+    <h2 style="margin-top:0">➕ הוספת הזמנה ידנית</h2>
+    <p class="meta">מדביקים את הודעת ההזמנה מווצאפ כמו שהיא – הפרטים יתמלאו לבד. אפשר גם למלא ידנית.</p>
+    <textarea id="paste" placeholder="הדבק כאן את הודעת הווצאפ…"></textarea>
+    <button type="button" class="secondary" id="parseBtn">📋 מלא פרטים מההודעה</button>
+    <div class="err" id="parseMsg"></div>
+    <div class="grid">
+      <label>מס' הזמנה<input id="f_no" placeholder="למשל 1111-134735"></label>
+      <label class="wide">תאריך ושעה<input id="f_time" type="datetime-local"></label>
+      <label>לקוח<input id="f_customer"></label>
+      <label>מקבל<input id="f_recipient"></label>
+      <label class="wide">כתובת מסירה<input id="f_address"></label>
+      <label>טלפון מקבל<input id="f_phone" inputmode="tel"></label>
+      <label>מה<input id="f_item"></label>
+      <label>מתי<input id="f_when"></label>
+      <label>מחיר<input id="f_price" inputmode="numeric" placeholder="25"></label>
+      <label>תשלום<input id="f_pay"></label>
+      <label>סטטוס<select id="f_status"><option>חדשה</option><option>נאסף</option><option>נמסר</option></select></label>
+      <label class="wide">כתובת איסוף<input id="f_pickup"></label>
+      <label>טלפון איסוף<input id="f_pickupPhone" inputmode="tel"></label>
+      <label class="wide">הערות<input id="f_notes"></label>
+    </div>
+    <div class="err" id="addErr"></div>
+    <button type="button" class="saveBtn" id="addSave">💾 שמירה בטבלה</button>
+    <button type="button" class="secondary" id="addCancel">ביטול</button>
+  </section>
 </main>
 
 <script>
@@ -154,6 +193,91 @@ function update(o, status, btn) {
 $("loginBtn").onclick = () => { key = $("pw").value.trim(); if (!key) return; setKey(key); load(); };
 $("pw").addEventListener("keydown", e => { if (e.key === "Enter") $("loginBtn").click(); });
 $("refresh").onclick = load;
+
+/* ---------- הוספת הזמנה ידנית ---------- */
+const F = ["no", "time", "customer", "recipient", "address", "phone", "item", "when", "price", "pay", "pickup", "pickupPhone", "notes"];
+const f = k => $("f_" + k);
+function toLocalInput(d) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+
+function openAdd() {
+  F.forEach(k => f(k).value = ""); f("status").value = "חדשה"; f("time").value = toLocalInput(new Date());
+  $("paste").value = ""; $("parseMsg").textContent = ""; $("addErr").textContent = "";
+  $("app").style.display = "none"; $("addBox").style.display = "block"; window.scrollTo(0, 0);
+}
+function closeAdd() { $("addBox").style.display = "none"; $("app").style.display = "block"; window.scrollTo(0, 0); }
+
+// מפענח את הודעת ההזמנה שהאתר שולח לווצאפ (גם אם הועתקה עם [תאריך] שם: בהתחלה)
+function parseOrder(raw) {
+  const lines = raw.replace(/\r/g, "").split("\n")
+    .map(l => l.replace(/^\[[^\]]*\]\s*[^:]*:\s*/, "").replace(/\*/g, "").trim());
+  const after = (re) => { const l = lines.find(x => re.test(x)); return l ? l.replace(re, "").trim() : ""; };
+  const o = {};
+  o.no = after(/^🔢\s*מס'?\s*הזמנה:?/);
+  o.customer = after(/^(⭐|🤝)\s*לקוח( הסכם)?:/);
+  const dt = after(/^📅/).match(/(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2})/);
+  if (dt) {
+    const now = new Date(); let y = now.getFullYear();
+    if (+dt[2] > now.getMonth() + 1) y--;                                   // הודעה מדצמבר שנקראת בינואר
+    o.time = new Date(y, dt[2] - 1, dt[1], dt[3], dt[4]);
+  }
+  const block = (re) => {                                                      // השורה של הכותרת + 3 השורות שאחריה
+    const i = lines.findIndex(x => re.test(x));
+    if (i === -1) return null;
+    return { name: lines[i].replace(re, "").trim(), addr: lines[i + 1] || "", phone: (lines[i + 2] || "").replace(/^📞\s*/, "") };
+  };
+  const pick = block(/^📦\s*איסוף:/), drop = block(/^📍\s*מסירה:/);
+  if (pick) { o.pickup = pick.addr; o.pickupPhone = pick.phone; if (!o.customer) o.customer = pick.name; }
+  if (drop) { o.recipient = drop.name; o.address = drop.addr; o.phone = drop.phone; }
+  const iw = after(/^📏/).split("|");
+  if (iw[0]) o.item = iw[0].trim();
+  if (iw[1]) o.when = iw[1].replace(/^\s*⏱\s*/, "").trim();
+  o.pay = after(/^💰/);
+  const pr = after(/^💵\s*מחיר:/);
+  o.price = (pr.match(/(\d+)/) || [])[1] || pr;
+  o.notes = after(/^📝/);
+  return o;
+}
+
+$("parseBtn").onclick = () => {
+  const o = parseOrder($("paste").value);
+  let n = 0;
+  F.forEach(k => {
+    if (o[k] === undefined || o[k] === "") return;
+    f(k).value = k === "time" ? toLocalInput(o[k]) : o[k]; n++;
+  });
+  $("parseMsg").style.color = n ? "var(--ok)" : "var(--err)";
+  $("parseMsg").textContent = n ? `✅ מולאו ${n} שדות – בדוק שהכול נכון ושמור` : "לא זוהו פרטים בהודעה – אפשר למלא ידנית";
+};
+
+$("addSave").onclick = () => {
+  const need = ["recipient", "address"];
+  need.forEach(k => f(k).classList.toggle("bad", !f(k).value.trim()));
+  if (need.some(k => !f(k).value.trim())) { $("addErr").textContent = "חובה למלא לפחות מקבל וכתובת מסירה"; return; }
+  const t = f("time").value ? new Date(f("time").value) : new Date();
+  const no = f("no").value.trim() || `ידני-${pad(t.getDate())}${pad(t.getMonth() + 1)}-${pad(t.getHours())}${pad(t.getMinutes())}${pad(new Date().getSeconds())}`;
+  const v = k => f(k).value.trim();
+  const price = /^\d+$/.test(v("price")) ? Number(v("price")) : v("price");
+  const status = f("status").value;
+  const rec = {
+    no, time: t.toISOString(), customer: v("customer") || "הזמנה ידנית", recipient: v("recipient"), dest: v("address").split(",").pop().trim(),
+    address: v("address"), recipientPhone: v("phone"), item: v("item"), when: v("when"), pay: v("pay"), price,
+    notes: v("notes"), pickup: v("pickup"), pickupPhone: v("pickupPhone"), resync: true,
+    message: $("paste").value.trim() || [`הזמנה ידנית #${no}`, `לקוח: ${v("customer")}`, `מסירה: ${v("recipient")} – ${v("address")} ${v("phone")}`,
+      `${v("item")} ${v("when")}`, `מחיר: ${v("price")}`, v("notes")].filter(Boolean).join("\n"),
+  };
+  const btn = $("addSave"); btn.disabled = true; btn.textContent = "שומר…"; $("addErr").textContent = "";
+  const post = body => fetch(SHEET_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(body) });
+  post(rec)
+    .then(() => status !== "חדשה" ? new Promise(r => setTimeout(r, 1500)).then(() => post({ action: "setStatus", key, no, status })) : null)
+    .then(() => {
+      closeAdd(); $("note").textContent = `✅ הזמנה #${no} נשמרה – מרענן…`;
+      setTimeout(load, 1500);
+    })
+    .catch(() => { $("addErr").textContent = "השמירה נכשלה – בדוק חיבור לאינטרנט ונסה שוב"; })
+    .finally(() => { btn.disabled = false; btn.textContent = "💾 שמירה בטבלה"; });
+};
+$("addOpen").onclick = openAdd;
+$("addCancel").onclick = closeAdd;
 $("tabOpen").onclick = () => { tab = "open"; $("tabOpen").classList.add("on"); $("tabDone").classList.remove("on"); render(); };
 $("tabDone").onclick = () => { tab = "done"; $("tabDone").classList.add("on"); $("tabOpen").classList.remove("on"); render(); };
 setInterval(() => { if (key && !document.hidden) load(); }, 60000);
