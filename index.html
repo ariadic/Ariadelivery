@@ -62,6 +62,9 @@
   .badge.new{background:#f3f4f6;color:#4b5563}
   .badge.picked{background:#dbeafe;color:#1d4ed8}
   .badge.done{background:#dcfce7;color:#15803d}
+  .badge.no{background:#fee2e2;color:#b91c1c}
+  ul.hist .warn{color:#b91c1c;font-size:13px;font-weight:600}
+  .notice.off{background:#fef2f2;border-color:#dc2626;color:#991b1b;font-weight:600}
   .statusNote{color:var(--muted);font-size:12px;text-align:center;margin-top:8px}
   #pickupFixedText{line-height:1.6}
   footer{text-align:center;color:var(--muted);font-size:13px;padding:8px 16px 28px}
@@ -77,6 +80,7 @@
 
 <main>
   <div class="notice" id="closedNotice"></div>
+  <div class="notice off" id="availNotice"></div>
   <div id="pendingBox"></div>
 
   <form id="orderForm" novalidate>
@@ -353,6 +357,24 @@ showPrice();
   n.style.display = "block";
 })();
 
+/* ---------- האם ארי פנוי כרגע ---------- */
+let arieAvailable = true;
+function checkAvailability() {
+  if (!CONFIG.sheetUrl) return;
+  fetch(CONFIG.sheetUrl + "?action=availability")
+    .then(r => r.json())
+    .then(d => {
+      if (!d || typeof d.available !== "boolean") return;          // קוד ישן בגוגל – מתנהגים כרגיל
+      arieAvailable = d.available;
+      const n = $("availNotice");
+      n.textContent = d.available ? "" : "🔴 ארי לא פנוי כרגע למשלוחים" + (d.message ? ` – ${d.message}` : "");
+      n.style.display = d.available ? "none" : "block";
+    })
+    .catch(() => {});
+}
+checkAvailability();
+document.addEventListener("visibilitychange", () => { if (!document.hidden) checkAvailability(); });
+
 /* ---------- בדיקות ---------- */
 const phoneOk = s => /^0\d{8,9}$/.test(s.replace(/\D/g, "").replace(/^972/, "0"));
 function check(id, ok) { $(id).classList.toggle("bad", !ok); return ok; }
@@ -377,6 +399,7 @@ $("orderForm").addEventListener("submit", e => {
     if (first) { first.scrollIntoView({ behavior: "smooth", block: "center" }); first.focus(); }
     return;
   }
+  if (!arieAvailable && !confirm("ארי לא פנוי כרגע למשלוחים. לשלוח את ההזמנה בכל זאת?")) return;
   const now = new Date();
   const orderNo = `${pad(now.getDate())}${pad(now.getMonth() + 1)}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
   const label = $("dCity").value, d = destOf(label);
@@ -476,10 +499,8 @@ function renderHistory() {
   const today = list.filter(x => sameDay(new Date(x.time)));
   const month = list.filter(x => sameMonth(new Date(x.time)));
   const sum = a => a.reduce((t, x) => t + (typeof x.price === "number" ? x.price : 0), 0);
-  const stat = (n, t) => { const d = document.createElement("div"); const b = document.createElement("b"); b.textContent = n; d.append(b, t); return d; };
-  $("historyStats").replaceChildren(
-    stat(today.length, "משלוחים היום"), stat("₪" + sum(today), "סה״כ היום"),
-    stat(month.length, "משלוחים החודש"), stat("₪" + sum(month), "סה״כ החודש"));
+  statLists = { today, month, sum };
+  renderStats(new Set());
   const week = list.filter(x => !sameDay(new Date(x.time)) && Date.now() - new Date(x.time) < 7 * 24 * 3600 * 1000);
   const item = x => {
     const li = document.createElement("li");
@@ -498,22 +519,43 @@ function renderHistory() {
     : [Object.assign(document.createElement("li"), { textContent: "עוד אין הזמנות היום" })]));
   $("historyOlder").replaceChildren(...week.slice().reverse().map(item));
   $("historyOlderBox").style.display = "none";
-  loadStatuses([...today, ...week].map(x => x.no));
+  loadStatuses([...new Set([...today, ...week, ...month].map(x => x.no))]);
+}
+
+// סיכום – בלי הזמנות שארי סימן "לא פנוי" (לא בוצעו על ידו)
+let statLists = null;
+function renderStats(excluded) {
+  if (!statLists) return;
+  const { today, month, sum } = statLists;
+  const t = today.filter(x => !excluded.has(x.no)), m = month.filter(x => !excluded.has(x.no));
+  const stat = (n, txt) => { const d = document.createElement("div"); const b = document.createElement("b"); b.textContent = n; d.append(b, txt); return d; };
+  $("historyStats").replaceChildren(
+    stat(t.length, "משלוחים היום"), stat("₪" + sum(t), "סה״כ היום"),
+    stat(m.length, "משלוחים החודש"), stat("₪" + sum(m), "סה״כ החודש"));
 }
 
 /* ---------- סטטוס משלוח (מהטבלה בגוגל) ---------- */
-const BADGES = { "חדשה": ["🕓 ממתין", "new"], "נאסף": ["🛵 בדרך", "picked"], "נמסר": ["✅ נמסר", "done"] };
+const BADGES = { "חדשה": ["🕓 ממתין", "new"], "נאסף": ["🛵 בדרך", "picked"], "נמסר": ["✅ נמסר", "done"], "לא פנוי": ["❌ לא פנוי", "no"] };
 function paintBadges(statuses) {
   document.querySelectorAll(".badge[data-no]").forEach(b => {
     const st = statuses ? statuses[b.dataset.no] : undefined;
     const [text, cls] = BADGES[st] || (statuses ? ["🕓 ממתין", "new"] : ["", ""]);
     b.textContent = text; b.className = "badge " + cls;
-    // ימים קודמים: מציגים רק מה שעוד לא נמסר
     const li = b.closest("li");
-    if (li.parentElement.id === "historyOlder") li.style.display = st === "נמסר" ? "none" : "";
+    // "לא פנוי": הסבר קצר מתחת לפרטי ההזמנה
+    const info = li.firstElementChild;
+    let warn = info.querySelector(".warn");
+    if (st === "לא פנוי" && !warn) {
+      warn = document.createElement("div"); warn.className = "warn";
+      warn.textContent = "ארי לא פנוי למשלוח הזה – צריך לתאם משלוח אחר";
+      info.append(warn);
+    } else if (st !== "לא פנוי" && warn) warn.remove();
+    // ימים קודמים: מציגים רק מה שעוד לא נסגר
+    if (li.parentElement.id === "historyOlder") li.style.display = st === "נמסר" || st === "לא פנוי" ? "none" : "";
   });
   const older = [...$("historyOlder").children].filter(li => li.style.display !== "none");
   $("historyOlderBox").style.display = statuses && older.length ? "block" : "none";
+  if (statuses) renderStats(new Set(Object.keys(statuses).filter(n => statuses[n] === "לא פנוי")));
 }
 function loadStatuses(nos) {
   if (!CONFIG.sheetUrl || !nos.length) { $("statusNote").textContent = ""; return; }

@@ -15,7 +15,9 @@ const NOTIFY_EMAIL = "";
 // אותה סיסמה מקלידים פעם אחת בדף המנהל.
 const ADMIN_PASSWORD = "";
 
-const STATUSES = ["חדשה", "נאסף", "נמסר"];
+const STATUSES = ["חדשה", "נאסף", "נמסר", "לא פנוי"];
+const CLOSED = ["נמסר", "לא פנוי"];               // הזמנות סגורות – מוצגות בדף המנהל עד CLOSED_DAYS ימים אחורה
+const CLOSED_DAYS = 90;
 const HEADERS = [
   "תאריך", "שעה", "מס' הזמנה", "לקוח", "מקבל", "יעד", "כתובת מסירה",
   "טלפון מקבל", "מה", "מתי", "תשלום", "מחיר", "הערות", "כתובת איסוף", "טלפון איסוף", "סטטוס",
@@ -30,6 +32,7 @@ function doPost(e) {
   try {
     const o = JSON.parse(e.postData.contents);
     if (o && o.action === "setStatus") return setStatus(o);
+    if (o && o.action === "setAvailability") return setAvailability(o);
     if (!o || !o.no || !o.message) return json({ ok: false, error: "bad request" });
 
     const sheet = getSheet();
@@ -75,12 +78,28 @@ function setStatus(o) {
   return json({ ok: true });
 }
 
+/* ---------- זמינות כללית (פנוי / לא פנוי) ---------- */
+function getAvailability() {
+  const props = PropertiesService.getScriptProperties();
+  return { available: props.getProperty("AVAILABLE") !== "0", message: props.getProperty("AVAIL_MSG") || "" };
+}
+function setAvailability(o) {
+  if (!checkPassword(o.key)) return json({ ok: false, error: "סיסמה שגויה" });
+  const props = PropertiesService.getScriptProperties();
+  props.setProperty("AVAILABLE", o.available ? "1" : "0");
+  props.setProperty("AVAIL_MSG", clean(o.message).slice(0, 200));
+  return json(Object.assign({ ok: true }, getAvailability()));
+}
+
 /* ---------- קריאה: סטטוסים ללקוח / רשימה למנהל ---------- */
 function doGet(e) {
   const p = (e && e.parameter) || {};
   const sheet = getSheet();
   const rows = sheet.getLastRow() > 1
     ? sheet.getRange(2, 1, sheet.getLastRow() - 1, HEADERS.length).getDisplayValues() : [];
+
+  // ללקוח: האם ארי פנוי כרגע
+  if (p.action === "availability") return json(Object.assign({ ok: true }, getAvailability()));
 
   // ללקוח: רק הסטטוס של מספרי ההזמנות שהוא שלח – בלי פרטים אישיים
   if (p.action === "status") {
@@ -90,16 +109,16 @@ function doGet(e) {
     return json({ ok: true, statuses: out });
   }
 
-  // למנהל: הזמנות שלא נמסרו + כל ההזמנות של 3 הימים האחרונים
+  // למנהל: הזמנות פתוחות + הזמנות שנסגרו ב-90 הימים האחרונים, ומצב הזמינות
   if (p.action === "list") {
     if (!checkPassword(p.key)) return json({ ok: false, error: "סיסמה שגויה" });
-    const cutoff = Date.now() - 3 * 24 * 3600 * 1000;
+    const cutoff = Date.now() - CLOSED_DAYS * 24 * 3600 * 1000;
     const orders = rows.map(r => ({
       date: r[0], time: r[1], no: r[2], customer: r[3], recipient: r[4], dest: r[5], address: r[6],
       phone: r[7], item: r[8], when: r[9], pay: r[10], price: r[11], notes: r[12],
       pickup: r[13], pickupPhone: r[14], status: r[15],
-    })).filter(o => o.status !== STATUSES[2] || parseDate(o.date, o.time) > cutoff);
-    return json({ ok: true, orders: orders.reverse() });
+    })).filter(o => CLOSED.indexOf(o.status) === -1 || parseDate(o.date, o.time) > cutoff);
+    return json(Object.assign({ ok: true, orders: orders.reverse() }, getAvailability()));
   }
 
   return json({ ok: true, service: "ari-delivery" });
