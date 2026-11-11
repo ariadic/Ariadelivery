@@ -34,6 +34,8 @@ function doPost(e) {
     if (o && o.action === "setStatus") return setStatus(o);
     if (o && o.action === "setAvailability") return setAvailability(o);
     if (o && o.action === "setPaid") return setPaid(o);
+    if (o && o.action === "saveCustomer") return saveCustomer(o);
+    if (o && o.action === "deleteCustomer") return deleteCustomer(o);
     if (!o || !o.no || !o.message) return json({ ok: false, error: "bad request" });
 
     const sheet = getSheet();
@@ -88,6 +90,78 @@ function setPaid(o) {
   return json({ ok: true });
 }
 
+/* ---------- לקוחות ומחירונים (לשונית "לקוחות" בטבלה) ----------
+   כל לקוח נשמר בשורה: קוד | שם | הגדרות (JSON) | עודכן.
+   הקוד "_default" הוא המחירון הכללי של הדף בלי לינק אישי. */
+const CUST_SHEET = "לקוחות";
+const DEFAULT_CODE = "_default";
+
+function getCustSheet() {
+  const ss = getSpreadsheet();
+  let sh = ss.getSheetByName(CUST_SHEET);
+  if (!sh) {
+    getSheet();                                   // לוודא שגיליון ההזמנות נשאר ראשון
+    sh = ss.insertSheet(CUST_SHEET);
+    sh.appendRow(["קוד", "שם", "הגדרות (לא לערוך ידנית)", "עודכן"]);
+    sh.getRange(1, 1, 1, 4).setFontWeight("bold");
+    sh.setFrozenRows(1);
+    sh.setRightToLeft(true);
+  }
+  return sh;
+}
+
+function readCustomers() {
+  const sh = getCustSheet();
+  const n = sh.getLastRow();
+  if (n < 2) return [];
+  return sh.getRange(2, 1, n - 1, 3).getValues().map(r => {
+    try { return Object.assign(JSON.parse(r[2]), { code: String(r[0]) }); } catch (e) { return null; }
+  }).filter(Boolean);
+}
+
+function str(v, max) { return v === undefined || v === null ? "" : String(v).trim().slice(0, max); }
+function num(v, max) { const n = Number(v); return isFinite(n) && n >= 0 ? Math.min(Math.round(n * 100) / 100, max) : 0; }
+
+// מנקה ומגביל את מה שנשמר, כדי שהדף של הלקוח יקבל רק נתונים תקינים
+function sanitizeCustomer(c) {
+  const out = {
+    name: str(c.name, 80), addr: str(c.addr, 150), phone: str(c.phone, 20), title: str(c.title, 80),
+    fixedPickup: !!c.fixedPickup, pay: str(c.pay, 30), hidePayer: !!c.hidePayer, greeting: !!c.greeting,
+    urgentExtra: num(c.urgentExtra, 1000),
+    sizes: (Array.isArray(c.sizes) ? c.sizes : []).map(s => str(s, 30)).filter(String).slice(0, 10),
+    prices: (Array.isArray(c.prices) ? c.prices : []).map(p => ({
+      label: str(p.label, 60), city: str(p.city, 80) || str(p.label, 60), price: num(p.price, 10000),
+    })).filter(p => p.label).slice(0, 150),
+  };
+  return out;
+}
+
+function saveCustomer(o) {
+  if (!checkPassword(o.key)) return json({ ok: false, error: "סיסמה שגויה" });
+  const code = str(o.code, 20);
+  if (!/^[A-Za-z0-9_]{3,20}$/.test(code)) return json({ ok: false, error: "קוד לא תקין" });
+  const data = sanitizeCustomer(o.customer || {});
+  if (code !== DEFAULT_CODE && !data.name) return json({ ok: false, error: "חסר שם לקוח" });
+  const sh = getCustSheet();
+  const n = sh.getLastRow();
+  const codes = n > 1 ? sh.getRange(2, 1, n - 1, 1).getDisplayValues().flat() : [];
+  const i = codes.indexOf(code);
+  const row = [code, code === DEFAULT_CODE ? "מחירון כללי" : data.name, JSON.stringify(data), new Date()];
+  if (i === -1) sh.appendRow(row); else sh.getRange(i + 2, 1, 1, 4).setValues([row]);
+  return json({ ok: true, code: code });
+}
+
+function deleteCustomer(o) {
+  if (!checkPassword(o.key)) return json({ ok: false, error: "סיסמה שגויה" });
+  const sh = getCustSheet();
+  const n = sh.getLastRow();
+  const codes = n > 1 ? sh.getRange(2, 1, n - 1, 1).getDisplayValues().flat() : [];
+  const i = codes.indexOf(str(o.code, 20));
+  if (i === -1) return json({ ok: false, error: "לקוח לא נמצא" });
+  sh.deleteRow(i + 2);
+  return json({ ok: true });
+}
+
 /* ---------- זמינות כללית (פנוי / לא פנוי) ---------- */
 function getAvailability() {
   const props = PropertiesService.getScriptProperties();
@@ -110,6 +184,23 @@ function doGet(e) {
 
   // ללקוח: האם ארי פנוי כרגע
   if (p.action === "availability") return json(Object.assign({ ok: true }, getAvailability()));
+
+  // לדף ההזמנה: ההגדרות של הלקוח מהלינק האישי + המחירון הכללי + זמינות
+  if (p.action === "config") {
+    const all = readCustomers();
+    const code = str(p.c, 20);
+    const pick = c => { if (!c) return null; const x = Object.assign({}, c); delete x.code; return x; };
+    return json(Object.assign({ ok: true,
+      customer: code && code !== DEFAULT_CODE ? pick(all.filter(c => c.code === code)[0]) : null,
+      defaults: pick(all.filter(c => c.code === DEFAULT_CODE)[0]),
+    }, getAvailability()));
+  }
+
+  // למנהל: כל הלקוחות והמחירונים
+  if (p.action === "customers") {
+    if (!checkPassword(p.key)) return json({ ok: false, error: "סיסמה שגויה" });
+    return json({ ok: true, customers: readCustomers() });
+  }
 
   // ללקוח: ההזמנות שלו – לפי קוד הלינק האישי, או לפי מספרי הזמנות שנשמרו במכשיר שלו.
   // מחזיר רק את מה שמוצג ב"ההזמנות שלי" (בלי טלפונים), 100 ימים אחורה.

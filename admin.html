@@ -66,13 +66,38 @@
   .payRow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;padding:8px 10px;border-radius:10px;background:#fff7ed;color:#c2410c;font-weight:700;font-size:14px}
   .payRow.yes{background:#f0fdf4;color:#15803d}
   .payRow button{font:inherit;font-size:14px;font-weight:600;padding:7px 10px;border-radius:9px;border:1.5px solid currentColor;background:#fff;color:inherit;cursor:pointer}
+  .hbtns{display:flex;gap:6px}
+  .opt{font-weight:400;color:var(--muted);font-size:12px}
+  .chk{display:flex;align-items:center;gap:8px;font-size:15px;margin-top:10px}
+  .chk input{width:20px;height:20px}
+  .custCard .top{align-items:center}
+  .custCard .badge,.custCard .link{font-feature-settings:"calt" 0,"liga" 0;font-variant-ligatures:none}
+  .custCard .link{direction:ltr;text-align:left;font-size:13px;color:var(--muted);word-break:break-all;margin-top:6px}
+  .custCard .acts button{font-size:14px;padding:10px 6px}
+  .acts .edit{background:var(--brand)}.acts .copy{background:#fff;color:var(--text);border:1.5px solid var(--line)}.acts .share{background:#25d366}
+  .prow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #eef0f3}
+  .prow input{min-width:0;font:inherit;font-size:15px;padding:9px;border:1px solid var(--line);border-radius:10px}
+  .prow .pl{flex:1 1 100%;font-weight:600}.prow .pp{width:90px;text-align:center}.prow .pc{flex:1;font-size:13px}
+  .prow button{flex:none;width:36px;height:36px;border-radius:9px;border:1.5px solid var(--line);background:#fff;cursor:pointer;font-size:15px}
+  .prowHead{display:flex;gap:6px;font-size:12px;color:var(--muted);font-weight:600;margin-bottom:4px}
+  .prowHead span:nth-child(1){flex:2.2}.prowHead span:nth-child(3){flex:1}.prowHead span:nth-child(2){width:62px;text-align:center}.prowHead span:nth-child(4){width:36px}
+  details.quick{margin-top:10px;background:var(--brand-soft);border-radius:10px;padding:8px 10px}
+  details.quick summary{cursor:pointer;font-weight:600}
+  details.quick textarea{width:100%;min-height:100px;font:inherit;font-size:15px;padding:8px;border:1px solid var(--line);border-radius:10px;margin-top:6px}
+  .copyFrom{display:flex;gap:8px;margin-top:10px}
+  .copyFrom select{flex:1;min-width:0;font:inherit;font-size:15px;padding:9px;border:1px solid var(--line);border-radius:10px;background:#fff}
+  .copyFrom button{font:inherit;font-size:15px;padding:9px 14px;border-radius:10px;border:1.5px solid var(--line);background:#fff;cursor:pointer}
+  button.danger{width:100%;font:inherit;font-size:15px;padding:11px;border-radius:12px;border:1.5px solid #fca5a5;background:#fff;color:#b91c1c;cursor:pointer;margin-top:18px}
   .empty{text-align:center;color:var(--muted);padding:30px 0}
 </style>
 </head>
 <body>
 <header>
   <h1>🛵 ניהול הזמנות</h1>
-  <button type="button" id="refresh">🔄 רענון</button>
+  <div class="hbtns">
+    <button type="button" id="navCust" style="display:none">👥 לקוחות ומחירים</button>
+    <button type="button" id="refresh">🔄 רענון</button>
+  </div>
 </header>
 <main>
   <section class="card login" id="loginBox" style="display:none">
@@ -140,6 +165,59 @@
     <button type="button" class="saveBtn" id="addSave">💾 שמירה בטבלה</button>
     <button type="button" class="secondary" id="addCancel">ביטול</button>
   </section>
+  <!-- ===== לקוחות ומחירונים ===== -->
+  <section id="custView" style="display:none">
+    <div class="note" id="custNote"></div>
+    <button type="button" class="addBtn" id="custNew">➕ לקוח חדש</button>
+    <div id="custList"></div>
+    <section class="card" id="seedBox" style="display:none">
+      <h2 style="margin-top:0">עוד אין לקוחות בטבלה</h2>
+      <p class="meta">אפשר לייבא את מה שכבר מוגדר באתר (פרחי אודי ודורית והמחירון הכללי) ולערוך מכאן.</p>
+      <button type="button" class="saveBtn" id="seedBtn">📥 ייבוא הלקוחות הקיימים</button>
+    </section>
+  </section>
+
+  <section class="card" id="custEdit" style="display:none">
+    <h2 style="margin-top:0" id="ceTitle"></h2>
+    <div id="ceCustFields">
+      <div class="grid">
+        <label class="wide">שם העסק *<input id="ce_name" maxlength="80"></label>
+        <label class="wide">כתובת איסוף<input id="ce_addr" maxlength="150" placeholder="רחוב, מספר, עיר"></label>
+        <label>טלפון<input id="ce_phone" inputmode="tel" maxlength="20"></label>
+        <label>כותרת בדף <span class="opt">(לא חובה)</span><input id="ce_title" maxlength="80" placeholder="🌸 שם החנות"></label>
+        <label>אמצעי תשלום
+          <select id="ce_pay"><option value="">הלקוח בוחר</option><option>מזומן</option><option>ביט</option><option>פייבוקס</option><option>העברה בנקאית מראש</option></select></label>
+        <label>תוספת דחוף (₪)<input id="ce_urgent" inputmode="numeric" placeholder="0"></label>
+        <label class="wide">מה שולחים <span class="opt">(מופרד בפסיקים, ריק = מעטפה/חבילה)</span><input id="ce_sizes" placeholder="זר, עציץ, סידור / סל"></label>
+      </div>
+      <label class="chk"><input type="checkbox" id="ce_fixed"> פרטי איסוף קבועים (הלקוח לא ממלא אותם)</label>
+      <label class="chk"><input type="checkbox" id="ce_hidePayer"> בלי "מי משלם?"</label>
+      <label class="chk"><input type="checkbox" id="ce_greeting"> שדה "ברכה לכרטיס"</label>
+    </div>
+    <div id="ceDefFields" class="grid">
+      <label>תוספת דחוף (₪)<input id="ce_urgentDef" inputmode="numeric" placeholder="0"></label>
+    </div>
+
+    <h3 class="sub">📍 מחירון <span class="opt" id="ceCount"></span></h3>
+    <p class="meta" id="ceAgreed">בלי יעדים במחירון = "מחיר לפי הסכם" (לא מוצג מחיר ללקוח).</p>
+    <div id="ceRows"></div>
+    <button type="button" class="secondary" id="ceAddRow">➕ הוספת יעד</button>
+    <details class="quick">
+      <summary>⚡ הוספה מהירה של הרבה יעדים</summary>
+      <p class="meta">שורה לכל יעד: שם ואז מחיר. למשל:<br>נשר 40<br>טירת כרמל 45<br>יעד שכבר קיים – המחיר שלו יתעדכן.</p>
+      <textarea id="ceQuick" placeholder="נשר 40&#10;טירת כרמל 45"></textarea>
+      <button type="button" class="secondary" id="ceQuickBtn">הוסף / עדכן</button>
+    </details>
+    <div class="copyFrom">
+      <select id="ceCopySel"><option value="">העתקת מחירון מ…</option></select>
+      <button type="button" id="ceCopyBtn">העתק</button>
+    </div>
+
+    <div class="err" id="ceErr"></div>
+    <button type="button" class="saveBtn" id="ceSave">💾 שמירה</button>
+    <button type="button" class="secondary" id="ceCancel">ביטול</button>
+    <button type="button" class="danger" id="ceDelete">🗑 מחיקת הלקוח</button>
+  </section>
 </main>
 
 <script>
@@ -156,7 +234,14 @@ const waze = a => "https://waze.com/ul?q=" + encodeURIComponent(a) + "&navigate=
 const getKey = () => { try { return localStorage.getItem(KEY_STORE) || ""; } catch (e) { return ""; } };
 const setKey = k => { try { k ? localStorage.setItem(KEY_STORE, k) : localStorage.removeItem(KEY_STORE); } catch (e) {} };
 
-let orders = [], tab = "open", key = getKey();
+let orders = [], tab = "open", key = getKey(), view = "orders";
+const VIEWS = { orders: "app", add: "addBox", customers: "custView", edit: "custEdit" };
+function showView(v) {
+  view = v;
+  Object.entries(VIEWS).forEach(([k, id]) => { $(id).style.display = k === v ? "block" : "none"; });
+  $("navCust").textContent = v === "customers" || v === "edit" ? "📋 הזמנות" : "👥 לקוחות ומחירים";
+  window.scrollTo(0, 0);
+}
 
 function el(tag, props, ...kids) {
   const e = document.createElement(tag);
@@ -182,7 +267,8 @@ function load() {
       fillCustomers();
       if (typeof d.available === "boolean") avail = { available: d.available, message: d.message || "" };
       renderAvail();
-      $("loginBox").style.display = "none"; $("app").style.display = "block";
+      $("loginBox").style.display = "none"; $("navCust").style.display = "";
+      if (view === "orders") $("app").style.display = "block";
       const n = new Date();
       $("note").textContent = `עודכן ב-${pad(n.getHours())}:${pad(n.getMinutes())} · מתעדכן לבד כל דקה`;
       render();
@@ -292,7 +378,7 @@ function update(o, status, btn) {
 
 $("loginBtn").onclick = () => { key = $("pw").value.trim(); if (!key) return; setKey(key); load(); };
 $("pw").addEventListener("keydown", e => { if (e.key === "Enter") $("loginBtn").click(); });
-$("refresh").onclick = load;
+$("refresh").onclick = () => view === "customers" ? loadCustomers() : load();
 
 /* ---------- זמינות כללית ---------- */
 function renderAvail() {
@@ -323,9 +409,9 @@ function toLocalInput(d) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-$
 function openAdd() {
   F.forEach(k => f(k).value = ""); f("status").value = "חדשה"; f("time").value = toLocalInput(new Date());
   $("paste").value = ""; $("parseMsg").textContent = ""; $("addErr").textContent = "";
-  $("app").style.display = "none"; $("addBox").style.display = "block"; window.scrollTo(0, 0);
+  showView("add");
 }
-function closeAdd() { $("addBox").style.display = "none"; $("app").style.display = "block"; window.scrollTo(0, 0); }
+function closeAdd() { showView("orders"); }
 
 // מפענח את הודעת ההזמנה שהאתר שולח לווצאפ (גם אם הועתקה עם [תאריך] שם: בהתחלה)
 function parseOrder(raw) {
@@ -404,7 +490,201 @@ $("rangeFilter").onchange = render;
 $("paidFilter").onchange = render;
 $("tabOpen").onclick = () => { tab = "open"; $("tabOpen").classList.add("on"); $("tabDone").classList.remove("on"); render(); };
 $("tabDone").onclick = () => { tab = "done"; $("tabDone").classList.add("on"); $("tabOpen").classList.remove("on"); render(); };
-setInterval(() => { if (key && !document.hidden) load(); }, 60000);
+setInterval(() => { if (key && !document.hidden && view === "orders") load(); }, 60000);
+/* ===================== לקוחות ומחירונים ===================== */
+const DEFAULT_CODE = "_default";
+const SITE = new URL("./", location.href).href;
+let customers = [], editing = null;
+
+// הלקוחות שהוגדרו באתר לפני שעברו לטבלה – לייבוא חד-פעמי
+const SEED = [
+  { code: "fl4x9", customer: { name: "פרחי אודי ודורית", addr: "העצמאות 69, קרית אתא", phone: "054-6665375", fixedPickup: true,
+    title: "🌸 פרחי אודי ודורית", sizes: ["זר", "עציץ", "סידור / סל"], pay: "מזומן", hidePayer: true, urgentExtra: 0, prices: [
+      { label: "קרית אתא", city: "קרית אתא", price: 15 }, { label: "קרית אתא – גבעת רם", city: "קרית אתא", price: 20 },
+      { label: "קרית אתא – טל", city: "קרית אתא", price: 20 }, { label: "קרית אתא – אלונים", city: "קרית אתא", price: 20 },
+      { label: "קרית חיים", city: "קרית חיים, חיפה", price: 25 }, { label: "קרית שמואל", city: "קרית שמואל, חיפה", price: 25 },
+      { label: "קרית ים", city: "קרית ים", price: 25 }, { label: "קרית מוצקין", city: "קרית מוצקין", price: 25 },
+      { label: "קרית ביאליק", city: "קרית ביאליק", price: 25 }, { label: "חיפה", city: "חיפה", price: 50 },
+      { label: "חיפה – דניה", city: "דניה, חיפה", price: 60 }] } },
+  { code: DEFAULT_CODE, customer: { urgentExtra: 20, prices: [
+    ["תל אביב-יפו", 40], ["רמת גן", 45], ["גבעתיים", 45], ["בני ברק", 45], ["חולון", 50], ["בת ים", 50], ["פתח תקווה", 55],
+    ["הרצליה", 60], ["ראשון לציון", 60], ["רעננה", 65], ["כפר סבא", 65], ["ירושלים", 120], ["חיפה", 150]]
+    .map(([c, p]) => ({ label: c, city: c, price: p })) } },
+];
+
+const linkOf = code => code === DEFAULT_CODE ? SITE : SITE + "?c=" + code;
+const post = body => fetch(SHEET_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(Object.assign({ key }, body)) });
+
+function loadCustomers() {
+  $("custNote").textContent = "טוען לקוחות…";
+  return fetch(SHEET_URL + "?action=customers&key=" + encodeURIComponent(key))
+    .then(r => r.json())
+    .then(d => {
+      if (!d.ok) { $("custNote").textContent = d.error === "סיסמה שגויה" ? "סיסמה שגויה" : "צריך לעדכן את הקוד בגוגל לגרסה החדשה (ראו הוראות)"; customers = []; renderCustomers(); return; }
+      customers = d.customers || [];
+      $("custNote").textContent = `${customers.filter(c => c.code !== DEFAULT_CODE).length} לקוחות`;
+      renderCustomers();
+    })
+    .catch(() => { $("custNote").textContent = "אין חיבור לטבלה כרגע – נסה רענון"; });
+}
+
+function renderCustomers() {
+  const list = customers.filter(c => c.code !== DEFAULT_CODE).sort((a, b) => a.name.localeCompare(b.name, "he"));
+  const def = customers.find(c => c.code === DEFAULT_CODE);
+  $("seedBox").style.display = customers.length ? "none" : "block";
+  const cards = list.map(c => custCard(c));
+  cards.push(custCard(def || { code: DEFAULT_CODE, prices: [] }));
+  $("custList").replaceChildren(...cards);
+}
+
+function custCard(c) {
+  const isDef = c.code === DEFAULT_CODE;
+  const n = (c.prices || []).length;
+  const link = linkOf(c.code);
+  return el("section", { className: "card custCard" },
+    el("div", { className: "top" },
+      el("div", {}, el("div", { className: "cust", textContent: isDef ? "🛵 מחירון כללי (הדף בלי לינק אישי)" : c.name }),
+        el("div", { className: "meta", textContent: n ? `${n} יעדים · ${priceRange(c.prices)}` : (isDef ? "אין מחירון – \"המחיר ייקבע בשיחה\"" : "מחיר לפי הסכם") })),
+      isDef ? null : el("span", { className: "badge new", textContent: c.code })),
+    el("div", { className: "link", textContent: link }),
+    el("div", { className: "acts" },
+      el("button", { type: "button", className: "edit", textContent: "✏️ עריכה", onclick: () => openEditor(c) }),
+      el("button", { type: "button", className: "copy", textContent: "📋 העתק לינק", onclick: e => copyText(link, e.target) }),
+      isDef ? null : el("button", { type: "button", className: "share", textContent: "📤 שלח בווצאפ",
+        onclick: () => window.open("https://wa.me/?text=" + encodeURIComponent(`הלינק להזמנת משלוחים מארי משלוחים 🛵\n${link}`), "_blank") })));
+}
+function priceRange(p) { const v = p.map(x => x.price); return `₪${Math.min(...v)}–₪${Math.max(...v)}`; }
+function copyText(t, btn) {
+  const done = () => { const o = btn.textContent; btn.textContent = "✅ הועתק"; setTimeout(() => btn.textContent = o, 1500); };
+  if (navigator.clipboard) navigator.clipboard.writeText(t).then(done, () => prompt("העתק את הלינק:", t));
+  else prompt("העתק את הלינק:", t);
+}
+
+/* ---------- עורך לקוח ---------- */
+function newCode() {
+  const abc = "abcdefghjkmnpqrstuvwxyz23456789";
+  let c;
+  do { c = Array.from(crypto.getRandomValues(new Uint8Array(5)), b => abc[b % abc.length]).join(""); }
+  while (customers.some(x => x.code === c));
+  return c;
+}
+function openEditor(c) {
+  const isNew = !c, isDef = c && c.code === DEFAULT_CODE;
+  editing = { code: isNew ? newCode() : c.code, isNew, isDef };
+  c = c || {};
+  $("ceTitle").textContent = isDef ? "🛵 מחירון כללי" : isNew ? "➕ לקוח חדש" : "✏️ " + c.name;
+  $("ceCustFields").style.display = isDef ? "none" : "";
+  $("ceDefFields").style.display = isDef ? "" : "none";
+  $("ceDelete").style.display = isNew || isDef ? "none" : "";
+  $("ceAgreed").textContent = isDef ? "בלי יעדים במחירון = \"המחיר ייקבע בשיחה\"." : "בלי יעדים במחירון = \"מחיר לפי הסכם\" (לא מוצג מחיר ללקוח).";
+  $("ce_name").value = c.name || ""; $("ce_addr").value = c.addr || ""; $("ce_phone").value = c.phone || "";
+  $("ce_title").value = c.title || ""; $("ce_pay").value = c.pay || ""; $("ce_urgent").value = c.urgentExtra || "";
+  $("ce_urgentDef").value = c.urgentExtra || "";
+  $("ce_sizes").value = (c.sizes || []).join(", ");
+  $("ce_fixed").checked = isNew ? true : !!c.fixedPickup;
+  $("ce_hidePayer").checked = !!c.hidePayer; $("ce_greeting").checked = !!c.greeting;
+  $("ceRows").replaceChildren();
+  (c.prices || []).forEach(p => addRow(p));
+  if (!(c.prices || []).length && isNew) addRow();
+  $("ceCopySel").replaceChildren(el("option", { value: "", textContent: "העתקת מחירון מ…" }),
+    ...customers.filter(x => x.code !== editing.code && (x.prices || []).length)
+      .map(x => el("option", { value: x.code, textContent: x.code === DEFAULT_CODE ? "המחירון הכללי" : x.name })));
+  $("ceQuick").value = ""; $("ceErr").textContent = "";
+  countRows();
+  showView("edit");
+}
+function addRow(p) {
+  p = p || {};
+  const row = el("div", { className: "prow" },
+    el("input", { className: "pl", value: p.label || "", placeholder: "יעד – למשל: נשר", maxLength: 60, "aria-label": "יעד" }),
+    el("input", { className: "pp", value: p.price !== undefined ? p.price : "", inputMode: "numeric", placeholder: "מחיר ₪", "aria-label": "מחיר" }),
+    el("input", { className: "pc", value: p.city && p.city !== p.label ? p.city : "", placeholder: "כתובת לווייז (לא חובה)", maxLength: 80, "aria-label": "כתובת לווייז" }),
+    el("button", { type: "button", textContent: "✕", title: "מחיקת יעד", onclick: () => { row.remove(); countRows(); } }));
+  row.querySelectorAll("input").forEach(i => i.addEventListener("input", countRows));
+  $("ceRows").append(row);
+  countRows();
+  return row;
+}
+function readRows() {
+  return [...$("ceRows").querySelectorAll(".prow")].map(r => {
+    const [l, p, c] = r.querySelectorAll("input");
+    return { label: l.value.trim(), price: p.value.trim(), city: c.value.trim(), row: r };
+  });
+}
+function countRows() { const n = readRows().filter(r => r.label).length; $("ceCount").textContent = n ? `(${n} יעדים)` : ""; }
+
+$("ceAddRow").onclick = () => addRow().querySelector("input").focus();
+$("ceQuickBtn").onclick = () => {
+  let added = 0, updated = 0;
+  $("ceQuick").value.split("\n").map(l => l.trim()).filter(Boolean).forEach(line => {
+    const m = line.match(/^(.*?)[\s:–-]*₪?\s*(\d+(?:\.\d+)?)\s*₪?\s*(?:ש"?ח)?$/);
+    if (!m || !m[1].trim()) return;
+    const label = m[1].trim(), price = m[2];
+    const ex = readRows().find(r => r.label === label);
+    if (ex) { ex.row.querySelectorAll("input")[1].value = price; updated++; }
+    else { addRow({ label, price }); added++; }
+  });
+  readRows().filter(r => !r.label && !r.price).forEach(r => r.row.remove());
+  countRows();
+  $("ceErr").style.color = "var(--ok)";
+  $("ceErr").textContent = added || updated ? `✅ נוספו ${added}, עודכנו ${updated} – לא לשכוח לשמור` : "לא זוהו שורות. כותבים: שם ואז מחיר, למשל: נשר 40";
+  $("ceQuick").value = "";
+};
+$("ceCopyBtn").onclick = () => {
+  const src = customers.find(x => x.code === $("ceCopySel").value);
+  if (!src) return;
+  if (readRows().some(r => r.label) && !confirm("להחליף את המחירון הנוכחי במחירון של " + (src.code === DEFAULT_CODE ? "המחירון הכללי" : src.name) + "?")) return;
+  [...$("ceRows").querySelectorAll(".prow")].forEach(r => r.remove());
+  (src.prices || []).forEach(p => addRow(p));
+};
+$("ceCancel").onclick = () => showView("customers");
+$("ceSave").onclick = () => {
+  const err = $("ceErr"); err.style.color = "";
+  const rows = readRows().filter(r => r.label || r.price);
+  const bad = rows.find(r => !r.label || !/^\d+(\.\d+)?$/.test(r.price));
+  rows.forEach(r => r.row.querySelectorAll("input").forEach((i, k) => i.classList.toggle("bad", k < 2 && (k === 0 ? !r.label : !/^\d+(\.\d+)?$/.test(r.price)))));
+  if (bad) { err.textContent = "בכל יעד צריך שם ומחיר במספרים"; return; }
+  const dup = rows.map(r => r.label).find((l, i, a) => a.indexOf(l) !== i);
+  if (dup) { err.textContent = `היעד "${dup}" מופיע פעמיים`; return; }
+  const isDef = editing.isDef;
+  if (!isDef && !$("ce_name").value.trim()) { $("ce_name").classList.add("bad"); err.textContent = "חסר שם העסק"; return; }
+  const customer = isDef
+    ? { urgentExtra: $("ce_urgentDef").value || 0 }
+    : { name: $("ce_name").value, addr: $("ce_addr").value, phone: $("ce_phone").value, title: $("ce_title").value,
+        pay: $("ce_pay").value, urgentExtra: $("ce_urgent").value || 0, fixedPickup: $("ce_fixed").checked,
+        hidePayer: $("ce_hidePayer").checked, greeting: $("ce_greeting").checked,
+        sizes: $("ce_sizes").value.split(",").map(x => x.trim()).filter(Boolean) };
+  customer.prices = rows.map(r => ({ label: r.label, price: Number(r.price), city: r.city || r.label }));
+  const btn = $("ceSave"); btn.disabled = true; btn.textContent = "שומר…";
+  post({ action: "saveCustomer", code: editing.code, customer })
+    .then(() => new Promise(r => setTimeout(r, 1200)))
+    .then(loadCustomers)
+    .then(() => {
+      const saved = customers.find(c => c.code === editing.code);
+      if (!saved) { err.textContent = "השמירה לא נקלטה – בדוק שהקוד בגוגל מעודכן, ונסה שוב"; return; }
+      showView("customers");
+      $("custNote").textContent = `✅ נשמר: ${isDef ? "המחירון הכללי" : saved.name}` + (editing.isNew ? " – הלינק שלו מוכן למטה" : "");
+    })
+    .catch(() => { err.textContent = "השמירה נכשלה – בדוק חיבור לאינטרנט ונסה שוב"; })
+    .finally(() => { btn.disabled = false; btn.textContent = "💾 שמירה"; });
+};
+$("ceDelete").onclick = () => {
+  const c = customers.find(x => x.code === editing.code);
+  if (!c || !confirm(`למחוק את ${c.name}? הלינק שלו יפסיק להציג את המחירון שלו. ההזמנות הקודמות נשארות בטבלה.`)) return;
+  post({ action: "deleteCustomer", code: c.code }).then(() => setTimeout(() => { loadCustomers(); showView("customers"); }, 1200));
+};
+$("custNew").onclick = () => openEditor(null);
+$("seedBtn").onclick = () => {
+  const btn = $("seedBtn"); btn.disabled = true; btn.textContent = "מייבא…";
+  SEED.reduce((pr, s) => pr.then(() => post(Object.assign({ action: "saveCustomer" }, s))), Promise.resolve())
+    .then(() => new Promise(r => setTimeout(r, 1200))).then(loadCustomers)
+    .finally(() => { btn.disabled = false; btn.textContent = "📥 ייבוא הלקוחות הקיימים"; });
+};
+$("navCust").onclick = () => {
+  if (view === "customers" || view === "edit") { showView("orders"); load(); }
+  else { showView("customers"); loadCustomers(); }
+};
+
 load();
 </script>
 </body>
