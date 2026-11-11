@@ -90,33 +90,74 @@ function setPaid(o) {
   return json({ ok: true });
 }
 
-/* ---------- לקוחות ומחירונים (לשונית "לקוחות" בטבלה) ----------
-   כל לקוח נשמר בשורה: קוד | שם | הגדרות (JSON) | עודכן.
-   הקוד "_default" הוא המחירון הכללי של הדף בלי לינק אישי. */
+/* ---------- לקוחות ומחירונים ----------
+   שתי לשוניות בטבלה, שאפשר לערוך גם ידנית וגם מדף הניהול:
+   "לקוחות"   – שורה לכל לקוח (קוד, שם, כתובת, טלפון, הגדרות)
+   "מחירונים" – שורה לכל יעד: קוד לקוח | לקוח | יעד | מחיר | כתובת לווייז
+   הקוד "כללי" הוא המחירון של הדף בלי לינק אישי. */
 const CUST_SHEET = "לקוחות";
+const PRICE_SHEET = "מחירונים";
 const DEFAULT_CODE = "_default";
+const DEFAULT_LABEL = "כללי";
+const CUST_HEADERS = ["קוד", "שם העסק", "כתובת איסוף", "טלפון", "כותרת בדף", "איסוף קבוע", "אמצעי תשלום קבוע",
+  "בלי \"מי משלם\"", "ברכה לכרטיס", "תוספת דחוף", "מה שולחים (מופרד בפסיקים)", "עודכן"];
+const PRICE_HEADERS = ["קוד לקוח", "לקוח", "יעד", "מחיר", "כתובת לווייז (לא חובה)"];
 
-function getCustSheet() {
+function getTab(name, headers) {
   const ss = getSpreadsheet();
-  let sh = ss.getSheetByName(CUST_SHEET);
+  let sh = ss.getSheetByName(name);
   if (!sh) {
     getSheet();                                   // לוודא שגיליון ההזמנות נשאר ראשון
-    sh = ss.insertSheet(CUST_SHEET);
-    sh.appendRow(["קוד", "שם", "הגדרות (לא לערוך ידנית)", "עודכן"]);
-    sh.getRange(1, 1, 1, 4).setFontWeight("bold");
+    sh = ss.insertSheet(name);
+    sh.appendRow(headers);
+    sh.getRange(1, 1, 1, headers.length).setFontWeight("bold");
     sh.setFrozenRows(1);
     sh.setRightToLeft(true);
   }
   return sh;
 }
+function getCustSheet() {
+  const sh = getTab(CUST_SHEET, CUST_HEADERS);
+  migrateJsonCustomers(sh);
+  return sh;
+}
+
+// גרסה קודמת שמרה כל לקוח כ-JSON בעמודה אחת – ממירים פעם אחת לטבלה קריאה
+function migrateJsonCustomers(sh) {
+  if (sh.getRange(1, 3).getDisplayValue() !== "הגדרות (לא לערוך ידנית)") return;
+  const old = body(sh, 3).map(r => { try { return { code: String(r[0]), c: JSON.parse(r[2]) }; } catch (e) { return null; } }).filter(Boolean);
+  const n = sh.getLastRow();
+  sh.getRange(1, 1, Math.max(n, 1), CUST_HEADERS.length).clearContent();
+  sh.getRange(1, 1, 1, CUST_HEADERS.length).setValues([CUST_HEADERS]).setFontWeight("bold");
+  old.forEach(x => saveCustomerData(x.code, x.c));
+}
+const getPriceSheet = () => getTab(PRICE_SHEET, PRICE_HEADERS);
+
+function body(sh, cols) { const n = sh.getLastRow(); return n > 1 ? sh.getRange(2, 1, n - 1, cols).getValues() : []; }
+const toCode = v => { const s = String(v === undefined || v === null ? "" : v).trim(); return s === DEFAULT_LABEL ? DEFAULT_CODE : s; };
+const fromCode = c => c === DEFAULT_CODE ? DEFAULT_LABEL : c;
+const yes = v => v === true || /^(כן|v|✓|✔|true|1|x)$/i.test(String(v).trim());
 
 function readCustomers() {
-  const sh = getCustSheet();
-  const n = sh.getLastRow();
-  if (n < 2) return [];
-  return sh.getRange(2, 1, n - 1, 3).getValues().map(r => {
-    try { return Object.assign(JSON.parse(r[2]), { code: String(r[0]) }); } catch (e) { return null; }
-  }).filter(Boolean);
+  const map = {};
+  body(getCustSheet(), CUST_HEADERS.length).forEach(r => {
+    const code = toCode(r[0]);
+    if (!code) return;
+    map[code] = sanitizeCustomer({
+      name: code === DEFAULT_CODE ? "מחירון כללי" : r[1], addr: r[2], phone: r[3], title: r[4], fixedPickup: yes(r[5]),
+      pay: r[6], hidePayer: yes(r[7]), greeting: yes(r[8]), urgentExtra: r[9],
+      sizes: String(r[10] || "").split(",").map(s => s.trim()).filter(String), prices: [],
+    });
+    map[code].code = code;
+  });
+  body(getPriceSheet(), PRICE_HEADERS.length).forEach(r => {
+    const code = toCode(r[0]), label = str(r[2], 60), price = Number(r[3]);
+    if (!code || !label || String(r[3]).trim() === "" || !isFinite(price)) return;
+    if (!map[code] && code === DEFAULT_CODE) map[code] = Object.assign(sanitizeCustomer({ name: "מחירון כללי" }), { code: code });
+    if (!map[code] || map[code].prices.length >= 150) return;
+    map[code].prices.push({ label: label, price: num(price, 10000), city: str(r[4], 80) || label });
+  });
+  return Object.keys(map).map(k => map[k]);
 }
 
 function str(v, max) { return v === undefined || v === null ? "" : String(v).trim().slice(0, max); }
@@ -124,7 +165,7 @@ function num(v, max) { const n = Number(v); return isFinite(n) && n >= 0 ? Math.
 
 // מנקה ומגביל את מה שנשמר, כדי שהדף של הלקוח יקבל רק נתונים תקינים
 function sanitizeCustomer(c) {
-  const out = {
+  return {
     name: str(c.name, 80), addr: str(c.addr, 150), phone: str(c.phone, 20), title: str(c.title, 80),
     fixedPickup: !!c.fixedPickup, pay: str(c.pay, 30), hidePayer: !!c.hidePayer, greeting: !!c.greeting,
     urgentExtra: num(c.urgentExtra, 1000),
@@ -133,32 +174,56 @@ function sanitizeCustomer(c) {
       label: str(p.label, 60), city: str(p.city, 80) || str(p.label, 60), price: num(p.price, 10000),
     })).filter(p => p.label).slice(0, 150),
   };
-  return out;
+}
+
+// כותב מחדש את כל לשונית המחירונים: מוריד את השורות של הקוד, ומוסיף את החדשות (אם יש)
+function writePrices(code, name, prices) {
+  const sh = getPriceSheet();
+  const keep = body(sh, PRICE_HEADERS.length).filter(r => toCode(r[0]) && toCode(r[0]) !== code);
+  const add = (prices || []).map(p => [fromCode(code), name, p.label, p.price, p.city && p.city !== p.label ? p.city : ""]);
+  const all = keep.concat(add);
+  const n = sh.getLastRow();
+  if (n > 1) sh.getRange(2, 1, n - 1, PRICE_HEADERS.length).clearContent();
+  if (all.length) sh.getRange(2, 1, all.length, PRICE_HEADERS.length).setValues(all);
+}
+
+function findCustRow(sh, code) {
+  const rows = body(sh, 1).map(r => toCode(r[0]));
+  const i = rows.indexOf(code);
+  return i === -1 ? 0 : i + 2;
 }
 
 function saveCustomer(o) {
   if (!checkPassword(o.key)) return json({ ok: false, error: "סיסמה שגויה" });
   const code = str(o.code, 20);
   if (!/^[A-Za-z0-9_]{3,20}$/.test(code)) return json({ ok: false, error: "קוד לא תקין" });
-  const data = sanitizeCustomer(o.customer || {});
-  if (code !== DEFAULT_CODE && !data.name) return json({ ok: false, error: "חסר שם לקוח" });
-  const sh = getCustSheet();
-  const n = sh.getLastRow();
-  const codes = n > 1 ? sh.getRange(2, 1, n - 1, 1).getDisplayValues().flat() : [];
-  const i = codes.indexOf(code);
-  const row = [code, code === DEFAULT_CODE ? "מחירון כללי" : data.name, JSON.stringify(data), new Date()];
-  if (i === -1) sh.appendRow(row); else sh.getRange(i + 2, 1, 1, 4).setValues([row]);
+  if (code !== DEFAULT_CODE && !str((o.customer || {}).name, 80)) return json({ ok: false, error: "חסר שם לקוח" });
+  saveCustomerData(code, o.customer || {});
   return json({ ok: true, code: code });
+}
+
+function saveCustomerData(code, c) {
+  const d = sanitizeCustomer(c);
+  const isDef = code === DEFAULT_CODE;
+  const name = isDef ? "מחירון כללי" : d.name;
+  const yn = b => b ? "כן" : "לא";
+  const row = [fromCode(code), name, d.addr, "'" + d.phone, d.title, yn(d.fixedPickup), d.pay, yn(d.hidePayer),
+    yn(d.greeting), d.urgentExtra, d.sizes.join(", "), new Date()];
+  if (d.phone === "") row[3] = "";
+  const sh = getTab(CUST_SHEET, CUST_HEADERS);
+  const r = findCustRow(sh, code);
+  if (r) sh.getRange(r, 1, 1, row.length).setValues([row]); else sh.appendRow(row);
+  writePrices(code, name, d.prices);
 }
 
 function deleteCustomer(o) {
   if (!checkPassword(o.key)) return json({ ok: false, error: "סיסמה שגויה" });
+  const code = str(o.code, 20);
   const sh = getCustSheet();
-  const n = sh.getLastRow();
-  const codes = n > 1 ? sh.getRange(2, 1, n - 1, 1).getDisplayValues().flat() : [];
-  const i = codes.indexOf(str(o.code, 20));
-  if (i === -1) return json({ ok: false, error: "לקוח לא נמצא" });
-  sh.deleteRow(i + 2);
+  const r = findCustRow(sh, code);
+  if (!r) return json({ ok: false, error: "לקוח לא נמצא" });
+  sh.deleteRow(r);
+  writePrices(code, "", []);
   return json({ ok: true });
 }
 
@@ -199,7 +264,7 @@ function doGet(e) {
   // למנהל: כל הלקוחות והמחירונים
   if (p.action === "customers") {
     if (!checkPassword(p.key)) return json({ ok: false, error: "סיסמה שגויה" });
-    return json({ ok: true, customers: readCustomers() });
+    return json({ ok: true, customers: readCustomers(), sheetUrl: getSpreadsheet().getUrl() });
   }
 
   // ללקוח: ההזמנות שלו – לפי קוד הלינק האישי, או לפי מספרי הזמנות שנשמרו במכשיר שלו.
