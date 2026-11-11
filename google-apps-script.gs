@@ -20,10 +20,10 @@ const CLOSED = ["נמסר", "לא פנוי"];               // הזמנות סג
 const CLOSED_DAYS = 90;
 const HEADERS = [
   "תאריך", "שעה", "מס' הזמנה", "לקוח", "מקבל", "יעד", "כתובת מסירה",
-  "טלפון מקבל", "מה", "מתי", "תשלום", "מחיר", "הערות", "כתובת איסוף", "טלפון איסוף", "סטטוס",
+  "טלפון מקבל", "מה", "מתי", "תשלום", "מחיר", "הערות", "כתובת איסוף", "טלפון איסוף", "סטטוס", "קוד לקוח",
 ];
 const COL = { date: 1, time: 2, no: 3, customer: 4, recipient: 5, dest: 6, address: 7, phone: 8,
-  item: 9, when: 10, pay: 11, price: 12, notes: 13, pickup: 14, pickupPhone: 15, status: 16 };
+  item: 9, when: 10, pay: 11, price: 12, notes: 13, pickup: 14, pickupPhone: 15, status: 16, code: 17 };
 
 /* ---------- קבלת הזמנה חדשה / עדכון סטטוס ---------- */
 function doPost(e) {
@@ -45,7 +45,7 @@ function doPost(e) {
       "'" + o.no, clean(o.customer), clean(o.recipient), clean(o.dest), clean(o.address),
       "'" + clean(o.recipientPhone), clean(o.item), clean(o.when), clean(o.pay),
       typeof o.price === "number" ? o.price : clean(o.price), clean(o.notes),
-      clean(o.pickup), "'" + clean(o.pickupPhone), STATUSES[0],
+      clean(o.pickup), "'" + clean(o.pickupPhone), STATUSES[0], clean(o.code),
     ]);
     addStatusDropdown(sheet, sheet.getLastRow());
 
@@ -101,6 +101,27 @@ function doGet(e) {
   // ללקוח: האם ארי פנוי כרגע
   if (p.action === "availability") return json(Object.assign({ ok: true }, getAvailability()));
 
+  // ללקוח: ההזמנות שלו – לפי קוד הלינק האישי, או לפי מספרי הזמנות שנשמרו במכשיר שלו.
+  // מחזיר רק את מה שמוצג ב"ההזמנות שלי" (בלי טלפונים), 100 ימים אחורה.
+  if (p.action === "history") {
+    const code = String(p.c || "").trim();
+    const byCode = code.length >= 4;
+    const wanted = String(p.nos || "").split(",").filter(String).slice(0, 300);
+    const cutoff = Date.now() - 100 * 24 * 3600 * 1000;
+    const out = [];
+    rows.forEach((r, i) => {
+      const codeMatch = byCode && r[COL.code - 1] === code;
+      const noMatch = wanted.indexOf(r[COL.no - 1]) !== -1;
+      if (!codeMatch && !noMatch) return;
+      if (parseDate(r[COL.date - 1], r[COL.time - 1]) < cutoff) return;
+      // הזמנה ישנה בלי קוד – משייכים אותה ללקוח, כדי שתופיע לו גם במכשירים אחרים
+      if (noMatch && byCode && !r[COL.code - 1]) sheet.getRange(i + 2, COL.code).setValue(code);
+      out.push({ no: r[COL.no - 1], date: r[COL.date - 1], time: r[COL.time - 1], recipient: r[COL.recipient - 1],
+        address: r[COL.address - 1], item: r[COL.item - 1], price: r[COL.price - 1], status: r[COL.status - 1] });
+    });
+    return json({ ok: true, orders: out });
+  }
+
   // ללקוח: רק הסטטוס של מספרי ההזמנות שהוא שלח – בלי פרטים אישיים
   if (p.action === "status") {
     const wanted = String(p.nos || "").split(",").slice(0, 200);
@@ -145,6 +166,8 @@ function getSheet() {
     sheet.getRange(1, 1, 1, HEADERS.length).setFontWeight("bold");
     sheet.setFrozenRows(1);
     sheet.setRightToLeft(true);
+  } else if (sheet.getRange(1, COL.code).getDisplayValue() === "") {
+    sheet.getRange(1, COL.code).setValue(HEADERS[COL.code - 1]).setFontWeight("bold");   // טבלה מגרסה קודמת
   }
   return sheet;
 }

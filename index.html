@@ -458,7 +458,7 @@ $("orderForm").addEventListener("submit", e => {
     item: val("size"), when,
     pay: (CUSTOMER && CUSTOMER.pay) || val("pay"),
     price: AGREED ? "לפי הסכם" : price !== null ? price : "לתיאום",
-    notes, message: text,
+    notes, message: text, code: CUSTOMER ? CUSTOMER_CODE : "",
   };
 
   backupToSheet(record);
@@ -492,8 +492,42 @@ function saveHistory(r) {
   list.push(r);                                                  // ההזמנה המלאה – לסנכרון לטבלה אם הגיבוי נכשל
   save(HISTORY_KEY, list);
 }
+// "ההזמנות שלי": מציגים מיד את מה שבמכשיר, ואז טוענים מהטבלה בגוגל –
+// כך הרשימה זהה בכל מכשיר (טלפון, מחשב) שפותח את הלינק האישי.
 function renderHistory() {
-  const list = load(HISTORY_KEY) || [], now = new Date();
+  const local = load(HISTORY_KEY) || [];
+  drawHistory(local);
+  if (!CONFIG.sheetUrl) return;
+  const recentNos = local.filter(x => Date.now() - new Date(x.time) < 100 * 24 * 3600 * 1000).map(x => x.no);
+  $("statusNote").textContent = "טוען הזמנות…";
+  fetch(CONFIG.sheetUrl + "?action=history&c=" + encodeURIComponent(CUSTOMER ? CUSTOMER_CODE : "") +
+        "&nos=" + encodeURIComponent(recentNos.slice(-300).join(",")))
+    .then(r => r.json())
+    .then(d => {
+      if (!d || !d.ok || !Array.isArray(d.orders)) {            // קוד ישן בגוגל – רק סטטוסים
+        loadStatuses(recentNos);
+        return;
+      }
+      const merged = new Map(local.map(x => [x.no, x]));
+      const statuses = {};
+      d.orders.forEach(o => {
+        const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(o.date || ""), t = /^(\d{1,2}):(\d{2})/.exec(o.time || "") || [0, 0, 0];
+        const time = m ? new Date(+m[3], m[2] - 1, +m[1], +t[1], +t[2]).toISOString() : (merged.get(o.no) || {}).time;
+        const price = o.price !== "" && !isNaN(o.price) ? Number(o.price) : o.price;
+        merged.set(o.no, Object.assign({}, merged.get(o.no), { no: o.no, time, recipient: o.recipient, address: o.address, item: o.item, price }));
+        statuses[o.no] = o.status;
+      });
+      const list = [...merged.values()].filter(x => x.time).sort((a, b) => new Date(a.time) - new Date(b.time));
+      drawHistory(list);
+      paintBadges(statuses);
+      const n = new Date();
+      $("statusNote").textContent = `עודכן ב-${pad(n.getHours())}:${pad(n.getMinutes())}`;
+    })
+    .catch(() => { $("statusNote").textContent = "לא הצלחנו לטעון מהטבלה כרגע – מוצגות ההזמנות מהמכשיר הזה"; });
+}
+
+function drawHistory(list) {
+  const now = new Date();
   const sameDay = d => d.toDateString() === now.toDateString();
   const sameMonth = d => d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
   const today = list.filter(x => sameDay(new Date(x.time)));
@@ -519,7 +553,6 @@ function renderHistory() {
     : [Object.assign(document.createElement("li"), { textContent: "עוד אין הזמנות היום" })]));
   $("historyOlder").replaceChildren(...week.slice().reverse().map(item));
   $("historyOlderBox").style.display = "none";
-  loadStatuses([...new Set([...today, ...week, ...month].map(x => x.no))]);
 }
 
 // סיכום – בלי הזמנות שארי סימן "לא פנוי" (לא בוצעו על ידו)
