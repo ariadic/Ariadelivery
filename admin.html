@@ -5,7 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>ארי משלוחים – ניהול הזמנות</title>
-<meta name="theme-color" content="#ff7a00">
+<meta name="theme-color" content="#ffffff">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
 <style>
   :root{--brand:#ff7a00;--brand-soft:#fff4e8;--bg:#f3f4f6;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#d1d5db;--ok:#16a34a;--blue:#2563eb;--err:#dc2626}
   *{box-sizing:border-box}
@@ -96,11 +100,61 @@
   .delOrder{display:block;margin:10px auto 0;font:inherit;font-size:13px;color:#b91c1c;background:none;border:0;cursor:pointer;padding:4px 8px}
   .delOrder:disabled{opacity:.5}
   .empty{text-align:center;color:var(--muted);padding:30px 0}
+
+/* ===== עיצוב: גופן Heebo, ראש לבן, כרטיסים ומתג לשוניות ===== */
+:root{--brand:#ff6a4d;--brand-soft:#fff5f1;--bg:#f6f7fb;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--grad:linear-gradient(135deg,#ff8a3d,#ff5f6d);--ring:#ff6a4d2e;--shadow:0 1px 2px #0000000d,0 4px 14px #0000000a}
+body{font-family:Heebo,system-ui,sans-serif;background:var(--bg);-webkit-font-smoothing:antialiased}
+header{background:#fff;color:var(--text);border-bottom:1px solid #eef0f4;padding:16px;box-shadow:0 1px 0 #eef0f4}
+header::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;background:var(--grad)}
+header h1{font-size:19px;font-weight:800}
+header button{background:var(--bg);color:#374151;border:1px solid var(--line);border-radius:11px;font-family:Heebo,sans-serif;font-weight:600;font-size:13px}
+button,input,select,textarea{font-family:Heebo,sans-serif}
+.card{border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+.tabs{background:#eceef3;border-radius:14px;padding:4px;gap:4px}
+.tabs button{border:0;background:transparent;color:var(--muted);border-radius:11px;font-size:14px}
+.tabs button.on{background:#fff;color:var(--text);box-shadow:var(--shadow)}
+.filters select,.copyFrom select{border:1.5px solid var(--line);border-radius:12px;font-size:14px}
+.avail{border:1.5px solid #bbf7d0;background:#f0fdf4}
+.avail.off{border-color:#fca5a5;background:#fef2f2}
+#availToggle{border-radius:12px;font-size:14px}
+.cust{font-size:15.5px}
+.row{font-size:14px;color:#374151}
+.acts button{border-radius:12px;font-size:15px}
+.acts .picked{background:#2563eb}.acts .edit{background:var(--grad)}
+.acts .undo{border-radius:12px}
+.payRow{border-radius:12px;font-size:13.5px}
+.payRow button{border-radius:9px}
+.addBtn{border:1.5px dashed #ffb4a3;border-radius:14px;color:var(--brand);background:var(--brand-soft);font-size:15px}
+.summary{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:12px 14px}
+.summary b{color:var(--text);font-size:16px}
+.login{margin-top:60px}
+.login h2{font-size:22px}
+.login input,.grid input,.grid select,#addBox textarea,.prow input,details.quick textarea,#availMsg{border:1.5px solid var(--line);border-radius:12px;background:#fafbfc}
+.login input:focus,.grid input:focus,.prow input:focus{outline:0;border-color:var(--brand);box-shadow:0 0 0 3px var(--ring);background:#fff}
+.login button{background:var(--grad);border-radius:14px;box-shadow:0 8px 20px #ff6a4d44}
+.saveBtn{border-radius:14px}
+#ceSave{background:var(--grad);box-shadow:0 8px 20px #ff6a4d44}
+button.secondary{border-radius:12px;color:#374151;font-size:15px}
+.sheetLink{border-radius:14px}
+.prow .drag{border-radius:10px}
+details.quick{border-radius:12px}
+
+/* ----- נורית, התראות, "קיבלתי" ----- */
+header .ht{display:flex;flex-direction:column;gap:4px;min-width:0}
+.led{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;font:600 11.5px Heebo,sans-serif;border-radius:20px;padding:3px 10px 3px 9px;white-space:nowrap}
+.led::before{content:"";width:8px;height:8px;border-radius:50%}
+.led.g{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}.led.g::before{background:#22c55e;box-shadow:0 0 0 3px #22c55e33}
+.led.r{background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5}.led.r::before{background:#ef4444;box-shadow:0 0 0 3px #ef444433}
+.alertBox{background:#fef2f2;border:1.5px solid #fca5a5;color:#991b1b;border-radius:16px;padding:12px 14px;font-size:14px;line-height:1.6;margin-bottom:12px}
+.alertBox .small{color:#7f1d1d;font-size:13px}
+.quotaBox{background:#fffbeb;border:1.5px solid #fcd34d;color:#92400e;border-radius:16px;padding:11px 14px;font-size:14px;margin-bottom:12px}
+.acts .ok{background:#7c3aed}
+.badge.ok{background:#ede9fe;color:#6d28d9}
 </style>
 </head>
 <body>
 <header>
-  <h1>🛵 ניהול הזמנות</h1>
+  <div class="ht"><h1>🚙 ניהול הזמנות</h1><span class="led" id="led" style="display:none"></span></div>
   <div class="hbtns">
     <button type="button" id="navCust" style="display:none">👥 לקוחות ומחירים</button>
     <button type="button" id="refresh">🔄 רענון</button>
@@ -116,6 +170,8 @@
   </section>
 
   <div id="app" style="display:none">
+    <div class="alertBox" id="connAlert" style="display:none"><b>🔴 אין חיבור לטבלה בגוגל</b><br>הזמנות חדשות יגיעו אליך <b>בווצאפ</b> עד שזה יסתדר.<br><span class="small">כדאי לבדוק: האינטרנט · הקוד בגוגל (פריסה / הרשאה)</span></div>
+    <div class="quotaBox" id="quotaWarn" style="display:none"></div>
     <section class="card avail" id="availBox">
       <div class="availRow">
         <div><div class="availTitle" id="availTitle"></div><div class="meta" id="availSub"></div></div>
@@ -233,7 +289,7 @@
 // אותה כתובת כמו CONFIG.sheetUrl ב-index.html
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbyeVkFBCgZJMi6gE5yBoK-ydIinjDWaGL2zSAlOhnRfsai7hz45T8abdZ7cyP23ckowTQ/exec";
 const KEY_STORE = "ariDelivery.adminKey";
-const BADGES = { "חדשה": ["🕓 חדשה", "new"], "נאסף": ["🛵 נאסף", "picked"], "נמסר": ["✅ נמסר", "done"], "לא פנוי": ["❌ לא פנוי", "no"] };
+const BADGES = { "חדשה": ["🕓 חדשה", "new"], "נאסף": ["🚙 נאסף", "picked"], "נמסר": ["✅ נמסר", "done"], "אושרה": ["👍 אושרה", "ok"], "לא פנוי": ["❌ לא פנוי", "no"] };
 const CLOSED = ["נמסר", "לא פנוי"];
 let avail = { available: true, message: "" };
 
@@ -280,9 +336,22 @@ function load() {
       if (view === "orders") $("app").style.display = "block";
       const n = new Date();
       $("note").textContent = `עודכן ב-${pad(n.getHours())}:${pad(n.getMinutes())} · מתעדכן לבד כל דקה`;
+      setLed(true, d.mailQuota);
       render();
     })
-    .catch(() => { $("note").textContent = "אין חיבור לטבלה כרגע – נסה רענון בעוד רגע"; });
+    .catch(() => { $("note").textContent = "אין חיבור לטבלה כרגע – נסה רענון בעוד רגע"; setLed(false); });
+}
+
+/* ---------- נורית: האם המערכת מחוברת, וכמה מיילים נשארו היום ---------- */
+function setLed(ok, quota) {
+  const led = $("led");
+  led.style.display = "";
+  led.className = "led " + (ok ? "g" : "r");
+  led.textContent = ok ? "מחובר" + (typeof quota === "number" ? ` · ${quota} מיילים נשארו` : "") : "אין חיבור";
+  $("connAlert").style.display = ok ? "none" : "block";
+  const low = ok && typeof quota === "number" && quota < 15;
+  $("quotaWarn").style.display = low ? "block" : "none";
+  if (low) $("quotaWarn").textContent = `⚠️ מיילים כמעט נגמרו להיום – נשארו ${quota}. ההזמנות ממשיכות להישמר בטבלה ובדף הזה.`;
 }
 
 function orderTime(o) {
@@ -341,13 +410,14 @@ function card(o) {
   const [bt, bc] = BADGES[o.status] || BADGES["חדשה"];
   const acts = el("div", { className: "acts" });
   if (CLOSED.indexOf(o.status) === -1) {
-    if (o.status !== "נאסף") acts.append(el("button", { type: "button", className: "picked", textContent: "🛵 נאסף", onclick: e => update(o, "נאסף", e.target) }));
+    if (o.status === "חדשה") acts.append(el("button", { type: "button", className: "ok", textContent: "👍 קיבלתי", title: "הלקוח יראה שאישרת", onclick: e => update(o, "אושרה", e.target) }));
+    if (o.status !== "נאסף") acts.append(el("button", { type: "button", className: "picked", textContent: "🚙 נאסף", onclick: e => update(o, "נאסף", e.target) }));
     acts.append(el("button", { type: "button", className: "done", textContent: "✅ נמסר", onclick: e => update(o, "נמסר", e.target) }));
     if (o.status === "חדשה") acts.append(el("button", { type: "button", className: "no", textContent: "❌ לא פנוי",
       onclick: e => { if (confirm(`לסמן שאתה לא פנוי להזמנה של ${o.recipient}? הלקוח יראה שצריך משלוח אחר.`)) update(o, "לא פנוי", e.target); } }));
   }
   if (o.status !== "חדשה") acts.append(el("button", { type: "button", className: "undo", textContent: "↩️ בטל", title: "החזר לשלב הקודם",
-    onclick: e => update(o, o.status === "נמסר" ? "נאסף" : "חדשה", e.target) }));
+    onclick: e => update(o, o.status === "נמסר" ? "נאסף" : o.status === "נאסף" ? "אושרה" : "חדשה", e.target) }));
   const payRow = o.status === "לא פנוי" ? null : el("div", { className: "payRow" + (o.paid ? " yes" : "") },
     el("span", { textContent: o.paid ? "💰 שולם" : "💸 לא שולם" }),
     el("button", { type: "button", textContent: o.paid ? "↩️ סמן לא שולם" : "💰 סמן שולם", onclick: e => setPaid(o, !o.paid, e.target) }));
@@ -562,7 +632,7 @@ function custCard(c) {
   const link = linkOf(c.code);
   return el("section", { className: "card custCard" },
     el("div", { className: "top" },
-      el("div", {}, el("div", { className: "cust", textContent: isDef ? "🛵 מחירון כללי (הדף בלי לינק אישי)" : c.name }),
+      el("div", {}, el("div", { className: "cust", textContent: isDef ? "🚙 מחירון כללי (הדף בלי לינק אישי)" : c.name }),
         el("div", { className: "meta", textContent: n ? `${n} יעדים · ${priceRange(c.prices)}` : (isDef ? "אין מחירון – \"המחיר ייקבע בשיחה\"" : "מחיר לפי הסכם") })),
       isDef ? null : el("span", { className: "badge new", textContent: c.code })),
     el("div", { className: "link", textContent: link }),
@@ -570,7 +640,7 @@ function custCard(c) {
       el("button", { type: "button", className: "edit", textContent: "✏️ עריכה", onclick: () => openEditor(c) }),
       el("button", { type: "button", className: "copy", textContent: "📋 העתק לינק", onclick: e => copyText(link, e.target) }),
       isDef ? null : el("button", { type: "button", className: "share", textContent: "📤 שלח בווצאפ",
-        onclick: () => window.open("https://wa.me/?text=" + encodeURIComponent(`הלינק להזמנת משלוחים מארי משלוחים 🛵\n${link}`), "_blank") })));
+        onclick: () => window.open("https://wa.me/?text=" + encodeURIComponent(`הלינק להזמנת משלוחים מארי משלוחים 🚙\n${link}`), "_blank") })));
 }
 function priceRange(p) { const v = p.map(x => x.price); return `₪${Math.min(...v)}–₪${Math.max(...v)}`; }
 function copyText(t, btn) {
@@ -591,7 +661,7 @@ function openEditor(c) {
   const isNew = !c, isDef = c && c.code === DEFAULT_CODE;
   editing = { code: isNew ? newCode() : c.code, isNew, isDef };
   c = c || {};
-  $("ceTitle").textContent = isDef ? "🛵 מחירון כללי" : isNew ? "➕ לקוח חדש" : "✏️ " + c.name;
+  $("ceTitle").textContent = isDef ? "🚙 מחירון כללי" : isNew ? "➕ לקוח חדש" : "✏️ " + c.name;
   $("ceCustFields").style.display = isDef ? "none" : "";
   $("ceDefFields").style.display = isDef ? "" : "none";
   $("ceDelete").style.display = isNew || isDef ? "none" : "";
