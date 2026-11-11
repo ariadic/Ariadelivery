@@ -88,6 +88,7 @@
   .copyFrom select{flex:1;min-width:0;font:inherit;font-size:15px;padding:9px;border:1px solid var(--line);border-radius:10px;background:#fff}
   .copyFrom button{font:inherit;font-size:15px;padding:9px 14px;border-radius:10px;border:1.5px solid var(--line);background:#fff;cursor:pointer}
   button.danger{width:100%;font:inherit;font-size:15px;padding:11px;border-radius:12px;border:1.5px solid #fca5a5;background:#fff;color:#b91c1c;cursor:pointer;margin-top:18px}
+  .sheetLink{display:block;text-align:center;font-weight:600;color:#15803d;background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:11px;margin-bottom:12px;text-decoration:none}
   .empty{text-align:center;color:var(--muted);padding:30px 0}
 </style>
 </head>
@@ -169,6 +170,7 @@
   <section id="custView" style="display:none">
     <div class="note" id="custNote"></div>
     <button type="button" class="addBtn" id="custNew">➕ לקוח חדש</button>
+    <a class="sheetLink" id="sheetLink" target="_blank" rel="noopener" style="display:none">📊 עריכת המחירים בטבלה בגוגל (לשונית "מחירונים")</a>
     <div id="custList"></div>
     <section class="card" id="seedBox" style="display:none">
       <h2 style="margin-top:0">עוד אין לקוחות בטבלה</h2>
@@ -522,6 +524,7 @@ function loadCustomers() {
     .then(d => {
       if (!d.ok) { $("custNote").textContent = d.error === "סיסמה שגויה" ? "סיסמה שגויה" : "צריך לעדכן את הקוד בגוגל לגרסה החדשה (ראו הוראות)"; customers = []; renderCustomers(); return; }
       customers = d.customers || [];
+      if (d.sheetUrl) { $("sheetLink").href = d.sheetUrl; $("sheetLink").style.display = "block"; }
       $("custNote").textContent = `${customers.filter(c => c.code !== DEFAULT_CODE).length} לקוחות`;
       renderCustomers();
     })
