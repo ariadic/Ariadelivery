@@ -101,8 +101,21 @@ function doGet(e) {
 }
 
 /* ---------- עזר ---------- */
+// עובד גם אם הסקריפט נוצר מתוך הגיליון וגם אם נוצר בנפרד ב-script.google.com:
+// אם אין גיליון מחובר – נוצר גיליון "הזמנות ארי משלוחים" ב-Google Drive ונשמר לפעמים הבאות.
+function getSpreadsheet() {
+  const active = SpreadsheetApp.getActiveSpreadsheet();
+  if (active) return active;
+  const props = PropertiesService.getScriptProperties();
+  const id = props.getProperty("SHEET_ID");
+  if (id) return SpreadsheetApp.openById(id);
+  const ss = SpreadsheetApp.create("הזמנות ארי משלוחים");
+  props.setProperty("SHEET_ID", ss.getId());
+  return ss;
+}
+
 function getSheet() {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+  const sheet = getSpreadsheet().getSheets()[0];
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(HEADERS);
     sheet.getRange(1, 1, 1, HEADERS.length).setFontWeight("bold");
@@ -157,4 +170,5 @@ function testOrder() {
     message: "🛵 הזמנת בדיקה – אם קיבלת את המייל הזה, הגיבוי עובד ✅",
   }) } });
   Logger.log(res.getContent());
+  Logger.log("הטבלה: " + getSpreadsheet().getUrl());
 }
