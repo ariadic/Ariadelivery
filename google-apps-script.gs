@@ -15,7 +15,7 @@ const NOTIFY_EMAIL = "";
 // אותה סיסמה מקלידים פעם אחת בדף המנהל.
 const ADMIN_PASSWORD = "";
 
-const STATUSES = ["חדשה", "נאסף", "נמסר", "לא פנוי"];
+const STATUSES = ["חדשה", "נאסף", "נמסר", "לא פנוי", "אושרה"];   // "אושרה" = ארי לחץ "קיבלתי"
 const CLOSED = ["נמסר", "לא פנוי"];               // הזמנות סגורות – מוצגות בדף המנהל עד CLOSED_DAYS ימים אחורה
 const CLOSED_DAYS = 90;
 const HEADERS = [
@@ -80,6 +80,7 @@ function setStatus(o) {
   const row = findRow(sheet, o.no);
   if (!row) return json({ ok: false, error: "הזמנה לא נמצאה" });
   sheet.getRange(row, COL.status).setValue(o.status);
+  addStatusDropdown(sheet, row);            // שורות ישנות – מעדכנים את הרשימה הנפתחת לסטטוסים החדשים
   return json({ ok: true });
 }
 
@@ -332,7 +333,7 @@ function doGet(e) {
       phone: r[7], item: r[8], when: r[9], pay: r[10], price: r[11], notes: r[12],
       pickup: r[13], pickupPhone: r[14], status: r[15], paid: r[COL.paid - 1] === "כן",
     })).filter(o => CLOSED.indexOf(o.status) === -1 || parseDate(o.date, o.time) > cutoff);
-    return json(Object.assign({ ok: true, orders: orders.reverse() }, getAvailability()));
+    return json(Object.assign({ ok: true, orders: orders.reverse(), mailQuota: mailQuota() }, getAvailability()));
   }
 
   return json({ ok: true, service: "ari-delivery" });
@@ -417,4 +418,63 @@ function testOrder() {
   }) } });
   Logger.log(res.getContent());
   Logger.log("הטבלה: " + getSpreadsheet().getUrl());
+}
+
+/* ---------- מכסת מיילים (לנורית בדף הניהול) ---------- */
+function mailQuota() {
+  try { return MailApp.getRemainingDailyQuota(); } catch (e) { return null; }
+}
+
+/* ---------- מייל בוקר יומי ----------
+   מפעילים פעם אחת מתוך העורך: בוחרים installMorningReport ולוחצים "הפעלה".
+   מאותו רגע נשלח כל בוקר בסביבות 07:30 מייל "המערכת תקינה" עם סיכום של אתמול.
+   אם המייל לא הגיע – משהו לא עובד. */
+const ADMIN_URL = "https://ariadic.github.io/Ariadelivery/admin.html";
+
+function installMorningReport() {
+  ScriptApp.getProjectTriggers()
+    .filter(t => t.getHandlerFunction() === "morningReport")
+    .forEach(t => ScriptApp.deleteTrigger(t));
+  ScriptApp.newTrigger("morningReport").timeBased().everyDays(1).atHour(7).nearMinute(30).create();
+  morningReport();                                  // שולח מייל אחד עכשיו כדי לראות שזה עובד
+  Logger.log("מייל הבוקר הופעל – יישלח כל יום בסביבות 07:30 (אזור זמן: " + Session.getScriptTimeZone() + ")");
+}
+
+function removeMorningReport() {
+  ScriptApp.getProjectTriggers()
+    .filter(t => t.getHandlerFunction() === "morningReport")
+    .forEach(t => ScriptApp.deleteTrigger(t));
+}
+
+function morningReport() {
+  const tz = Session.getScriptTimeZone();
+  const now = new Date();
+  const yest = Utilities.formatDate(new Date(now.getTime() - 24 * 3600 * 1000), tz, "dd/MM/yyyy");
+  const month = Utilities.formatDate(now, tz, "MM/yyyy");
+  const sheet = getSheet();
+  const rows = sheet.getLastRow() > 1 ? sheet.getRange(2, 1, sheet.getLastRow() - 1, HEADERS.length).getDisplayValues() : [];
+  const price = r => { const n = Number(r[COL.price - 1]); return isFinite(n) ? n : 0; };
+  const y = rows.filter(r => r[COL.date - 1] === yest && r[COL.status - 1] !== "לא פנוי");
+  const notAvail = rows.filter(r => r[COL.date - 1] === yest && r[COL.status - 1] === "לא פנוי").length;
+  const open = rows.filter(r => CLOSED.indexOf(r[COL.status - 1]) === -1);
+  const openBy = {};
+  open.forEach(r => { openBy[r[COL.customer - 1]] = (openBy[r[COL.customer - 1]] || 0) + 1; });
+  const unpaid = rows.filter(r => r[COL.date - 1].slice(3) === month && r[COL.status - 1] === "נמסר" && r[COL.paid - 1] !== "כן");
+  const sum = a => a.reduce((t, r) => t + price(r), 0);
+  const quota = mailQuota();
+  const lines = [
+    "🟢 המערכת עובדת" + (quota !== null ? " · מיילים זמינים היום: " + quota : ""),
+    "",
+    "אתמול (" + yest + "): " + y.length + " משלוחים · ₪" + sum(y) + (notAvail ? " · " + notAvail + " לא פנוי" : ""),
+    "פתוחות עכשיו: " + open.length + (open.length ? " (" + Object.keys(openBy).map(k => k + ": " + openBy[k]).join(", ") + ")" : ""),
+    "לא שולם החודש: ₪" + sum(unpaid) + " · " + unpaid.length + " משלוחים",
+    "",
+    "אם המייל הזה לא הגיע עד 08:00 – משהו לא עובד. פתח את דף הניהול ובדוק את הנורית:",
+    ADMIN_URL,
+  ];
+  MailApp.sendEmail({
+    to: NOTIFY_EMAIL || Session.getEffectiveUser().getEmail(),
+    subject: "☀️ בוקר טוב – ארי משלוחים: המערכת תקינה",
+    body: lines.join("\n"),
+  });
 }

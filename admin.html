@@ -138,11 +138,23 @@ button.secondary{border-radius:12px;color:#374151;font-size:15px}
 .sheetLink{border-radius:14px}
 .prow .drag{border-radius:10px}
 details.quick{border-radius:12px}
+
+/* ----- נורית, התראות, "קיבלתי" ----- */
+header .ht{display:flex;flex-direction:column;gap:4px;min-width:0}
+.led{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;font:600 11.5px Heebo,sans-serif;border-radius:20px;padding:3px 10px 3px 9px;white-space:nowrap}
+.led::before{content:"";width:8px;height:8px;border-radius:50%}
+.led.g{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}.led.g::before{background:#22c55e;box-shadow:0 0 0 3px #22c55e33}
+.led.r{background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5}.led.r::before{background:#ef4444;box-shadow:0 0 0 3px #ef444433}
+.alertBox{background:#fef2f2;border:1.5px solid #fca5a5;color:#991b1b;border-radius:16px;padding:12px 14px;font-size:14px;line-height:1.6;margin-bottom:12px}
+.alertBox .small{color:#7f1d1d;font-size:13px}
+.quotaBox{background:#fffbeb;border:1.5px solid #fcd34d;color:#92400e;border-radius:16px;padding:11px 14px;font-size:14px;margin-bottom:12px}
+.acts .ok{background:#7c3aed}
+.badge.ok{background:#ede9fe;color:#6d28d9}
 </style>
 </head>
 <body>
 <header>
-  <h1>🚙 ניהול הזמנות</h1>
+  <div class="ht"><h1>🚙 ניהול הזמנות</h1><span class="led" id="led" style="display:none"></span></div>
   <div class="hbtns">
     <button type="button" id="navCust" style="display:none">👥 לקוחות ומחירים</button>
     <button type="button" id="refresh">🔄 רענון</button>
@@ -158,6 +170,8 @@ details.quick{border-radius:12px}
   </section>
 
   <div id="app" style="display:none">
+    <div class="alertBox" id="connAlert" style="display:none"><b>🔴 אין חיבור לטבלה בגוגל</b><br>הזמנות חדשות יגיעו אליך <b>בווצאפ</b> עד שזה יסתדר.<br><span class="small">כדאי לבדוק: האינטרנט · הקוד בגוגל (פריסה / הרשאה)</span></div>
+    <div class="quotaBox" id="quotaWarn" style="display:none"></div>
     <section class="card avail" id="availBox">
       <div class="availRow">
         <div><div class="availTitle" id="availTitle"></div><div class="meta" id="availSub"></div></div>
@@ -275,7 +289,7 @@ details.quick{border-radius:12px}
 // אותה כתובת כמו CONFIG.sheetUrl ב-index.html
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbyeVkFBCgZJMi6gE5yBoK-ydIinjDWaGL2zSAlOhnRfsai7hz45T8abdZ7cyP23ckowTQ/exec";
 const KEY_STORE = "ariDelivery.adminKey";
-const BADGES = { "חדשה": ["🕓 חדשה", "new"], "נאסף": ["🚙 נאסף", "picked"], "נמסר": ["✅ נמסר", "done"], "לא פנוי": ["❌ לא פנוי", "no"] };
+const BADGES = { "חדשה": ["🕓 חדשה", "new"], "נאסף": ["🚙 נאסף", "picked"], "נמסר": ["✅ נמסר", "done"], "אושרה": ["👍 אושרה", "ok"], "לא פנוי": ["❌ לא פנוי", "no"] };
 const CLOSED = ["נמסר", "לא פנוי"];
 let avail = { available: true, message: "" };
 
@@ -322,9 +336,22 @@ function load() {
       if (view === "orders") $("app").style.display = "block";
       const n = new Date();
       $("note").textContent = `עודכן ב-${pad(n.getHours())}:${pad(n.getMinutes())} · מתעדכן לבד כל דקה`;
+      setLed(true, d.mailQuota);
       render();
     })
-    .catch(() => { $("note").textContent = "אין חיבור לטבלה כרגע – נסה רענון בעוד רגע"; });
+    .catch(() => { $("note").textContent = "אין חיבור לטבלה כרגע – נסה רענון בעוד רגע"; setLed(false); });
+}
+
+/* ---------- נורית: האם המערכת מחוברת, וכמה מיילים נשארו היום ---------- */
+function setLed(ok, quota) {
+  const led = $("led");
+  led.style.display = "";
+  led.className = "led " + (ok ? "g" : "r");
+  led.textContent = ok ? "מחובר" + (typeof quota === "number" ? ` · ${quota} מיילים נשארו` : "") : "אין חיבור";
+  $("connAlert").style.display = ok ? "none" : "block";
+  const low = ok && typeof quota === "number" && quota < 15;
+  $("quotaWarn").style.display = low ? "block" : "none";
+  if (low) $("quotaWarn").textContent = `⚠️ מיילים כמעט נגמרו להיום – נשארו ${quota}. ההזמנות ממשיכות להישמר בטבלה ובדף הזה.`;
 }
 
 function orderTime(o) {
@@ -383,13 +410,14 @@ function card(o) {
   const [bt, bc] = BADGES[o.status] || BADGES["חדשה"];
   const acts = el("div", { className: "acts" });
   if (CLOSED.indexOf(o.status) === -1) {
+    if (o.status === "חדשה") acts.append(el("button", { type: "button", className: "ok", textContent: "👍 קיבלתי", title: "הלקוח יראה שאישרת", onclick: e => update(o, "אושרה", e.target) }));
     if (o.status !== "נאסף") acts.append(el("button", { type: "button", className: "picked", textContent: "🚙 נאסף", onclick: e => update(o, "נאסף", e.target) }));
     acts.append(el("button", { type: "button", className: "done", textContent: "✅ נמסר", onclick: e => update(o, "נמסר", e.target) }));
     if (o.status === "חדשה") acts.append(el("button", { type: "button", className: "no", textContent: "❌ לא פנוי",
       onclick: e => { if (confirm(`לסמן שאתה לא פנוי להזמנה של ${o.recipient}? הלקוח יראה שצריך משלוח אחר.`)) update(o, "לא פנוי", e.target); } }));
   }
   if (o.status !== "חדשה") acts.append(el("button", { type: "button", className: "undo", textContent: "↩️ בטל", title: "החזר לשלב הקודם",
-    onclick: e => update(o, o.status === "נמסר" ? "נאסף" : "חדשה", e.target) }));
+    onclick: e => update(o, o.status === "נמסר" ? "נאסף" : o.status === "נאסף" ? "אושרה" : "חדשה", e.target) }));
   const payRow = o.status === "לא פנוי" ? null : el("div", { className: "payRow" + (o.paid ? " yes" : "") },
     el("span", { textContent: o.paid ? "💰 שולם" : "💸 לא שולם" }),
     el("button", { type: "button", textContent: o.paid ? "↩️ סמן לא שולם" : "💰 סמן שולם", onclick: e => setPaid(o, !o.paid, e.target) }));

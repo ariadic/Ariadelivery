@@ -67,6 +67,7 @@
   .badge.picked{background:#dbeafe;color:#1d4ed8}
   .badge.done{background:#dcfce7;color:#15803d}
   .badge.no{background:#fee2e2;color:#b91c1c}
+  .badge.ok{background:#ede9fe;color:#6d28d9}
   .paidY{color:#15803d;font-weight:600}.paidN{color:#c2410c;font-weight:600}
   ul.hist .warn{color:#b91c1c;font-size:13px;font-weight:600}
   .notice.off{background:#fef2f2;border-color:#dc2626;color:#991b1b;font-weight:600}
@@ -112,6 +113,28 @@ header h1{color:#fff;font-size:24px;text-shadow:0 1px 2px #0000001a}
 header p{color:#fff;opacity:.92;margin-top:6px}
 #orderForm > button[type=submit]{background:#25d366;box-shadow:0 10px 24px #25d36655;display:flex;align-items:center;justify-content:center;gap:10px}   /* 3 ירוק + סמל ווצאפ */
 #orderForm > button[type=submit] svg{width:26px;height:26px;fill:#fff;flex:none}
+
+/* ----- שליחה חכמה: מסך אישור / גיבוי ווצאפ / עוד משלוח ----- */
+.done{text-align:center;padding:26px 16px 18px}
+.okic{width:76px;height:76px;border-radius:50%;background:#dcfce7;display:grid;place-items:center;font-size:38px;margin:0 auto 10px}
+.okic.warnic{background:#fef3c7}
+.done h2{font-size:22px;font-weight:800;margin:0 0 4px;color:var(--text)}
+.done p{color:var(--muted);margin:0;font-size:14px;line-height:1.6}
+.doneSum{border-top:1px solid #f0f1f4;margin-top:14px;padding-top:12px;font-size:14px;line-height:1.7;color:#374151;text-align:right}
+.doneSum b{color:var(--text)}
+button.primary{width:100%;border:0;border-radius:16px;padding:15px;margin-top:4px;background:var(--grad);color:#fff;font-size:17px;font-weight:700;box-shadow:0 8px 20px #ff6a4d44}
+button.waOpt,button.waBtn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:14px;padding:12px;margin-top:10px;font-weight:600;font-size:15px}
+button.waOpt{background:#fff;border:1.5px solid #86efac;color:#15803d}
+button.waBtn{background:#25d366;border:0;color:#fff;font-size:17px;font-weight:700;padding:15px;box-shadow:0 8px 20px #25d36655}
+button.waOpt svg,button.waBtn svg{width:20px;height:20px;fill:currentColor}
+.small{font-size:12.5px!important;color:var(--muted);text-align:center;margin-top:8px}
+.bar{height:6px;border-radius:6px;background:#e5e7eb;overflow:hidden;margin:14px 6px 0}
+.bar i{display:block;height:100%;width:0;background:#25d366;transition:width 2s linear}
+.count{background:var(--brand-soft);color:var(--brand);border-radius:14px;padding:10px 12px;font-weight:700;font-size:14px;text-align:center;margin-bottom:10px}
+.kept{background:#ecfdf5;border:1.5px solid #a7f3d0;color:#065f46;border-radius:14px;padding:10px 12px;font-size:14px;margin-bottom:12px}
+#orderForm > button[type=submit][disabled]{opacity:.85}
+.spin{width:18px;height:18px;border:3px solid #ffffff66;border-top-color:#fff;border-radius:50%;display:inline-block;animation:sp .8s linear infinite;flex:none}
+@keyframes sp{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -127,6 +150,8 @@ header p{color:#fff;opacity:.92;margin-top:6px}
   <div id="pendingBox"></div>
 
   <form id="orderForm" novalidate>
+    <div class="count" id="countBanner" style="display:none"></div>
+    <div class="kept" id="keptBanner" style="display:none"></div>
     <section class="card" id="pickupFixed" style="display:none">
       <h2>📦 איסוף מ:</h2>
       <div id="pickupFixedText"></div>
@@ -197,6 +222,37 @@ header p{color:#fff;opacity:.92;margin-top:6px}
     <button type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg><span>שלח הזמנה בווצאפ</span></button>
     <button type="button" class="secondary" id="historyBtn">📋 ההזמנות שלי</button>
   </form>
+
+  <!-- ההזמנה נקלטה במערכת -->
+  <section id="doneBox" style="display:none">
+    <div class="card done">
+      <div class="okic">✅</div>
+      <h2>ההזמנה התקבלה!</h2>
+      <p id="doneNo"></p>
+      <div class="doneSum" id="doneSum"></div>
+    </div>
+    <button type="button" class="primary" id="doneMore">➕ עוד משלוח</button>
+    <button type="button" class="secondary" id="doneHistory">📋 ההזמנות שלי</button>
+    <button type="button" class="waOpt" id="doneWa">לשלוח גם הודעה בווצאפ (לא חובה)</button>
+    <div class="card" id="todayBox" style="display:none">
+      <h2 id="todayTitle"></h2>
+      <ul class="hist" id="todayList"></ul>
+    </div>
+    <button type="button" class="secondary" id="doneFinish">סיימתי</button>
+  </section>
+
+  <!-- המערכת לא אישרה – עוברים לווצאפ -->
+  <section id="fallbackBox" style="display:none">
+    <div class="card done">
+      <div class="okic warnic">⚠️</div>
+      <h2>שולחים בווצאפ</h2>
+      <p>המערכת לא אישרה שההזמנה נקלטה,<br>אז ווצאפ נפתח עם ההזמנה מוכנה – רק ללחוץ "שלח" שם.</p>
+      <div class="bar"><i id="fbBar"></i></div>
+      <p class="small" id="fbCount">ווצאפ נפתח בעוד 2 שניות…</p>
+    </div>
+    <button type="button" class="waBtn" id="fbOpen">פתח ווצאפ עכשיו</button>
+    <p class="small">ההזמנה נשמרה בטלפון ותישלח למערכת של ארי אוטומטית כשהחיבור יחזור</p>
+  </section>
 
   <section class="card" id="historyCard" style="display:none">
     <h2>📋 ההזמנות שלי</h2>
@@ -540,23 +596,112 @@ $("orderForm").addEventListener("submit", e => {
     notes, message: text, code: CUSTOMER ? CUSTOMER_CODE : "",
   };
 
-  backupToSheet(record);
-  saveHistory(record);
+  saveHistory(record);                     // נשמר במכשיר – אם השליחה תיכשל, הגיבוי ישלח שוב
   saveRecipient({ name: record.recipient, label, street, phone: record.recipientPhone });
-  addPending({ no: orderNo, summary: `${record.recipient} – ${label}`, link: waLink });
-  resetForm();
-  window.location.href = waLink;
+  lastKept = { size: val("size"), when: val("when") };
+  if (!CONFIG.sheetUrl) {                  // בלי מערכת – ווצאפ כמו פעם
+    addPending({ no: orderNo, summary: `${record.recipient} – ${label}`, link: waLink });
+    resetForm();
+    window.location.href = waLink;
+    return;
+  }
+  sendOrder(record, waLink, label);
 });
 
-/* ---------- גיבוי לטבלה ולמייל (Google Apps Script) ---------- */
-function backupToSheet(record) {
-  if (!CONFIG.sheetUrl) return;
-  const body = JSON.stringify(record);
-  // sendBeacon ממשיך לשלוח גם כשהדף עובר לווצאפ
-  let ok = false;
-  try { ok = navigator.sendBeacon(CONFIG.sheetUrl, new Blob([body], { type: "text/plain" })); } catch (e) {}
-  if (!ok) fetch(CONFIG.sheetUrl, { method: "POST", mode: "no-cors", keepalive: true, body }).catch(() => {});
+/* ---------- שליחה חכמה: מחכים לאישור מהמערכת, ואם אין – ווצאפ ---------- */
+const WA_SVG = document.querySelector("#orderForm > button[type=submit] svg").outerHTML;
+const SUBMIT_TEXT = "שלח הזמנה לארי";
+const submitBtn = document.querySelector("#orderForm > button[type=submit]");
+if (CONFIG.sheetUrl) submitBtn.querySelector("span").textContent = SUBMIT_TEXT;
+let lastKept = null, fbTimer = null, fbShownAt = 0;
+
+function sendOrder(record, waLink, label) {
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<span class="spin"></span><span>שולח לארי…</span>';
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 10000);
+  fetch(CONFIG.sheetUrl, { method: "POST", body: JSON.stringify(record), signal: ctrl.signal })
+    .then(r => r.json())
+    .then(d => { if (!d || !d.ok) throw new Error("not saved"); showDone(record, waLink); })
+    .catch(() => showFallback(record, waLink, label))
+    .finally(() => {
+      clearTimeout(timer);
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = WA_SVG + "<span>" + SUBMIT_TEXT + "</span>";
+    });
 }
+
+function showOnly(id) {
+  ["orderForm", "doneBox", "fallbackBox", "historyCard"].forEach(x => { $(x).style.display = x === id ? "block" : "none"; });
+  $("pendingBox").style.display = id === "fallbackBox" ? "none" : "";   // התזכורת תופיע כשחוזרים מווצאפ
+  window.scrollTo(0, 0);
+}
+const todayOrders = () => (load(HISTORY_KEY) || []).filter(x => new Date(x.time).toDateString() === new Date().toDateString());
+const money = a => a.reduce((t, x) => t + (typeof x.price === "number" ? x.price : 0), 0);
+
+function showDone(record, waLink) {
+  $("doneNo").textContent = `נשמרה במערכת של ארי · מס' ${record.no}`;
+  const sum = $("doneSum"); sum.replaceChildren();
+  const l1 = document.createElement("div"); l1.append("📍 "); const b = document.createElement("b"); b.textContent = record.recipient; l1.append(b, ` – ${record.address}`);
+  const l2 = document.createElement("div");
+  l2.textContent = `📏 ${record.item} · ${record.when} · ${typeof record.price === "number" ? "₪" + record.price : record.price} · ${record.pay}`;
+  sum.append(l1, l2);
+  $("doneWa").innerHTML = WA_SVG + "<span>לשלוח גם הודעה בווצאפ (לא חובה)</span>";
+  $("doneWa").onclick = () => { window.location.href = waLink; };
+  const today = todayOrders();
+  $("todayBox").style.display = today.length > 1 ? "block" : "none";
+  $("todayTitle").textContent = `📦 היום שלחת ${today.length} משלוחים · ₪${money(today)}`;
+  $("todayList").replaceChildren(...today.slice().reverse().slice(0, 8).map(x => {
+    const li = document.createElement("li"); const t = new Date(x.time);
+    li.textContent = `${x.recipient} – ${x.address}`;
+    const m = document.createElement("div"); m.className = "meta";
+    m.textContent = `${pad(t.getHours())}:${pad(t.getMinutes())} · ${x.item} · ${typeof x.price === "number" ? "₪" + x.price : x.price}`;
+    li.append(m); return li;
+  }));
+  resetForm();
+  showOnly("doneBox");
+}
+
+function showFallback(record, waLink, label) {
+  addPending({ no: record.no, summary: `${record.recipient} – ${label}`, link: waLink });
+  resetForm();
+  showOnly("fallbackBox");
+  $("fbOpen").innerHTML = WA_SVG + "<span>פתח ווצאפ עכשיו</span>";
+  $("fbOpen").onclick = () => { clearTimeout(fbTimer); window.location.href = waLink; };
+  const bar = $("fbBar"); bar.style.transition = "none"; bar.style.width = "0";
+  requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.transition = "width 2s linear"; bar.style.width = "100%"; }));
+  fbShownAt = Date.now();
+  clearTimeout(fbTimer);
+  fbTimer = setTimeout(() => { window.location.href = waLink; }, 2000);
+}
+// חזרה מווצאפ אחרי גיבוי – חוזרים לטופס (התזכורת "נשלחה בווצאפ?" מופיעה למעלה)
+window.addEventListener("pageshow", () => { if ($("fallbackBox").style.display === "block" && Date.now() - fbShownAt > 2500) showOnly("orderForm"); });
+
+// "➕ עוד משלוח": טופס חדש, "מה שולחים" ו"מתי" נשארים כמו בהזמנה הקודמת
+$("doneMore").addEventListener("click", () => {
+  if (lastKept) {
+    [["size", lastKept.size], ["when", lastKept.when]].forEach(([n, v]) => {
+      const r = document.querySelector(`input[name=${n}][value="${v}"]`); if (r) r.checked = true;
+    });
+    $("whenTimeBox").style.display = val("when") === WHEN[2] ? "block" : "none";
+    $("keptBanner").textContent = `✓ שמרנו מהמשלוח הקודם: ${lastKept.size} · ${lastKept.when}`;
+    $("keptBanner").style.display = "block";
+  }
+  const today = todayOrders();
+  $("countBanner").textContent = `📦 משלוח ${today.length + 1} היום · ₪${money(today)} עד עכשיו`;
+  $("countBanner").style.display = "block";
+  showPrice();
+  showOnly("orderForm");
+  $("dName").focus();
+});
+$("doneFinish").addEventListener("click", () => {
+  ["size", "when"].forEach(n => { const r = document.querySelector(`input[name=${n}]`); if (r) r.checked = true; });
+  $("whenTimeBox").style.display = "none";
+  $("keptBanner").style.display = "none"; $("countBanner").style.display = "none";
+  lastKept = null; showPrice();
+  showOnly("orderForm");
+});
+$("doneHistory").addEventListener("click", () => $("historyBtn").click());
 
 /* ---------- היסטוריית הזמנות במכשיר ---------- */
 const scope = CUSTOMER_CODE && CUSTOMER ? CUSTOMER_CODE : "_";
@@ -664,7 +809,7 @@ function renderStats(excluded) {
 }
 
 /* ---------- סטטוס משלוח (מהטבלה בגוגל) ---------- */
-const BADGES = { "חדשה": ["🕓 ממתין", "new"], "נאסף": ["🚙 בדרך", "picked"], "נמסר": ["✅ נמסר", "done"], "לא פנוי": ["❌ לא פנוי", "no"] };
+const BADGES = { "חדשה": ["🕓 ממתין", "new"], "נאסף": ["🚙 בדרך", "picked"], "נמסר": ["✅ נמסר", "done"], "אושרה": ["👍 ארי אישר", "ok"], "לא פנוי": ["❌ לא פנוי", "no"] };
 function paintBadges(statuses) {
   document.querySelectorAll(".badge[data-no]").forEach(b => {
     const st = statuses ? statuses[b.dataset.no] : undefined;
@@ -701,11 +846,11 @@ function loadStatuses(nos) {
 }
 $("historyBtn").addEventListener("click", () => {
   renderHistory();
-  $("orderForm").style.display = "none"; $("historyCard").style.display = "block"; window.scrollTo(0, 0);
+  showOnly("historyCard");
 });
 $("historyRefresh").addEventListener("click", renderHistory);
 $("historyClose").addEventListener("click", () => {
-  $("historyCard").style.display = "none"; $("orderForm").style.display = "block"; window.scrollTo(0, 0);
+  showOnly("orderForm");
 });
 
 /* ---------- מקבלים חוזרים: השלמה אוטומטית ---------- */
