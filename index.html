@@ -2,81 +2,145 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ארי משלוחים – הזמנת משלוח</title>
-<meta name="description" content="הזמנת משלוח מהירה – ממלאים פרטים ושולחים בווצאפ">
-<meta name="theme-color" content="#ff7a00">
+<meta name="description" content="הזמנת משלוח מהירה – בוחרים יעד, ממלאים מקבל ושולחים">
+<meta name="theme-color" content="#ffffff">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --brand:#ff7a00; --brand-soft:#fff4e8; --wa:#25d366;
-    --bg:#f3f4f6; --card:#fff; --text:#1f2937; --muted:#6b7280; --line:#d1d5db; --err:#dc2626;
+    --brand:#ff6a4d; --brand-2:#ff8a3d; --brand-3:#ff5f6d; --brand-soft:#fff5f1; --brand-ring:#ff6a4d2e;
+    --grad:linear-gradient(135deg,var(--brand-2),var(--brand-3));
+    --bg:#f6f7fb; --card:#fff; --text:#111827; --text-2:#374151; --muted:#6b7280; --line:#e5e7eb; --field:#fafbfc;
+    --err:#dc2626; --ok:#16a34a;
+    --shadow:0 1px 2px #0000000d,0 4px 14px #0000000a;
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
-  header{background:var(--brand);color:#fff;text-align:center;padding:22px 16px 18px}
-  header img{max-height:70px;max-width:200px;display:block;margin:0 auto 8px}
-  header h1{margin:0;font-size:24px}
-  header p{margin:6px 0 0;opacity:.92;font-size:15px}
-  main{max-width:520px;margin:0 auto;padding:16px}
-  .notice{background:#fef3c7;border:1px solid #f59e0b;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:14px;display:none}
-  .card{background:var(--card);border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 1px 4px #0001}
-  .card h2{margin:0 0 12px;font-size:17px;color:var(--brand)}
-  label{display:block;font-size:14px;margin:10px 0 4px;font-weight:600}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;font-family:Heebo,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+
+  /* ----- כותרת ----- */
+  header{background:var(--card);border-bottom:1px solid #eef0f4;padding:22px 18px 16px}
+  .hwrap{max-width:520px;margin:0 auto}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{width:48px;height:48px;border-radius:15px;background:var(--grad);display:grid;place-items:center;font-size:24px;flex:none;box-shadow:0 6px 16px #ff6a4d55;overflow:hidden}
+  .logo img{width:100%;height:100%;object-fit:cover}
+  .brand .txt{flex:1;min-width:0}
+  header h1{margin:0;font-size:21px;font-weight:800;line-height:1.2}
+  header p{margin:2px 0 0;font-size:13px;color:var(--muted)}
+  .iconbtn{flex:none;width:auto;margin:0;padding:9px 12px;border-radius:12px;background:var(--bg);color:var(--text-2);border:1px solid var(--line);font:600 13px Heebo,sans-serif;cursor:pointer}
+  .steps{display:flex;gap:6px;margin-top:16px}
+  .steps i{flex:1;height:5px;border-radius:5px;background:var(--line);transition:background .3s}
+  .steps i.on{background:var(--grad)}
+
+  main{max-width:520px;margin:0 auto;padding:16px 16px 0}
+  .notice{background:#fffbeb;border:1px solid #fcd34d;color:#92400e;border-radius:14px;padding:11px 14px;margin-bottom:12px;font-size:14px;display:none}
+  .notice.off{background:#fef2f2;border-color:#fca5a5;color:#991b1b;font-weight:600}
+
+  /* ----- כרטיסים ----- */
+  .card{background:var(--card);border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+  .card h2{margin:0 0 12px;font-size:16px;font-weight:700;color:var(--text)}
+  label{display:block;font-size:13px;margin:12px 0 5px;font-weight:600;color:var(--text-2)}
   label .opt{font-weight:400;color:var(--muted)}
-  input,select,textarea{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--text)}
-  textarea{min-height:70px;resize:vertical}
-  input:focus,select:focus,textarea:focus{outline:2px solid var(--brand);border-color:var(--brand)}
-  .bad{border-color:var(--err)!important}
-  .errmsg{color:var(--err);font-size:13px;margin-top:3px;display:none}
+  input,select,textarea{width:100%;font:inherit;font-size:16px;padding:13px 14px;border:1.5px solid var(--line);border-radius:14px;background:var(--field);color:var(--text);transition:border-color .15s,box-shadow .15s}
+  input::placeholder,textarea::placeholder{color:#9ca3af}
+  textarea{min-height:72px;resize:vertical}
+  input:focus,select:focus,textarea:focus{outline:0;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-ring);background:#fff}
+  .bad{border-color:var(--err)!important;box-shadow:0 0 0 3px #dc26261f!important}
+  .errmsg{color:var(--err);font-size:13px;margin-top:4px;display:none}
   .bad + .errmsg{display:block}
+  .sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+  /* איסוף קבוע */
+  .pick{display:flex;gap:12px;align-items:center;font-size:14px;color:var(--text-2);line-height:1.5}
+  .pick .ic{width:40px;height:40px;border-radius:12px;background:var(--brand-soft);display:grid;place-items:center;font-size:19px;flex:none}
+  .pick b{display:block;color:var(--text);font-size:15px}
+  #pickupFixed{padding:14px 16px}
+
+  /* ----- יעדים כאריחים ----- */
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .tile{width:100%;margin:0;display:flex;align-items:center;justify-content:space-between;gap:6px;text-align:right;
+    font:500 14px Heebo,sans-serif;color:var(--text-2);background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:11px 12px;cursor:pointer;transition:.15s;min-height:46px}
+  .tile b{color:var(--text);font-weight:700;white-space:nowrap}
+  .tile .nm{min-width:0;overflow:hidden;text-overflow:ellipsis}
+  .tile:hover{border-color:#d1d5db}
+  .tile.sel{border-color:var(--brand);background:var(--brand-soft);box-shadow:0 0 0 3px var(--brand-ring);color:var(--text)}
+  .tile.sel b{color:var(--brand)}
+  .tile.more{justify-content:center;color:var(--muted);font-weight:600}
+  .tile.other{justify-content:center;color:var(--text-2)}
+  .tiles.bad{border-radius:16px;box-shadow:0 0 0 3px #dc26261f;outline:1.5px solid var(--err);outline-offset:3px}
+  #destErr{margin-top:8px}
+  #destMore{margin-top:8px}
+  #destSearch{margin-bottom:8px;padding:11px 14px}
+  #otherBox{margin-top:10px}
+  .pricenote{margin-top:10px;font-size:13px;color:var(--muted);min-height:18px}
+  .pricenote b{color:var(--brand)}
+
+  /* ----- בחירות (צ'יפים) ----- */
   .chips{display:flex;flex-wrap:wrap;gap:8px;position:relative}
   .chips input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;top:0;right:0}
-  .chips label{flex:1 1 30%;margin:0;text-align:center;font-weight:500;border:1.5px solid var(--brand);color:var(--brand);border-radius:20px;padding:9px 6px;cursor:pointer;user-select:none}
-  .chips input:checked + label{background:var(--brand);color:#fff}
+  .chips label{flex:1 1 28%;margin:0;text-align:center;font-weight:500;font-size:14px;border:1.5px solid var(--line);color:var(--text-2);background:#fff;border-radius:12px;padding:10px 6px;cursor:pointer;user-select:none;transition:.15s}
+  .chips input:checked + label{border-color:var(--brand);background:var(--brand-soft);color:var(--text);font-weight:700;box-shadow:0 0 0 3px var(--brand-ring)}
   .chips input:focus-visible + label{outline:2px solid var(--text)}
-  .row{display:flex;gap:10px}.row>div{flex:1}
-  .price{background:var(--brand-soft);border-radius:12px;padding:14px;text-align:center;font-size:16px}
-  .price b{font-size:24px;color:var(--brand)}
-  .price small{display:block;color:var(--muted);margin-top:4px}
-  .check{display:flex;gap:8px;align-items:center;font-weight:400;margin-top:12px}
-  .check input{width:20px;height:20px}
-  button{width:100%;font:inherit;font-size:19px;font-weight:700;color:#fff;background:var(--wa);border:0;border-radius:12px;padding:15px;cursor:pointer;margin-top:4px}
-  button:active{transform:scale(.99)}
-  .pending{border:2px solid #f59e0b;background:#fffbeb}
-  .pending h2{color:#b45309;font-size:16px;margin:0 0 6px}
-  .pending p{margin:0 0 10px;line-height:1.5}
+  .check{display:flex;gap:8px;align-items:center;font-weight:400;font-size:14px;margin-top:12px;color:var(--text-2)}
+  .check input{width:20px;height:20px;accent-color:var(--brand)}
+
+  /* ----- כפתור שליחה קבוע ----- */
+  .cta{position:sticky;bottom:0;z-index:5;margin:0 -16px;padding:14px 16px calc(16px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#f6f7fb00,var(--bg) 32%)}
+  button{font:inherit;cursor:pointer}
+  .cta button{width:100%;margin:0;border:0;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--grad);color:#fff;border-radius:18px;padding:17px 20px;font:700 18px Heebo,sans-serif;box-shadow:0 10px 24px #ff6a4d55;transition:transform .1s}
+  .cta button:active{transform:scale(.985)}
+  .cta .pp{background:#ffffff33;border-radius:10px;padding:4px 10px;font-size:16px;white-space:nowrap}
+  .cta .pp:empty{display:none}
+  .cta .lbl{flex:1;text-align:right}
+
+  /* ----- תזכורות ----- */
+  .pending{border:1.5px solid #fcd34d;background:#fffbeb}
+  .pending h2{color:#b45309;font-size:15px;margin:0 0 4px}
+  .pending p{margin:0 0 12px;line-height:1.5;color:var(--text-2)}
   .pending .btns{display:flex;gap:8px}
-  .pending button{font-size:16px;padding:11px;margin:0}
-  .pending .resend{background:#fff;color:#b45309;border:1.5px solid #f59e0b}
-  button.secondary{background:#fff;color:var(--text);border:1.5px solid var(--line);font-size:16px;font-weight:600;padding:12px;margin-top:10px}
-  .stats{display:flex;gap:8px;margin-bottom:6px}
-  .stats div{flex:1;background:var(--brand-soft);border-radius:10px;padding:10px 6px;text-align:center;font-size:13px;color:var(--muted)}
-  .stats b{display:block;font-size:20px;color:var(--brand)}
-  h3.sub{font-size:15px;margin:14px 0 6px}
+  .pending button{flex:1;font-size:15px;font-weight:700;padding:11px;margin:0;border:0;border-radius:12px;background:var(--ok);color:#fff}
+  .pending .resend{background:#fff;color:#b45309;border:1.5px solid #fcd34d}
+
+  /* ----- ההזמנות שלי ----- */
+  button.secondary{width:100%;background:#fff;color:var(--text-2);border:1.5px solid var(--line);font-size:15px;font-weight:600;padding:12px;margin-top:10px;border-radius:14px}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:6px}
+  .stats div{background:var(--brand-soft);border-radius:14px;padding:10px 4px;text-align:center;font-size:12px;color:var(--muted);line-height:1.3}
+  .stats b{display:block;font-size:20px;color:var(--brand);font-weight:800}
+  h3.sub{font-size:14px;margin:16px 0 4px;color:var(--text-2)}
   ul.hist{list-style:none;margin:0;padding:0}
-  ul.hist li{border-bottom:1px solid var(--line);padding:8px 0;font-size:14px;line-height:1.5}
+  ul.hist li{display:flex;gap:8px;align-items:flex-start;justify-content:space-between;border-bottom:1px solid #f0f1f4;padding:10px 0;font-size:14px;line-height:1.5}
   ul.hist li:last-child{border-bottom:0}
-  ul.hist .meta{color:var(--muted);font-size:13px}
-  ul.hist li{display:flex;gap:8px;align-items:flex-start;justify-content:space-between}
-  .badge{flex:none;font-size:13px;font-weight:700;border-radius:14px;padding:4px 10px;white-space:nowrap}
+  ul.hist .meta{color:var(--muted);font-size:12.5px}
+  .badge{flex:none;font-size:12.5px;font-weight:700;border-radius:20px;padding:4px 10px;white-space:nowrap}
   .badge.new{background:#f3f4f6;color:#4b5563}
   .badge.picked{background:#dbeafe;color:#1d4ed8}
   .badge.done{background:#dcfce7;color:#15803d}
   .badge.no{background:#fee2e2;color:#b91c1c}
   .paidY{color:#15803d;font-weight:600}.paidN{color:#c2410c;font-weight:600}
   ul.hist .warn{color:#b91c1c;font-size:13px;font-weight:600}
-  .notice.off{background:#fef2f2;border-color:#dc2626;color:#991b1b;font-weight:600}
   .statusNote{color:var(--muted);font-size:12px;text-align:center;margin-top:8px}
-  #pickupFixedText{line-height:1.6}
-  footer{text-align:center;color:var(--muted);font-size:13px;padding:8px 16px 28px}
+  #pickupFixedText{line-height:1.5}
+
+  footer{text-align:center;color:var(--muted);font-size:12.5px;padding:6px 16px 26px;line-height:1.6}
   footer a{color:var(--muted)}
 </style>
 </head>
 <body>
 <header>
-  <img src="logo.png" alt="" onerror="this.remove()">
-  <h1>🛵 ארי משלוחים</h1>
-  <p>ממלאים פרטים ← שולחים בווצאפ ← יוצאים לדרך</p>
+  <div class="hwrap">
+    <div class="brand">
+      <div class="logo" id="logoBox"><img src="logo.png" alt="" onerror="this.remove()"><span id="logoEmoji">🛵</span></div>
+      <div class="txt">
+        <h1 id="brandTitle">ארי משלוחים</h1>
+        <p id="brandSub">בוחרים יעד · ממלאים מקבל · שולחים</p>
+      </div>
+      <button type="button" class="iconbtn" id="historyBtn">📋 ההזמנות שלי</button>
+    </div>
+    <div class="steps" aria-hidden="true"><i id="st1"></i><i id="st2"></i><i id="st3"></i></div>
+  </div>
 </header>
 
 <main>
@@ -86,32 +150,47 @@
 
   <form id="orderForm" novalidate>
     <section class="card" id="pickupFixed" style="display:none">
-      <h2>📦 איסוף מ:</h2>
-      <div id="pickupFixedText"></div>
+      <div class="pick"><div class="ic">📦</div><div id="pickupFixedText"></div></div>
     </section>
 
     <section class="card" id="pickupCard">
-      <h2>📦 איסוף מ:</h2>
+      <h2>📦 מאיפה אוספים?</h2>
       <label for="pName">שם / שם העסק</label>
       <input id="pName" autocomplete="organization" required>
       <div class="errmsg">נא למלא שם</div>
-      <label for="pAddr">כתובת איסוף (רחוב, מספר, עיר)</label>
-      <input id="pAddr" autocomplete="street-address" required>
+      <label for="pAddr">כתובת איסוף</label>
+      <input id="pAddr" autocomplete="street-address" placeholder="רחוב, מספר, עיר" required>
       <div class="errmsg">נא למלא כתובת איסוף</div>
       <label for="pPhone">טלפון</label>
       <input id="pPhone" type="tel" inputmode="tel" autocomplete="tel" required>
       <div class="errmsg">מספר טלפון לא תקין</div>
+      <label class="check" id="rememberRow"><input type="checkbox" id="remember" checked> לזכור את פרטי האיסוף שלי לפעם הבאה</label>
     </section>
 
     <section class="card">
-      <h2>📍 מסירה ל:</h2>
+      <h2>📍 לאן שולחים?</h2>
+      <label for="dCity" class="sr">יעד</label>
+      <select id="dCity" class="sr" required tabindex="-1" aria-hidden="true"></select>
+      <div class="tiles" id="destTiles" role="group" aria-label="בחירת יעד"></div>
+      <div id="destMore" style="display:none">
+        <input id="destSearch" type="search" placeholder="🔎 חיפוש יעד…" autocomplete="off">
+        <div class="tiles" id="destMoreTiles"></div>
+      </div>
+      <div id="otherBox" style="display:none">
+        <label for="otherCity">לאן? (עיר / שכונה)</label>
+        <input id="otherCity" placeholder="למשל: נשר, טירת כרמל">
+        <div class="errmsg">נא לכתוב לאן שולחים</div>
+      </div>
+      <div class="errmsg" id="destErr">נא לבחור יעד</div>
+      <div class="pricenote" id="priceBox"></div>
+    </section>
+
+    <section class="card">
+      <h2>👤 מי מקבל?</h2>
       <label for="dName">שם המקבל</label>
       <input id="dName" list="recipients" autocomplete="off" required>
       <datalist id="recipients"></datalist>
       <div class="errmsg">נא למלא שם מקבל</div>
-      <label for="dCity">עיר / שכונה</label>
-      <select id="dCity" required></select>
-      <div class="errmsg">נא לבחור עיר</div>
       <label for="dAddr">רחוב ומספר בית</label>
       <input id="dAddr" required>
       <div class="errmsg">נא למלא כתובת מסירה</div>
@@ -122,7 +201,7 @@
 
     <section class="card">
       <h2>📋 פרטי המשלוח</h2>
-      <label id="sizeLabel">גודל</label>
+      <label id="sizeLabel" style="margin-top:0">גודל</label>
       <div class="chips" id="sizeChips"></div>
       <label>מתי?</label>
       <div class="chips" id="whenChips"></div>
@@ -147,13 +226,7 @@
       <textarea id="notes"></textarea>
     </section>
 
-    <section class="card">
-      <div class="price" id="priceBox">בחרו יעד כדי לראות מחיר</div>
-      <label class="check" id="rememberRow"><input type="checkbox" id="remember" checked> לזכור את פרטי האיסוף שלי לפעם הבאה</label>
-    </section>
-
-    <button type="submit">שלח הזמנה בווצאפ ✅</button>
-    <button type="button" class="secondary" id="historyBtn">📋 ההזמנות שלי</button>
+    <div class="cta"><button type="submit"><span class="lbl" id="ctaLabel">שליחת הזמנה ←</span><span class="pp" id="ctaPrice"></span></button></div>
   </form>
 
   <section class="card" id="historyCard" style="display:none">
@@ -169,12 +242,11 @@
     <button type="button" class="secondary" id="historyRefresh">🔄 רענון סטטוס</button>
     <button type="button" class="secondary" id="historyClose">חזרה להזמנה</button>
   </section>
-
 </main>
 
 <footer>
   ארי משלוחים · <a href="tel:0504848398">050-4848398</a><br>
-  <span id="footHint">לחיצה על הכפתור תפתח את ווצאפ עם ההזמנה מוכנה – רק ללחוץ "שלח"</span>
+  <span id="footHint">ההזמנה נשמרת אצל ארי, וווצאפ נפתח עם ההודעה מוכנה – רק ללחוץ "שלח"</span>
 </footer>
 
 <script>
@@ -344,9 +416,12 @@ if (CUSTOMER) {
   $("pName").value = CUSTOMER.name || "";
   $("pAddr").value = CUSTOMER.addr || "";
   if (CUSTOMER.phone) $("pPhone").value = CUSTOMER.phone;
-  document.querySelector("header h1").textContent = CUSTOMER.title || "🛵 ארי משלוחים";
-  document.querySelector("header p").textContent = CUSTOMER.title
-    ? "משלוחים באמצעות ארי משלוחים 🛵" : `שלום ${CUSTOMER.name} 👋`;
+  // אימוג'י בתחילת הכותרת עובר לריבוע הלוגו ("🌸 פרחי אודי ודורית")
+  const t = (CUSTOMER.title || CUSTOMER.name || "").trim();
+  const em = t.match(/^(\p{Extended_Pictographic}\uFE0F?)\s*/u);
+  if (em) $("logoEmoji").textContent = em[1];
+  $("brandTitle").textContent = em ? t.slice(em[0].length) : t;
+  $("brandSub").textContent = "משלוחים עם ארי משלוחים 🛵";
   document.title = (CUSTOMER.title || CUSTOMER.name) + " – ארי משלוחים";
   if (CUSTOMER.sizes) $("sizeLabel").textContent = "מה שולחים?";
   if (CUSTOMER.greeting) $("greetingBox").style.display = "block";
@@ -360,7 +435,6 @@ if (CUSTOMER) {
   }
   if (CUSTOMER.pay) $("payBox").style.display = "none";
   if (CUSTOMER.hidePayer) $("payerBox").style.display = "none";
-  if (AGREED) $("priceBox").textContent = "🤝 מחיר לפי הסכם";
 }
 
 /* ---------- מחיר ---------- */
@@ -370,13 +444,86 @@ function calcPrice() {
   return d.price + (val("when") === WHEN[1] ? URGENT_EXTRA : 0);
 }
 function showPrice() {
-  if (AGREED) return;
-  const label = $("dCity").value, box = $("priceBox");
+  syncTiles();
+  updateSteps();
+  const label = $("dCity").value, box = $("priceBox"), cta = $("ctaPrice");
+  cta.textContent = "";
+  if (AGREED) { box.textContent = "🤝 מחיר לפי הסכם"; return; }
   if (!label) { box.textContent = "בחרו יעד כדי לראות מחיר"; return; }
-  if (label === OTHER_CITY) { box.innerHTML = "המחיר ייקבע בשיחה<small>נחזור אליכם עם הצעת מחיר</small>"; return; }
-  const extra = val("when") === WHEN[1] && URGENT_EXTRA ? `<small>כולל ₪${URGENT_EXTRA} תוספת דחוף</small>` : "";
+  if (label === OTHER_CITY) { box.textContent = "המחיר ייקבע בשיחה – נחזור אליכם עם הצעת מחיר"; return; }
+  const extra = val("when") === WHEN[1] && URGENT_EXTRA ? ` · כולל ₪${URGENT_EXTRA} תוספת דחוף` : "";
   box.innerHTML = `מחיר המשלוח: <b>₪${calcPrice()}</b>${extra}`;
+  cta.textContent = "₪" + calcPrice();
 }
+
+/* ---------- יעדים כאריחים ---------- */
+const TILE_MAX = 6;                      // כמה יעדים מוצגים לפני "עוד יעדים"
+function makeTile(d) {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "tile"; b.dataset.label = d.label;
+  const nm = document.createElement("span"); nm.className = "nm"; nm.textContent = d.label.replace(/^.*? – /, "");
+  nm.title = d.label;
+  b.append(nm);
+  if (!AGREED) { const pr = document.createElement("b"); pr.textContent = "₪" + d.price; b.append(pr); }
+  b.addEventListener("click", () => selectDest(d.label));
+  return b;
+}
+function buildTiles() {
+  const many = DESTS.length > TILE_MAX;
+  const first = DESTS.slice(0, TILE_MAX), rest = DESTS.slice(TILE_MAX);
+  const box = $("destTiles");
+  box.replaceChildren(...first.map(makeTile));
+  if (many) {
+    const more = document.createElement("button");
+    more.type = "button"; more.className = "tile more"; more.id = "moreTile";
+    more.textContent = `עוד ${rest.length} יעדים ▾`;
+    more.addEventListener("click", () => toggleMore());
+    box.append(more);
+  }
+  const other = document.createElement("button");
+  other.type = "button"; other.className = "tile other"; other.id = "otherTile"; other.dataset.label = OTHER_CITY;
+  other.textContent = "📍 יעד אחר";
+  other.addEventListener("click", () => { selectDest(OTHER_CITY); $("otherCity").focus(); });
+  box.append(other);
+  $("destMoreTiles").replaceChildren(...rest.map(makeTile));
+  $("destSearch").style.display = rest.length > 8 ? "" : "none";
+}
+function toggleMore(open) {
+  const box = $("destMore"), show = open !== undefined ? open : box.style.display === "none";
+  box.style.display = show ? "block" : "none";
+  const t = $("moreTile");
+  if (t) t.textContent = show ? "פחות יעדים ▴" : `עוד ${DESTS.length - TILE_MAX} יעדים ▾`;
+}
+$("destSearch").addEventListener("input", () => {
+  const q = $("destSearch").value.trim();
+  [...$("destMoreTiles").children].forEach(t => { t.style.display = !q || t.dataset.label.includes(q) ? "" : "none"; });
+});
+function selectDest(label) {
+  $("dCity").value = label;
+  $("destTiles").classList.remove("bad"); $("destErr").style.display = "none";
+  $("dCity").dispatchEvent(new Event("change"));
+}
+function syncTiles() {
+  const v = $("dCity").value;
+  document.querySelectorAll(".tile[data-label]").forEach(t => {
+    t.classList.toggle("sel", t.dataset.label === v);
+    t.setAttribute("aria-pressed", t.dataset.label === v ? "true" : "false");
+  });
+  if (v && DESTS.slice(TILE_MAX).some(d => d.label === v) && $("destMore").style.display === "none") toggleMore(true);
+  $("otherBox").style.display = v === OTHER_CITY ? "block" : "none";
+}
+
+/* ---------- פס התקדמות בראש הדף ---------- */
+function updateSteps() {
+  const v = $("dCity").value;
+  const dest = !!v && (v !== OTHER_CITY || $("otherCity").value.trim() !== "");
+  const who = ["dName", "dAddr"].every(id => $(id).value.trim()) && phoneOk($("dPhone").value);
+  $("st1").classList.toggle("on", dest);
+  $("st2").classList.toggle("on", who);
+  $("st3").classList.toggle("on", dest && who);
+}
+$("orderForm").addEventListener("input", updateSteps);
+buildTiles();
 $("dCity").addEventListener("change", showPrice);
 document.querySelectorAll("input[name=when]").forEach(r => r.addEventListener("change", () => {
   $("whenTimeBox").style.display = val("when") === WHEN[2] ? "block" : "none";
@@ -413,11 +560,15 @@ checkAvailability();
 document.addEventListener("visibilitychange", () => { if (!document.hidden) checkAvailability(); });
 
 /* ---------- בדיקות ---------- */
-const phoneOk = s => /^0\d{8,9}$/.test(s.replace(/\D/g, "").replace(/^972/, "0"));
+function phoneOk(s) { return /^0\d{8,9}$/.test(s.replace(/\D/g, "").replace(/^972/, "0")); }
 function check(id, ok) { $(id).classList.toggle("bad", !ok); return ok; }
 function validate() {
   let ok = true;
-  ["pName", "pAddr", "dName", "dAddr", "dCity"].forEach(id => { ok = check(id, $(id).value.trim() !== "") && ok; });
+  ["pName", "pAddr", "dName", "dAddr"].forEach(id => { ok = check(id, $(id).value.trim() !== "") && ok; });
+  const destOk = $("dCity").value !== "";
+  $("destTiles").classList.toggle("bad", !destOk); $("destErr").style.display = destOk ? "none" : "block";
+  ok = destOk && ok;
+  if ($("dCity").value === OTHER_CITY) ok = check("otherCity", $("otherCity").value.trim() !== "") && ok;
   ok = check("pPhone", phoneOk($("pPhone").value)) && ok;
   ok = check("dPhone", phoneOk($("dPhone").value)) && ok;
   if (val("when") === WHEN[2]) ok = check("whenTime", $("whenTime").value !== "") && ok;
@@ -440,8 +591,9 @@ $("orderForm").addEventListener("submit", e => {
   const now = new Date();
   const orderNo = `${pad(now.getDate())}${pad(now.getMonth() + 1)}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
   const label = $("dCity").value, d = destOf(label);
+  const otherTxt = label === OTHER_CITY ? $("otherCity").value.trim() : "";
   const street = $("dAddr").value.trim();
-  const fullDest = d ? `${street}, ${d.city}` : street;
+  const fullDest = d ? `${street}, ${d.city}` : otherTxt ? `${street}, ${otherTxt}` : street;
   const destLine = d && d.label !== d.city ? `${street}, ${d.label}` : fullDest;
   const price = calcPrice();
   let when = val("when");
@@ -469,7 +621,7 @@ $("orderForm").addEventListener("submit", e => {
     `📏 ${val("size")} | ⏱ ${when}`,
     `💰 ${(CUSTOMER && CUSTOMER.pay) || val("pay")}${CUSTOMER && CUSTOMER.hidePayer ? "" : " – משלם " + val("payer")}`,
     AGREED ? `💵 מחיר: לפי הסכם`
-      : price !== null ? `💵 מחיר: ₪${price}` : `💵 מחיר: לתיאום (${label})`,
+      : price !== null ? `💵 מחיר: ₪${price}` : `💵 מחיר: לתיאום (${otherTxt || label})`,
   ];
   const greeting = $("greeting").value.trim();
   if (CUSTOMER && CUSTOMER.greeting && greeting) lines.push(`💌 ברכה: ${greeting}`);
@@ -491,7 +643,7 @@ $("orderForm").addEventListener("submit", e => {
     no: orderNo, time: now.toISOString(),
     customer: CUSTOMER ? CUSTOMER.name : $("pName").value.trim(),
     pickup: $("pAddr").value.trim(), pickupPhone: $("pPhone").value.trim(),
-    recipient: $("dName").value.trim(), dest: label, address: destLine, recipientPhone: $("dPhone").value.trim(),
+    recipient: $("dName").value.trim(), dest: otherTxt || label, address: destLine, recipientPhone: $("dPhone").value.trim(),
     item: val("size"), when,
     pay: (CUSTOMER && CUSTOMER.pay) || val("pay"),
     price: AGREED ? "לפי הסכם" : price !== null ? price : "לתיאום",
@@ -500,7 +652,7 @@ $("orderForm").addEventListener("submit", e => {
 
   backupToSheet(record);
   saveHistory(record);
-  saveRecipient({ name: record.recipient, label, street, phone: record.recipientPhone });
+  saveRecipient({ name: record.recipient, label, other: otherTxt, street, phone: record.recipientPhone });
   addPending({ no: orderNo, summary: `${record.recipient} – ${label}`, link: waLink });
   resetForm();
   window.location.href = waLink;
@@ -667,7 +819,7 @@ $("historyClose").addEventListener("click", () => {
 });
 
 /* ---------- מקבלים חוזרים: השלמה אוטומטית ---------- */
-const recipKey = r => `${r.name} – ${r.street}, ${r.label}`;
+const recipKey = r => `${r.name} – ${r.street}, ${r.label === OTHER_CITY && r.other ? r.other : r.label}`;
 function saveRecipient(r) {
   if (!r.name || !r.street) return;
   const all = (load(RECIP_KEY) || []).filter(x => recipKey(x) !== recipKey(r));
@@ -686,12 +838,13 @@ $("dName").addEventListener("input", () => {
   if (!r) return;
   $("dName").value = r.name; $("dAddr").value = r.street; $("dPhone").value = r.phone;
   if ([...$("dCity").options].some(o => o.value === r.label)) $("dCity").value = r.label;
+  if (r.label === OTHER_CITY) $("otherCity").value = r.other || "";
   showPrice();
-  ["dName", "dAddr", "dPhone", "dCity"].forEach(id => $(id).classList.remove("bad"));
+  ["dName", "dAddr", "dPhone", "otherCity", "destTiles"].forEach(id => $(id).classList.remove("bad"));
 });
 
 function resetForm() {
-  ["dName", "dAddr", "dPhone", "notes", "greeting", "whenTime"].forEach(id => $(id).value = "");
+  ["dName", "dAddr", "dPhone", "notes", "greeting", "whenTime", "otherCity", "destSearch"].forEach(id => $(id).value = "");
   $("dCity").value = ""; showPrice();
 }
 
