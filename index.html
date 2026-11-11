@@ -63,6 +63,7 @@
   .badge.picked{background:#dbeafe;color:#1d4ed8}
   .badge.done{background:#dcfce7;color:#15803d}
   .badge.no{background:#fee2e2;color:#b91c1c}
+  .paidY{color:#15803d;font-weight:600}.paidN{color:#c2410c;font-weight:600}
   ul.hist .warn{color:#b91c1c;font-size:13px;font-weight:600}
   .notice.off{background:#fef2f2;border-color:#dc2626;color:#991b1b;font-weight:600}
   .statusNote{color:var(--muted);font-size:12px;text-align:center;margin-top:8px}
@@ -514,7 +515,7 @@ function renderHistory() {
         const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(o.date || ""), t = /^(\d{1,2}):(\d{2})/.exec(o.time || "") || [0, 0, 0];
         const time = m ? new Date(+m[3], m[2] - 1, +m[1], +t[1], +t[2]).toISOString() : (merged.get(o.no) || {}).time;
         const price = o.price !== "" && !isNaN(o.price) ? Number(o.price) : o.price;
-        merged.set(o.no, Object.assign({}, merged.get(o.no), { no: o.no, time, recipient: o.recipient, address: o.address, item: o.item, price }));
+        merged.set(o.no, Object.assign({}, merged.get(o.no), { no: o.no, time, recipient: o.recipient, address: o.address, item: o.item, price, paid: o.paid }));
         statuses[o.no] = o.status;
       });
       const list = [...merged.values()].filter(x => x.time).sort((a, b) => new Date(a.time) - new Date(b.time));
@@ -543,6 +544,11 @@ function drawHistory(list) {
     info.append(`${x.recipient} – ${x.address}`);
     const m = document.createElement("div"); m.className = "meta";
     m.textContent = `#${x.no} · ${sameDay(t) ? "" : pad(t.getDate()) + "/" + pad(t.getMonth() + 1) + " "}${pad(t.getHours())}:${pad(t.getMinutes())} · ${x.item} · ${typeof x.price === "number" ? "₪" + x.price : x.price}`;
+    if (typeof x.paid === "boolean") {
+      const pd = document.createElement("span");
+      pd.className = x.paid ? "paidY" : "paidN"; pd.textContent = x.paid ? " · 💰 שולם" : " · 💸 לא שולם";
+      m.append(pd);
+    }
     info.append(m);
     const badge = document.createElement("span");
     badge.className = "badge"; badge.dataset.no = x.no;

@@ -56,10 +56,16 @@
   .saveBtn{width:100%;font:inherit;font-size:17px;font-weight:700;padding:13px;border:0;border-radius:12px;background:var(--ok);color:#fff;cursor:pointer;margin-top:6px}
   .saveBtn:disabled{opacity:.6}
   #parseMsg{color:var(--ok)}
-  .filters{display:flex;gap:8px;margin-bottom:8px}
+  .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+  .filters select{flex:1 1 40%}
   .filters select{flex:1;min-width:0;font:inherit;font-size:15px;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--text)}
   .summary{background:var(--brand-soft);border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:14px;display:none}
   .summary b{color:var(--brand)}
+  .summary .money{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;font-weight:700}
+  .paidY{color:#15803d}.paidN{color:#c2410c}
+  .payRow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;padding:8px 10px;border-radius:10px;background:#fff7ed;color:#c2410c;font-weight:700;font-size:14px}
+  .payRow.yes{background:#f0fdf4;color:#15803d}
+  .payRow button{font:inherit;font-size:14px;font-weight:600;padding:7px 10px;border-radius:9px;border:1.5px solid currentColor;background:#fff;color:inherit;cursor:pointer}
   .empty{text-align:center;color:var(--muted);padding:30px 0}
 </style>
 </head>
@@ -94,6 +100,9 @@
     </div>
     <div class="filters">
       <select id="custFilter" aria-label="סינון לפי לקוח"><option value="">כל הלקוחות</option></select>
+      <select id="paidFilter" aria-label="תשלום">
+        <option value="">כל התשלומים</option><option value="no">לא שולם</option><option value="yes">שולם</option>
+      </select>
       <select id="rangeFilter" aria-label="טווח זמן">
         <option value="90">90 יום</option><option value="month">החודש</option><option value="lastMonth">חודש שעבר</option>
         <option value="30">30 יום</option><option value="7">7 ימים</option><option value="1">היום</option>
@@ -208,7 +217,9 @@ function render() {
   $("tabOpen").textContent = `פתוחות (${mine.filter(o => !closed(o)).length})`;
   // טווח הזמן חל על הזמנות שנסגרו; פתוחות מוצגות תמיד
   $("rangeFilter").style.display = tab === "done" ? "" : "none";
-  const shown = mine.filter(o => tab === "open" ? !closed(o) : closed(o) && inRange(o));
+  const pf = $("paidFilter").value;
+  const shown = mine.filter(o => tab === "open" ? !closed(o) : closed(o) && inRange(o))
+    .filter(o => !pf || (pf === "yes") === !!o.paid);
 
   // סיכום: כמה משלוחים נמסרו ובכמה כסף (בלי "לא פנוי")
   const delivered = shown.filter(o => o.status === "נמסר");
@@ -216,8 +227,13 @@ function render() {
   const notAvail = shown.filter(o => o.status === "לא פנוי").length;
   const sum = $("summary");
   sum.style.display = tab === "done" && shown.length ? "block" : "none";
+  const amount = a => a.reduce((t, o) => t + (isNaN(o.price) || o.price === "" ? 0 : Number(o.price)), 0);
+  const unpaid = delivered.filter(o => !o.paid);
   sum.replaceChildren(el("b", { textContent: `${delivered.length} משלוחים נמסרו · ₪${total}` }),
-    `${cust ? " · " + cust : ""}${notAvail ? ` · ${notAvail} לא פנוי` : ""}`);
+    `${cust ? " · " + cust : ""}${notAvail ? ` · ${notAvail} לא פנוי` : ""}`,
+    el("div", { className: "money" },
+      el("span", { className: "paidY", textContent: `💰 שולם: ₪${total - amount(unpaid)}` }),
+      el("span", { className: "paidN", textContent: `💸 לא שולם: ₪${amount(unpaid)} (${unpaid.length})` })));
 
   if (!shown.length) {
     $("list").replaceChildren(el("div", { className: "empty", textContent: tab === "open" ? "אין הזמנות פתוחות 🎉" : "אין הזמנות שנסגרו בטווח הזה" }));
@@ -237,6 +253,9 @@ function card(o) {
   }
   if (o.status !== "חדשה") acts.append(el("button", { type: "button", className: "undo", textContent: "↩️ בטל", title: "החזר לשלב הקודם",
     onclick: e => update(o, o.status === "נמסר" ? "נאסף" : "חדשה", e.target) }));
+  const payRow = o.status === "לא פנוי" ? null : el("div", { className: "payRow" + (o.paid ? " yes" : "") },
+    el("span", { textContent: o.paid ? "💰 שולם" : "💸 לא שולם" }),
+    el("button", { type: "button", textContent: o.paid ? "↩️ סמן לא שולם" : "💰 סמן שולם", onclick: e => setPaid(o, !o.paid, e.target) }));
 
   return el("section", { className: "card" },
     el("div", { className: "top" },
@@ -253,7 +272,15 @@ function card(o) {
       o.phone ? [" · ", link("📞 " + o.phone, "tel:" + o.phone)] : null),
     el("div", { className: "row meta", textContent: [o.item, o.when, o.pay, o.price && (isNaN(o.price) ? o.price : "₪" + o.price)].filter(Boolean).join(" · ") }),
     o.notes ? el("div", { className: "row", textContent: "📝 " + o.notes }) : null,
+    payRow,
     acts);
+}
+
+function setPaid(o, paid, btn) {
+  btn.disabled = true;
+  fetch(SHEET_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "setPaid", key, no: o.no, paid }) })
+    .then(() => { o.paid = paid; render(); setTimeout(load, 1500); })
+    .catch(() => { btn.disabled = false; alert("העדכון לא נשלח – בדוק חיבור ונסה שוב"); });
 }
 
 function update(o, status, btn) {
@@ -374,6 +401,7 @@ $("addOpen").onclick = openAdd;
 $("addCancel").onclick = closeAdd;
 $("custFilter").onchange = render;
 $("rangeFilter").onchange = render;
+$("paidFilter").onchange = render;
 $("tabOpen").onclick = () => { tab = "open"; $("tabOpen").classList.add("on"); $("tabDone").classList.remove("on"); render(); };
 $("tabDone").onclick = () => { tab = "done"; $("tabDone").classList.add("on"); $("tabOpen").classList.remove("on"); render(); };
 setInterval(() => { if (key && !document.hidden) load(); }, 60000);

@@ -20,10 +20,10 @@ const CLOSED = ["נמסר", "לא פנוי"];               // הזמנות סג
 const CLOSED_DAYS = 90;
 const HEADERS = [
   "תאריך", "שעה", "מס' הזמנה", "לקוח", "מקבל", "יעד", "כתובת מסירה",
-  "טלפון מקבל", "מה", "מתי", "תשלום", "מחיר", "הערות", "כתובת איסוף", "טלפון איסוף", "סטטוס", "קוד לקוח",
+  "טלפון מקבל", "מה", "מתי", "תשלום", "מחיר", "הערות", "כתובת איסוף", "טלפון איסוף", "סטטוס", "קוד לקוח", "שולם",
 ];
 const COL = { date: 1, time: 2, no: 3, customer: 4, recipient: 5, dest: 6, address: 7, phone: 8,
-  item: 9, when: 10, pay: 11, price: 12, notes: 13, pickup: 14, pickupPhone: 15, status: 16, code: 17 };
+  item: 9, when: 10, pay: 11, price: 12, notes: 13, pickup: 14, pickupPhone: 15, status: 16, code: 17, paid: 18 };
 
 /* ---------- קבלת הזמנה חדשה / עדכון סטטוס ---------- */
 function doPost(e) {
@@ -33,6 +33,7 @@ function doPost(e) {
     const o = JSON.parse(e.postData.contents);
     if (o && o.action === "setStatus") return setStatus(o);
     if (o && o.action === "setAvailability") return setAvailability(o);
+    if (o && o.action === "setPaid") return setPaid(o);
     if (!o || !o.no || !o.message) return json({ ok: false, error: "bad request" });
 
     const sheet = getSheet();
@@ -45,7 +46,7 @@ function doPost(e) {
       "'" + o.no, clean(o.customer), clean(o.recipient), clean(o.dest), clean(o.address),
       "'" + clean(o.recipientPhone), clean(o.item), clean(o.when), clean(o.pay),
       typeof o.price === "number" ? o.price : clean(o.price), clean(o.notes),
-      clean(o.pickup), "'" + clean(o.pickupPhone), STATUSES[0], clean(o.code),
+      clean(o.pickup), "'" + clean(o.pickupPhone), STATUSES[0], clean(o.code), "לא",
     ]);
     addStatusDropdown(sheet, sheet.getLastRow());
 
@@ -75,6 +76,15 @@ function setStatus(o) {
   const row = findRow(sheet, o.no);
   if (!row) return json({ ok: false, error: "הזמנה לא נמצאה" });
   sheet.getRange(row, COL.status).setValue(o.status);
+  return json({ ok: true });
+}
+
+function setPaid(o) {
+  if (!checkPassword(o.key)) return json({ ok: false, error: "סיסמה שגויה" });
+  const sheet = getSheet();
+  const row = findRow(sheet, o.no);
+  if (!row) return json({ ok: false, error: "הזמנה לא נמצאה" });
+  sheet.getRange(row, COL.paid).setValue(o.paid ? "כן" : "לא");
   return json({ ok: true });
 }
 
@@ -117,7 +127,8 @@ function doGet(e) {
       // הזמנה ישנה בלי קוד – משייכים אותה ללקוח, כדי שתופיע לו גם במכשירים אחרים
       if (noMatch && byCode && !r[COL.code - 1]) sheet.getRange(i + 2, COL.code).setValue(code);
       out.push({ no: r[COL.no - 1], date: r[COL.date - 1], time: r[COL.time - 1], recipient: r[COL.recipient - 1],
-        address: r[COL.address - 1], item: r[COL.item - 1], price: r[COL.price - 1], status: r[COL.status - 1] });
+        address: r[COL.address - 1], item: r[COL.item - 1], price: r[COL.price - 1], status: r[COL.status - 1],
+        paid: r[COL.paid - 1] === "כן" });
     });
     return json({ ok: true, orders: out });
   }
@@ -137,7 +148,7 @@ function doGet(e) {
     const orders = rows.map(r => ({
       date: r[0], time: r[1], no: r[2], customer: r[3], recipient: r[4], dest: r[5], address: r[6],
       phone: r[7], item: r[8], when: r[9], pay: r[10], price: r[11], notes: r[12],
-      pickup: r[13], pickupPhone: r[14], status: r[15],
+      pickup: r[13], pickupPhone: r[14], status: r[15], paid: r[COL.paid - 1] === "כן",
     })).filter(o => CLOSED.indexOf(o.status) === -1 || parseDate(o.date, o.time) > cutoff);
     return json(Object.assign({ ok: true, orders: orders.reverse() }, getAvailability()));
   }
@@ -166,8 +177,11 @@ function getSheet() {
     sheet.getRange(1, 1, 1, HEADERS.length).setFontWeight("bold");
     sheet.setFrozenRows(1);
     sheet.setRightToLeft(true);
-  } else if (sheet.getRange(1, COL.code).getDisplayValue() === "") {
-    sheet.getRange(1, COL.code).setValue(HEADERS[COL.code - 1]).setFontWeight("bold");   // טבלה מגרסה קודמת
+  } else {
+    // טבלה מגרסה קודמת – משלימים כותרות של עמודות חדשות
+    [COL.code, COL.paid].forEach(c => {
+      if (sheet.getRange(1, c).getDisplayValue() === "") sheet.getRange(1, c).setValue(HEADERS[c - 1]).setFontWeight("bold");
+    });
   }
   return sheet;
 }
