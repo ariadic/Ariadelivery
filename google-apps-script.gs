@@ -59,7 +59,7 @@ function doPost(e) {
       const to = NOTIFY_EMAIL || Session.getEffectiveUser().getEmail();
       MailApp.sendEmail({
         to: to,
-        subject: (o.resync ? "🔁 הזמנה שלא נקלטה (נשלחה שוב) #" : "🛵 הזמנה חדשה #") + o.no + " – " + clean(o.customer) + " ← " + clean(o.dest),
+        subject: (o.resync ? "🔁 הזמנה שלא נקלטה (נשלחה שוב) #" : "🚙 הזמנה חדשה #") + o.no + " – " + clean(o.customer) + " ← " + clean(o.dest),
         body: String(o.message).replace(/\*/g, ""),
       });
     } catch (mailErr) {
@@ -413,7 +413,7 @@ function testOrder() {
     recipient: "בדיקה", dest: "קרית אתא", address: "בדיקה 1, קרית אתא", recipientPhone: "0500000000",
     item: "זר", when: "רגיל", pay: "מזומן", price: 15, notes: "הזמנת בדיקה – אפשר למחוק",
     pickup: "העצמאות 69, קרית אתא", pickupPhone: "0546665375",
-    message: "🛵 הזמנת בדיקה – אם קיבלת את המייל הזה, הגיבוי עובד ✅",
+    message: "🚙 הזמנת בדיקה – אם קיבלת את המייל הזה, הגיבוי עובד ✅",
   }) } });
   Logger.log(res.getContent());
   Logger.log("הטבלה: " + getSpreadsheet().getUrl());
