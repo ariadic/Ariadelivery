@@ -114,6 +114,8 @@ header p{color:#fff;opacity:.92;margin-top:6px}
 #orderForm > button[type=submit]{background:#25d366;box-shadow:0 10px 24px #25d36655;display:flex;align-items:center;justify-content:center;gap:10px}   /* 3 ירוק + סמל ווצאפ */
 #orderForm > button[type=submit] svg{width:26px;height:26px;fill:#fff;flex:none}
 
+.bootLoading{max-width:520px;margin:40px auto;text-align:center;color:var(--muted);font-size:15px}
+.bootLoading::before{content:"";display:block;width:28px;height:28px;margin:0 auto 10px;border:3px solid #ffd2c7;border-top-color:#ff6a4d;border-radius:50%;animation:sp .8s linear infinite}
 /* ----- שליחה חכמה: מסך אישור / גיבוי ווצאפ / עוד משלוח ----- */
 .done{text-align:center;padding:26px 16px 18px}
 .okic{width:76px;height:76px;border-radius:50%;background:#dcfce7;display:grid;place-items:center;font-size:38px;margin:0 auto 10px}
@@ -371,20 +373,51 @@ const CONFIG = {
       CONFIG.urgentExtra = cfg.defaults.urgentExtra || 0;
     }
   };
-  let started = false;
-  const go = () => { if (started) return; started = true; document.querySelector("main").style.visibility = ""; start(); };
+  let started = false, usedKey = null;
+  const RELOADED = "ariDelivery.cfgReloaded";
+  const sig = cfg => JSON.stringify([cfg && cfg.customer, cfg && cfg.defaults]);   // רק הלקוח והמחירונים
+  const go = () => {
+    if (started) return; started = true;
+    document.querySelector("main").style.visibility = "";
+    const l = document.getElementById("bootLoading"); if (l) l.remove();
+    start();
+  };
   if (!CONFIG.sheetUrl) return go();
   document.querySelector("main").style.visibility = "hidden";
-  const fallback = () => { try { apply(JSON.parse(localStorage.getItem(CACHE) || "null")); } catch (e) {} go(); };
-  const timer = setTimeout(fallback, 4000);
+  const loading = document.createElement("div");
+  loading.id = "bootLoading"; loading.className = "bootLoading"; loading.textContent = "טוען מחירון…";
+  document.querySelector("main").before(loading);
+  const fallback = () => {
+    let c = null;
+    try { c = JSON.parse(localStorage.getItem(CACHE) || "null"); } catch (e) {}
+    apply(c); usedKey = c && c.ok ? sig(c) : "builtin"; go();
+  };
+  // גוגל לפעמים עונה לאט (במיוחד בבקשה הראשונה אחרי הפסקה) – מחכים עד 8 שניות
+  const timer = setTimeout(fallback, 8000);
   fetch(CONFIG.sheetUrl + "?action=config&c=" + encodeURIComponent(code))
     .then(r => r.json())
     .then(cfg => {
-      if (started) return;
-      clearTimeout(timer);
-      if (!cfg || !cfg.ok || !("customer" in cfg)) return fallback();          // קוד ישן בגוגל
+      if (!cfg || !cfg.ok || !("customer" in cfg)) {                           // קוד ישן בגוגל
+        if (!started) { clearTimeout(timer); fallback(); }
+        return;
+      }
       try { localStorage.setItem(CACHE, JSON.stringify(cfg)); } catch (e) {}
-      apply(cfg); go();
+      if (!started) {
+        clearTimeout(timer); apply(cfg); usedKey = sig(cfg);
+        try { sessionStorage.removeItem(RELOADED); } catch (e) {}
+        go(); return;
+      }
+      // התשובה הגיעה אחרי שהדף כבר נפתח עם מחירון ישן – טוענים מחדש פעם אחת עם המחירון העדכני
+      if (sig(cfg) === usedKey) return;
+      const typed = ["dName", "dAddr", "dPhone"].some(id => { const el = document.getElementById(id); return el && el.value.trim(); });
+      let already = false; try { already = !!sessionStorage.getItem(RELOADED); } catch (e) {}
+      if (!typed && !already) {
+        try { sessionStorage.setItem(RELOADED, "1"); } catch (e) {}
+        location.reload();
+      } else {
+        const n = document.getElementById("closedNotice");
+        if (n) { n.textContent = "🔄 המחירון עודכן – רעננו את הדף כדי לראות את המחירים החדשים"; n.style.display = "block"; }
+      }
     })
     .catch(() => { if (!started) { clearTimeout(timer); fallback(); } });
 })();
