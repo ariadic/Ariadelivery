@@ -77,7 +77,11 @@
   .acts .edit{background:var(--brand)}.acts .copy{background:#fff;color:var(--text);border:1.5px solid var(--line)}.acts .share{background:#25d366}
   .prow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #eef0f3}
   .prow input{min-width:0;font:inherit;font-size:15px;padding:9px;border:1px solid var(--line);border-radius:10px}
-  .prow .pl{flex:1 1 100%;font-weight:600}.prow .pp{width:90px;text-align:center}.prow .pc{flex:1;font-size:13px}
+  .prow .pl{flex:1 1 calc(100% - 50px);font-weight:600}
+  .prow .dspace{width:36px;flex:none}
+  .prow .drag{touch-action:none;cursor:grab;color:var(--muted);font-size:18px;background:var(--bg)!important}
+  .prow.dragging{background:var(--brand-soft);border-radius:12px;box-shadow:0 6px 18px #0002;outline:2px solid var(--brand);position:relative;z-index:1}
+  .prow.dragging .drag{cursor:grabbing}.prow .pp{width:90px;text-align:center}.prow .pc{flex:1;font-size:13px}
   .prow button{flex:none;width:36px;height:36px;border-radius:9px;border:1.5px solid var(--line);background:#fff;cursor:pointer;font-size:15px}
   .prowHead{display:flex;gap:6px;font-size:12px;color:var(--muted);font-weight:600;margin-bottom:4px}
   .prowHead span:nth-child(1){flex:2.2}.prowHead span:nth-child(3){flex:1}.prowHead span:nth-child(2){width:62px;text-align:center}.prowHead span:nth-child(4){width:36px}
@@ -201,6 +205,7 @@
     </div>
 
     <h3 class="sub">📍 מחירון <span class="opt" id="ceCount"></span></h3>
+    <p class="meta">גוררים את ☰ כדי לקבוע את הסדר – זה הסדר שהלקוח רואה ברשימת היעדים.</p>
     <p class="meta" id="ceAgreed">בלי יעדים במחירון = "מחיר לפי הסכם" (לא מוצג מחיר ללקוח).</p>
     <div id="ceRows"></div>
     <button type="button" class="secondary" id="ceAddRow">➕ הוספת יעד</button>
@@ -598,16 +603,60 @@ function openEditor(c) {
 }
 function addRow(p) {
   p = p || {};
+  const handle = el("button", { type: "button", className: "drag", textContent: "☰", title: "גרור כדי לשנות סדר", "aria-label": "גרירה לשינוי סדר" });
   const row = el("div", { className: "prow" },
+    handle,
     el("input", { className: "pl", value: p.label || "", placeholder: "יעד – למשל: נשר", maxLength: 60, "aria-label": "יעד" }),
+    el("span", { className: "dspace" }),
     el("input", { className: "pp", value: p.price !== undefined ? p.price : "", inputMode: "numeric", placeholder: "מחיר ₪", "aria-label": "מחיר" }),
     el("input", { className: "pc", value: p.city && p.city !== p.label ? p.city : "", placeholder: "כתובת לווייז (לא חובה)", maxLength: 80, "aria-label": "כתובת לווייז" }),
     el("button", { type: "button", textContent: "✕", title: "מחיקת יעד", onclick: () => { row.remove(); countRows(); } }));
   row.querySelectorAll("input").forEach(i => i.addEventListener("input", countRows));
+  handle.addEventListener("pointerdown", e => startDrag(e, row, handle));
+  handle.addEventListener("keydown", e => {                     // מקלדת: חיצים למעלה/למטה
+    if (e.key === "ArrowUp" && row.previousElementSibling) { row.parentNode.insertBefore(row, row.previousElementSibling); handle.focus(); e.preventDefault(); }
+    if (e.key === "ArrowDown" && row.nextElementSibling) { row.parentNode.insertBefore(row.nextElementSibling, row); handle.focus(); e.preventDefault(); }
+  });
   $("ceRows").append(row);
   countRows();
   return row;
 }
+// גרירה עם אצבע או עכבר (pointer events – עובד גם בטלפון)
+function startDrag(e, row, handle) {
+  if (e.button !== undefined && e.button !== 0) return;
+  e.preventDefault();
+  const list = $("ceRows");
+  row.classList.add("dragging");
+  let scroller = 0, lastY = e.clientY;
+  const place = y => {
+    const others = [...list.querySelectorAll(".prow:not(.dragging)")];
+    const before = others.find(o => { const r = o.getBoundingClientRect(); return y < r.top + r.height / 2; });
+    if (before) { if (before !== row.nextElementSibling) list.insertBefore(row, before); }
+    else if (list.lastElementChild !== row) list.append(row);
+  };
+  const tick = () => {                                            // גלילה אוטומטית ליד קצה המסך
+    const edge = 70, h = window.innerHeight;
+    const v = lastY < edge ? -(edge - lastY) / 4 : lastY > h - edge ? (lastY - (h - edge)) / 4 : 0;
+    if (v) { window.scrollBy(0, v); place(lastY); }
+    scroller = requestAnimationFrame(tick);
+  };
+  scroller = requestAnimationFrame(tick);
+  const move = ev => { if (ev.pointerId !== e.pointerId) return; ev.preventDefault(); lastY = ev.clientY; place(ev.clientY); };
+  const end = () => {
+    cancelAnimationFrame(scroller);
+    row.classList.remove("dragging");
+    window.removeEventListener("pointermove", move);
+    window.removeEventListener("pointerup", end);
+    window.removeEventListener("pointercancel", end);
+    $("ceErr").style.color = "var(--muted)";
+    $("ceErr").textContent = "הסדר השתנה – לא לשכוח לשמור";
+  };
+  // מאזינים לכל החלון: הזזת השורה ב-DOM מבטלת "לכידה" של האצבע על הידית
+  window.addEventListener("pointermove", move);
+  window.addEventListener("pointerup", end);
+  window.addEventListener("pointercancel", end);
+}
+
 function readRows() {
   return [...$("ceRows").querySelectorAll(".prow")].map(r => {
     const [l, p, c] = r.querySelectorAll("input");
