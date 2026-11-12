@@ -215,7 +215,7 @@ button.dest{width:100%;display:flex;align-items:center;gap:12px;padding:14px;bor
 #whenChips,#payerChips{background:var(--fill);border-radius:14px;padding:4px;gap:4px;flex-wrap:nowrap}
 #whenChips label,#payerChips label{flex:1 1 0;border-radius:11px;min-height:40px;padding:8px 4px;font-size:14px;background:none;gap:5px}
 #whenChips input:checked + label,#payerChips input:checked + label{background:#fff;color:var(--tx);box-shadow:0 2px 8px #00000018}
-#whenChips em{font-style:normal;font-size:11.5px;font-weight:700;color:var(--ac)}
+#whenChips em{font-style:normal;font-size:11.5px;font-weight:700;color:var(--ac);direction:ltr;unicode-bidi:isolate}
 #sizeChips label{flex-direction:column;gap:4px;padding:11px 6px 9px;font-size:14px}
 #sizeChips label .ic{width:21px;height:21px}
 .f input[type=tel]{direction:ltr;text-align:right}
@@ -685,7 +685,7 @@ function chipLabel(t) {
   return m ? `${m[1]}<small class="sub">${m[2]}</small>` : t;
 }
 chips("sizeChips", "size", (CUSTOMER && CUSTOMER.sizes) || SIZES, t => ICO(sizeIcon(t)) + `<span>${chipLabel(t)}</span>`);
-chips("whenChips", "when", WHEN, (t, i) => i === 1 ? ICO("zap", "s") + "דחוף" + (URGENT_EXTRA ? `<em>+${URGENT_EXTRA}</em>` : "")
+chips("whenChips", "when", WHEN, (t, i) => i === 1 ? ICO("zap", "s") + "דחוף" + (URGENT_EXTRA ? `<em>+${URGENT_EXTRA} ₪</em>` : "")
   : i === 2 ? ICO("calendar-clock", "s") + "מתוזמן" : t);
 // לקוחות מזדמנים (הדף בלי לינק אישי): תשלום מראש בלבד – ביט / פייבוקס, והמזמין הוא המשלם
 const PREPAY = !CUSTOMER;
