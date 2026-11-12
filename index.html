@@ -394,7 +394,7 @@ const CONFIG = {
   };
   // גוגל לפעמים עונה לאט (במיוחד בבקשה הראשונה אחרי הפסקה) – מחכים עד 8 שניות
   const timer = setTimeout(fallback, 8000);
-  fetch(CONFIG.sheetUrl + "?action=config&c=" + encodeURIComponent(code))
+  fetch(CONFIG.sheetUrl + "?action=config&code=" + encodeURIComponent(code))
     .then(r => r.json())
     .then(cfg => {
       if (!cfg || !cfg.ok || !("customer" in cfg)) {                           // קוד ישן בגוגל
@@ -757,7 +757,7 @@ function renderHistory() {
   if (!CONFIG.sheetUrl) return;
   const recentNos = local.filter(x => Date.now() - new Date(x.time) < 100 * 24 * 3600 * 1000).map(x => x.no);
   $("statusNote").textContent = "טוען הזמנות…";
-  fetch(CONFIG.sheetUrl + "?action=history&c=" + encodeURIComponent(CUSTOMER ? CUSTOMER_CODE : "") +
+  fetch(CONFIG.sheetUrl + "?action=history&code=" + encodeURIComponent(CUSTOMER ? CUSTOMER_CODE : "") +
         "&nos=" + encodeURIComponent(recentNos.slice(-300).join(",")))
     .then(r => r.json())
     .then(d => {
