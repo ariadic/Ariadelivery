@@ -6,6 +6,13 @@
 <meta name="robots" content="noindex">
 <title>ארי משלוחים – ניהול הזמנות</title>
 <meta name="theme-color" content="#ffffff">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="admin.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ניהול ארי">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -307,11 +314,30 @@ details.quick{background:var(--fill);border-radius:14px}
 .alertBox{border:0;background:#fff1f2;border-radius:16px}
 .quotaBox{border:0;background:#fff7e0;border-radius:16px}
 .empty{color:var(--mu)}
+button.py{border:0;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:4px;font-weight:600;padding:7px 10px;border-radius:10px}
+.py.unp{background:#fff;color:#c2410c;box-shadow:inset 0 0 0 1.5px #fdba74}
+button.py.wait{box-shadow:inset 0 0 0 1.5px #fcd34d}
+button.py:disabled{opacity:.55}
+.mon{display:flex;align-items:center;justify-content:space-between;background:var(--fill);border-radius:12px;padding:4px;margin:12px 0}
+.mon .ib{width:36px;height:36px;background:#fff}
+.mon .ib:disabled{opacity:.3}
+.rls{border-radius:14px;box-shadow:0 0 0 1px var(--ln);overflow:hidden;max-height:38vh;overflow-y:auto}
+.rl{display:flex;align-items:center;gap:8px;padding:9px 11px;font-size:13.5px}
+.rl + .rl{border-top:1px solid #f0f0f2}
+.rl .d{color:#999;font-size:12px;flex:none}
+.rl .w{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pd{font-size:11px;font-weight:600;padding:2px 7px;border-radius:99px;background:#fff7e0;color:#a16207;flex:none}
+.pd.y{background:#e8f8ee;color:#15803d}
+.rl.mm{justify-content:center;color:var(--mu)}
+button.waRep{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:#1fbf5a;color:#fff;border:0;border-radius:16px;padding:15px;font-size:16px;font-weight:600;margin-top:4px;cursor:pointer}
+button.waRep:disabled{opacity:.5}
+#oBody button.secondary{display:flex;align-items:center;justify-content:center;gap:6px}
+@media (display-mode:standalone){header{padding-top:calc(16px + env(safe-area-inset-top))}}
 input::placeholder,textarea::placeholder{color:#a8a8b0;font-weight:400;opacity:1}
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-inbox" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12" /><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /></symbol><symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14" /><path d="M12 5v14" /></symbol><symbol id="i-refresh-cw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /><path d="M8 16H3v5" /></symbol><symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></symbol><symbol id="i-navigation" viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11" /></symbol><symbol id="i-ellipsis" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" /></symbol><symbol id="i-thumbs-up" viewBox="0 0 24 24"><path d="M7 10v12" /><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z" /></symbol><symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" /><path d="M15 18H9" /><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" /><circle cx="17" cy="18" r="2" /><circle cx="7" cy="18" r="2" /></symbol><symbol id="i-package-check" viewBox="0 0 24 24"><path d="m16 16 2 2 4-4" /><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14" /><path d="m7.5 4.27 9 5.15" /><polyline points="3.29 7 12 12 20.71 7" /><line x1="12" x2="12" y1="22" y2="12" /></symbol><symbol id="i-banknote" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01M18 12h.01" /></symbol><symbol id="i-circle-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="m15 9-6 6" /><path d="m9 9 6 6" /></symbol><symbol id="i-undo-2" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5" /><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11" /></symbol><symbol id="i-trash-2" viewBox="0 0 24 24"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" /></symbol><symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></symbol><symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></symbol><symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></symbol><symbol id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></symbol><symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /><circle cx="12" cy="10" r="3" /></symbol><symbol id="i-message-circle" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></symbol><symbol id="i-message-square-text" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /><path d="M13 8H7" /><path d="M17 12H7" /></symbol><symbol id="i-send" viewBox="0 0 24 24"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" /><path d="m21.854 2.147-10.94 10.939" /></symbol><symbol id="i-store" viewBox="0 0 24 24"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" /><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" /><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" /><path d="M2 7h20" /><path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7" /></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol><symbol id="i-package" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" /><path d="M12 22V12" /><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7" /><path d="m7.5 4.27 9 5.15" /></symbol></svg>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-file-text" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4" /><path d="M10 9H8" /><path d="M16 13H8" /><path d="M16 17H8" /></symbol><symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></symbol><symbol id="i-inbox" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12" /><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /></symbol><symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14" /><path d="M12 5v14" /></symbol><symbol id="i-refresh-cw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /><path d="M8 16H3v5" /></symbol><symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></symbol><symbol id="i-navigation" viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11" /></symbol><symbol id="i-ellipsis" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" /></symbol><symbol id="i-thumbs-up" viewBox="0 0 24 24"><path d="M7 10v12" /><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z" /></symbol><symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" /><path d="M15 18H9" /><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" /><circle cx="17" cy="18" r="2" /><circle cx="7" cy="18" r="2" /></symbol><symbol id="i-package-check" viewBox="0 0 24 24"><path d="m16 16 2 2 4-4" /><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14" /><path d="m7.5 4.27 9 5.15" /><polyline points="3.29 7 12 12 20.71 7" /><line x1="12" x2="12" y1="22" y2="12" /></symbol><symbol id="i-banknote" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01M18 12h.01" /></symbol><symbol id="i-circle-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="m15 9-6 6" /><path d="m9 9 6 6" /></symbol><symbol id="i-undo-2" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5" /><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11" /></symbol><symbol id="i-trash-2" viewBox="0 0 24 24"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" /></symbol><symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></symbol><symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></symbol><symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></symbol><symbol id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></symbol><symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /><circle cx="12" cy="10" r="3" /></symbol><symbol id="i-message-circle" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></symbol><symbol id="i-message-square-text" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /><path d="M13 8H7" /><path d="M17 12H7" /></symbol><symbol id="i-send" viewBox="0 0 24 24"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" /><path d="m21.854 2.147-10.94 10.939" /></symbol><symbol id="i-store" viewBox="0 0 24 24"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" /><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" /><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" /><path d="M2 7h20" /><path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7" /></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol><symbol id="i-package" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" /><path d="M12 22V12" /><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7" /><path d="m7.5 4.27 9 5.15" /></symbol></svg>
 <header>
   <div class="ht"><small>ארי משלוחים</small><h1 id="viewTitle">הזמנות</h1></div>
   <button type="button" class="ib" id="refresh" aria-label="רענון"><svg class="ic s"><use href="#i-refresh-cw"/></svg></button>
@@ -617,8 +643,11 @@ function card(o) {
   const d = orderTime(o), today = d && d.toDateString() === new Date().toDateString();
   const prepay = /מראש/.test(o.pay || ""), off = o.status === "לא פנוי";
   const payTxt = [String(o.pay || "").replace(/\s*\(מראש\)/, ""), priceTxt(o)].filter(Boolean).join(" · ");
-  const py = el("span", { className: "py" + (off ? "" : o.paid ? " paid" : prepay ? " wait" : ""),
-    textContent: off ? payTxt : payTxt + (o.paid ? " · שולם" : prepay ? " · ממתין" : " · לא שולם") });
+  // "שולם" בלחיצה אחת: לחיצה על התגית מחליפה שולם / לא שולם
+  const py = off ? el("span", { className: "py", textContent: payTxt })
+    : el("button", { type: "button", className: "py " + (o.paid ? "paid" : prepay ? "wait" : "unp"),
+        title: o.paid ? "לחיצה = לא שולם" : "לחיצה = שולם", onclick: e => setPaid(o, !o.paid, e.currentTarget) },
+        o.paid ? ico("check", "xs") : null, payTxt + (o.paid ? " · שולם" : prepay ? " · ממתין" : " · לא שולם"));
   const nx = NEXT[o.status];
   const act = nx ? el("button", { type: "button", className: "act " + nx[3], onclick: e => update(o, nx[0], e.currentTarget) }, ico(nx[1], "s"), nx[2]) : null;
   if (o.status === "חדשה" && act) act.title = "הלקוח יראה שאישרת";
@@ -892,11 +921,67 @@ function custCard(c) {
     el("div", { className: "ct" },
       el("div", { className: "cust", textContent: isDef ? "לקוחות מזדמנים" : c.name }),
       el("div", { className: "meta", textContent: (isDef ? "הדף הכללי · " : c.code + " · ") + meta })),
+    isDef ? null : btn("file-text", "דוח חודשי", () => openReport(c)),
     btn("link", "העתק לינק", b => copyText(link, b)),
-    isDef ? null : btn("send", "שלח לינק בווצאפ",
-      () => window.open("https://wa.me/?text=" + encodeURIComponent(`הלינק להזמנת משלוחים מארי משלוחים 🚙\n${link}`), "_blank")),
+    isDef ? null : btn("send", "שלח הודעת הצטרפות בווצאפ",
+      () => window.open(waTo(c.phone) + encodeURIComponent(welcomeMsg(c, link)), "_blank")),
     ico("chevron-left", "chev"));
 }
+// ווצאפ ישר ללקוח אם יש לו נייד, אחרת בוחרים איש קשר
+function waTo(phone) {
+  const t = String(phone || "").replace(/\D/g, "").replace(/^972/, "0");
+  return "https://wa.me/" + (/^05\d{8}$/.test(t) ? "972" + t.slice(1) : "") + "?text=";
+}
+function welcomeMsg(c, link) {
+  return `היי ${c.name} 👋\nזה ארי משלוחים 🚙\n\nהכנתי לכם דף הזמנות אישי, כך שלא צריך להתקשר או לכתוב בווצאפ:\n👉 ${link}\n\n` +
+    `*איך מזמינים:*\n1️⃣ בוחרים יעד – המחיר מופיע מיד\n2️⃣ ממלאים שם, רחוב וטלפון של המקבל\n3️⃣ לוחצים "שליחה לארי" ✅\n\n` +
+    `ההזמנה מגיעה אליי מיד, וברגע שאאשר תראו אצלכם *"ארי אישר"* – ואחר כך גם מתי המשלוח בדרך ומתי נמסר.\n\n` +
+    `💡 *טיפ:* פתחו את הקישור ב-Safari ← כפתור השיתוף ← "הוספה למסך הבית" – ויהיה לכם אייקון שפותח את הדף בלחיצה אחת.\n\nלכל שאלה אני כאן 🙏\nארי · 050-4848398`;
+}
+
+/* ---------- דוח חודשי ללקוח ---------- */
+const MONTHS = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
+const ymOf = o => { const d = orderTime(o); return d ? d.getFullYear() * 100 + d.getMonth() : 0; };
+const ymName = ym => `${MONTHS[ym % 100]} ${Math.floor(ym / 100)}`;
+const priceNum = o => isNaN(o.price) || o.price === "" ? 0 : Number(o.price);
+function openReport(c, ym) {
+  const all = orders.filter(o => o.customer === c.name && o.status !== "לא פנוי");
+  const now = new Date(), cur = now.getFullYear() * 100 + now.getMonth();
+  const months = [...new Set([cur, ...all.map(ymOf).filter(Boolean)])].sort((a, b) => b - a);
+  if (ym === undefined) ym = all.some(o => ymOf(o) === cur) ? cur : (months.find(m => all.some(o => ymOf(o) === m)) || cur);
+  const list = all.filter(o => ymOf(o) === ym).sort((a, b) => orderTime(a) - orderTime(b));
+  const total = list.reduce((t, o) => t + priceNum(o), 0), due = list.filter(o => !o.paid).reduce((t, o) => t + priceNum(o), 0);
+  const i = months.indexOf(ym), older = months[i + 1], newer = months[i - 1];
+  const em = /^(\p{Extended_Pictographic}\uFE0F?)/u.exec(c.title || "");
+  const navBtn = (icon, target) => { const b = el("button", { type: "button", className: "ib", disabled: target === undefined, onclick: () => openReport(c, target) }, ico(icon, "s")); return b; };
+  const tile = (n, t, cls) => el("div", {}, el("b", { className: cls || "", textContent: n }), el("small", { textContent: t }));
+  const short = a => String(a || "").split(", ").pop().split(" – ").pop();
+  const text = () => {
+    const lines = list.slice(0, 40).map(o => `${(o.date || "").slice(0, 5)} · ${o.recipient} – ${short(o.address)} · ₪${priceNum(o)}${o.paid ? " ✓" : ""}`);
+    return `שלום ${c.name} 👋\nסיכום משלוחים – ${ymName(ym)}\n\n📦 ${list.length} משלוחים · סה״כ ₪${total}\n✅ שולם: ₪${total - due}\n⏳ נשאר לתשלום: ₪${due}\n\n*פירוט:*\n` +
+      lines.join("\n") + (list.length > 40 ? `\n…ועוד ${list.length - 40}` : "") + "\n\n(✓ = שולם)\nתודה! ארי משלוחים 🚙";
+  };
+  const rows = list.length ? list.map(o => el("div", { className: "rl" },
+      el("span", { className: "d", textContent: (o.date || "").slice(0, 5) }),
+      el("span", { className: "w", textContent: `${o.recipient} · ${short(o.address)}` }),
+      el("b", { textContent: "₪" + priceNum(o) }),
+      el("span", { className: "pd" + (o.paid ? " y" : ""), textContent: o.paid ? "שולם" : "פתוח" })))
+    : [el("div", { className: "rl mm", textContent: "אין משלוחים בחודש הזה" })];
+  const copyBtn = el("button", { type: "button", className: "secondary", onclick: e => copyText(text(), e.currentTarget.querySelector("span")) }, ico("copy", "s"), el("span", { textContent: "העתקת הדוח" }));
+  $("oBody").replaceChildren(
+    el("div", { className: "shh" },
+      el("div", {}, el("small", { textContent: "דוח חודשי" }), el("h2", { textContent: (em ? em[1] + " " : "") + c.name })),
+      aria(el("button", { type: "button", className: "ib", onclick: closeOrder }, ico("x", "s")), "סגירה")),
+    el("div", { className: "mon" }, navBtn("chevron-right", newer), el("b", { textContent: ymName(ym) }), navBtn("chevron-left", older)),
+    el("div", { className: "kpi" }, tile(list.length, "משלוחים"), tile("₪" + total, "סה״כ"), tile("₪" + due, "נשאר לתשלום", "or")),
+    el("div", { className: "rls" }, ...rows),
+    el("p", { className: "note", textContent: "מתוך ההזמנות של 90 הימים האחרונים · בלי הזמנות \"לא פנוי\"" }),
+    el("button", { type: "button", className: "waRep", disabled: !list.length, onclick: () => window.open(waTo(c.phone) + encodeURIComponent(text()), "_blank") },
+      el("span", { textContent: `שליחת הדוח ל${c.name} בווצאפ` })),
+    copyBtn);
+  document.body.classList.add("sheetOpen");
+}
+
 function priceRange(p) { const v = p.map(x => x.price); return `₪${Math.min(...v)}–₪${Math.max(...v)}`; }
 function copyText(t, btn) {
   const done = () => {
