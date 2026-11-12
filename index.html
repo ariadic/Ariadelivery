@@ -594,17 +594,23 @@ const CONFIG = {
     start();
   };
   if (!CONFIG.sheetUrl) return go();
-  document.querySelector("main").style.visibility = "hidden";
-  const loading = document.createElement("div");
-  loading.id = "bootLoading"; loading.className = "bootLoading"; loading.textContent = "טוען מחירון…";
-  document.querySelector("main").before(loading);
+  // יש מחירון שמור מהביקור הקודם – הדף נפתח מיד, והעדכון מגוגל נבדק ברקע
+  let cached = null;
+  try { cached = JSON.parse(localStorage.getItem(CACHE) || "null"); } catch (e) {}
+  if (cached && cached.ok && "customer" in cached) { apply(cached); usedKey = sig(cached); go(); }
+  if (!started) {
+    document.querySelector("main").style.visibility = "hidden";
+    const loading = document.createElement("div");
+    loading.id = "bootLoading"; loading.className = "bootLoading"; loading.textContent = "טוען מחירון…";
+    document.querySelector("main").before(loading);
+  }
   const fallback = () => {
     let c = null;
     try { c = JSON.parse(localStorage.getItem(CACHE) || "null"); } catch (e) {}
     apply(c); usedKey = c && c.ok ? sig(c) : "builtin"; go();
   };
   // גוגל לפעמים עונה לאט (במיוחד בבקשה הראשונה אחרי הפסקה) – מחכים עד 8 שניות
-  const timer = setTimeout(fallback, 8000);
+  const timer = started ? 0 : setTimeout(fallback, 8000);
   fetch(CONFIG.sheetUrl + "?action=config&code=" + encodeURIComponent(code))
     .then(r => r.json())
     .then(cfg => {
@@ -619,7 +625,7 @@ const CONFIG = {
         go(); return;
       }
       // התשובה הגיעה אחרי שהדף כבר נפתח עם מחירון ישן – טוענים מחדש פעם אחת עם המחירון העדכני
-      if (sig(cfg) === usedKey) return;
+      if (sig(cfg) === usedKey) { try { sessionStorage.removeItem(RELOADED); } catch (e) {} return; }
       const typed = ["dName", "dAddr", "dPhone"].some(id => { const el = document.getElementById(id); return el && el.value.trim(); });
       let already = false; try { already = !!sessionStorage.getItem(RELOADED); } catch (e) {}
       if (!typed && !already) {
