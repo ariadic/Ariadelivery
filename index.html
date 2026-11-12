@@ -311,6 +311,9 @@ button.li .ck{color:var(--ac)}
 button.li:active{transform:none;background:var(--fill)}
 .empty{color:var(--mu);text-align:center;padding:20px 0;font-size:14px}
 footer{padding:4px 16px 18px}
+header p{display:flex;gap:6px;align-items:baseline;white-space:nowrap}
+header p .pt{min-width:0;overflow:hidden;text-overflow:ellipsis}
+button.hchg{flex:none;display:inline;width:auto;background:none;border:0;padding:0;margin:0;color:var(--ac);font:inherit;font-weight:600;box-shadow:none;cursor:pointer}
 input::placeholder,textarea::placeholder{color:#a8a8b0;font-weight:400;opacity:1}
 </style>
 </head>
@@ -716,6 +719,19 @@ if (CUSTOMER) {
     [CUSTOMER.name, CUSTOMER.addr, CUSTOMER.phone && "📞 " + CUSTOMER.phone].filter(Boolean)
       .forEach(t => { const d = document.createElement("div"); d.textContent = t; $("pickupFixedText").append(d); });
   }
+  // לקוח עם לינק אישי: פרטי האיסוף מופיעים כשורה קטנה למעלה ולא כשדות למילוי
+  const pickTxt = CUSTOMER.addr || "";
+  if (pickTxt) {
+    const hp = document.querySelector("header p"), sp = document.createElement("span");
+    sp.className = "pt"; sp.textContent = "איסוף: " + pickTxt; hp.replaceChildren(sp);
+  }
+  if (!CUSTOMER.fixedPickup && CUSTOMER.name && CUSTOMER.addr && /^0\d{8,9}$/.test($("pPhone").value.replace(/\D/g, "").replace(/^972/, "0"))) {
+    $("pickupCard").style.display = "none";
+    const ch = document.createElement("button");
+    ch.type = "button"; ch.className = "hchg"; ch.id = "pickEdit"; ch.textContent = "שינוי";
+    ch.onclick = showPickup;
+    document.querySelector("header p").append(ch);
+  }
   if (CUSTOMER.pay) $("payBox").style.display = "none";
   if (CUSTOMER.hidePayer) $("payerBox").style.display = "none";
   if (AGREED) $("priceBox").textContent = "🤝 מחיר לפי הסכם";
@@ -767,6 +783,11 @@ $("notesLink").addEventListener("click", () => {
   $("notesBox").style.display = "block"; $("notesLink").style.display = "none"; $("notes").focus();
 });
 $("hHist").addEventListener("click", () => $("historyBtn").click());
+
+function showPickup() {
+  $("pickupCard").style.display = "";
+  const b = $("pickEdit"); if (b) b.remove();
+}
 
 /* ---------- מחיר ---------- */
 function calcPrice() {
@@ -829,6 +850,8 @@ function validate() {
     .forEach(id => { ok = check(id, $(id).value.trim() !== "") && ok; });
   if (!fixedPick) ok = check("pPhone", phoneOk($("pPhone").value)) && ok;
   ok = check("dPhone", phoneOk($("dPhone").value)) && ok;
+  // פרטי האיסוף מוסתרים (שורה למעלה) אבל משהו בהם חסר – פותחים אותם
+  if (!fixedPick && $("pickupCard").style.display === "none" && ["pName", "pAddr", "pPhone"].some(id => $(id).classList.contains("bad"))) showPickup();
   if (val("when") === WHEN[2]) ok = check("whenTime", $("whenTime").value !== "") && ok;
   return ok;
 }
