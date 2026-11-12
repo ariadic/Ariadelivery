@@ -128,6 +128,9 @@ button.primary{width:100%;border:0;border-radius:16px;padding:15px;margin-top:4p
 /* כפתורי בחירה: שורת משנה קטנה ("סכום מדויק") */
 .chips label .sub{display:block;font-size:11px;font-weight:400;color:#6b7280;line-height:1.1;margin-top:1px}
 .chips label:has(.sub){padding-top:6px;padding-bottom:6px;line-height:1.15}
+html{-webkit-tap-highlight-color:transparent}
+.preNote{background:#fff7ed;border:1.5px solid #fdba74;color:#9a3412;border-radius:12px;padding:10px 12px;font-size:13.5px;line-height:1.55;margin-top:10px}
+.preNote b{color:#7c2d12}
 /* כרטיס תשלום בביט / פייבוקס */
 .payCard{border:1.5px solid #c7d2fe;background:#eef2ff;border-radius:18px;padding:14px;margin-bottom:12px;text-align:right}
 .payCard.pb{border-color:#a5f3fc;background:#ecfeff}
@@ -161,7 +164,7 @@ button.waOpt svg,button.waBtn svg{width:20px;height:20px;fill:currentColor}
 <header>
   <img src="logo.png" alt="" onerror="this.remove()">
   <h1>🚙 ארי משלוחים</h1>
-  <p>ממלאים פרטים ← שולחים בווצאפ ← יוצאים לדרך</p>
+  <p>ממלאים פרטים ← שולחים לארי ← יוצאים לדרך</p>
 </header>
 
 <main>
@@ -221,6 +224,7 @@ button.waOpt svg,button.waBtn svg{width:20px;height:20px;fill:currentColor}
       <div id="payBox">
         <label>אמצעי תשלום</label>
         <div class="chips" id="payChips"></div>
+        <div class="preNote" id="preNote" style="display:none">💳 <b>תשלום מראש בלבד.</b> אחרי שליחת ההזמנה יופיעו פרטים להעברה. המשלוח יוצא לדרך אחרי שהתשלום מתקבל.</div>
       </div>
       <div id="payerBox">
         <label>מי משלם?</label>
@@ -256,6 +260,7 @@ button.waOpt svg,button.waBtn svg{width:20px;height:20px;fill:currentColor}
       <div class="cp"><div class="t"><span class="lb">1. למי מעבירים (ארי משלוחים)</span><span class="vl" id="payPhone"></span></div><button type="button" class="cpb" id="cpPhone">📋 העתק</button></div>
       <div class="cp"><div class="t"><span class="lb">2. מה לכתוב בהערה</span><span class="vl" id="payNo"></span></div><button type="button" class="cpb" id="cpNo">📋 העתק</button></div>
       <div class="payHint" id="payHint"></div>
+      <div class="preNote" id="payPre" style="display:none">⏳ <b>המשלוח יוצא לדרך אחרי שהתשלום מתקבל.</b></div>
     </div>
     <button type="button" class="primary" id="doneMore">➕ עוד משלוח</button>
     <button type="button" class="secondary" id="doneHistory">📋 ההזמנות שלי</button>
@@ -367,7 +372,7 @@ const CONFIG = {
   },
 
   // תוספת למשלוח דחוף (0 = בלי תוספת)
-  urgentExtra: 20,
+  urgentExtra: 15,                   // תוספת דחוף ללקוחות מזדמנים (גיבוי – הערך מהטבלה גובר)
 
   // שעות פעילות: 0=ראשון ... 6=שבת. null = סגור
   hours: {
@@ -485,8 +490,11 @@ function chipLabel(t) {
 }
 chips("sizeChips", "size", (CUSTOMER && CUSTOMER.sizes) || SIZES);
 chips("whenChips", "when", WHEN);
-chips("payChips", "pay", PAY);
+// לקוחות מזדמנים (הדף בלי לינק אישי): תשלום מראש בלבד – ביט / פייבוקס, והמזמין הוא המשלם
+const PREPAY = !CUSTOMER;
+chips("payChips", "pay", PREPAY ? ["ביט", "פייבוקס"] : PAY);
 chips("payerChips", "payer", PAYER);
+if (PREPAY) { $("preNote").style.display = "block"; $("payerBox").style.display = "none"; }
 
 const opt = t => { const o = document.createElement("option"); o.value = o.textContent = t; return o; };
 $("dCity").replaceChildren(Object.assign(opt("בחרו יעד…"), { value: "" }),
@@ -632,7 +640,8 @@ $("orderForm").addEventListener("submit", e => {
     `🗺 ${waze(fullDest)}`,
     ``,
     `📏 ${val("size")} | ⏱ ${when}`,
-    `💰 ${(CUSTOMER && CUSTOMER.pay) || val("pay")}${CUSTOMER && CUSTOMER.hidePayer ? "" : " – משלם " + val("payer")}`,
+    PREPAY ? `💰 ${val("pay")} – תשלום מראש (לבדוק שהתקבל לפני יציאה)`
+      : `💰 ${(CUSTOMER && CUSTOMER.pay) || val("pay")}${CUSTOMER && CUSTOMER.hidePayer ? "" : " – משלם " + val("payer")}`,
     AGREED ? `💵 מחיר: לפי הסכם`
       : price !== null ? `💵 מחיר: ₪${price}` : `💵 מחיר: לתיאום (${label})`,
   ];
@@ -654,11 +663,11 @@ $("orderForm").addEventListener("submit", e => {
   const waLink = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(text)}`;
   const record = {
     no: orderNo, time: now.toISOString(),
-    customer: CUSTOMER ? CUSTOMER.name : $("pName").value.trim(),
+    customer: CUSTOMER ? CUSTOMER.name : "לקוח מזדמן – " + $("pName").value.trim(),
     pickup: $("pAddr").value.trim(), pickupPhone: $("pPhone").value.trim(),
     recipient: $("dName").value.trim(), dest: label, address: destLine, recipientPhone: $("dPhone").value.trim(),
     item: val("size"), when,
-    pay: (CUSTOMER && CUSTOMER.pay) || val("pay"),
+    pay: PREPAY ? val("pay") + " (מראש)" : (CUSTOMER && CUSTOMER.pay) || val("pay"),
     price: AGREED ? "לפי הסכם" : price !== null ? price : "לתיאום",
     notes, message: text, code: CUSTOMER ? CUSTOMER_CODE : "",
   };
@@ -742,6 +751,7 @@ function showPayCard(record) {
   $("payAmt").textContent = amount;
   $("payPhone").textContent = CONFIG.payPhone;
   $("payNo").textContent = record.no;
+  $("payPre").style.display = PREPAY ? "block" : "none";
   $("payHint").textContent = `פותחים את ${method} ← מדביקים את המספר ← ${amount ? "סכום " + amount : "הסכום שסוכם עם ארי"} ← מדביקים את מספר ההזמנה בהערה`;
   [["cpPhone", CONFIG.payPhone.replace(/\D/g, "")], ["cpNo", record.no]].forEach(([id, val]) => {
     const b = $(id); b.textContent = "📋 העתק"; b.classList.remove("done");

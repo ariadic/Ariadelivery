@@ -149,6 +149,7 @@ header .ht{display:flex;flex-direction:column;gap:4px;min-width:0}
 .alertBox .small{color:#7f1d1d;font-size:13px}
 .quotaBox{background:#fffbeb;border:1.5px solid #fcd34d;color:#92400e;border-radius:16px;padding:11px 14px;font-size:14px;margin-bottom:12px}
 .acts .ok{background:#7c3aed}
+.waitPay{background:#fff7ed;border:1.5px solid #fdba74;color:#c2410c;border-radius:12px;padding:8px 10px;font-weight:700;font-size:13.5px;margin-top:10px}
 .badge.ok{background:#ede9fe;color:#6d28d9}
 </style>
 </head>
@@ -437,6 +438,7 @@ function card(o) {
       o.phone ? [" · ", link("📞 " + o.phone, "tel:" + o.phone)] : null),
     el("div", { className: "row meta", textContent: [o.item, o.when, o.pay, o.price && (isNaN(o.price) ? o.price : "₪" + o.price)].filter(Boolean).join(" · ") }),
     o.notes ? el("div", { className: "row", textContent: "📝 " + o.notes }) : null,
+    /מראש/.test(o.pay || "") && !o.paid && o.status !== "לא פנוי" ? el("div", { className: "waitPay", textContent: "⏳ תשלום מראש – לבדוק שהתקבל לפני יציאה" }) : null,
     payRow,
     acts,
     el("button", { type: "button", className: "delOrder", textContent: "🗑 מחיקת ההזמנה", onclick: e => deleteOrder(o, e.target) }));
