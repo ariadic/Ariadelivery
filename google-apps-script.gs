@@ -519,7 +519,7 @@ function checkSystem() {
     if (!all.some(c => c.code === "fl4x9")) say("⚠️ הלקוח fl4x9 (פרחי אודי ודורית) לא נמצא בלשונית \"לקוחות\" – בלי זה הדף שלה מציג מחירון ישן");
   } catch (e) { say("❌ שגיאה בקריאת לקוחות/מחירונים: " + e + (e.stack ? " | " + String(e.stack).split("\n")[1] : "")); }
   try {
-    const r = JSON.parse(doGetInner({ parameter: { action: "config", c: "fl4x9" } }).getContent());
+    const r = JSON.parse(doGetInner({ parameter: { action: "config", code: "fl4x9" } }).getContent());
     say(r.customer ? "✅ הדף של דורית יקבל " + (r.customer.prices || []).length + " יעדים" : "⚠️ הדף של דורית לא יקבל לקוח (customer=null)");
   } catch (e) { say("❌ בקשת המחירון של דורית נכשלת: " + e + (e.stack ? " | " + String(e.stack).split("\n")[1] : "")); }
 }
