@@ -236,7 +236,7 @@ header .ht{display:flex;flex-direction:column;gap:4px;min-width:0}
     <div id="custList"></div>
     <section class="card" id="seedBox" style="display:none">
       <h2 style="margin-top:0">עוד אין לקוחות בטבלה</h2>
-      <p class="meta">אפשר לייבא את מה שכבר מוגדר באתר (פרחי אודי ודורית והמחירון הכללי) ולערוך מכאן.</p>
+      <p class="meta">אפשר לייבא את מה שכבר מוגדר באתר (פרחי אודי ודורית ולקוחות מזדמנים) ולערוך מכאן.</p>
       <button type="button" class="saveBtn" id="seedBtn">📥 ייבוא הלקוחות הקיימים</button>
     </section>
   </section>
@@ -632,7 +632,7 @@ function custCard(c) {
   const link = linkOf(c.code);
   return el("section", { className: "card custCard" },
     el("div", { className: "top" },
-      el("div", {}, el("div", { className: "cust", textContent: isDef ? "🚙 מחירון כללי (הדף בלי לינק אישי)" : c.name }),
+      el("div", {}, el("div", { className: "cust", textContent: isDef ? "🚙 לקוחות מזדמנים (הדף בלי לינק אישי)" : c.name }),
         el("div", { className: "meta", textContent: n ? `${n} יעדים · ${priceRange(c.prices)}` : (isDef ? "אין מחירון – \"המחיר ייקבע בשיחה\"" : "מחיר לפי הסכם") })),
       isDef ? null : el("span", { className: "badge new", textContent: c.code })),
     el("div", { className: "link", textContent: link }),
@@ -661,7 +661,7 @@ function openEditor(c) {
   const isNew = !c, isDef = c && c.code === DEFAULT_CODE;
   editing = { code: isNew ? newCode() : c.code, isNew, isDef };
   c = c || {};
-  $("ceTitle").textContent = isDef ? "🚙 מחירון כללי" : isNew ? "➕ לקוח חדש" : "✏️ " + c.name;
+  $("ceTitle").textContent = isDef ? "🚙 לקוחות מזדמנים" : isNew ? "➕ לקוח חדש" : "✏️ " + c.name;
   $("ceCustFields").style.display = isDef ? "none" : "";
   $("ceDefFields").style.display = isDef ? "" : "none";
   $("ceDelete").style.display = isNew || isDef ? "none" : "";
@@ -677,7 +677,7 @@ function openEditor(c) {
   if (!(c.prices || []).length && isNew) addRow();
   $("ceCopySel").replaceChildren(el("option", { value: "", textContent: "העתקת מחירון מ…" }),
     ...customers.filter(x => x.code !== editing.code && (x.prices || []).length)
-      .map(x => el("option", { value: x.code, textContent: x.code === DEFAULT_CODE ? "המחירון הכללי" : x.name })));
+      .map(x => el("option", { value: x.code, textContent: x.code === DEFAULT_CODE ? "לקוחות מזדמנים" : x.name })));
   $("ceQuick").value = ""; $("ceErr").textContent = "";
   countRows();
   showView("edit");
@@ -766,7 +766,7 @@ $("ceQuickBtn").onclick = () => {
 $("ceCopyBtn").onclick = () => {
   const src = customers.find(x => x.code === $("ceCopySel").value);
   if (!src) return;
-  if (readRows().some(r => r.label) && !confirm("להחליף את המחירון הנוכחי במחירון של " + (src.code === DEFAULT_CODE ? "המחירון הכללי" : src.name) + "?")) return;
+  if (readRows().some(r => r.label) && !confirm("להחליף את המחירון הנוכחי במחירון של " + (src.code === DEFAULT_CODE ? "לקוחות מזדמנים" : src.name) + "?")) return;
   [...$("ceRows").querySelectorAll(".prow")].forEach(r => r.remove());
   (src.prices || []).forEach(p => addRow(p));
 };
@@ -796,7 +796,7 @@ $("ceSave").onclick = () => {
       const saved = customers.find(c => c.code === editing.code);
       if (!saved) { err.textContent = "השמירה לא נקלטה – בדוק שהקוד בגוגל מעודכן, ונסה שוב"; return; }
       showView("customers");
-      $("custNote").textContent = `✅ נשמר: ${isDef ? "המחירון הכללי" : saved.name}` + (editing.isNew ? " – הלינק שלו מוכן למטה" : "");
+      $("custNote").textContent = `✅ נשמר: ${isDef ? "לקוחות מזדמנים" : saved.name}` + (editing.isNew ? " – הלינק שלו מוכן למטה" : "");
     })
     .catch(() => { err.textContent = "השמירה נכשלה – בדוק חיבור לאינטרנט ונסה שוב"; })
     .finally(() => { btn.disabled = false; btn.textContent = "💾 שמירה"; });

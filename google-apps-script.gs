@@ -100,11 +100,13 @@ function setPaid(o) {
    שתי לשוניות בטבלה, שאפשר לערוך גם ידנית וגם מדף הניהול:
    "לקוחות"   – שורה לכל לקוח (קוד, שם, כתובת, טלפון, הגדרות)
    "מחירונים" – שורה לכל יעד: קוד לקוח | לקוח | יעד | מחיר | כתובת לווייז
-   הקוד "כללי" הוא המחירון של הדף בלי לינק אישי. */
+   הקוד "מזדמנים" (או "כללי", השם הישן) הוא המחירון של לקוחות מזדמנים – הדף בלי לינק אישי. */
 const CUST_SHEET = "לקוחות";
 const PRICE_SHEET = "מחירונים";
 const DEFAULT_CODE = "_default";
-const DEFAULT_LABEL = "כללי";
+const DEFAULT_LABEL = "מזדמנים";
+const DEFAULT_ALIASES = ["מזדמנים", "כללי", "לקוחות מזדמנים"];   // "כללי" – השם הקודם, עדיין נקרא
+const DEFAULT_NAME = "לקוחות מזדמנים";
 const CUST_HEADERS = ["קוד", "שם העסק", "כתובת איסוף", "טלפון", "כותרת בדף", "איסוף קבוע", "אמצעי תשלום קבוע",
   "בלי \"מי משלם\"", "ברכה לכרטיס", "תוספת דחוף", "מה שולחים (מופרד בפסיקים)", "עודכן"];
 const PRICE_HEADERS = ["קוד לקוח", "לקוח", "יעד", "מחיר", "כתובת לווייז (לא חובה)"];
@@ -150,7 +152,7 @@ function body(sh, cols) {
   const have = Math.min(cols, Math.max(sh.getMaxColumns ? sh.getMaxColumns() : cols, 1));
   return sh.getRange(2, 1, n - 1, have).getValues().map(r => r.length < cols ? r.concat(new Array(cols - r.length).fill("")) : r);
 }
-const toCode = v => { const s = String(v === undefined || v === null ? "" : v).trim(); return s === DEFAULT_LABEL ? DEFAULT_CODE : s; };
+const toCode = v => { const s = String(v === undefined || v === null ? "" : v).trim(); return DEFAULT_ALIASES.indexOf(s) !== -1 ? DEFAULT_CODE : s; };
 const fromCode = c => c === DEFAULT_CODE ? DEFAULT_LABEL : c;
 const yes = v => v === true || /^(כן|v|✓|✔|true|1|x)$/i.test(String(v).trim());
 
@@ -160,7 +162,7 @@ function readCustomers() {
     const code = toCode(r[0]);
     if (!code) return;
     map[code] = sanitizeCustomer({
-      name: code === DEFAULT_CODE ? "מחירון כללי" : r[1], addr: r[2], phone: r[3], title: r[4], fixedPickup: yes(r[5]),
+      name: code === DEFAULT_CODE ? DEFAULT_NAME : r[1], addr: r[2], phone: r[3], title: r[4], fixedPickup: yes(r[5]),
       pay: r[6], hidePayer: yes(r[7]), greeting: yes(r[8]), urgentExtra: r[9],
       sizes: String(r[10] || "").split(",").map(s => s.trim()).filter(String), prices: [],
     });
@@ -169,7 +171,7 @@ function readCustomers() {
   body(getPriceSheet(), PRICE_HEADERS.length).forEach(r => {
     const code = toCode(r[0]), label = str(r[2], 60), price = Number(r[3]);
     if (!code || !label || String(r[3]).trim() === "" || !isFinite(price)) return;
-    if (!map[code] && code === DEFAULT_CODE) map[code] = Object.assign(sanitizeCustomer({ name: "מחירון כללי" }), { code: code });
+    if (!map[code] && code === DEFAULT_CODE) map[code] = Object.assign(sanitizeCustomer({ name: DEFAULT_NAME }), { code: code });
     if (!map[code] || map[code].prices.length >= 150) return;
     map[code].prices.push({ label: label, price: num(price, 10000), city: str(r[4], 80) || label });
   });
@@ -221,7 +223,7 @@ function saveCustomer(o) {
 function saveCustomerData(code, c) {
   const d = sanitizeCustomer(c);
   const isDef = code === DEFAULT_CODE;
-  const name = isDef ? "מחירון כללי" : d.name;
+  const name = isDef ? DEFAULT_NAME : d.name;
   const yn = b => b ? "כן" : "לא";
   const row = [fromCode(code), name, d.addr, "'" + d.phone, d.title, yn(d.fixedPickup), d.pay, yn(d.hidePayer),
     yn(d.greeting), d.urgentExtra, d.sizes.join(", "), new Date()];
@@ -298,7 +300,7 @@ function doGetInner(e) {
   // ללקוח: האם ארי פנוי כרגע
   if (p.action === "availability") return json(Object.assign({ ok: true }, getAvailability()));
 
-  // לדף ההזמנה: ההגדרות של הלקוח מהלינק האישי + המחירון הכללי + זמינות
+  // לדף ההזמנה: ההגדרות של הלקוח מהלינק האישי + מחירון לקוחות מזדמנים + זמינות
   if (p.action === "config") {
     const all = readCustomers();
     const code = str(p.code, 20);          // לא "c" – גוגל שומר את השם הזה לעצמו וחוסם את הבקשה
@@ -514,7 +516,7 @@ function checkSystem() {
   try {
     const all = readCustomers();
     say("✅ לקוחות שנקראו: " + all.length);
-    all.forEach(c => say("   • " + (c.code === DEFAULT_CODE ? "כללי" : c.code) + " – " + (c.name || "") + ": " + c.prices.length + " יעדים" +
+    all.forEach(c => say("   • " + (c.code === DEFAULT_CODE ? DEFAULT_LABEL : c.code) + " – " + (c.name || "") + ": " + c.prices.length + " יעדים" +
       (c.prices.length ? " (" + c.prices.slice(0, 4).map(p => p.label + " " + p.price).join(", ") + (c.prices.length > 4 ? "…" : "") + ")" : "")));
     if (!all.some(c => c.code === "fl4x9")) say("⚠️ הלקוח fl4x9 (פרחי אודי ודורית) לא נמצא בלשונית \"לקוחות\" – בלי זה הדף שלה מציג מחירון ישן");
   } catch (e) { say("❌ שגיאה בקריאת לקוחות/מחירונים: " + e + (e.stack ? " | " + String(e.stack).split("\n")[1] : "")); }
