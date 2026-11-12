@@ -12,7 +12,7 @@
 const NOTIFY_EMAIL = "";
 
 // גרסת הקוד – מופיעה בבדיקת הכתובת, כדי לדעת שהפריסה באמת עודכנה
-const CODE_VERSION = "2026-11-12c";
+const CODE_VERSION = "2026-11-12d";
 
 // סיסמה לדף המנהל – בחרו סיסמה משלכם (אותיות ומספרים, לפחות 6 תווים).
 // אותה סיסמה מקלידים פעם אחת בדף המנהל.
@@ -301,7 +301,7 @@ function doGetInner(e) {
   // לדף ההזמנה: ההגדרות של הלקוח מהלינק האישי + המחירון הכללי + זמינות
   if (p.action === "config") {
     const all = readCustomers();
-    const code = str(p.c, 20);
+    const code = str(p.code, 20);          // לא "c" – גוגל שומר את השם הזה לעצמו וחוסם את הבקשה
     const pick = c => { if (!c) return null; const x = Object.assign({}, c); delete x.code; return x; };
     return json(Object.assign({ ok: true,
       customer: code && code !== DEFAULT_CODE ? pick(all.filter(c => c.code === code)[0]) : null,
@@ -318,7 +318,7 @@ function doGetInner(e) {
   // ללקוח: ההזמנות שלו – לפי קוד הלינק האישי, או לפי מספרי הזמנות שנשמרו במכשיר שלו.
   // מחזיר רק את מה שמוצג ב"ההזמנות שלי" (בלי טלפונים), 100 ימים אחורה.
   if (p.action === "history") {
-    const code = String(p.c || "").trim();
+    const code = String(p.code || "").trim();
     const byCode = code.length >= 4;
     const wanted = String(p.nos || "").split(",").filter(String).slice(0, 300);
     const cutoff = Date.now() - 100 * 24 * 3600 * 1000;
