@@ -12,7 +12,7 @@
 const NOTIFY_EMAIL = "";
 
 // גרסת הקוד – מופיעה בבדיקת הכתובת, כדי לדעת שהפריסה באמת עודכנה
-const CODE_VERSION = "2026-11-12f";
+const CODE_VERSION = "2026-11-12g";
 
 // התראות לאייפון דרך אפליקציית Pushover (הכי אמין – עם צלצול חירום ו"קיבלתי" ישר מההתראה).
 // מדביקים כאן את שני המפתחות מ-pushover.net. לא לשמור אותם באתר (הקוד באתר גלוי לכולם).
@@ -396,7 +396,7 @@ function getSpreadsheet() {
 function getSheet() {
   const aux = [CUST_SHEET, PRICE_SHEET, DELETED_SHEET];
   const all = getSpreadsheet().getSheets();
-  const sheet = all.filter(s => aux.indexOf(s.getName()) === -1)[0] || all[0];
+  const sheet = all.filter(s => aux.indexOf(s.getName()) === -1 && s.getName().indexOf(ARCHIVE_PREFIX) !== 0)[0] || all[0];
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(HEADERS);
     sheet.getRange(1, 1, 1, HEADERS.length).setFontWeight("bold");
@@ -479,6 +479,94 @@ function installMorningReport() {
   Logger.log("מייל הבוקר הופעל – יישלח כל יום בסביבות 07:30 (אזור זמן: " + Session.getScriptTimeZone() + ")");
 }
 
+/* ---------- תחזוקה חודשית: ארכיון + מחיקת פרטים אישיים (רץ לבד ב-1 לכל חודש בלילה) ----------
+   - הזמנות שנסגרו (נמסר / לא פנוי) לפני יותר מ-ARCHIVE_DAYS ימים עוברות ללשונית "ארכיון <שנה>". שום דבר לא נמחק.
+     כך הלשונית הראשית נשארת קטנה והאתר נשאר מהיר.
+   - בארכיון: אחרי ANONYMIZE_MONTHS חודשים נמחקים שם המקבל, הטלפון שלו, הרחוב וההערות (פרטיות).
+     נשארים: תאריך, לקוח, יעד, מה, מחיר, תשלום, שולם – מה שצריך לצורכי מס.
+   הפעלה: מריצים פעם אחת את installMaintenance מהעורך. */
+const ARCHIVE_DAYS = 90;
+const ANONYMIZE_MONTHS = 12;
+const ARCHIVE_PREFIX = "ארכיון ";
+
+function monthlyMaintenance() {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    const r = { archived: archiveOldOrders(), anonymized: anonymizeOld() };
+    Logger.log("תחזוקה: הועברו לארכיון " + r.archived + " הזמנות · נמחקו פרטים אישיים מ-" + r.anonymized + " הזמנות ישנות");
+    return r;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+// ערכי טקסט שמתחילים בספרה (טלפון, מס' הזמנה) – שומרים כטקסט כדי שהאפס בהתחלה לא ייעלם
+function asText(v) { return typeof v === "string" && /^[0-9+]/.test(v) ? "'" + v : v; }
+
+function archiveOldOrders() {
+  const sheet = getSheet();
+  const n = sheet.getLastRow() - 1;
+  if (n < 1) return 0;
+  const rng = sheet.getRange(2, 1, n, HEADERS.length);
+  const vals = rng.getValues(), disp = rng.getDisplayValues();
+  const cutoff = Date.now() - ARCHIVE_DAYS * 24 * 3600 * 1000;
+  const keep = [], move = {};
+  const fix = row => row.map((v, j) => [COL.no, COL.phone, COL.pickupPhone].indexOf(j + 1) !== -1 ? asText(v) : v);
+  disp.forEach((d, i) => {
+    const t = parseDate(d[COL.date - 1], d[COL.time - 1]);
+    if (CLOSED.indexOf(d[COL.status - 1]) !== -1 && t && t < cutoff) {
+      const y = d[COL.date - 1].slice(6, 10);
+      (move[y] = move[y] || []).push(fix(vals[i]));
+    } else keep.push(fix(vals[i]));
+  });
+  const moved = n - keep.length;
+  if (!moved) return 0;
+  Object.keys(move).forEach(y => {
+    const t = getTab(ARCHIVE_PREFIX + y, HEADERS);
+    t.getRange(t.getLastRow() + 1, 1, move[y].length, HEADERS.length).setValues(move[y]);
+  });
+  rng.clearContent();
+  if (keep.length) sheet.getRange(2, 1, keep.length, HEADERS.length).setValues(keep);
+  return moved;
+}
+
+function anonymizeOld() {
+  const cut = new Date();
+  cut.setMonth(cut.getMonth() - ANONYMIZE_MONTHS);
+  let count = 0;
+  getSpreadsheet().getSheets().filter(sh => sh.getName().indexOf(ARCHIVE_PREFIX) === 0).forEach(sh => {
+    const n = sh.getLastRow() - 1;
+    if (n < 1) return;
+    const disp = sh.getRange(2, 1, n, HEADERS.length).getDisplayValues();
+    const who = sh.getRange(2, COL.recipient, n, 4).getValues();          // מקבל | יעד | כתובת | טלפון
+    const notes = sh.getRange(2, COL.notes, n, 1).getValues();
+    let changed = false;
+    disp.forEach((d, i) => {
+      const t = parseDate(d[COL.date - 1], d[COL.time - 1]);
+      if (!t || t >= cut.getTime() || d[COL.recipient - 1] === "—") return;
+      who[i] = ["—", who[i][1], who[i][1] || "—", ""];                     // הכתובת המלאה מתחלפת ביעד בלבד
+      notes[i] = [""];
+      changed = true; count++;
+    });
+    if (changed) {
+      sh.getRange(2, COL.recipient, n, 4).setValues(who.map(r => r.map(asText)));
+      sh.getRange(2, COL.notes, n, 1).setValues(notes);
+    }
+  });
+  return count;
+}
+
+// להרצה פעם אחת מהעורך: מפעיל את התחזוקה החודשית ומריץ אותה עכשיו
+function installMaintenance() {
+  ScriptApp.getProjectTriggers()
+    .filter(t => t.getHandlerFunction() === "monthlyMaintenance")
+    .forEach(t => ScriptApp.deleteTrigger(t));
+  ScriptApp.newTrigger("monthlyMaintenance").timeBased().onMonthDay(1).atHour(3).create();
+  const r = monthlyMaintenance();
+  Logger.log("✅ תחזוקה חודשית הופעלה – תרוץ לבד ב-1 לכל חודש בלילה. עכשיו: " + r.archived + " הזמנות עברו לארכיון, " + r.anonymized + " הזמנות ישנות נוקו מפרטים אישיים.");
+}
+
 function removeMorningReport() {
   ScriptApp.getProjectTriggers()
     .filter(t => t.getHandlerFunction() === "morningReport")
@@ -523,6 +611,11 @@ function morningReport() {
 function checkSystem() {
   const say = s => Logger.log(s);
   say("גרסת קוד: " + CODE_VERSION);
+  try {
+    const tr = ScriptApp.getProjectTriggers().map(t => t.getHandlerFunction());
+    say((tr.indexOf("morningReport") !== -1 ? "✅" : "⚠️") + " מייל בוקר" + (tr.indexOf("morningReport") !== -1 ? " פעיל" : " לא פעיל – להריץ installMorningReport"));
+    say((tr.indexOf("monthlyMaintenance") !== -1 ? "✅" : "⚠️") + " תחזוקה חודשית (ארכיון + פרטיות)" + (tr.indexOf("monthlyMaintenance") !== -1 ? " פעילה" : " לא פעילה – להריץ installMaintenance"));
+  } catch (e) {}
   say(PUSHOVER_TOKEN && PUSHOVER_USER ? "✅ התראות לאייפון: Pushover" : NTFY_TOPIC ? "⚠️ התראות לאייפון: ntfy בחינם (לא אמין) – כדאי למלא מפתחות Pushover" : "⚠️ אין התראות לאייפון");
   try {
     const ss = getSpreadsheet();
