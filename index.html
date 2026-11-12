@@ -219,7 +219,11 @@ button.dest{width:100%;display:flex;align-items:center;gap:12px;padding:14px;bor
 #sizeChips label{flex-direction:column;gap:4px;border-radius:16px;padding:11px 6px 9px;font-size:14px}
 #sizeChips label .ic{width:21px;height:21px}
 .f input[type=tel]{direction:ltr;text-align:right}
-button.lnk{width:auto;display:inline-flex;align-items:center;gap:7px;background:none;color:var(--ac);font-size:14.5px;font-weight:500;padding:8px 2px;margin:12px 0 0;box-shadow:none;border:0}
+button.lnk{width:100%;display:flex;align-items:center;gap:12px;background:#fff;color:var(--tx);font-size:15px;font-weight:500;padding:12px 14px;margin:16px 0 0;box-shadow:none;border:1.5px dashed #d4d4d8;border-radius:14px;text-align:right}
+button.lnk .pl{width:34px;height:34px;border-radius:50%;background:var(--ac-soft);color:var(--ac);display:grid;place-items:center;flex:none}
+button.lnk .lt{flex:1;min-width:0}
+button.lnk b{display:block;font-weight:600;font-size:15px}
+button.lnk small{display:block;color:var(--mu);font-size:12.5px;font-weight:400;margin-top:1px}
 #historyBtn{display:none}
 /* כפתור השליחה – קבוע בתחתית, עם המחיר בתוכו */
 #orderForm > button[type=submit],button.primary#doneMore{position:fixed;z-index:30;left:16px;right:16px;bottom:calc(14px + env(safe-area-inset-bottom));width:auto;max-width:488px;margin:0 auto;display:flex;align-items:center;gap:10px;border-radius:16px;padding:16px 18px;font-size:17px;font-weight:600;color:#fff}
@@ -397,7 +401,7 @@ input::placeholder,textarea::placeholder{color:#a8a8b0;font-weight:400;opacity:1
         <div class="f" style="margin-top:16px"><label for="greeting">ברכה לכרטיס <span class="opt">(לא חובה)</span></label>
         <textarea id="greeting" placeholder="מזל טוב! באהבה, ..."></textarea></div>
       </div>
-      <button type="button" class="lnk" id="notesLink"><svg class="ic s"><use href="#i-message-square-text"/></svg><span>הוספת הערה לשליח</span></button>
+      <button type="button" class="lnk" id="notesLink"><span class="pl"><svg class="ic s"><use href="#i-plus"/></svg></span><span class="lt"><b>הוספת הערה לשליח</b><small>קומה, קוד לבניין, מה בחבילה… (לא חובה)</small></span></button>
       <div id="notesBox" style="display:none">
         <div class="f" style="margin-top:14px"><label for="notes">הערה לשליח <span class="opt">(קומה, קוד לבניין, מה בחבילה…)</span></label>
         <textarea id="notes"></textarea></div>
