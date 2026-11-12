@@ -267,7 +267,16 @@ function setAvailability(o) {
 }
 
 /* ---------- קריאה: סטטוסים ללקוח / רשימה למנהל ---------- */
+// כל שגיאה בקריאה חוזרת כהודעה ברורה (במקום מסך שגיאה של גוגל), כדי שיהיה קל לאתר אותה
 function doGet(e) {
+  try {
+    return doGetInner(e);
+  } catch (err) {
+    return json({ ok: false, error: String(err && err.message || err), where: String(err && err.stack || "").split("\n").slice(0, 3).join(" | ") });
+  }
+}
+
+function doGetInner(e) {
   const p = (e && e.parameter) || {};
   const sheet = getSheet();
   const rows = sheet.getLastRow() > 1
