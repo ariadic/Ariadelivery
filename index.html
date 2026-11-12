@@ -206,17 +206,17 @@ button.dest{width:100%;display:flex;align-items:center;gap:12px;padding:14px;bor
 .destWrap .errmsg{margin:6px 4px 0}
 /* כפתורי בחירה */
 .chips{gap:8px}
-.chips label{flex:1 1 28%;display:flex;align-items:center;justify-content:center;gap:6px;min-height:46px;margin:0;padding:10px 8px;border-radius:999px;border:0;background:var(--fill);color:#333;font-size:14.5px;font-weight:500;box-shadow:none;line-height:1.15}
+.chips label{flex:1 1 28%;display:flex;align-items:center;justify-content:center;gap:6px;min-height:50px;margin:0;padding:10px 8px;border-radius:14px;border:0;background:var(--fill);color:#333;font-size:14.5px;font-weight:500;box-shadow:none;line-height:1.15}
 .chips label .ic{width:18px;height:18px}
 .chips input:checked + label{background:var(--ac-soft);color:var(--ac);font-weight:600;box-shadow:inset 0 0 0 2px var(--ac)}
 .chips label:active{transform:scale(.96)}
-.chips label:has(.sub){border-radius:16px;padding-top:7px;padding-bottom:7px}
+.chips label:has(.sub){flex-direction:column;gap:1px;padding-top:7px;padding-bottom:7px}
 .chips label .sub{color:inherit;opacity:.7}
 #whenChips,#payerChips{background:var(--fill);border-radius:14px;padding:4px;gap:4px;flex-wrap:nowrap}
 #whenChips label,#payerChips label{flex:1 1 0;border-radius:11px;min-height:40px;padding:8px 4px;font-size:14px;background:none;gap:5px}
 #whenChips input:checked + label,#payerChips input:checked + label{background:#fff;color:var(--tx);box-shadow:0 2px 8px #00000018}
 #whenChips em{font-style:normal;font-size:11.5px;font-weight:700;color:var(--ac)}
-#sizeChips label{flex-direction:column;gap:4px;border-radius:16px;padding:11px 6px 9px;font-size:14px}
+#sizeChips label{flex-direction:column;gap:4px;padding:11px 6px 9px;font-size:14px}
 #sizeChips label .ic{width:21px;height:21px}
 .f input[type=tel]{direction:ltr;text-align:right}
 button.lnk{width:100%;display:flex;align-items:center;gap:12px;background:#fff;color:var(--tx);font-size:15px;font-weight:500;padding:12px 14px;margin:16px 0 0;box-shadow:none;border:1.5px dashed #d4d4d8;border-radius:14px;text-align:right}
