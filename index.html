@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ארי משלוחים – הזמנת משלוח</title>
 <meta name="description" content="הזמנת משלוח מהירה – ממלאים פרטים ושולחים בווצאפ">
-<meta name="theme-color" content="#ff6a4d">
+<meta name="theme-color" content="#ffffff">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
   :root{
@@ -158,13 +158,168 @@ button.waOpt svg,button.waBtn svg{width:20px;height:20px;fill:currentColor}
 #orderForm > button[type=submit][disabled]{opacity:.85}
 .spin{width:18px;height:18px;border:3px solid #ffffff66;border-top-color:#fff;border-radius:50%;display:inline-block;animation:sp .8s linear infinite;flex:none}
 @keyframes sp{to{transform:rotate(360deg)}}
+/* ===== עיצוב 2026: נקי בסגנון אפליקציית משלוחים (לבן, צבע אחד, חלונית מלמטה) ===== */
+:root{--ac:#ff5a1f;--ac-soft:#fff1eb;--ok:#1fbf5a;--fill:#f4f4f5;--ln:#ececef;--tx:#111;--mu:#70707a;--brand:#ff5a1f;--brand-soft:#fff1eb;--bg:#fff;--text:#111;--muted:#70707a;--ring:#ff5a1f2e}
+body{font-family:Rubik,Heebo,system-ui,sans-serif;background:#fff;color:var(--tx);padding-bottom:calc(92px + env(safe-area-inset-bottom))}
+.ic{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ic.s{width:17px;height:17px}
+button,.chips label,.dest{-webkit-tap-highlight-color:transparent;transition:transform .12s ease,background .15s,box-shadow .15s,color .15s}
+button:active{transform:scale(.97)}
+/* ראש הדף */
+header{display:flex;align-items:center;gap:10px;max-width:520px;margin:0 auto;padding:16px 16px 0;background:none;color:var(--tx);box-shadow:none;text-align:right}
+header .lg{width:42px;height:42px;border-radius:50%;background:var(--ac-soft);color:var(--ac);display:grid;place-items:center;overflow:hidden;flex:none;font-size:21px;line-height:1}
+header .lg img{width:100%;height:100%;object-fit:cover;max-width:none;max-height:none;margin:0}
+header .lg img + svg{display:none}
+header .ht{flex:1;min-width:0}
+header h1{font-size:16px;font-weight:600;color:var(--tx);text-shadow:none;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header p{font-size:12.5px;color:var(--mu);opacity:1;margin:1px 0 0}
+button.ib{width:42px;height:42px;border-radius:50%;background:var(--fill);color:var(--tx);display:grid;place-items:center;border:0;padding:0;margin:0;flex:none;box-shadow:none}
+main{padding:4px 16px 16px}
+h2.big{font-size:30px;font-weight:700;letter-spacing:-.02em;margin:16px 2px 4px;color:var(--tx)}
+/* כרטיסים */
+.card{background:#fff;border-radius:18px;box-shadow:0 0 0 1px var(--ln),0 6px 20px #0000000a;padding:16px}
+.card h2{font-size:17px;font-weight:700;color:var(--tx)}
+#orderForm .card{background:none;box-shadow:none;border-radius:0;padding:0;margin:0 0 4px}
+#orderForm .card h2,label.lab{display:block;font-size:15px;font-weight:600;color:var(--tx);margin:20px 2px 10px}
+/* שדות: אפור בהיר, הכותרת בתוך השדה */
+.f{position:relative;background:var(--fill);border-radius:14px;padding:8px 14px 9px;margin-bottom:10px;transition:box-shadow .15s,background .15s}
+.f label{display:block;margin:0;font-size:12px;font-weight:400;color:var(--mu)}
+.f label .opt{color:#a0a0a8}
+.f input,.f textarea{display:block;border:0!important;background:none!important;padding:2px 0 0;border-radius:0;font-size:16.5px;font-weight:500;box-shadow:none!important;outline:0;color:var(--tx);width:100%}
+.f textarea{min-height:56px}
+.f:focus-within{background:#fff;box-shadow:0 0 0 2px var(--ac)}
+.f:has(.bad){box-shadow:0 0 0 2px #e11d48;background:#fff5f6}
+.f .errmsg{margin:3px 0 0;font-size:12px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label.check{font-size:13.5px;font-weight:400;color:var(--mu);margin:2px 2px 0}
+/* בחירת יעד */
+.destWrap{position:relative;margin-bottom:12px}
+.destWrap select{position:absolute;inset:0;width:100%;height:100%;opacity:0;pointer-events:none;z-index:-1}
+button.dest{width:100%;display:flex;align-items:center;gap:12px;padding:14px;border-radius:18px;background:#fff;color:var(--tx);border:0;box-shadow:0 0 0 1px var(--ln),0 6px 20px #0000000d;margin:0;font:inherit;text-align:right}
+.dest .dot{width:44px;height:44px;border-radius:50%;background:var(--fill);color:var(--mu);display:grid;place-items:center;flex:none;transition:background .2s,color .2s}
+.dest.set .dot{background:var(--ac);color:#fff}
+.dest .dt{flex:1;min-width:0}
+.dest b{display:block;font-size:16.5px;font-weight:600}
+.dest small{display:block;color:var(--mu);font-size:13px;font-weight:400;margin-top:1px}
+.dest .chev{color:#a0a0a8}
+.destWrap:has(select.bad) .dest{box-shadow:0 0 0 2px #e11d48}
+.destWrap .errmsg{margin:6px 4px 0}
+/* כפתורי בחירה */
+.chips{gap:8px}
+.chips label{flex:1 1 28%;display:flex;align-items:center;justify-content:center;gap:6px;min-height:46px;margin:0;padding:10px 8px;border-radius:999px;border:0;background:var(--fill);color:#333;font-size:14.5px;font-weight:500;box-shadow:none;line-height:1.15}
+.chips label .ic{width:18px;height:18px}
+.chips input:checked + label{background:var(--ac-soft);color:var(--ac);font-weight:600;box-shadow:inset 0 0 0 2px var(--ac)}
+.chips label:active{transform:scale(.96)}
+.chips label:has(.sub){border-radius:16px;padding-top:7px;padding-bottom:7px}
+.chips label .sub{color:inherit;opacity:.7}
+#whenChips,#payerChips{background:var(--fill);border-radius:14px;padding:4px;gap:4px;flex-wrap:nowrap}
+#whenChips label,#payerChips label{flex:1 1 0;border-radius:11px;min-height:40px;padding:8px 4px;font-size:14px;background:none;gap:5px}
+#whenChips input:checked + label,#payerChips input:checked + label{background:#fff;color:var(--tx);box-shadow:0 2px 8px #00000018}
+#whenChips em{font-style:normal;font-size:11.5px;font-weight:700;color:var(--ac)}
+#sizeChips label{flex-direction:column;gap:4px;border-radius:16px;padding:11px 6px 9px;font-size:14px}
+#sizeChips label .ic{width:21px;height:21px}
+.f input[type=tel]{direction:ltr;text-align:right}
+button.lnk{width:auto;display:inline-flex;align-items:center;gap:7px;background:none;color:var(--ac);font-size:14.5px;font-weight:500;padding:8px 2px;margin:12px 0 0;box-shadow:none;border:0}
+#historyBtn{display:none}
+/* כפתור השליחה – קבוע בתחתית, עם המחיר בתוכו */
+#orderForm > button[type=submit],button.primary#doneMore{position:fixed;z-index:30;left:16px;right:16px;bottom:calc(14px + env(safe-area-inset-bottom));width:auto;max-width:488px;margin:0 auto;display:flex;align-items:center;gap:10px;border-radius:16px;padding:16px 18px;font-size:17px;font-weight:600;color:#fff}
+#orderForm > button[type=submit]{background:var(--ok);box-shadow:0 8px 22px #1fbf5a55;justify-content:flex-start}
+#orderForm > button[type=submit] > span:not(.pr):not(.spin){flex:1;text-align:right}
+#orderForm > button[type=submit] svg{width:22px;height:22px}
+#orderForm > button[type=submit]:active,button.primary#doneMore:active{transform:scale(.98)}
+.pr{background:#ffffff2e;border-radius:10px;padding:3px 10px;font-weight:700}
+button.primary#doneMore{background:var(--ac);box-shadow:0 8px 22px #ff5a1f44;justify-content:center}
+button.primary#doneMore .ic{width:22px;height:22px}
+.sbarBg{position:fixed;z-index:29;left:0;right:0;bottom:0;height:calc(84px + env(safe-area-inset-bottom));background:#ffffffe0;border-top:1px solid #f0f0f2;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);pointer-events:none}
+/* הודעות */
+.notice{border:0;border-radius:14px;background:#fff7e6;color:#92400e;font-size:13.5px;margin:12px 0 0}
+.notice.off{background:#fff1f2;color:#be123c;border:0}
+.count{background:var(--ac-soft);color:var(--ac);border-radius:12px;margin:12px 0 0;font-weight:600}
+.kept{border:0;background:#effaf3;color:#166534;border-radius:12px;margin:8px 0 0}
+.preNote{border:0;background:#fff7e6;border-radius:12px}
+/* מסך "ההזמנה אצל ארי" */
+.done{text-align:center;padding:14px 4px 4px}
+.okic{width:96px;height:96px;border-radius:50%;background:#e8f8ee;display:grid;place-items:center;margin:6px auto 12px;font-size:40px;animation:pop .5s cubic-bezier(.2,1.4,.4,1) both}
+.okin{width:64px;height:64px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;box-shadow:0 8px 20px #1fbf5a55}
+.okin .ic{width:34px;height:34px;stroke-width:3;stroke-dasharray:30;stroke-dashoffset:30;animation:draw .45s .3s ease-out forwards}
+@keyframes pop{from{transform:scale(.4);opacity:0}}
+@keyframes draw{to{stroke-dashoffset:0}}
+.done h2{font-size:27px;font-weight:700;letter-spacing:-.02em;margin:0 0 4px}
+.done p{font-size:13px;color:#a0a0a8}
+.doneSum{border:0;text-align:center;margin:0;padding:0;color:var(--mu);font-size:14px;line-height:1.6}
+.doneSum b{color:var(--tx);font-weight:600}
+.trk{position:relative;display:grid;grid-template-columns:repeat(4,1fr);margin:24px 0 8px}
+.trk .line{position:absolute;top:17px;right:12.5%;left:12.5%;height:3px;background:var(--ln);border-radius:3px}
+.trk .line i{position:absolute;right:0;top:0;bottom:0;width:0;background:var(--ok);border-radius:3px;transition:width .6s ease}
+.trk .st{position:relative;text-align:center}
+.trk .sd{width:36px;height:36px;border-radius:50%;background:var(--fill);color:#a0a0a8;display:grid;place-items:center;margin:0 auto 6px;border:3px solid #fff;transition:background .3s,color .3s}
+.trk b{display:block;font-size:12.5px;font-weight:600;color:#a0a0a8}
+.trk small{font-size:11px;color:#a0a0a8}
+.trk .st.sOk .sd{background:var(--ok);color:#fff}
+.trk .st.sOk b{color:var(--tx)}
+.trk .st.sNow .sd{background:#fff;color:var(--ac);box-shadow:0 0 0 3px var(--ac),0 0 0 8px #ff5a1f22;animation:pulse 1.6s ease-in-out infinite}
+.trk .st.sNow b{color:var(--ac)}
+@keyframes pulse{50%{box-shadow:0 0 0 3px var(--ac),0 0 0 12px #ff5a1f0d}}
+.trkNo{background:#fff1f2;color:#be123c;border-radius:12px;padding:10px;font-size:14px;font-weight:600;margin:10px 0 4px}
+/* תשלום בביט / פייבוקס */
+.payCard,.payCard.pb{background:#fff;border:0;box-shadow:0 0 0 1px var(--ln),0 6px 20px #0000000a;border-radius:18px;padding:14px 14px 10px;margin:16px 0 12px}
+.payTop{align-items:center;justify-content:flex-start}
+.payTop .ic{color:var(--ac)}
+.payTop b{font-size:15.5px;font-weight:600;flex:1}
+.payAmt,.payCard.pb .payAmt{font-size:20px;font-weight:700;color:var(--tx)}
+.cp,.payCard.pb .cp{background:none;border:0;border-top:1px solid #f0f0f2;border-radius:0;padding:10px 0 4px;margin-top:8px}
+.cp .lb{font-size:11.5px;color:var(--mu)}
+.cp .vl{font-size:18px;font-weight:700}
+button.cpb,.payCard.pb button.cpb{display:inline-flex;align-items:center;gap:5px;background:var(--ac-soft);color:var(--ac);border-radius:999px;padding:8px 13px;font-size:13.5px;font-weight:600}
+button.cpb.done{background:#e8f8ee!important;color:#15803d}
+button.cpb .ic{width:16px;height:16px}
+.payHint{font-size:12.5px;color:var(--mu)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.two button{margin:0!important;width:100%;display:flex;align-items:center;justify-content:center;gap:7px;background:var(--fill)!important;border:0!important;border-radius:14px;padding:13px 8px;font-size:14px;font-weight:600;color:var(--tx);box-shadow:none}
+.two #doneWa{color:#169c48}
+.two .ic,.two svg{width:18px;height:18px}
+button.lnkc{display:block;width:auto;margin:8px auto 0;background:none;color:var(--mu);font-size:14px;font-weight:500;border:0;padding:10px 16px;box-shadow:none}
+#todayBox{margin-top:14px}
+#todayBox h2{font-size:15px}
+/* כפתורים משניים, היסטוריה, גיבוי */
+button.secondary{background:var(--fill);border:0;color:var(--tx);border-radius:14px;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:7px}
+#historyCard{margin-top:14px}
+#historyCard h2{font-size:24px;margin-bottom:12px}
+.stats div{background:var(--fill);color:var(--mu)}
+.stats b{color:var(--tx)}
+.pending{background:#fffbeb;box-shadow:0 0 0 1px #fde68a;border:0;margin-top:12px}
+.card.done{margin-top:16px}
+button.waBtn{background:var(--ok);border-radius:16px}
+/* חלונית מלמטה */
+.dim{position:fixed;inset:0;background:#0007;opacity:0;pointer-events:none;transition:opacity .25s;z-index:50}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-width:560px;margin:0 auto;max-height:82vh;display:flex;flex-direction:column;background:#fff;border-radius:26px 26px 0 0;padding:10px 18px calc(14px + env(safe-area-inset-bottom));z-index:51;transform:translateY(105%);visibility:hidden;transition:transform .32s cubic-bezier(.2,.9,.3,1),visibility 0s .32s;box-shadow:0 -10px 40px #0003;direction:rtl}
+body.sheetOpen .dim{opacity:1;pointer-events:auto}
+body.sheetOpen .sheet{transform:none;visibility:visible;transition:transform .32s cubic-bezier(.2,.9,.3,1)}
+body.sheetOpen{overflow:hidden}
+.grab{width:40px;height:5px;border-radius:9px;background:#d6d6db;margin:0 auto 10px;flex:none}
+.shh{display:flex;align-items:center;flex:none}
+.shh h2{flex:1;font-size:23px;font-weight:700;margin:0}
+.shh button.ib{width:36px;height:36px}
+.srch{display:flex;align-items:center;gap:8px;background:var(--fill);border-radius:14px;padding:0 14px;margin:12px 0 4px;color:#8a8a94;flex:none}
+.srch input{border:0!important;background:none!important;box-shadow:none!important;padding:12px 0;font-size:16px;-webkit-appearance:none;appearance:none}
+.dl{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;flex:1;min-height:0}
+button.li{width:100%;display:flex;align-items:center;gap:10px;background:none;color:var(--tx);border:0;border-bottom:1px solid #f0f0f2;border-radius:0;padding:15px 2px;margin:0;font-size:16px;font-weight:400;text-align:right;box-shadow:none}
+button.li span{flex:1}
+button.li b{font-weight:600;color:#444}
+button.li.sel,button.li.sel b{color:var(--ac);font-weight:600}
+button.li .ck{color:var(--ac)}
+button.li:active{transform:none;background:var(--fill)}
+.empty{color:var(--mu);text-align:center;padding:20px 0;font-size:14px}
+footer{padding:4px 16px 18px}
+input::placeholder,textarea::placeholder{color:#a8a8b0;font-weight:400;opacity:1}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-flower-2" viewBox="0 0 24 24"><path d="M12 5a3 3 0 1 1 3 3m-3-3a3 3 0 1 0-3 3m3-3v1M9 8a3 3 0 1 0 3 3M9 8h1m5 0a3 3 0 1 1-3 3m3-3h-1m-2 3v-1" /><circle cx="12" cy="8" r="2" /><path d="M12 10v12" /><path d="M12 22c4.2 0 7-1.667 7-5-4.2 0-7 1.667-7 5Z" /><path d="M12 22c-4.2 0-7-1.667-7-5 4.2 0 7 1.667 7 5Z" /></symbol><symbol id="i-sprout" viewBox="0 0 24 24"><path d="M7 20h10" /><path d="M10 20c5.5-2.5.8-6.4 3-10" /><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z" /><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z" /></symbol><symbol id="i-shopping-basket" viewBox="0 0 24 24"><path d="m15 11-1 9" /><path d="m19 11-4-7" /><path d="M2 11h20" /><path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4" /><path d="M4.5 15.5h15" /><path d="m5 11 4-7" /><path d="m9 11 1 9" /></symbol><symbol id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></symbol><symbol id="i-package" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" /><path d="M12 22V12" /><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7" /><path d="m7.5 4.27 9 5.15" /></symbol><symbol id="i-gift" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="4" rx="1" /><path d="M12 8v13" /><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7" /><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5" /></symbol><symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" /><path d="M15 18H9" /><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" /><circle cx="17" cy="18" r="2" /><circle cx="7" cy="18" r="2" /></symbol><symbol id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></symbol><symbol id="i-calendar-clock" viewBox="0 0 24 24"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5" /><path d="M16 2v4" /><path d="M8 2v4" /><path d="M3 10h5" /><path d="M17.5 17.5 16 16.3V14" /><circle cx="16" cy="16" r="6" /></symbol><symbol id="i-clipboard-list" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><path d="M12 11h4" /><path d="M12 16h4" /><path d="M8 11h.01" /><path d="M8 16h.01" /></symbol><symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /><circle cx="12" cy="10" r="3" /></symbol><symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol><symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></symbol><symbol id="i-message-square-text" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /><path d="M13 8H7" /><path d="M17 12H7" /></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14" /><path d="M12 5v14" /></symbol><symbol id="i-send" viewBox="0 0 24 24"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" /><path d="m21.854 2.147-10.94 10.939" /></symbol><symbol id="i-thumbs-up" viewBox="0 0 24 24"><path d="M7 10v12" /><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z" /></symbol><symbol id="i-package-check" viewBox="0 0 24 24"><path d="m16 16 2 2 4-4" /><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14" /><path d="m7.5 4.27 9 5.15" /><polyline points="3.29 7 12 12 20.71 7" /><line x1="12" x2="12" y1="22" y2="12" /></symbol><symbol id="i-wallet" viewBox="0 0 24 24"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" /><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" /></symbol><symbol id="i-banknote" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01M18 12h.01" /></symbol><symbol id="i-car" viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" /><circle cx="7" cy="17" r="2" /><path d="M9 17h6" /><circle cx="17" cy="17" r="2" /></symbol><symbol id="i-circle-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="m15 9-6 6" /><path d="m9 9 6 6" /></symbol><symbol id="i-refresh-cw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /><path d="M8 16H3v5" /></symbol></svg>
 <header>
-  <img src="logo.png" alt="" onerror="this.remove()">
-  <h1>🚙 ארי משלוחים</h1>
-  <p>ממלאים פרטים ← שולחים לארי ← יוצאים לדרך</p>
+  <div class="lg" id="hLogo"><img src="logo.png" alt="" onerror="this.remove()"><svg class="ic"><use href="#i-car"/></svg></div>
+  <div class="ht"><h1>ארי משלוחים</h1><p>הזמנת משלוח</p></div>
+  <button type="button" class="ib" id="hHist" aria-label="ההזמנות שלי"><svg class="ic"><use href="#i-clipboard-list"/></svg></button>
 </header>
 
 <main>
@@ -175,101 +330,117 @@ button.waOpt svg,button.waBtn svg{width:20px;height:20px;fill:currentColor}
   <form id="orderForm" novalidate>
     <div class="count" id="countBanner" style="display:none"></div>
     <div class="kept" id="keptBanner" style="display:none"></div>
+    <h2 class="big">משלוח חדש</h2>
     <section class="card" id="pickupFixed" style="display:none">
-      <h2>📦 איסוף מ:</h2>
+      <h2>איסוף מ</h2>
       <div id="pickupFixedText"></div>
     </section>
 
     <section class="card" id="pickupCard">
-      <h2>📦 איסוף מ:</h2>
-      <label for="pName">שם / שם העסק</label>
+      <h2>איסוף מ</h2>
+      <div class="f"><label for="pName">שם / שם העסק</label>
       <input id="pName" autocomplete="organization" required>
-      <div class="errmsg">נא למלא שם</div>
-      <label for="pAddr">כתובת איסוף (רחוב, מספר, עיר)</label>
+      <div class="errmsg">נא למלא שם</div></div>
+      <div class="f"><label for="pAddr">כתובת איסוף (רחוב, מספר, עיר)</label>
       <input id="pAddr" autocomplete="street-address" required>
-      <div class="errmsg">נא למלא כתובת איסוף</div>
-      <label for="pPhone">טלפון</label>
+      <div class="errmsg">נא למלא כתובת איסוף</div></div>
+      <div class="f"><label for="pPhone">טלפון</label>
       <input id="pPhone" type="tel" inputmode="tel" autocomplete="tel" required>
-      <div class="errmsg">מספר טלפון לא תקין</div>
+      <div class="errmsg">מספר טלפון לא תקין</div></div>
+      <label class="check" id="rememberRow"><input type="checkbox" id="remember" checked> לזכור את פרטי האיסוף שלי לפעם הבאה</label>
     </section>
 
     <section class="card">
-      <h2>📍 מסירה ל:</h2>
-      <label for="dName">שם המקבל</label>
+      <h2>לאן שולחים</h2>
+      <div class="destWrap">
+        <button type="button" class="dest" id="destBtn"><span class="dot"><svg class="ic"><use href="#i-map-pin"/></svg></span><span class="dt"><b id="destName">בחרו יעד</b><small id="destSub">לחצו לבחירה מהרשימה</small></span><svg class="ic chev"><use href="#i-chevron-left"/></svg></button>
+        <select id="dCity" required tabindex="-1" aria-label="יעד"></select>
+        <div class="errmsg">נא לבחור יעד</div>
+      </div>
+      <div class="f"><label for="dName">שם המקבל</label>
       <input id="dName" list="recipients" autocomplete="off" required>
       <datalist id="recipients"></datalist>
-      <div class="errmsg">נא למלא שם מקבל</div>
-      <label for="dCity">עיר / שכונה</label>
-      <select id="dCity" required></select>
-      <div class="errmsg">נא לבחור עיר</div>
-      <label for="dAddr">רחוב ומספר בית</label>
+      <div class="errmsg">נא למלא שם מקבל</div></div>
+      <div class="row2">
+      <div class="f"><label for="dAddr">רחוב ומספר</label>
       <input id="dAddr" required>
-      <div class="errmsg">נא למלא כתובת מסירה</div>
-      <label for="dPhone">טלפון המקבל</label>
+      <div class="errmsg">נא למלא כתובת</div></div>
+      <div class="f"><label for="dPhone">טלפון המקבל</label>
       <input id="dPhone" type="tel" inputmode="tel" required>
-      <div class="errmsg">מספר טלפון לא תקין</div>
+      <div class="errmsg">טלפון לא תקין</div></div>
+      </div>
     </section>
 
     <section class="card">
-      <h2>📋 פרטי המשלוח</h2>
-      <label id="sizeLabel">גודל</label>
+      <label class="lab" id="sizeLabel">מה שולחים</label>
       <div class="chips" id="sizeChips"></div>
-      <label>מתי?</label>
+      <label class="lab">מתי</label>
       <div class="chips" id="whenChips"></div>
       <div id="whenTimeBox" style="display:none">
-        <label for="whenTime">מועד מבוקש</label>
+        <div class="f" style="margin-top:10px"><label for="whenTime">מועד מבוקש</label>
         <input id="whenTime" type="datetime-local">
-        <div class="errmsg">נא לבחור מועד</div>
+        <div class="errmsg">נא לבחור מועד</div></div>
       </div>
       <div id="payBox">
-        <label>אמצעי תשלום</label>
+        <label class="lab">תשלום</label>
         <div class="chips" id="payChips"></div>
         <div class="preNote" id="preNote" style="display:none">💳 <b>תשלום מראש בלבד.</b> אחרי שליחת ההזמנה יופיעו פרטים להעברה. המשלוח יוצא לדרך אחרי שהתשלום מתקבל.</div>
       </div>
       <div id="payerBox">
-        <label>מי משלם?</label>
+        <label class="lab">מי משלם?</label>
         <div class="chips" id="payerChips"></div>
       </div>
       <div id="greetingBox" style="display:none">
-        <label for="greeting">💌 ברכה לכרטיס <span class="opt">(לא חובה)</span></label>
-        <textarea id="greeting" placeholder="מזל טוב! באהבה, ..."></textarea>
+        <div class="f" style="margin-top:16px"><label for="greeting">ברכה לכרטיס <span class="opt">(לא חובה)</span></label>
+        <textarea id="greeting" placeholder="מזל טוב! באהבה, ..."></textarea></div>
       </div>
-      <label for="notes">הערות <span class="opt">(קומה, קוד לבניין, מה בחבילה…)</span></label>
-      <textarea id="notes"></textarea>
+      <button type="button" class="lnk" id="notesLink"><svg class="ic s"><use href="#i-message-square-text"/></svg><span>הוספת הערה לשליח</span></button>
+      <div id="notesBox" style="display:none">
+        <div class="f" style="margin-top:14px"><label for="notes">הערה לשליח <span class="opt">(קומה, קוד לבניין, מה בחבילה…)</span></label>
+        <textarea id="notes"></textarea></div>
+      </div>
+      <div class="price" id="priceBox" style="display:none"></div>
     </section>
+    <div class="sbarBg"></div>
 
-    <section class="card">
-      <div class="price" id="priceBox">בחרו יעד כדי לראות מחיר</div>
-      <label class="check" id="rememberRow"><input type="checkbox" id="remember" checked> לזכור את פרטי האיסוף שלי לפעם הבאה</label>
-    </section>
-
-    <button type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg><span>שלח הזמנה בווצאפ</span></button>
-    <button type="button" class="secondary" id="historyBtn">📋 ההזמנות שלי</button>
+    <button type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg><span>שלח הזמנה בווצאפ</span><span class="pr" id="btnPrice" style="display:none"></span></button>
+    <button type="button" class="secondary" id="historyBtn">ההזמנות שלי</button>
   </form>
 
   <!-- ההזמנה נקלטה במערכת -->
   <section id="doneBox" style="display:none">
-    <div class="card done">
-      <div class="okic">✅</div>
-      <h2>ההזמנה התקבלה!</h2>
-      <p id="doneNo"></p>
+    <div class="done">
+      <div class="okic"><span class="okin"><svg class="ic"><use href="#i-check"/></svg></span></div>
+      <h2>ההזמנה אצל ארי</h2>
       <div class="doneSum" id="doneSum"></div>
+      <div class="trk" id="trk">
+        <div class="line"><i id="trkFill"></i></div>
+        <div class="st"><span class="sd"><svg class="ic s"><use href="#i-send"/></svg></span><b>נשלחה</b><small id="trkTime"></small></div>
+        <div class="st"><span class="sd"><svg class="ic s"><use href="#i-thumbs-up"/></svg></span><b>ארי אישר</b><small></small></div>
+        <div class="st"><span class="sd"><svg class="ic s"><use href="#i-truck"/></svg></span><b>בדרך</b><small></small></div>
+        <div class="st"><span class="sd"><svg class="ic s"><use href="#i-package-check"/></svg></span><b>נמסרה</b><small></small></div>
+      </div>
+      <div class="trkNo" id="trkNo" style="display:none">ארי לא פנוי למשלוח הזה – צריך לתאם משלוח אחר</div>
+      <p id="doneNo"></p>
     </div>
     <div class="payCard" id="payCard" style="display:none">
-      <div class="payTop"><b id="payTitle"></b><span class="payAmt" id="payAmt"></span></div>
-      <div class="cp"><div class="t"><span class="lb">1. למי מעבירים (ארי משלוחים)</span><span class="vl" id="payPhone"></span></div><button type="button" class="cpb" id="cpPhone">📋 העתק</button></div>
-      <div class="cp"><div class="t"><span class="lb">2. מה לכתוב בהערה</span><span class="vl" id="payNo"></span></div><button type="button" class="cpb" id="cpNo">📋 העתק</button></div>
+      <div class="payTop"><svg class="ic s"><use href="#i-wallet"/></svg><b id="payTitle"></b><span class="payAmt" id="payAmt"></span></div>
+      <div class="cp"><div class="t"><span class="lb">למי מעבירים (ארי משלוחים)</span><span class="vl" id="payPhone"></span></div><button type="button" class="cpb" id="cpPhone">העתק</button></div>
+      <div class="cp"><div class="t"><span class="lb">מה לכתוב בהערה</span><span class="vl" id="payNo"></span></div><button type="button" class="cpb" id="cpNo">העתק</button></div>
       <div class="payHint" id="payHint"></div>
       <div class="preNote" id="payPre" style="display:none">⏳ <b>המשלוח יוצא לדרך אחרי שהתשלום מתקבל.</b></div>
     </div>
-    <button type="button" class="primary" id="doneMore">➕ עוד משלוח</button>
-    <button type="button" class="secondary" id="doneHistory">📋 ההזמנות שלי</button>
-    <button type="button" class="waOpt" id="doneWa">לשלוח גם הודעה בווצאפ (לא חובה)</button>
+    <div class="two">
+      <button type="button" class="secondary" id="doneHistory"><svg class="ic s"><use href="#i-clipboard-list"/></svg><span>ההזמנות שלי</span></button>
+      <button type="button" class="waOpt" id="doneWa">גם בווצאפ</button>
+    </div>
     <div class="card" id="todayBox" style="display:none">
       <h2 id="todayTitle"></h2>
       <ul class="hist" id="todayList"></ul>
     </div>
-    <button type="button" class="secondary" id="doneFinish">סיימתי</button>
+    <button type="button" class="lnkc" id="doneFinish">סיימתי</button>
+    <div class="sbarBg"></div>
+    <button type="button" class="primary" id="doneMore"><svg class="ic"><use href="#i-plus"/></svg><span>משלוח נוסף</span></button>
   </section>
 
   <!-- המערכת לא אישרה – עוברים לווצאפ -->
@@ -286,7 +457,7 @@ button.waOpt svg,button.waBtn svg{width:20px;height:20px;fill:currentColor}
   </section>
 
   <section class="card" id="historyCard" style="display:none">
-    <h2>📋 ההזמנות שלי</h2>
+    <h2>ההזמנות שלי</h2>
     <div class="stats" id="historyStats"></div>
     <h3 class="sub">היום</h3>
     <ul class="hist" id="historyToday"></ul>
@@ -295,16 +466,23 @@ button.waOpt svg,button.waBtn svg{width:20px;height:20px;fill:currentColor}
       <ul class="hist" id="historyOlder"></ul>
     </div>
     <div class="statusNote" id="statusNote"></div>
-    <button type="button" class="secondary" id="historyRefresh">🔄 רענון סטטוס</button>
+    <button type="button" class="secondary" id="historyRefresh"><svg class="ic s"><use href="#i-refresh-cw"/></svg><span>רענון סטטוס</span></button>
     <button type="button" class="secondary" id="historyClose">חזרה להזמנה</button>
   </section>
 
 </main>
 
 <footer>
-  ארי משלוחים · <a href="tel:0504848398">050-4848398</a><br>
-  <span id="footHint">לחיצה על הכפתור תפתח את ווצאפ עם ההזמנה מוכנה – רק ללחוץ "שלח"</span>
+  ארי משלוחים · <a href="tel:0504848398">050-4848398</a>
 </footer>
+
+<div class="dim" id="destDim"></div>
+<div class="sheet" id="destSheet" role="dialog" aria-label="בחירת יעד">
+  <div class="grab"></div>
+  <div class="shh"><h2>לאן שולחים?</h2><button type="button" class="ib" id="destClose" aria-label="סגירה"><svg class="ic s"><use href="#i-x"/></svg></button></div>
+  <div class="srch"><svg class="ic s"><use href="#i-search"/></svg><input id="destQ" type="search" placeholder="חיפוש יישוב או שכונה" autocomplete="off"></div>
+  <div class="dl" id="destList"></div>
+</div>
 
 <script>
 /* =====================================================================
@@ -478,18 +656,22 @@ const URGENT_EXTRA = CUSTOMER ? (CUSTOMER.urgentExtra || 0) : CONFIG.urgentExtra
 const destOf = label => DESTS.find(d => d.label === label) || null;
 
 /* ---------- בניית הטופס ---------- */
-function chips(boxId, name, items) {
+function chips(boxId, name, items, deco) {
   $(boxId).innerHTML = items.map((t, i) =>
     `<input type="radio" name="${name}" id="${name}${i}" value="${t}" ${i === 0 ? "checked" : ""}>` +
-    `<label for="${name}${i}">${chipLabel(t)}</label>`).join("");
+    `<label for="${name}${i}">${(deco || chipLabel)(t, i)}</label>`).join("");
 }
+const ICO = (n, c) => `<svg class="ic${c ? " " + c : ""}"><use href="#i-${n}"/></svg>`;
+const sizeIcon = t => /זר|פרח/.test(t) ? "flower-2" : /עציץ|צמח/.test(t) ? "sprout" : /סל|סידור/.test(t) ? "shopping-basket"
+  : /מעטפ|מסמ/.test(t) ? "mail" : /מתנ/.test(t) ? "gift" : "package";
 // "מזומן (סכום מדויק)" – "סכום מדויק" בשורה קטנה מתחת
 function chipLabel(t) {
   const m = /^(.*?)\s*\((.+)\)$/.exec(t);
   return m ? `${m[1]}<small class="sub">${m[2]}</small>` : t;
 }
-chips("sizeChips", "size", (CUSTOMER && CUSTOMER.sizes) || SIZES);
-chips("whenChips", "when", WHEN);
+chips("sizeChips", "size", (CUSTOMER && CUSTOMER.sizes) || SIZES, t => ICO(sizeIcon(t)) + `<span>${chipLabel(t)}</span>`);
+chips("whenChips", "when", WHEN, (t, i) => i === 1 ? ICO("zap", "s") + "דחוף" + (URGENT_EXTRA ? `<em>+${URGENT_EXTRA}</em>` : "")
+  : i === 2 ? ICO("calendar-clock", "s") + "מתוזמן" : t);
 // לקוחות מזדמנים (הדף בלי לינק אישי): תשלום מראש בלבד – ביט / פייבוקס, והמזמין הוא המשלם
 const PREPAY = !CUSTOMER;
 chips("payChips", "pay", PREPAY ? ["ביט", "פייבוקס"] : PAY);
@@ -514,9 +696,15 @@ if (CUSTOMER) {
   $("pName").value = CUSTOMER.name || "";
   $("pAddr").value = CUSTOMER.addr || "";
   if (CUSTOMER.phone) $("pPhone").value = CUSTOMER.phone;
-  document.querySelector("header h1").textContent = CUSTOMER.title || "🚙 ארי משלוחים";
+  document.querySelector("header h1").textContent = CUSTOMER.title || CUSTOMER.name || "ארי משלוחים";
   document.querySelector("header p").textContent = CUSTOMER.title
-    ? "משלוחים באמצעות ארי משלוחים 🚙" : `שלום ${CUSTOMER.name} 👋`;
+    ? "משלוחים עם ארי משלוחים" : `שלום ${CUSTOMER.name} 👋`;
+  // אימוג'י בתחילת הכותרת (🌸 …) עובר לעיגול הלוגו
+  const h1 = document.querySelector("header h1"), em = /^(\p{Extended_Pictographic}\uFE0F?)\s*/u.exec(h1.textContent);
+  if (em) {
+    h1.textContent = h1.textContent.slice(em[0].length);
+    if (!$("hLogo").querySelector("img")) { const sp = document.createElement("span"); sp.className = "emo"; sp.textContent = em[1]; $("hLogo").replaceChildren(sp); }
+  }
   document.title = (CUSTOMER.title || CUSTOMER.name) + " – ארי משלוחים";
   if (CUSTOMER.sizes) $("sizeLabel").textContent = "מה שולחים?";
   if (CUSTOMER.greeting) $("greetingBox").style.display = "block";
@@ -533,6 +721,53 @@ if (CUSTOMER) {
   if (AGREED) $("priceBox").textContent = "🤝 מחיר לפי הסכם";
 }
 
+/* ---------- בחירת יעד: חלונית מלמטה עם חיפוש ---------- */
+function updDest() {
+  const label = $("dCity").value;
+  $("destBtn").classList.toggle("set", !!label);
+  $("destName").textContent = label || "בחרו יעד";
+  let sub, pr = null;
+  if (!label) sub = "לחצו לבחירה מהרשימה";
+  else if (AGREED) sub = "מחיר לפי הסכם";
+  else if (label === OTHER_CITY) sub = "המחיר ייקבע בשיחה";
+  else { pr = calcPrice(); sub = "₪" + pr + (val("when") === WHEN[1] && URGENT_EXTRA ? ` · כולל ₪${URGENT_EXTRA} דחוף` : ""); }
+  $("destSub").textContent = sub;
+  const bp = $("btnPrice");
+  if (bp) { bp.textContent = pr !== null ? "₪" + pr : ""; bp.style.display = pr !== null ? "" : "none"; }
+}
+function buildDestList(q) {
+  q = (q || "").trim();
+  const cur = $("dCity").value;
+  const items = [...DESTS.map(d => ({ label: d.label, price: AGREED ? "" : "₪" + d.price })), { label: OTHER_CITY, price: "לתיאום" }]
+    .filter(x => !q || x.label.includes(q));
+  $("destList").replaceChildren(...items.map(x => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "li" + (x.label === cur ? " sel" : "");
+    const n = document.createElement("span"); n.textContent = x.label;
+    const p = document.createElement("b"); p.textContent = x.price;
+    b.append(n, p);
+    if (x.label === cur) b.insertAdjacentHTML("beforeend", ICO("check", "ck"));
+    b.onclick = () => pickDest(x.label);
+    return b;
+  }));
+  if (!items.length) { const e = document.createElement("div"); e.className = "empty"; e.textContent = `לא נמצא – אפשר לבחור "${OTHER_CITY}"`; $("destList").append(e); }
+}
+function openDest() { $("destQ").value = ""; buildDestList(""); document.body.classList.add("sheetOpen"); $("destList").scrollTop = 0; }
+function closeDest() { document.body.classList.remove("sheetOpen"); }
+function pickDest(label) {
+  $("dCity").value = label; $("dCity").classList.remove("bad");
+  $("dCity").dispatchEvent(new Event("change"));
+  closeDest();
+}
+$("destBtn").addEventListener("click", openDest);
+$("destClose").addEventListener("click", closeDest);
+$("destDim").addEventListener("click", closeDest);
+$("destQ").addEventListener("input", () => buildDestList($("destQ").value));
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeDest(); });
+$("notesLink").addEventListener("click", () => {
+  $("notesBox").style.display = "block"; $("notesLink").style.display = "none"; $("notes").focus();
+});
+$("hHist").addEventListener("click", () => $("historyBtn").click());
+
 /* ---------- מחיר ---------- */
 function calcPrice() {
   const d = destOf($("dCity").value);
@@ -540,6 +775,7 @@ function calcPrice() {
   return d.price + (val("when") === WHEN[1] ? URGENT_EXTRA : 0);
 }
 function showPrice() {
+  updDest();
   if (AGREED) return;
   const label = $("dCity").value, box = $("priceBox");
   if (!label) { box.textContent = "בחרו יעד כדי לראות מחיר"; return; }
@@ -606,7 +842,8 @@ $("orderForm").addEventListener("submit", e => {
   e.preventDefault();
   if (!validate()) {
     const first = document.querySelector(".bad");
-    if (first) { first.scrollIntoView({ behavior: "smooth", block: "center" }); first.focus(); }
+    if (first && first.id === "dCity") { $("destBtn").scrollIntoView({ behavior: "smooth", block: "center" }); openDest(); }
+    else if (first) { first.scrollIntoView({ behavior: "smooth", block: "center" }); first.focus(); }
     return;
   }
   if (!arieAvailable && !confirm("ארי לא פנוי כרגע למשלוחים. לשלוח את ההזמנה בכל זאת?")) return;
@@ -686,7 +923,7 @@ $("orderForm").addEventListener("submit", e => {
 
 /* ---------- שליחה חכמה: מחכים לאישור מהמערכת, ואם אין – ווצאפ ---------- */
 const WA_SVG = document.querySelector("#orderForm > button[type=submit] svg").outerHTML;
-const SUBMIT_TEXT = "שלח הזמנה לארי";
+const SUBMIT_TEXT = "שליחה לארי";
 const submitBtn = document.querySelector("#orderForm > button[type=submit]");
 if (CONFIG.sheetUrl) submitBtn.querySelector("span").textContent = SUBMIT_TEXT;
 let lastKept = null, fbTimer = null, fbShownAt = 0;
@@ -703,27 +940,58 @@ function sendOrder(record, waLink, label) {
     .finally(() => {
       clearTimeout(timer);
       submitBtn.disabled = false;
-      submitBtn.innerHTML = WA_SVG + "<span>" + SUBMIT_TEXT + "</span>";
+      submitBtn.innerHTML = WA_SVG + "<span>" + SUBMIT_TEXT + '</span><span class="pr" id="btnPrice" style="display:none"></span>';
+      updDest();
     });
 }
 
 function showOnly(id) {
   ["orderForm", "doneBox", "fallbackBox", "historyCard"].forEach(x => { $(x).style.display = x === id ? "block" : "none"; });
   $("pendingBox").style.display = id === "fallbackBox" ? "none" : "";   // התזכורת תופיע כשחוזרים מווצאפ
+  if (id !== "doneBox") { clearInterval(trackTimer); trackNo = null; }
+  closeDest();
   window.scrollTo(0, 0);
 }
+/* ---------- מעקב אחרי ההזמנה במסך האישור (מתעדכן כשארי משנה סטטוס) ---------- */
+let trackNo = null, trackTimer = null;
+const STEP = { "חדשה": 1, "אושרה": 2, "נאסף": 3, "נמסר": 4 };
+function paintTrack(st) {
+  const off = st === "לא פנוי", n = off ? 0 : (STEP[st] || 1);
+  document.querySelectorAll("#trk .st").forEach((el, i) => {
+    el.className = "st" + (off ? (i === 0 ? " sOk" : "") : i < n ? " sOk" : i === n ? " sNow" : "");
+  });
+  $("trkFill").style.width = (Math.min(n, 3) / 3 * 100) + "%";
+  $("trk").classList.toggle("off", off);
+  $("trkNo").style.display = off ? "block" : "none";
+}
+function pollTrack() {
+  if (!trackNo || !CONFIG.sheetUrl || $("doneBox").style.display !== "block" || document.hidden) return;
+  const no = trackNo;
+  fetch(CONFIG.sheetUrl + "?action=status&nos=" + encodeURIComponent(no))
+    .then(r => r.json())
+    .then(d => { const st = d && d.statuses && d.statuses[no]; if (st && st !== "נמחקה" && no === trackNo) paintTrack(st); })
+    .catch(() => {});
+}
+function track(no) {
+  trackNo = no; paintTrack("חדשה");
+  clearInterval(trackTimer);
+  trackTimer = setInterval(pollTrack, 20000);
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden) pollTrack(); });
 const todayOrders = () => (load(HISTORY_KEY) || []).filter(x => new Date(x.time).toDateString() === new Date().toDateString());
 const money = a => a.reduce((t, x) => t + (typeof x.price === "number" ? x.price : 0), 0);
 
 function showDone(record, waLink) {
-  $("doneNo").textContent = `נשמרה במערכת של ארי · מס' ${record.no}`;
+  $("doneNo").textContent = `מס' הזמנה ${record.no}`;
+  const tn = new Date(record.time);
+  $("trkTime").textContent = `${pad(tn.getHours())}:${pad(tn.getMinutes())}`;
   const sum = $("doneSum"); sum.replaceChildren();
-  const l1 = document.createElement("div"); l1.append("📍 "); const b = document.createElement("b"); b.textContent = record.recipient; l1.append(b, ` – ${record.address}`);
+  const l1 = document.createElement("div"); const b = document.createElement("b"); b.textContent = record.recipient; l1.append(b, ` · ${record.address}`);
   const l2 = document.createElement("div");
-  l2.textContent = `📏 ${record.item} · ${record.when} · ${typeof record.price === "number" ? "₪" + record.price : record.price} · ${record.pay}`;
+  l2.textContent = `${record.item} · ${record.when} · ${typeof record.price === "number" ? "₪" + record.price : record.price} · ${record.pay}`;
   sum.append(l1, l2);
   showPayCard(record);
-  $("doneWa").innerHTML = WA_SVG + "<span>לשלוח גם הודעה בווצאפ (לא חובה)</span>";
+  $("doneWa").innerHTML = WA_SVG + "<span>גם בווצאפ</span>";
   $("doneWa").onclick = () => { window.location.href = waLink; };
   const today = todayOrders();
   $("todayBox").style.display = today.length > 1 ? "block" : "none";
@@ -737,6 +1005,7 @@ function showDone(record, waLink) {
   }));
   resetForm();
   showOnly("doneBox");
+  track(record.no);
 }
 
 /* ---------- תשלום בביט / פייבוקס: מספר + מספר הזמנה להעתקה ---------- */
@@ -747,16 +1016,16 @@ function showPayCard(record) {
   if (!method) return;
   card.className = "payCard" + (method === "פייבוקס" ? " pb" : "");
   const amount = typeof record.price === "number" ? "₪" + record.price : "";
-  $("payTitle").textContent = `💳 תשלום ב${method}`;
+  $("payTitle").textContent = `תשלום ב${method}`;
   $("payAmt").textContent = amount;
   $("payPhone").textContent = CONFIG.payPhone;
   $("payNo").textContent = record.no;
   $("payPre").style.display = PREPAY ? "block" : "none";
   $("payHint").textContent = `פותחים את ${method} ← מדביקים את המספר ← ${amount ? "סכום " + amount : "הסכום שסוכם עם ארי"} ← מדביקים את מספר ההזמנה בהערה`;
   [["cpPhone", CONFIG.payPhone.replace(/\D/g, "")], ["cpNo", record.no]].forEach(([id, val]) => {
-    const b = $(id); b.textContent = "📋 העתק"; b.classList.remove("done");
+    const b = $(id); b.innerHTML = ICO("copy") + "העתק"; b.classList.remove("done");
     b.onclick = () => copyText(val).then(ok => {
-      b.textContent = ok ? "✅ הועתק" : "📋 העתק";
+      b.innerHTML = ok ? ICO("check") + "הועתק" : ICO("copy") + "העתק";
       b.classList.toggle("done", ok);
       if (!ok) prompt("העתיקו ידנית:", val);
     });
@@ -798,7 +1067,7 @@ $("doneMore").addEventListener("click", () => {
       const r = document.querySelector(`input[name=${n}][value="${v}"]`); if (r) r.checked = true;
     });
     $("whenTimeBox").style.display = val("when") === WHEN[2] ? "block" : "none";
-    $("keptBanner").textContent = `✓ שמרנו מהמשלוח הקודם: ${lastKept.size} · ${lastKept.when}`;
+    $("keptBanner").textContent = `✓ כמו במשלוח הקודם: ${lastKept.size} · ${lastKept.when}`;
     $("keptBanner").style.display = "block";
   }
   const today = todayOrders();
@@ -994,6 +1263,7 @@ $("dName").addEventListener("input", () => {
 function resetForm() {
   ["dName", "dAddr", "dPhone", "notes", "greeting", "whenTime"].forEach(id => $(id).value = "");
   $("dCity").value = ""; showPrice();
+  $("notesBox").style.display = "none"; $("notesLink").style.display = "";
 }
 
 /* ---------- הזמנות שעוד לא אושר שנשלחו בווצאפ ---------- */
