@@ -12,10 +12,14 @@
 const NOTIFY_EMAIL = "";
 
 // גרסת הקוד – מופיעה בבדיקת הכתובת, כדי לדעת שהפריסה באמת עודכנה
-const CODE_VERSION = "2026-11-12e";
+const CODE_VERSION = "2026-11-12f";
 
-// התראות לאייפון דרך אפליקציית ntfy (חינם, בלי הרשמה). באפליקציה נרשמים לערוץ הזה בדיוק.
-// ריק = בלי התראות. השם אקראי כדי שאף אחד אחר לא ינחש אותו.
+// התראות לאייפון דרך אפליקציית Pushover (הכי אמין – עם צלצול חירום ו"קיבלתי" ישר מההתראה).
+// מדביקים כאן את שני המפתחות מ-pushover.net. לא לשמור אותם באתר (הקוד באתר גלוי לכולם).
+const PUSHOVER_TOKEN = "";   // API Token של האפליקציה "ארי משלוחים" (מתחיל ב-a)
+const PUSHOVER_USER = "";    // Your User Key – מופיע בעמוד הראשי אחרי התחברות (מתחיל ב-u)
+
+// גיבוי ישן: ntfy בחינם. משמש רק אם אין מפתחות Pushover. (בחינם הוא נחסם הרבה פעמים מגוגל)
 const NTFY_TOPIC = "ari-orders-bawytzw56nm2wo";
 
 // סיסמה לדף המנהל – בחרו סיסמה משלכם (אותיות ומספרים, לפחות 6 תווים).
@@ -37,6 +41,8 @@ function doPost(e) {
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
+    const q = (e && e.parameter) || {};
+    if (q.action === "ack") return json(ackOrder(q));               // אישור התראת חירום ב-Pushover
     const o = JSON.parse(e.postData.contents);
     if (o && o.action === "setStatus") return setStatus(o);
     if (o && o.action === "setAvailability") return setAvailability(o);
@@ -292,6 +298,8 @@ function setAvailability(o) {
 // כל שגיאה בקריאה חוזרת כהודעה ברורה (במקום מסך שגיאה של גוגל), כדי שיהיה קל לאתר אותה
 function doGet(e) {
   try {
+    const q = (e && e.parameter) || {};
+    if (q.action === "ack") return ackPage(ackOrder(q));               // "👍 קיבלתי" מההתראה באייפון
     return doGetInner(e);
   } catch (err) {
     return json({ ok: false, error: String(err && err.message || err), where: String(err && err.stack || "").split("\n").slice(0, 3).join(" | ") });
@@ -515,6 +523,7 @@ function morningReport() {
 function checkSystem() {
   const say = s => Logger.log(s);
   say("גרסת קוד: " + CODE_VERSION);
+  say(PUSHOVER_TOKEN && PUSHOVER_USER ? "✅ התראות לאייפון: Pushover" : NTFY_TOPIC ? "⚠️ התראות לאייפון: ntfy בחינם (לא אמין) – כדאי למלא מפתחות Pushover" : "⚠️ אין התראות לאייפון");
   try {
     const ss = getSpreadsheet();
     say("✅ טבלה: " + ss.getName() + " – " + ss.getSheets().map(s => s.getName() + " (" + s.getLastRow() + " שורות, " + s.getMaxColumns() + " עמודות)").join(" | "));
@@ -535,6 +544,7 @@ function checkSystem() {
 
 /* ---------- התראה לאייפון (ntfy) ---------- */
 function notifyPhone(o) {
+  if (PUSHOVER_TOKEN && PUSHOVER_USER) return notifyPushover(o);
   if (!NTFY_TOPIC) return false;
   try {
     const urgent = /דחוף/.test(String(o.when || ""));
@@ -556,8 +566,94 @@ function notifyPhone(o) {
   }
 }
 
+/* ---------- Pushover: התראה לכל הזמנה, צלצול חירום לדחוף, "קיבלתי" מההתראה ---------- */
+let lastPushError = "";
+function notifyPushover(o) {
+  lastPushError = "";
+  try {
+    const urgent = /דחוף/.test(String(o.when || ""));
+    const casual = /^לקוח מזדמן/.test(String(o.customer || ""));
+    const prepaid = /מראש/.test(String(o.pay || ""));
+    const h = v => String(v === undefined || v === null ? "" : v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const price = typeof o.price === "number" ? "₪" + o.price : String(o.price || "");
+    const title = (o.resync ? "🔁 הזמנה שלא נקלטה – " : urgent ? "⚡ דחוף – " : casual ? "🚙 " : "🚙 הזמנה חדשה – ") + String(o.customer || "");
+    const lines = [
+      "<b>" + h(o.recipient) + "</b> ← " + h(o.address),
+      [h(o.item), price, h(o.pay)].filter(String).join(" · ") + (prepaid ? " – <b>לבדוק תשלום</b>" : ""),
+      o.when && !/^רגיל/.test(o.when) && !urgent ? "⏱ " + h(o.when) : "",
+      o.notes ? "📝 " + h(o.notes) : "",
+      '<a href="' + ADMIN_URL + '">פתיחת דף הניהול</a>',
+    ].filter(String);
+    const p = { token: PUSHOVER_TOKEN, user: PUSHOVER_USER, title: title.slice(0, 240), message: lines.join("\n").slice(0, 1000), html: "1" };
+    const ack = o.no ? ackUrl(o.no) : "";
+    if (ack) { p.url = ack; p.url_title = "👍 קיבלתי – הלקוח יראה שאישרת"; }
+    if (urgent) {
+      // צלצול חירום: חוזר כל דקה עד שמאשרים (עד 30 דקות). האישור מסמן "קיבלתי" לבד.
+      p.priority = "2"; p.retry = "60"; p.expire = "1800";
+      if (ack) p.callback = ack;
+    } else {
+      p.priority = "1";                                      // גבוה: מצלצל גם בשעות שקטות של האפליקציה
+    }
+    const res = UrlFetchApp.fetch("https://api.pushover.net/1/messages.json", { method: "post", payload: p, muteHttpExceptions: true });
+    if (res.getResponseCode() >= 300) lastPushError = res.getResponseCode() + " " + res.getContentText().slice(0, 300);
+    return res.getResponseCode() < 300;
+  } catch (e) {
+    lastPushError = String(e);
+    return false;
+  }
+}
+
+// קוד אישור לכל הזמנה (חתימה סודית) – רק מי שקיבל את ההתראה יכול לסמן "קיבלתי"
+function ackSecret() {
+  const props = PropertiesService.getScriptProperties();
+  let s = props.getProperty("ACK_SECRET");
+  if (!s) { s = Utilities.getUuid() + Utilities.getUuid(); props.setProperty("ACK_SECRET", s); }
+  return s;
+}
+function ackToken(no) {
+  const sig = Utilities.computeHmacSha256Signature(String(no), ackSecret());
+  return Utilities.base64EncodeWebSafe(sig).replace(/=+$/, "").slice(0, 20);
+}
+function ackUrl(no) {
+  let base = "";
+  try { base = ScriptApp.getService().getUrl() || ""; } catch (e) {}
+  if (!/\/exec$/.test(base)) return "";                    // רק מהפריסה הקבועה
+  return base + "?action=ack&no=" + encodeURIComponent(no) + "&t=" + ackToken(no);
+}
+function ackOrder(q) {
+  const no = str(q.no, 30);
+  if (!no || String(q.t || "") !== ackToken(no)) return { ok: false, error: "קישור לא תקין" };
+  const sheet = getSheet();
+  const row = findRow(sheet, no);
+  if (!row) return { ok: false, error: "ההזמנה לא נמצאה (אולי נמחקה)" };
+  const cur = sheet.getRange(row, COL.status).getDisplayValue();
+  if (cur === STATUSES[0]) { sheet.getRange(row, COL.status).setValue("אושרה"); addStatusDropdown(sheet, row); }
+  return { ok: true, no: no, status: cur === STATUSES[0] ? "אושרה" : cur,
+    recipient: sheet.getRange(row, COL.recipient).getDisplayValue(), dest: sheet.getRange(row, COL.dest).getDisplayValue() };
+}
+function ackPage(r) {
+  const h = v => String(v || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const msg = r.ok
+    ? (r.status === "אושרה" ? "סימנת <b>קיבלתי</b>.<br>הלקוח רואה עכשיו \"ארי אישר\"." : "ההזמנה כבר בסטטוס <b>" + h(r.status) + "</b> – לא שיניתי כלום.")
+    : h(r.error);
+  const html = '<!doctype html><html dir="rtl"><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta charset="utf-8"></head>' +
+    '<body style="font-family:-apple-system,Arial,sans-serif;text-align:center;padding:48px 20px;color:#111">' +
+    '<div style="width:84px;height:84px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:44px;background:' + (r.ok ? "#e8f8ee" : "#fff1f2") + '">' + (r.ok ? "✅" : "⚠️") + '</div>' +
+    (r.ok ? '<div style="font-size:15px;color:#70707a">' + h(r.recipient) + " · " + h(r.dest) + " · #" + h(r.no) + "</div>" : "") +
+    '<p style="font-size:20px;line-height:1.5">' + msg + '</p>' +
+    '<a href="' + ADMIN_URL + '" style="display:inline-block;margin-top:12px;background:#ff5a1f;color:#fff;text-decoration:none;padding:14px 22px;border-radius:14px;font-weight:600">פתיחת דף הניהול</a></body></html>';
+  return HtmlService.createHtmlOutput(html).setTitle("ארי משלוחים").addMetaTag("viewport", "width=device-width, initial-scale=1");
+}
+
 // להרצה מהעורך: שולח התראת בדיקה לאייפון
 function testNotification() {
   const ok = notifyPhone({ customer: "בדיקה", recipient: "התראת בדיקה", address: "אם קיבלת – זה עובד ✅", price: 0, pay: "", when: "רגיל" });
-  Logger.log(ok ? "✅ התראה נשלחה – בדוק את האייפון" : "❌ ההתראה לא נשלחה – בדוק את שם הערוץ (NTFY_TOPIC)");
+  Logger.log(ok ? "✅ התראה נשלחה – בדוק את האייפון"
+    : PUSHOVER_TOKEN && PUSHOVER_USER ? "❌ Pushover לא שלח: " + lastPushError + " – בדוק את שני המפתחות (PUSHOVER_TOKEN / PUSHOVER_USER)"
+    : "❌ ההתראה לא נשלחה – חסרים המפתחות של Pushover בראש הקוד");
+}
+// להרצה מהעורך: התראת חירום לבדיקה (מצלצלת כל דקה עד שמאשרים באפליקציה)
+function testUrgentNotification() {
+  const ok = notifyPhone({ customer: "בדיקה", recipient: "בדיקת חירום", address: "לאשר באפליקציה כדי להפסיק", price: 0, pay: "", when: "דחוף ⚡" });
+  Logger.log(ok ? "✅ התראת חירום נשלחה – אשר אותה ב-Pushover" : "❌ לא נשלחה: " + lastPushError);
 }
