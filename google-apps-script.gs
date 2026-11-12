@@ -117,6 +117,9 @@ function getTab(name, headers) {
     sh.setFrozenRows(1);
     sh.setRightToLeft(true);
   }
+  // לשונית עם פחות עמודות ממה שצריך (נמחקו עמודות ריקות) – מוסיפים בחזרה
+  const max = sh.getMaxColumns();
+  if (max < headers.length) sh.insertColumnsAfter(max, headers.length - max);
   return sh;
 }
 function getCustSheet() {
@@ -136,7 +139,14 @@ function migrateJsonCustomers(sh) {
 }
 const getPriceSheet = () => getTab(PRICE_SHEET, PRICE_HEADERS);
 
-function body(sh, cols) { const n = sh.getLastRow(); return n > 1 ? sh.getRange(2, 1, n - 1, cols).getValues() : []; }
+// קורא את השורות מתחת לכותרת. עובד גם אם בלשונית יש פחות עמודות ממה שהקוד מצפה
+// (למשל אחרי מחיקת עמודות ריקות) – חסרים מושלמים כריקים.
+function body(sh, cols) {
+  const n = sh.getLastRow();
+  if (n < 2) return [];
+  const have = Math.min(cols, Math.max(sh.getMaxColumns ? sh.getMaxColumns() : cols, 1));
+  return sh.getRange(2, 1, n - 1, have).getValues().map(r => r.length < cols ? r.concat(new Array(cols - r.length).fill("")) : r);
+}
 const toCode = v => { const s = String(v === undefined || v === null ? "" : v).trim(); return s === DEFAULT_LABEL ? DEFAULT_CODE : s; };
 const fromCode = c => c === DEFAULT_CODE ? DEFAULT_LABEL : c;
 const yes = v => v === true || /^(כן|v|✓|✔|true|1|x)$/i.test(String(v).trim());
