@@ -125,6 +125,24 @@ header p{color:#fff;opacity:.92;margin-top:6px}
 .doneSum{border-top:1px solid #f0f1f4;margin-top:14px;padding-top:12px;font-size:14px;line-height:1.7;color:#374151;text-align:right}
 .doneSum b{color:var(--text)}
 button.primary{width:100%;border:0;border-radius:16px;padding:15px;margin-top:4px;background:var(--grad);color:#fff;font-size:17px;font-weight:700;box-shadow:0 8px 20px #ff6a4d44}
+/* כפתורי בחירה: שורת משנה קטנה ("סכום מדויק") */
+.chips label .sub{display:block;font-size:11px;font-weight:400;color:#6b7280;line-height:1.1;margin-top:1px}
+.chips label:has(.sub){padding-top:6px;padding-bottom:6px;line-height:1.15}
+/* כרטיס תשלום בביט / פייבוקס */
+.payCard{border:1.5px solid #c7d2fe;background:#eef2ff;border-radius:18px;padding:14px;margin-bottom:12px;text-align:right}
+.payCard.pb{border-color:#a5f3fc;background:#ecfeff}
+.payTop{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.payTop b{font-size:16px;font-weight:800}
+.payAmt{font-size:24px;font-weight:800;color:#3730a3}.payCard.pb .payAmt{color:#0e7490}
+.cp{display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid #e0e7ff;border-radius:14px;padding:8px 8px 8px 12px;margin-top:9px}
+.payCard.pb .cp{border-color:#cffafe}
+.cp .t{flex:1;min-width:0}
+.cp .lb{display:block;font-size:12px;color:#6b7280}
+.cp .vl{display:block;font-size:18px;font-weight:800;direction:ltr;text-align:right;letter-spacing:.3px}
+button.cpb{flex:none;width:auto;margin:0;border:0;border-radius:11px;padding:10px 13px;background:#4f46e5;color:#fff;font-size:14px;font-weight:700;box-shadow:none}
+.payCard.pb button.cpb{background:#0891b2}
+button.cpb.done{background:#16a34a!important}
+.payHint{font-size:13px;color:#4b5563;line-height:1.6;margin-top:9px}
 button.waOpt,button.waBtn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:14px;padding:12px;margin-top:10px;font-weight:600;font-size:15px}
 button.waOpt{background:#fff;border:1.5px solid #86efac;color:#15803d}
 button.waBtn{background:#25d366;border:0;color:#fff;font-size:17px;font-weight:700;padding:15px;box-shadow:0 8px 20px #25d36655}
@@ -233,6 +251,12 @@ button.waOpt svg,button.waBtn svg{width:20px;height:20px;fill:currentColor}
       <p id="doneNo"></p>
       <div class="doneSum" id="doneSum"></div>
     </div>
+    <div class="payCard" id="payCard" style="display:none">
+      <div class="payTop"><b id="payTitle"></b><span class="payAmt" id="payAmt"></span></div>
+      <div class="cp"><div class="t"><span class="lb">1. למי מעבירים (ארי משלוחים)</span><span class="vl" id="payPhone"></span></div><button type="button" class="cpb" id="cpPhone">📋 העתק</button></div>
+      <div class="cp"><div class="t"><span class="lb">2. מה לכתוב בהערה</span><span class="vl" id="payNo"></span></div><button type="button" class="cpb" id="cpNo">📋 העתק</button></div>
+      <div class="payHint" id="payHint"></div>
+    </div>
     <button type="button" class="primary" id="doneMore">➕ עוד משלוח</button>
     <button type="button" class="secondary" id="doneHistory">📋 ההזמנות שלי</button>
     <button type="button" class="waOpt" id="doneWa">לשלוח גם הודעה בווצאפ (לא חובה)</button>
@@ -283,6 +307,7 @@ button.waOpt svg,button.waBtn svg{width:20px;height:20px;fill:currentColor}
    ===================================================================== */
 const CONFIG = {
   whatsapp: "972504848398",          // המספר שאליו מגיעות ההזמנות (בלי 0 בהתחלה, עם 972)
+  payPhone: "050-4848398",            // המספר לתשלום בביט / פייבוקס (מוצג ללקוח עם כפתור העתקה)
 
   // גיבוי: כתובת ה-Web App של Google Apps Script (ראו google-apps-script.gs).
   // כל הזמנה נשמרת בטבלה ונשלחת במייל לפני שווצאפ נפתח. ריק = בלי גיבוי.
@@ -425,7 +450,8 @@ const CONFIG = {
 function start() {
 const SIZES  = ["מעטפה", "חבילה קטנה", "חבילה גדולה"];
 const WHEN   = ["רגיל", "דחוף ⚡", "מתוזמן"];
-const PAY    = ["מזומן (סכום מדויק)", "ביט", "פייבוקס", "העברה בנקאית מראש"];
+// "העברה בנקאית מראש" לא מוצגת ללקוחות – אפשר להגדיר אותה כתשלום קבוע ללקוח שביקש (בדף הניהול)
+const PAY    = ["מזומן (סכום מדויק)", "ביט", "פייבוקס"];
 const PAYER  = ["השולח", "המקבל"];
 const OTHER_CITY = "עיר אחרת";
 const STORE_KEY = "ariDelivery.pickup";
@@ -450,7 +476,12 @@ const destOf = label => DESTS.find(d => d.label === label) || null;
 function chips(boxId, name, items) {
   $(boxId).innerHTML = items.map((t, i) =>
     `<input type="radio" name="${name}" id="${name}${i}" value="${t}" ${i === 0 ? "checked" : ""}>` +
-    `<label for="${name}${i}">${t}</label>`).join("");
+    `<label for="${name}${i}">${chipLabel(t)}</label>`).join("");
+}
+// "מזומן (סכום מדויק)" – "סכום מדויק" בשורה קטנה מתחת
+function chipLabel(t) {
+  const m = /^(.*?)\s*\((.+)\)$/.exec(t);
+  return m ? `${m[1]}<small class="sub">${m[2]}</small>` : t;
 }
 chips("sizeChips", "size", (CUSTOMER && CUSTOMER.sizes) || SIZES);
 chips("whenChips", "when", WHEN);
@@ -548,8 +579,11 @@ const phoneOk = s => /^0\d{8,9}$/.test(s.replace(/\D/g, "").replace(/^972/, "0")
 function check(id, ok) { $(id).classList.toggle("bad", !ok); return ok; }
 function validate() {
   let ok = true;
-  ["pName", "pAddr", "dName", "dAddr", "dCity"].forEach(id => { ok = check(id, $(id).value.trim() !== "") && ok; });
-  ok = check("pPhone", phoneOk($("pPhone").value)) && ok;
+  // איסוף קבוע (מוגדר בדף הניהול) – השדות מוסתרים מהלקוח, לכן לא בודקים אותם
+  const fixedPick = CUSTOMER && CUSTOMER.fixedPickup;
+  (fixedPick ? ["dName", "dAddr", "dCity"] : ["pName", "pAddr", "dName", "dAddr", "dCity"])
+    .forEach(id => { ok = check(id, $(id).value.trim() !== "") && ok; });
+  if (!fixedPick) ok = check("pPhone", phoneOk($("pPhone").value)) && ok;
   ok = check("dPhone", phoneOk($("dPhone").value)) && ok;
   if (val("when") === WHEN[2]) ok = check("whenTime", $("whenTime").value !== "") && ok;
   return ok;
@@ -679,6 +713,7 @@ function showDone(record, waLink) {
   const l2 = document.createElement("div");
   l2.textContent = `📏 ${record.item} · ${record.when} · ${typeof record.price === "number" ? "₪" + record.price : record.price} · ${record.pay}`;
   sum.append(l1, l2);
+  showPayCard(record);
   $("doneWa").innerHTML = WA_SVG + "<span>לשלוח גם הודעה בווצאפ (לא חובה)</span>";
   $("doneWa").onclick = () => { window.location.href = waLink; };
   const today = todayOrders();
@@ -693,6 +728,42 @@ function showDone(record, waLink) {
   }));
   resetForm();
   showOnly("doneBox");
+}
+
+/* ---------- תשלום בביט / פייבוקס: מספר + מספר הזמנה להעתקה ---------- */
+function showPayCard(record) {
+  const card = $("payCard");
+  const method = /פייבוקס/.test(record.pay) ? "פייבוקס" : /ביט/.test(record.pay) ? "ביט" : "";
+  card.style.display = method ? "block" : "none";
+  if (!method) return;
+  card.className = "payCard" + (method === "פייבוקס" ? " pb" : "");
+  const amount = typeof record.price === "number" ? "₪" + record.price : "";
+  $("payTitle").textContent = `💳 תשלום ב${method}`;
+  $("payAmt").textContent = amount;
+  $("payPhone").textContent = CONFIG.payPhone;
+  $("payNo").textContent = record.no;
+  $("payHint").textContent = `פותחים את ${method} ← מדביקים את המספר ← ${amount ? "סכום " + amount : "הסכום שסוכם עם ארי"} ← מדביקים את מספר ההזמנה בהערה`;
+  [["cpPhone", CONFIG.payPhone.replace(/\D/g, "")], ["cpNo", record.no]].forEach(([id, val]) => {
+    const b = $(id); b.textContent = "📋 העתק"; b.classList.remove("done");
+    b.onclick = () => copyText(val).then(ok => {
+      b.textContent = ok ? "✅ הועתק" : "📋 העתק";
+      b.classList.toggle("done", ok);
+      if (!ok) prompt("העתיקו ידנית:", val);
+    });
+  });
+}
+function copyText(t) {
+  if (navigator.clipboard && window.isSecureContext)
+    return navigator.clipboard.writeText(t).then(() => true, () => legacyCopy(t));
+  return Promise.resolve(legacyCopy(t));
+}
+function legacyCopy(t) {
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = t; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.append(ta); ta.select(); ta.setSelectionRange(0, t.length);
+    const ok = document.execCommand("copy"); ta.remove(); return ok;
+  } catch (e) { return false; }
 }
 
 function showFallback(record, waLink, label) {
