@@ -11,6 +11,9 @@
 // לאן לשלוח את המייל. ריק = לחשבון הגוגל שפרס את הסקריפט.
 const NOTIFY_EMAIL = "";
 
+// גרסת הקוד – מופיעה בבדיקת הכתובת, כדי לדעת שהפריסה באמת עודכנה
+const CODE_VERSION = "2026-11-12c";
+
 // סיסמה לדף המנהל – בחרו סיסמה משלכם (אותיות ומספרים, לפחות 6 תווים).
 // אותה סיסמה מקלידים פעם אחת בדף המנהל.
 const ADMIN_PASSWORD = "";
@@ -117,6 +120,9 @@ function getTab(name, headers) {
     sh.setFrozenRows(1);
     sh.setRightToLeft(true);
   }
+  // לשונית עם פחות עמודות ממה שצריך (נמחקו עמודות ריקות) – מוסיפים בחזרה
+  const max = sh.getMaxColumns();
+  if (max < headers.length) sh.insertColumnsAfter(max, headers.length - max);
   return sh;
 }
 function getCustSheet() {
@@ -136,7 +142,14 @@ function migrateJsonCustomers(sh) {
 }
 const getPriceSheet = () => getTab(PRICE_SHEET, PRICE_HEADERS);
 
-function body(sh, cols) { const n = sh.getLastRow(); return n > 1 ? sh.getRange(2, 1, n - 1, cols).getValues() : []; }
+// קורא את השורות מתחת לכותרת. עובד גם אם בלשונית יש פחות עמודות ממה שהקוד מצפה
+// (למשל אחרי מחיקת עמודות ריקות) – חסרים מושלמים כריקים.
+function body(sh, cols) {
+  const n = sh.getLastRow();
+  if (n < 2) return [];
+  const have = Math.min(cols, Math.max(sh.getMaxColumns ? sh.getMaxColumns() : cols, 1));
+  return sh.getRange(2, 1, n - 1, have).getValues().map(r => r.length < cols ? r.concat(new Array(cols - r.length).fill("")) : r);
+}
 const toCode = v => { const s = String(v === undefined || v === null ? "" : v).trim(); return s === DEFAULT_LABEL ? DEFAULT_CODE : s; };
 const fromCode = c => c === DEFAULT_CODE ? DEFAULT_LABEL : c;
 const yes = v => v === true || /^(כן|v|✓|✔|true|1|x)$/i.test(String(v).trim());
@@ -267,7 +280,16 @@ function setAvailability(o) {
 }
 
 /* ---------- קריאה: סטטוסים ללקוח / רשימה למנהל ---------- */
+// כל שגיאה בקריאה חוזרת כהודעה ברורה (במקום מסך שגיאה של גוגל), כדי שיהיה קל לאתר אותה
 function doGet(e) {
+  try {
+    return doGetInner(e);
+  } catch (err) {
+    return json({ ok: false, error: String(err && err.message || err), where: String(err && err.stack || "").split("\n").slice(0, 3).join(" | ") });
+  }
+}
+
+function doGetInner(e) {
   const p = (e && e.parameter) || {};
   const sheet = getSheet();
   const rows = sheet.getLastRow() > 1
@@ -336,7 +358,7 @@ function doGet(e) {
     return json(Object.assign({ ok: true, orders: orders.reverse(), mailQuota: mailQuota() }, getAvailability()));
   }
 
-  return json({ ok: true, service: "ari-delivery" });
+  return json({ ok: true, service: "ari-delivery", version: CODE_VERSION });
 }
 
 /* ---------- עזר ---------- */
@@ -477,4 +499,27 @@ function morningReport() {
     subject: "☀️ בוקר טוב – ארי משלוחים: המערכת תקינה",
     body: lines.join("\n"),
   });
+}
+
+/* ---------- בדיקת מערכת ----------
+   בעורך: בוחרים checkSystem ולוחצים "הפעלה". התוצאה מופיעה למטה ב"יומן ביצוע". */
+function checkSystem() {
+  const say = s => Logger.log(s);
+  say("גרסת קוד: " + CODE_VERSION);
+  try {
+    const ss = getSpreadsheet();
+    say("✅ טבלה: " + ss.getName() + " – " + ss.getSheets().map(s => s.getName() + " (" + s.getLastRow() + " שורות, " + s.getMaxColumns() + " עמודות)").join(" | "));
+  } catch (e) { say("❌ לא מצליח לפתוח את הטבלה: " + e); return; }
+  try { const o = getSheet(); say("✅ לשונית הזמנות: " + o.getName()); } catch (e) { say("❌ לשונית הזמנות: " + e); }
+  try {
+    const all = readCustomers();
+    say("✅ לקוחות שנקראו: " + all.length);
+    all.forEach(c => say("   • " + (c.code === DEFAULT_CODE ? "כללי" : c.code) + " – " + (c.name || "") + ": " + c.prices.length + " יעדים" +
+      (c.prices.length ? " (" + c.prices.slice(0, 4).map(p => p.label + " " + p.price).join(", ") + (c.prices.length > 4 ? "…" : "") + ")" : "")));
+    if (!all.some(c => c.code === "fl4x9")) say("⚠️ הלקוח fl4x9 (פרחי אודי ודורית) לא נמצא בלשונית \"לקוחות\" – בלי זה הדף שלה מציג מחירון ישן");
+  } catch (e) { say("❌ שגיאה בקריאת לקוחות/מחירונים: " + e + (e.stack ? " | " + String(e.stack).split("\n")[1] : "")); }
+  try {
+    const r = JSON.parse(doGetInner({ parameter: { action: "config", c: "fl4x9" } }).getContent());
+    say(r.customer ? "✅ הדף של דורית יקבל " + (r.customer.prices || []).length + " יעדים" : "⚠️ הדף של דורית לא יקבל לקוח (customer=null)");
+  } catch (e) { say("❌ בקשת המחירון של דורית נכשלת: " + e + (e.stack ? " | " + String(e.stack).split("\n")[1] : "")); }
 }
