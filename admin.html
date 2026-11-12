@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#ffffff">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
   :root{--brand:#ff7a00;--brand-soft:#fff4e8;--bg:#f3f4f6;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#d1d5db;--ok:#16a34a;--blue:#2563eb;--err:#dc2626}
@@ -151,15 +151,170 @@ header .ht{display:flex;flex-direction:column;gap:4px;min-width:0}
 .acts .ok{background:#7c3aed}
 .waitPay{background:#fff7ed;border:1.5px solid #fdba74;color:#c2410c;border-radius:12px;padding:8px 10px;font-weight:700;font-size:13.5px;margin-top:10px}
 .badge.ok{background:#ede9fe;color:#6d28d9}
+/* ===== עיצוב 2026: נקי בסגנון אפליקציית משלוחים ===== */
+:root{--ac:#ff5a1f;--ac-soft:#fff1eb;--okc:#1fbf5a;--fill:#f4f4f5;--ln:#ececef;--tx:#111;--mu:#70707a;--brand:#ff5a1f;--brand-soft:#fff1eb;--bg:#fff;--text:#111;--muted:#70707a;--ring:#ff5a1f2e}
+body{font-family:Rubik,Heebo,system-ui,sans-serif;background:#fff;color:var(--tx);padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+button,input,select,textarea{font-family:Rubik,Heebo,sans-serif}
+.ic{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ic.s{width:17px;height:17px}.ic.xs{width:13px;height:13px}
+button{-webkit-tap-highlight-color:transparent;transition:transform .12s ease,background .15s,box-shadow .15s}
+button:active{transform:scale(.97)}
+/* ראש */
+header{position:static;background:#fff;box-shadow:none;border:0;padding:16px 16px 4px;max-width:640px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between}
+header::after{display:none}
+header .ht{gap:0}
+header .ht small{color:var(--ac);font-weight:600;font-size:12.5px}
+header h1{font-size:30px;font-weight:700;letter-spacing:-.02em;color:var(--tx)}
+button.ib,header button.ib{width:42px;height:42px;border-radius:50%;background:var(--fill);color:var(--tx);display:grid;place-items:center;border:0;padding:0;margin:0;flex:none;box-shadow:none;cursor:pointer}
+button.ib.sm{width:36px;height:36px;background:var(--ac-soft);color:var(--ac)}
+button.ib.copied{background:#e8f8ee;color:#15803d}
+main{padding:8px 16px 24px}
+/* זמינות */
+.card{border-radius:18px;box-shadow:0 0 0 1px var(--ln),0 4px 14px #0000000a;background:#fff}
+.avail,.avail.off{border:0;box-shadow:none;background:#effaf3;padding:12px 14px;border-radius:16px}
+.avail.off{background:#fff1f2}
+.availRow{gap:12px}
+.adot{width:10px;height:10px;border-radius:50%;background:var(--okc);box-shadow:0 0 0 4px #1fbf5a33;flex:none}
+.avail.off .adot{background:#e11d48;box-shadow:0 0 0 4px #e11d4833}
+.availRow .at{flex:1;min-width:0}
+.availTitle{font-size:15px;font-weight:600}
+#availSub{font-size:12px;color:#5a7a66}
+.avail.off #availSub{color:#9f1239}
+.at .led,.at .led.g,.at .led.r{display:block;background:none;border:0;padding:0;font-weight:400;font-size:11.5px;color:#5a7a66;margin-top:1px}
+.at .led::before{display:none}
+.at .led.r{color:#be123c;font-weight:600}
+#availToggle,.avail.off #availToggle{position:relative;width:52px;height:31px;border-radius:99px;padding:0;background:var(--okc);font-size:0;color:transparent;flex:none}
+.avail.off #availToggle{background:#d4d4d8}
+#availToggle::after{content:"";position:absolute;top:3px;left:3px;width:25px;height:25px;border-radius:50%;background:#fff;box-shadow:0 2px 4px #0003;transition:left .2s}
+.avail.off #availToggle::after{left:24px}
+#availMsg{background:#fff!important}
+#availMsgSave{border:0;background:#fff;border-radius:12px;font-weight:600}
+/* מספרים */
+.kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 12px}
+.kpi div{background:var(--fill);border-radius:14px;padding:9px 12px}
+.kpi b{display:block;font-size:21px;font-weight:700}
+.kpi b.or{color:var(--ac)}
+.kpi small{font-size:11.5px;color:var(--mu)}
+/* לשוניות וסינון */
+.tabs{background:var(--fill);border-radius:12px;padding:3px;gap:3px;margin-bottom:10px}
+.tabs button{border:0;background:none;color:#555;border-radius:10px;font-size:14.5px;font-weight:500;padding:9px}
+.tabs button.on{background:#fff;color:var(--tx);font-weight:600;box-shadow:0 2px 8px #00000018}
+.tabs em{font-style:normal;background:var(--ac);color:#fff;font-size:11px;font-weight:700;padding:1px 7px;border-radius:99px;margin-right:4px}
+.filters{flex-wrap:nowrap;gap:6px;overflow-x:auto;margin-bottom:12px;scrollbar-width:none}
+.filters select{flex:0 0 auto;width:auto;-webkit-appearance:none;appearance:none;border:1px solid #e4e4e8;border-radius:99px;padding:8px 14px;font-size:13.5px;font-weight:500;color:#333;background:#fff;max-width:60%}
+.filters select.set{background:#111;color:#fff;border-color:#111}
+.note{font-size:12px;color:#a0a0a8;margin:0 0 10px}
+.summary{background:var(--fill);box-shadow:none;border-radius:14px}
+.summary .money{font-weight:600}
+.addBtn{display:none}
+/* כרטיס הזמנה */
+.card.oc{padding:12px 14px;margin-bottom:10px}
+.card.oc.dim1{opacity:.75}
+.r1{display:flex;align-items:center;gap:6px;font-size:12.5px;flex-wrap:wrap}
+.r1 .cust{font-weight:600;color:#555;font-size:12.5px}
+.r1 .tm{margin-right:auto;color:#999}
+.badge{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:99px}
+.badge.new{background:var(--ac-soft);color:var(--ac)}
+.badge.ok{background:#eef2ff;color:#4f46e5}
+.badge.picked{background:#fff7e0;color:#b7791f}
+.badge.done{background:#e8f8ee;color:#15803d}
+.badge.no{background:#fff1f2;color:#be123c}
+.urg{display:inline-flex;align-items:center;gap:2px;background:#ffe4e4;color:#e11d48;padding:2px 7px;border-radius:99px;font-weight:600;font-size:11.5px}
+.r2{display:flex;align-items:center;gap:8px;margin:7px 0 9px}
+.dst{flex:1;min-width:0}
+.dst b{display:block;font-size:16.5px;font-weight:600}
+.dst small{color:var(--mu);font-size:13px}
+a.qi{width:38px;height:38px;border-radius:50%;background:var(--fill);color:var(--tx);display:grid;place-items:center;flex:none}
+.nt{display:flex;align-items:flex-start;gap:5px;font-size:13px;color:#444;background:#fffbea;border-radius:10px;padding:6px 9px;margin:-2px 0 9px}
+.nt .ic{margin-top:3px;color:#b7791f}
+.waitPay{border:0;background:#fff7e0;color:#a16207;border-radius:10px;padding:6px 9px;font-size:12.5px;font-weight:600;margin:-2px 0 9px}
+.r3{display:flex;align-items:center;gap:8px}
+.py{font-size:12.5px;font-weight:500;color:#555;background:var(--fill);padding:5px 9px;border-radius:9px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.py.wait{background:#fff7e0;color:#a16207}.py.paid{background:#e8f8ee;color:#15803d}
+button.act{margin-right:auto;display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border-radius:12px;border:0;font-weight:600;font-size:14.5px;color:#fff;background:var(--ac);flex:none;cursor:pointer}
+button.act.grn{background:var(--okc)}
+button.act:disabled{opacity:.55}
+button.more{width:40px;height:40px;border-radius:12px;background:var(--fill);border:0;display:grid;place-items:center;color:#555;flex:none;cursor:pointer;padding:0}
+.r3 .py + button.more{margin-right:auto}
+/* חלונית פעולות */
+.dim{position:fixed;inset:0;background:#0007;opacity:0;pointer-events:none;transition:opacity .25s;z-index:50}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-width:640px;margin:0 auto;max-height:88vh;overflow-y:auto;background:#fff;border-radius:26px 26px 0 0;padding:10px 18px calc(14px + env(safe-area-inset-bottom));z-index:51;transform:translateY(105%);visibility:hidden;transition:transform .32s cubic-bezier(.2,.9,.3,1),visibility 0s .32s;box-shadow:0 -10px 40px #0003}
+body.sheetOpen .dim{opacity:1;pointer-events:auto}
+body.sheetOpen .sheet{transform:none;visibility:visible;transition:transform .32s cubic-bezier(.2,.9,.3,1)}
+body.sheetOpen{overflow:hidden}
+.grab{width:40px;height:5px;border-radius:9px;background:#d6d6db;margin:0 auto 12px}
+.shh{display:flex;align-items:flex-start;gap:10px}
+.shh>div{flex:1;min-width:0}
+.shh small{color:var(--mu);font-size:12px}
+.shh h2{font-size:21px;font-weight:700;margin:2px 0 0}
+.shh button.ib{width:36px;height:36px}
+.det{display:flex;flex-direction:column;gap:8px;margin:12px 0;font-size:14px;color:#333}
+.det .dr{display:flex;align-items:flex-start;gap:8px}
+.det .dr .ic{color:var(--ac);margin-top:2px}
+.det a{color:var(--tx);font-weight:600;text-decoration:none}
+.qrow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px}
+.qrow button{display:flex;flex-direction:column;align-items:center;gap:5px;background:var(--fill);border:0;border-radius:14px;padding:11px 2px;font-size:12px;font-weight:600;color:var(--tx);cursor:pointer}
+.qrow button.wa{color:#169c48}
+button.al{width:100%;display:flex;align-items:center;gap:12px;padding:14px 4px;border:0;border-top:1px solid #f0f0f2;background:none;font-size:15.5px;font-weight:500;color:var(--tx);text-align:right;cursor:pointer;border-radius:0}
+button.al .ic{color:#555}
+button.al.warn,button.al.warn .ic{color:#b45309}
+button.al.del,button.al.del .ic{color:#e11d48}
+button.al:active{transform:none;background:var(--fill)}
+/* ניווט תחתון */
+.bnav{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;align-items:flex-start;justify-content:space-around;padding:8px max(30px,calc(50% - 260px)) calc(10px + env(safe-area-inset-bottom));background:#ffffffe6;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid #eee}
+.bnav button{position:relative;flex:1;max-width:120px;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;font-size:11.5px;font-weight:500;color:#999;cursor:pointer;padding:4px 0}
+.bnav button.on{color:var(--ac)}
+.bnav em{position:absolute;top:-2px;right:calc(50% - 22px);background:var(--ac);color:#fff;font-style:normal;font-size:10px;font-weight:700;padding:1px 5px;border-radius:99px}
+.bnav em:empty{display:none}
+.bnav button.fab{flex:none;width:56px;height:56px;border-radius:50%;background:#111;color:#fff;display:grid;place-items:center;margin-top:-26px;box-shadow:0 8px 20px #0004;padding:0}
+.bnav button.fab .ic{width:26px;height:26px}
+/* לקוחות */
+#custView{padding-top:4px}
+#custNew{display:inline-flex;width:auto;align-items:center;gap:6px;border:0;background:var(--ac-soft);color:var(--ac);border-radius:99px;padding:9px 16px;font-size:14px;font-weight:600;margin:0 0 12px}
+#custList{border-radius:18px;box-shadow:0 0 0 1px var(--ln),0 4px 14px #0000000a;overflow:hidden;margin-bottom:12px}
+.custCard{display:flex;align-items:center;gap:10px;padding:13px 12px;background:#fff;cursor:pointer}
+.custCard + .custCard{border-top:1px solid #f0f0f2}
+.av2{width:44px;height:44px;border-radius:50%;background:var(--ac-soft);color:var(--ac);display:grid;place-items:center;flex:none;font-size:20px;font-weight:700}
+.custCard .ct{flex:1;min-width:0}
+.custCard .cust{font-size:15.5px;font-weight:600}
+.custCard .meta{font-size:12.5px;color:var(--mu)}
+.custCard .chev{color:#b0b0b8;width:18px;height:18px}
+.sheetLink{background:var(--fill);border:0;color:#15803d;border-radius:14px}
+/* עורך לקוח והוספה ידנית */
+#custEdit,#addBox{box-shadow:none;padding:4px 0 0;background:none}
+#custEdit h2,#addBox h2{font-size:24px;font-weight:700}
+.grid label{font-size:12px;font-weight:400;color:var(--mu);background:var(--fill);border-radius:14px;padding:8px 12px 9px}
+.grid input,.grid select,.grid input:focus{border:0!important;background:none!important;box-shadow:none!important;padding:2px 0 0;margin:0;font-size:16px;font-weight:500;border-radius:0;outline:0}
+.grid label:focus-within{background:#fff;box-shadow:0 0 0 2px var(--ac)}
+.grid label:has(input.bad){box-shadow:0 0 0 2px #e11d48}
+#addBox textarea,details.quick textarea,.login input{background:var(--fill)!important;border:0!important;border-radius:14px}
+h3.sub{font-size:17px;font-weight:700;margin:20px 0 4px}
+#ceRows{border-radius:18px;box-shadow:0 0 0 1px var(--ln),0 4px 14px #0000000a;padding:4px 10px;margin:8px 0}
+.prow{border-bottom-color:#f0f0f2;padding:8px 0;margin:0}
+.prow:last-child{border-bottom:0}
+.prow input{background:var(--fill)!important;border:0!important;border-radius:10px}
+.prow .pp{font-weight:600}
+.prow .drag{background:none!important;border:0!important;color:#c4c4cc}
+.prow button{border:0;background:var(--fill)}
+.chk input{accent-color:var(--ac)}
+button.secondary{border:0;background:var(--fill);border-radius:14px;color:var(--tx)}
+.saveBtn,#ceSave,#addSave{background:#111!important;box-shadow:none!important;border-radius:16px;font-weight:600}
+button.danger{border:0;background:#fff1f2;border-radius:14px;color:#e11d48}
+details.quick{background:var(--fill);border-radius:14px}
+.copyFrom select,.copyFrom button{border:0!important;background:var(--fill)!important;border-radius:12px}
+.login{box-shadow:none}
+.login button{background:var(--ac)!important;box-shadow:0 8px 20px #ff5a1f44!important;border-radius:16px}
+.alertBox{border:0;background:#fff1f2;border-radius:16px}
+.quotaBox{border:0;background:#fff7e0;border-radius:16px}
+.empty{color:var(--mu)}
+input::placeholder,textarea::placeholder{color:#a8a8b0;font-weight:400;opacity:1}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-inbox" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12" /><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /></symbol><symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14" /><path d="M12 5v14" /></symbol><symbol id="i-refresh-cw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /><path d="M8 16H3v5" /></symbol><symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></symbol><symbol id="i-navigation" viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11" /></symbol><symbol id="i-ellipsis" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" /></symbol><symbol id="i-thumbs-up" viewBox="0 0 24 24"><path d="M7 10v12" /><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z" /></symbol><symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" /><path d="M15 18H9" /><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" /><circle cx="17" cy="18" r="2" /><circle cx="7" cy="18" r="2" /></symbol><symbol id="i-package-check" viewBox="0 0 24 24"><path d="m16 16 2 2 4-4" /><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14" /><path d="m7.5 4.27 9 5.15" /><polyline points="3.29 7 12 12 20.71 7" /><line x1="12" x2="12" y1="22" y2="12" /></symbol><symbol id="i-banknote" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01M18 12h.01" /></symbol><symbol id="i-circle-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="m15 9-6 6" /><path d="m9 9 6 6" /></symbol><symbol id="i-undo-2" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5" /><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11" /></symbol><symbol id="i-trash-2" viewBox="0 0 24 24"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" /></symbol><symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></symbol><symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></symbol><symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></symbol><symbol id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></symbol><symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /><circle cx="12" cy="10" r="3" /></symbol><symbol id="i-message-circle" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></symbol><symbol id="i-message-square-text" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /><path d="M13 8H7" /><path d="M17 12H7" /></symbol><symbol id="i-send" viewBox="0 0 24 24"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" /><path d="m21.854 2.147-10.94 10.939" /></symbol><symbol id="i-store" viewBox="0 0 24 24"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" /><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" /><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" /><path d="M2 7h20" /><path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7" /></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol><symbol id="i-package" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" /><path d="M12 22V12" /><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7" /><path d="m7.5 4.27 9 5.15" /></symbol></svg>
 <header>
-  <div class="ht"><h1>🚙 ניהול הזמנות</h1><span class="led" id="led" style="display:none"></span></div>
-  <div class="hbtns">
-    <button type="button" id="navCust" style="display:none">👥 לקוחות ומחירים</button>
-    <button type="button" id="refresh">🔄 רענון</button>
-  </div>
+  <div class="ht"><small>ארי משלוחים</small><h1 id="viewTitle">הזמנות</h1></div>
+  <button type="button" class="ib" id="refresh" aria-label="רענון"><svg class="ic s"><use href="#i-refresh-cw"/></svg></button>
 </header>
 <main>
   <section class="card login" id="loginBox" style="display:none">
@@ -175,14 +330,16 @@ header .ht{display:flex;flex-direction:column;gap:4px;min-width:0}
     <div class="quotaBox" id="quotaWarn" style="display:none"></div>
     <section class="card avail" id="availBox">
       <div class="availRow">
-        <div><div class="availTitle" id="availTitle"></div><div class="meta" id="availSub"></div></div>
-        <button type="button" id="availToggle"></button>
+        <span class="adot"></span>
+        <div class="at"><div class="availTitle" id="availTitle"></div><div class="meta" id="availSub"></div><span class="led" id="led" style="display:none"></span></div>
+        <button type="button" id="availToggle" role="switch"></button>
       </div>
       <div id="availMsgBox" style="display:none">
         <input id="availMsg" maxlength="120" placeholder="הודעה ללקוחות (לא חובה), למשל: חוזר ב-16:00">
         <button type="button" id="availMsgSave">שמירת ההודעה</button>
       </div>
     </section>
+    <div class="kpi" id="kpi"></div>
     <div class="tabs">
       <button type="button" id="tabOpen" class="on">פתוחות</button>
       <button type="button" id="tabDone">נסגרו (90 יום)</button>
@@ -199,12 +356,11 @@ header .ht{display:flex;flex-direction:column;gap:4px;min-width:0}
     </div>
     <div class="summary" id="summary"></div>
     <div class="note" id="note"></div>
-    <button type="button" class="addBtn" id="addOpen">➕ הוספת הזמנה ידנית</button>
     <div id="list"></div>
   </div>
 
   <section class="card" id="addBox" style="display:none">
-    <h2 style="margin-top:0">➕ הוספת הזמנה ידנית</h2>
+    <h2 style="margin-top:0">הוספת הזמנה ידנית</h2>
     <p class="meta">מדביקים את הודעת ההזמנה מווצאפ כמו שהיא – הפרטים יתמלאו לבד. אפשר גם למלא ידנית.</p>
     <textarea id="paste" placeholder="הדבק כאן את הודעת הווצאפ…"></textarea>
     <button type="button" class="secondary" id="parseBtn">📋 מלא פרטים מההודעה</button>
@@ -232,7 +388,7 @@ header .ht{display:flex;flex-direction:column;gap:4px;min-width:0}
   <!-- ===== לקוחות ומחירונים ===== -->
   <section id="custView" style="display:none">
     <div class="note" id="custNote"></div>
-    <button type="button" class="addBtn" id="custNew">➕ לקוח חדש</button>
+    <button type="button" class="addBtn" id="custNew"><svg class="ic s"><use href="#i-plus"/></svg><span>לקוח חדש</span></button>
     <a class="sheetLink" id="sheetLink" target="_blank" rel="noopener" style="display:none">📊 עריכת המחירים בטבלה בגוגל (לשונית "מחירונים")</a>
     <div id="custList"></div>
     <section class="card" id="seedBox" style="display:none">
@@ -286,11 +442,19 @@ header .ht{display:flex;flex-direction:column;gap:4px;min-width:0}
   </section>
 </main>
 
+<nav class="bnav" id="bnav" style="display:none">
+  <button type="button" id="navOrders" class="on"><svg class="ic"><use href="#i-inbox"/></svg><span>הזמנות</span><em id="navCount"></em></button>
+  <button type="button" class="fab" id="addOpen" aria-label="הוספת הזמנה ידנית"><svg class="ic"><use href="#i-plus"/></svg></button>
+  <button type="button" id="navCust"><svg class="ic"><use href="#i-users"/></svg><span>לקוחות</span></button>
+</nav>
+<div class="dim" id="oDim"></div>
+<div class="sheet" id="oSheet" role="dialog" aria-label="פרטי הזמנה"><div class="grab"></div><div id="oBody"></div></div>
+
 <script>
 // אותה כתובת כמו CONFIG.sheetUrl ב-index.html
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbyeVkFBCgZJMi6gE5yBoK-ydIinjDWaGL2zSAlOhnRfsai7hz45T8abdZ7cyP23ckowTQ/exec";
 const KEY_STORE = "ariDelivery.adminKey";
-const BADGES = { "חדשה": ["🕓 חדשה", "new"], "נאסף": ["🚙 נאסף", "picked"], "נמסר": ["✅ נמסר", "done"], "אושרה": ["👍 אושרה", "ok"], "לא פנוי": ["❌ לא פנוי", "no"] };
+const BADGES = { "חדשה": ["חדשה", "new"], "נאסף": ["נאסף", "picked"], "נמסר": ["נמסר", "done"], "אושרה": ["אושרה", "ok"], "לא פנוי": ["לא פנוי", "no"] };
 const CLOSED = ["נמסר", "לא פנוי"];
 let avail = { available: true, message: "" };
 
@@ -305,7 +469,10 @@ const VIEWS = { orders: "app", add: "addBox", customers: "custView", edit: "cust
 function showView(v) {
   view = v;
   Object.entries(VIEWS).forEach(([k, id]) => { $(id).style.display = k === v ? "block" : "none"; });
-  $("navCust").textContent = v === "customers" || v === "edit" ? "📋 הזמנות" : "👥 לקוחות ומחירים";
+  const cv = v === "customers" || v === "edit";
+  $("navCust").classList.toggle("on", cv); $("navOrders").classList.toggle("on", !cv);
+  $("viewTitle").textContent = { orders: "הזמנות", add: "הזמנה ידנית", customers: "לקוחות", edit: "עריכת לקוח" }[v];
+  closeOrder();
   window.scrollTo(0, 0);
 }
 
@@ -315,6 +482,8 @@ function el(tag, props, ...kids) {
   kids.flat().forEach(k => k != null && e.append(k));
   return e;
 }
+const ico = (n, c) => { const t = document.createElement("template"); t.innerHTML = `<svg class="ic${c ? " " + c : ""}"><use href="#i-${n}"/></svg>`; return t.content.firstChild; };
+const aria = (e, l) => { e.setAttribute("aria-label", l); e.title = l; return e; };
 function link(text, href) { return el("a", { href, textContent: text, target: href.startsWith("http") ? "_blank" : "" }); }
 
 function showLogin(msg) {
@@ -333,7 +502,7 @@ function load() {
       fillCustomers();
       if (typeof d.available === "boolean") avail = { available: d.available, message: d.message || "" };
       renderAvail();
-      $("loginBox").style.display = "none"; $("navCust").style.display = "";
+      $("loginBox").style.display = "none"; $("bnav").style.display = "";
       if (view === "orders") $("app").style.display = "block";
       const n = new Date();
       $("note").textContent = `עודכן ב-${pad(n.getHours())}:${pad(n.getMinutes())} · מתעדכן לבד כל דקה`;
@@ -348,7 +517,7 @@ function setLed(ok, quota) {
   const led = $("led");
   led.style.display = "";
   led.className = "led " + (ok ? "g" : "r");
-  led.textContent = ok ? "מחובר" + (typeof quota === "number" ? ` · ${quota} מיילים נשארו` : "") : "אין חיבור";
+  led.textContent = ok ? "הכל מחובר" + (typeof quota === "number" ? ` · ${quota} מיילים פנויים` : "") : "אין חיבור לטבלה";
   $("connAlert").style.display = ok ? "none" : "block";
   const low = ok && typeof quota === "number" && quota < 15;
   $("quotaWarn").style.display = low ? "block" : "none";
@@ -379,7 +548,18 @@ function render() {
   const closed = o => CLOSED.indexOf(o.status) !== -1;
   const cust = $("custFilter").value;
   const mine = orders.filter(o => !cust || o.customer === cust);
-  $("tabOpen").textContent = `פתוחות (${mine.filter(o => !closed(o)).length})`;
+  const openN = mine.filter(o => !closed(o)).length;
+  $("tabOpen").innerHTML = `פתוחות <em>${openN}</em>`;
+  $("navCount").textContent = orders.filter(o => !closed(o)).length || "";
+  ["custFilter", "paidFilter"].forEach(id => $(id).classList.toggle("set", !!$(id).value));
+  $("rangeFilter").classList.add("set");
+  // מספרים למעלה: פתוחות · לא שולם · היום (בלי "לא פנוי")
+  const sumP = a => a.reduce((t, o) => t + (isNaN(o.price) || o.price === "" ? 0 : Number(o.price)), 0);
+  const valid = mine.filter(o => o.status !== "לא פנוי");
+  const isToday = o => { const d = orderTime(o); return d && d.toDateString() === new Date().toDateString(); };
+  const tile = (n, t, cls) => el("div", {}, el("b", { className: cls || "", textContent: n }), el("small", { textContent: t }));
+  $("kpi").replaceChildren(tile(openN, "פתוחות"), tile("₪" + sumP(valid.filter(o => !o.paid)), "לא שולם", "or"),
+    tile("₪" + sumP(valid.filter(isToday)), "היום"));
   // טווח הזמן חל על הזמנות שנסגרו; פתוחות מוצגות תמיד
   $("rangeFilter").style.display = tab === "done" ? "" : "none";
   const pf = $("paidFilter").value;
@@ -407,42 +587,84 @@ function render() {
   $("list").replaceChildren(...shown.map(card));
 }
 
+const NEXT = { "חדשה": ["אושרה", "thumbs-up", "קיבלתי", ""], "אושרה": ["נאסף", "truck", "נאסף", ""], "נאסף": ["נמסר", "package-check", "נמסר", "grn"] };
+const PREV = { "נמסר": "נאסף", "נאסף": "אושרה", "אושרה": "חדשה", "לא פנוי": "חדשה" };
+const priceTxt = o => o.price === "" || o.price == null ? "" : isNaN(o.price) ? String(o.price) : "₪" + o.price;
+const navAddr = o => (o.address || "").replace(/ – [^,]*$/, "");
+function splitAddr(a) { a = a || ""; const i = a.lastIndexOf(", "); return i > 0 ? [a.slice(i + 2), a.slice(0, i)] : [a, ""]; }
+
 function card(o) {
   const [bt, bc] = BADGES[o.status] || BADGES["חדשה"];
-  const acts = el("div", { className: "acts" });
-  if (CLOSED.indexOf(o.status) === -1) {
-    if (o.status === "חדשה") acts.append(el("button", { type: "button", className: "ok", textContent: "👍 קיבלתי", title: "הלקוח יראה שאישרת", onclick: e => update(o, "אושרה", e.target) }));
-    if (o.status !== "נאסף") acts.append(el("button", { type: "button", className: "picked", textContent: "🚙 נאסף", onclick: e => update(o, "נאסף", e.target) }));
-    acts.append(el("button", { type: "button", className: "done", textContent: "✅ נמסר", onclick: e => update(o, "נמסר", e.target) }));
-    if (o.status === "חדשה") acts.append(el("button", { type: "button", className: "no", textContent: "❌ לא פנוי",
-      onclick: e => { if (confirm(`לסמן שאתה לא פנוי להזמנה של ${o.recipient}? הלקוח יראה שצריך משלוח אחר.`)) update(o, "לא פנוי", e.target); } }));
-  }
-  if (o.status !== "חדשה") acts.append(el("button", { type: "button", className: "undo", textContent: "↩️ בטל", title: "החזר לשלב הקודם",
-    onclick: e => update(o, o.status === "נמסר" ? "נאסף" : o.status === "נאסף" ? "אושרה" : "חדשה", e.target) }));
-  const payRow = o.status === "לא פנוי" ? null : el("div", { className: "payRow" + (o.paid ? " yes" : "") },
-    el("span", { textContent: o.paid ? "💰 שולם" : "💸 לא שולם" }),
-    el("button", { type: "button", textContent: o.paid ? "↩️ סמן לא שולם" : "💰 סמן שולם", onclick: e => setPaid(o, !o.paid, e.target) }));
-
-  return el("section", { className: "card" },
-    el("div", { className: "top" },
-      el("div", {}, el("div", { className: "cust", textContent: o.customer || "לקוח" }),
-        el("div", { className: "meta", textContent: `#${o.no} · ${o.date} ${o.time}` })),
-      el("span", { className: "badge " + bc, textContent: bt })),
-    el("div", { className: "row" },
-      el("span", { className: "lbl", textContent: "📦 איסוף: " }), o.pickup, " ",
-      o.pickup ? link("ווייז", waze(o.pickup)) : null,
-      o.pickupPhone ? [" · ", link("📞 " + o.pickupPhone, "tel:" + o.pickupPhone)] : null),
-    el("div", { className: "row" },
-      el("span", { className: "lbl", textContent: "📍 מסירה: " }), `${o.recipient} – ${o.address} `,
-      link("ווייז", waze(o.address.replace(/ – [^,]*$/, ""))),
-      o.phone ? [" · ", link("📞 " + o.phone, "tel:" + o.phone)] : null),
-    el("div", { className: "row meta", textContent: [o.item, o.when, o.pay, o.price && (isNaN(o.price) ? o.price : "₪" + o.price)].filter(Boolean).join(" · ") }),
-    o.notes ? el("div", { className: "row", textContent: "📝 " + o.notes }) : null,
-    /מראש/.test(o.pay || "") && !o.paid && o.status !== "לא פנוי" ? el("div", { className: "waitPay", textContent: "⏳ תשלום מראש – לבדוק שהתקבל לפני יציאה" }) : null,
-    payRow,
-    acts,
-    el("button", { type: "button", className: "delOrder", textContent: "🗑 מחיקת ההזמנה", onclick: e => deleteOrder(o, e.target) }));
+  const [area, street] = splitAddr(o.address);
+  const d = orderTime(o), today = d && d.toDateString() === new Date().toDateString();
+  const prepay = /מראש/.test(o.pay || ""), off = o.status === "לא פנוי";
+  const payTxt = [String(o.pay || "").replace(/\s*\(מראש\)/, ""), priceTxt(o)].filter(Boolean).join(" · ");
+  const py = el("span", { className: "py" + (off ? "" : o.paid ? " paid" : prepay ? " wait" : ""),
+    textContent: off ? payTxt : payTxt + (o.paid ? " · שולם" : prepay ? " · ממתין" : " · לא שולם") });
+  const nx = NEXT[o.status];
+  const act = nx ? el("button", { type: "button", className: "act " + nx[3], onclick: e => update(o, nx[0], e.currentTarget) }, ico(nx[1], "s"), nx[2]) : null;
+  if (o.status === "חדשה" && act) act.title = "הלקוח יראה שאישרת";
+  const more = aria(el("button", { type: "button", className: "more", onclick: () => openOrder(o) }, ico("ellipsis")), "עוד פעולות");
+  const qi = (icon, href, l) => aria(el("a", { className: "qi", href, target: href.startsWith("http") ? "_blank" : "" }, ico(icon, "s")), l);
+  return el("section", { className: "card oc" + (off ? " dim1" : "") },
+    el("div", { className: "r1" },
+      el("span", { className: "cust", textContent: o.customer || "לקוח" }),
+      /דחוף/.test(o.when || "") ? el("span", { className: "urg" }, ico("zap", "xs"), "דחוף") : null,
+      el("span", { className: "badge " + bc, textContent: bt }),
+      el("span", { className: "tm", textContent: today ? o.time : `${(o.date || "").slice(0, 5)} ${o.time || ""}` })),
+    el("div", { className: "r2" },
+      el("div", { className: "dst" }, el("b", { textContent: area || "—" }),
+        el("small", { textContent: [o.recipient, street].filter(Boolean).join(" · ") })),
+      o.phone ? qi("phone", "tel:" + o.phone, "חיוג למקבל") : null,
+      o.address ? qi("navigation", waze(navAddr(o)), "ניווט בווייז") : null),
+    o.notes ? el("div", { className: "nt" }, ico("message-square-text", "xs"), el("span", { textContent: o.notes })) : null,
+    prepay && !o.paid && !off ? el("div", { className: "waitPay", textContent: "תשלום מראש – לבדוק שהתקבל לפני יציאה" }) : null,
+    el("div", { className: "r3" }, py, act, more));
 }
+
+/* ---------- חלונית פעולות להזמנה (⋯) ---------- */
+function closeOrder() { document.body.classList.remove("sheetOpen"); }
+function openOrder(o) {
+  const closed = CLOSED.indexOf(o.status) !== -1;
+  const [area] = splitAddr(o.address);
+  const dr = (i, t, href) => el("div", { className: "dr" }, ico(i, "s"),
+    href ? el("a", { href, textContent: t, target: href.startsWith("http") ? "_blank" : "" }) : el("span", { textContent: t }));
+  const tel = String(o.phone || "").replace(/\D/g, "");
+  const q = (i, t, fn, cls) => el("button", { type: "button", className: cls || "", onclick: fn }, ico(i), el("span", { textContent: t }));
+  const list = el("div", {});
+  const A = (i, t, cls, fn) => list.append(el("button", { type: "button", className: "al " + (cls || ""),
+    onclick: e => { const b = e.currentTarget; closeOrder(); fn(b); } }, ico(i), el("span", { textContent: t })));
+  if (!closed) {
+    if (o.status === "חדשה") A("thumbs-up", "קיבלתי את ההזמנה", "", b => update(o, "אושרה", b));
+    if (o.status !== "נאסף") A("truck", "נאסף", "", b => update(o, "נאסף", b));
+    A("package-check", "נמסר", "", b => update(o, "נמסר", b));
+  }
+  if (o.status !== "לא פנוי") A("banknote", o.paid ? "סמן כלא שולם" : "סמן כשולם", "", b => setPaid(o, !o.paid, b));
+  if (o.status === "חדשה") A("circle-x", "לא פנוי – להחזיר ללקוח", "warn", b => {
+    if (confirm(`לסמן שאתה לא פנוי להזמנה של ${o.recipient}? הלקוח יראה שצריך משלוח אחר.`)) update(o, "לא פנוי", b); });
+  if (o.status !== "חדשה") A("undo-2", "ביטול סטטוס (שלב אחורה)", "", b => update(o, PREV[o.status] || "חדשה", b));
+  A("trash-2", "מחיקת ההזמנה", "del", b => deleteOrder(o, b));
+  $("oBody").replaceChildren(
+    el("div", { className: "shh" },
+      el("div", {}, el("small", { textContent: `${o.customer || "לקוח"} · #${o.no} · ${o.date || ""} ${o.time || ""}` }),
+        el("h2", { textContent: [o.recipient, area].filter(Boolean).join(" · ") })),
+      aria(el("button", { type: "button", className: "ib", onclick: closeOrder }, ico("x", "s")), "סגירה")),
+    el("div", { className: "det" },
+      dr("map-pin", o.address || "", o.address ? waze(navAddr(o)) : ""),
+      o.phone ? dr("phone", o.phone, "tel:" + o.phone) : null,
+      dr("package", [o.item, o.when, priceTxt(o), o.pay].filter(Boolean).join(" · ")),
+      o.pickup ? dr("store", "איסוף: " + o.pickup + (o.pickupPhone ? " · " + o.pickupPhone : ""), waze(o.pickup)) : null,
+      o.notes ? dr("message-square-text", o.notes) : null),
+    el("div", { className: "qrow" },
+      q("phone", "חיוג", () => { if (o.phone) location.href = "tel:" + o.phone; }),
+      q("navigation", "ווייז", () => window.open(waze(navAddr(o)), "_blank")),
+      q("message-circle", "ווצאפ", () => { if (tel) window.open("https://wa.me/972" + tel.replace(/^0/, ""), "_blank"); }, "wa"),
+      q("copy", "העתקה", e => copyText([o.recipient, o.address, o.phone].filter(Boolean).join("\n"), e.currentTarget.querySelector("span")))),
+    list);
+  document.body.classList.add("sheetOpen");
+}
+$("oDim").addEventListener("click", closeOrder);
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeOrder(); });
 
 function deleteOrder(o, btn) {
   if (!confirm(`למחוק את ההזמנה #${o.no} (${o.recipient} – ${o.address})?\nהיא תימחק מהטבלה ומהרשימה של הלקוח. אי אפשר לבטל.`)) return;
@@ -474,7 +696,8 @@ $("refresh").onclick = () => view === "customers" ? loadCustomers() : load();
 function renderAvail() {
   const on = avail.available;
   $("availBox").classList.toggle("off", !on);
-  $("availTitle").textContent = on ? "🟢 פנוי למשלוחים" : "🔴 לא פנוי למשלוחים";
+  $("availTitle").textContent = on ? "זמין לקבל הזמנות" : "לא פנוי למשלוחים";
+  $("availToggle").setAttribute("aria-checked", on ? "true" : "false");
   $("availSub").textContent = on ? "הלקוחות מזמינים כרגיל"
     : "הלקוחות רואים הודעה שאתה לא פנוי" + (avail.message ? ` · "${avail.message}"` : "");
   $("availToggle").textContent = on ? "סמן לא פנוי" : "סמן פנוי";
@@ -632,21 +855,28 @@ function custCard(c) {
   const isDef = c.code === DEFAULT_CODE;
   const n = (c.prices || []).length;
   const link = linkOf(c.code);
-  return el("section", { className: "card custCard" },
-    el("div", { className: "top" },
-      el("div", {}, el("div", { className: "cust", textContent: isDef ? "🚙 לקוחות מזדמנים (הדף בלי לינק אישי)" : c.name }),
-        el("div", { className: "meta", textContent: n ? `${n} יעדים · ${priceRange(c.prices)}` : (isDef ? "אין מחירון – \"המחיר ייקבע בשיחה\"" : "מחיר לפי הסכם") })),
-      isDef ? null : el("span", { className: "badge new", textContent: c.code })),
-    el("div", { className: "link", textContent: link }),
-    el("div", { className: "acts" },
-      el("button", { type: "button", className: "edit", textContent: "✏️ עריכה", onclick: () => openEditor(c) }),
-      el("button", { type: "button", className: "copy", textContent: "📋 העתק לינק", onclick: e => copyText(link, e.target) }),
-      isDef ? null : el("button", { type: "button", className: "share", textContent: "📤 שלח בווצאפ",
-        onclick: () => window.open("https://wa.me/?text=" + encodeURIComponent(`הלינק להזמנת משלוחים מארי משלוחים 🚙\n${link}`), "_blank") })));
+  const em = /^(\p{Extended_Pictographic}️?)/u.exec(c.title || "");
+  const av = el("div", { className: "av2" });
+  if (isDef) av.append(ico("users")); else av.textContent = em ? em[1] : (c.name || "?").trim().charAt(0);
+  const btn = (i, l, fn) => aria(el("button", { type: "button", className: "ib sm", onclick: e => { e.stopPropagation(); fn(e.currentTarget); } }, ico(i, "s")), l);
+  const meta = n ? `${n} יעדים · ${priceRange(c.prices)}` : (isDef ? "אין מחירון – \"המחיר ייקבע בשיחה\"" : "מחיר לפי הסכם");
+  return el("section", { className: "custCard", onclick: () => openEditor(c) },
+    av,
+    el("div", { className: "ct" },
+      el("div", { className: "cust", textContent: isDef ? "לקוחות מזדמנים" : c.name }),
+      el("div", { className: "meta", textContent: (isDef ? "הדף הכללי · " : c.code + " · ") + meta })),
+    btn("link", "העתק לינק", b => copyText(link, b)),
+    isDef ? null : btn("send", "שלח לינק בווצאפ",
+      () => window.open("https://wa.me/?text=" + encodeURIComponent(`הלינק להזמנת משלוחים מארי משלוחים 🚙\n${link}`), "_blank")),
+    ico("chevron-left", "chev"));
 }
 function priceRange(p) { const v = p.map(x => x.price); return `₪${Math.min(...v)}–₪${Math.max(...v)}`; }
 function copyText(t, btn) {
-  const done = () => { const o = btn.textContent; btn.textContent = "✅ הועתק"; setTimeout(() => btn.textContent = o, 1500); };
+  const done = () => {
+    const o = btn.innerHTML; btn.classList.add("copied");
+    if (btn.classList.contains("ib")) btn.replaceChildren(ico("check", "s")); else btn.textContent = "✅ הועתק";
+    setTimeout(() => { btn.innerHTML = o; btn.classList.remove("copied"); }, 1500);
+  };
   if (navigator.clipboard) navigator.clipboard.writeText(t).then(done, () => prompt("העתק את הלינק:", t));
   else prompt("העתק את הלינק:", t);
 }
@@ -663,7 +893,7 @@ function openEditor(c) {
   const isNew = !c, isDef = c && c.code === DEFAULT_CODE;
   editing = { code: isNew ? newCode() : c.code, isNew, isDef };
   c = c || {};
-  $("ceTitle").textContent = isDef ? "🚙 לקוחות מזדמנים" : isNew ? "➕ לקוח חדש" : "✏️ " + c.name;
+  $("ceTitle").textContent = isDef ? "לקוחות מזדמנים" : isNew ? "לקוח חדש" : c.name;
   $("ceCustFields").style.display = isDef ? "none" : "";
   $("ceDefFields").style.display = isDef ? "" : "none";
   $("ceDelete").style.display = isNew || isDef ? "none" : "";
@@ -815,10 +1045,8 @@ $("seedBtn").onclick = () => {
     .then(() => new Promise(r => setTimeout(r, 1200))).then(loadCustomers)
     .finally(() => { btn.disabled = false; btn.textContent = "📥 ייבוא הלקוחות הקיימים"; });
 };
-$("navCust").onclick = () => {
-  if (view === "customers" || view === "edit") { showView("orders"); load(); }
-  else { showView("customers"); loadCustomers(); }
-};
+$("navCust").onclick = () => { showView("customers"); loadCustomers(); };
+$("navOrders").onclick = () => { showView("orders"); load(); };
 
 load();
 </script>
