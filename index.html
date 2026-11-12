@@ -647,6 +647,8 @@ const PAY    = ["מזומן (סכום מדויק)", "ביט", "פייבוקס"];
 const PAYER  = ["השולח", "המקבל"];
 const OTHER_CITY = "עיר אחרת";
 const STORE_KEY = "ariDelivery.pickup";
+// זיכרון נפרד לכל דף: הדף הכללי לא מקבל פרטים שנשמרו בדף של לקוח קבוע (ולהפך)
+const pickKey = () => CUSTOMER ? STORE_KEY + "." + CUSTOMER_CODE : STORE_KEY;
 
 const $ = id => document.getElementById(id);
 const val = name => (document.querySelector(`input[name=${name}]:checked`) || {}).value;
@@ -693,8 +695,8 @@ $("dCity").replaceChildren(Object.assign(opt("בחרו יעד…"), { value: "" 
 
 /* ---------- זכור אותי ---------- */
 try {
-  const saved = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
-  if (saved && !CUSTOMER) {
+  const saved = JSON.parse(localStorage.getItem(pickKey()) || "null");
+  if (saved && !CUSTOMER && !saved.code) {
     ["pName", "pAddr", "pPhone"].forEach(k => { if (saved[k]) $(k).value = saved[k]; });
   }
   if (saved && saved.pay) { const r = document.querySelector(`input[name=pay][value="${saved.pay}"]`); if (r) r.checked = true; }
@@ -918,11 +920,11 @@ $("orderForm").addEventListener("submit", e => {
 
   try {
     if ($("remember").checked) {
-      localStorage.setItem(STORE_KEY, JSON.stringify(CUSTOMER
+      localStorage.setItem(pickKey(), JSON.stringify(CUSTOMER
         ? { code: CUSTOMER_CODE, pPhone: $("pPhone").value.trim(), pay: val("pay") }
         : { pName: $("pName").value.trim(), pAddr: $("pAddr").value.trim(),
             pPhone: $("pPhone").value.trim(), pay: val("pay") }));
-    } else localStorage.removeItem(STORE_KEY);
+    } else localStorage.removeItem(pickKey());
   } catch (e) {}
 
   const text = lines.join("\n");
