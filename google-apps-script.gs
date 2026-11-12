@@ -12,7 +12,11 @@
 const NOTIFY_EMAIL = "";
 
 // גרסת הקוד – מופיעה בבדיקת הכתובת, כדי לדעת שהפריסה באמת עודכנה
-const CODE_VERSION = "2026-11-12d";
+const CODE_VERSION = "2026-11-12e";
+
+// התראות לאייפון דרך אפליקציית ntfy (חינם, בלי הרשמה). באפליקציה נרשמים לערוץ הזה בדיוק.
+// ריק = בלי התראות. השם אקראי כדי שאף אחד אחר לא ינחש אותו.
+const NTFY_TOPIC = "ari-orders-bawytzw56nm2wo";
 
 // סיסמה לדף המנהל – בחרו סיסמה משלכם (אותיות ומספרים, לפחות 6 תווים).
 // אותה סיסמה מקלידים פעם אחת בדף המנהל.
@@ -56,6 +60,9 @@ function doPost(e) {
       clean(o.pickup), "'" + clean(o.pickupPhone), STATUSES[0], clean(o.code), "לא",
     ]);
     addStatusDropdown(sheet, sheet.getLastRow());
+
+    // התראה לאייפון (ntfy) – תקלה בהתראה לא מבטלת את ההזמנה
+    notifyPhone(o);
 
     // ההזמנה כבר שמורה בטבלה – תקלה במייל לא מבטלת אותה
     try {
@@ -524,4 +531,33 @@ function checkSystem() {
     const r = JSON.parse(doGetInner({ parameter: { action: "config", code: "fl4x9" } }).getContent());
     say(r.customer ? "✅ הדף של דורית יקבל " + (r.customer.prices || []).length + " יעדים" : "⚠️ הדף של דורית לא יקבל לקוח (customer=null)");
   } catch (e) { say("❌ בקשת המחירון של דורית נכשלת: " + e + (e.stack ? " | " + String(e.stack).split("\n")[1] : "")); }
+}
+
+/* ---------- התראה לאייפון (ntfy) ---------- */
+function notifyPhone(o) {
+  if (!NTFY_TOPIC) return false;
+  try {
+    const urgent = /דחוף/.test(String(o.when || ""));
+    const casual = /^לקוח מזדמן/.test(String(o.customer || ""));
+    const prepaid = /מראש/.test(String(o.pay || ""));
+    const price = typeof o.price === "number" ? "₪" + o.price : String(o.price || "");
+    const title = (o.resync ? "🔁 הזמנה שלא נקלטה – " : urgent ? "⚡ דחוף – " : casual ? "🚙 " : "🚙 הזמנה חדשה – ") + clean(o.customer);
+    const message = [clean(o.recipient) + " ← " + clean(o.address), price, clean(o.pay)].filter(String).join(" · ") +
+      (prepaid ? " – לבדוק תשלום" : "") + (o.when && !/^רגיל/.test(o.when) && !urgent ? "\n⏱ " + clean(o.when) : "");
+    const res = UrlFetchApp.fetch("https://ntfy.sh/", {
+      method: "post",
+      contentType: "application/json",
+      payload: JSON.stringify({ topic: NTFY_TOPIC, title: title, message: message, priority: urgent ? 5 : 4, click: ADMIN_URL }),
+      muteHttpExceptions: true,
+    });
+    return res.getResponseCode() < 300;
+  } catch (e) {
+    return false;
+  }
+}
+
+// להרצה מהעורך: שולח התראת בדיקה לאייפון
+function testNotification() {
+  const ok = notifyPhone({ customer: "בדיקה", recipient: "התראת בדיקה", address: "אם קיבלת – זה עובד ✅", price: 0, pay: "", when: "רגיל" });
+  Logger.log(ok ? "✅ התראה נשלחה – בדוק את האייפון" : "❌ ההתראה לא נשלחה – בדוק את שם הערוץ (NTFY_TOPIC)");
 }
