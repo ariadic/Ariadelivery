@@ -491,23 +491,41 @@ function showLogin(msg) {
   $("loginErr").textContent = msg || "";
 }
 
+/* ---------- שמירה במכשיר: הדף נפתח מיד עם הנתונים האחרונים, וגוגל מעדכן ברקע ---------- */
+const LIST_CACHE = "ariDelivery.adminList", CUST_CACHE = "ariDelivery.adminCustomers";
+const cacheGet = k => { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } };
+const cacheSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+const cacheClear = () => { try { localStorage.removeItem(LIST_CACHE); localStorage.removeItem(CUST_CACHE); } catch (e) {} };
+const hhmm = t => { const n = new Date(t); return `${pad(n.getHours())}:${pad(n.getMinutes())}`; };
+
+function applyList(d, savedAt) {
+  orders = d.orders || [];
+  fillCustomers();
+  if (typeof d.available === "boolean") avail = { available: d.available, message: d.message || "" };
+  renderAvail();
+  $("loginBox").style.display = "none"; $("bnav").style.display = "";
+  if (view === "orders") $("app").style.display = "block";
+  render();
+  if (savedAt) { $("note").textContent = `מוצגים הנתונים מ-${hhmm(savedAt)} · מתעדכן…`; return; }
+  $("note").textContent = `עודכן ב-${hhmm(Date.now())} · מתעדכן לבד כל חצי דקה`;
+  setLed(true, d.mailQuota);
+}
+
+let lastLoad = 0;
 function load() {
   if (!key) return showLogin();
-  $("note").textContent = "טוען…";
+  lastLoad = Date.now();
+  if (!orders.length) {
+    const c = cacheGet(LIST_CACHE);
+    if (c && c.d && c.d.ok) applyList(c.d, c.t);
+  }
+  if (!/מתעדכן…$/.test($("note").textContent)) $("note").textContent = "טוען…";
   fetch(SHEET_URL + "?action=list&key=" + encodeURIComponent(key))
     .then(r => r.json())
     .then(d => {
-      if (!d.ok) { setKey(""); key = ""; return showLogin(d.error || "שגיאה"); }
-      orders = d.orders || [];
-      fillCustomers();
-      if (typeof d.available === "boolean") avail = { available: d.available, message: d.message || "" };
-      renderAvail();
-      $("loginBox").style.display = "none"; $("bnav").style.display = "";
-      if (view === "orders") $("app").style.display = "block";
-      const n = new Date();
-      $("note").textContent = `עודכן ב-${pad(n.getHours())}:${pad(n.getMinutes())} · מתעדכן לבד כל דקה`;
-      setLed(true, d.mailQuota);
-      render();
+      if (!d.ok) { setKey(""); key = ""; cacheClear(); orders = []; return showLogin(d.error || "שגיאה"); }
+      cacheSet(LIST_CACHE, { t: Date.now(), d });
+      applyList(d);
     })
     .catch(() => { $("note").textContent = "אין חיבור לטבלה כרגע – נסה רענון בעוד רגע"; setLed(false); });
 }
@@ -803,7 +821,11 @@ $("rangeFilter").onchange = render;
 $("paidFilter").onchange = render;
 $("tabOpen").onclick = () => { tab = "open"; $("tabOpen").classList.add("on"); $("tabDone").classList.remove("on"); render(); };
 $("tabDone").onclick = () => { tab = "done"; $("tabDone").classList.add("on"); $("tabOpen").classList.remove("on"); render(); };
-setInterval(() => { if (key && !document.hidden && view === "orders") load(); }, 60000);
+setInterval(() => { if (key && !document.hidden && view === "orders") load(); }, 30000);
+// חוזרים לדף (מאפליקציה אחרת / מסך נעול) – מרעננים מיד
+const loadIfStale = () => { if (key && !document.hidden && view === "orders" && Date.now() - lastLoad > 5000) load(); };
+document.addEventListener("visibilitychange", loadIfStale);
+window.addEventListener("pageshow", loadIfStale);
 /* ===================== לקוחות ומחירונים ===================== */
 const DEFAULT_CODE = "_default";
 const SITE = new URL("./", location.href).href;
@@ -829,12 +851,17 @@ const linkOf = code => code === DEFAULT_CODE ? SITE : SITE + "?c=" + code;
 const post = body => fetch(SHEET_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(Object.assign({ key }, body)) });
 
 function loadCustomers() {
+  if (!customers.length) {
+    const c = cacheGet(CUST_CACHE);
+    if (c && Array.isArray(c.customers)) { customers = c.customers; renderCustomers(); }
+  }
   $("custNote").textContent = "טוען לקוחות…";
   return fetch(SHEET_URL + "?action=customers&key=" + encodeURIComponent(key))
     .then(r => r.json())
     .then(d => {
       if (!d.ok) { $("custNote").textContent = d.error === "סיסמה שגויה" ? "סיסמה שגויה" : "צריך לעדכן את הקוד בגוגל לגרסה החדשה (ראו הוראות)"; customers = []; renderCustomers(); return; }
       customers = d.customers || [];
+      cacheSet(CUST_CACHE, { customers });
       if (d.sheetUrl) { $("sheetLink").href = d.sheetUrl; $("sheetLink").style.display = "block"; }
       $("custNote").textContent = `${customers.filter(c => c.code !== DEFAULT_CODE).length} לקוחות`;
       renderCustomers();

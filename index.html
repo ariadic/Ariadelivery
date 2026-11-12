@@ -206,20 +206,24 @@ button.dest{width:100%;display:flex;align-items:center;gap:12px;padding:14px;bor
 .destWrap .errmsg{margin:6px 4px 0}
 /* כפתורי בחירה */
 .chips{gap:8px}
-.chips label{flex:1 1 28%;display:flex;align-items:center;justify-content:center;gap:6px;min-height:46px;margin:0;padding:10px 8px;border-radius:999px;border:0;background:var(--fill);color:#333;font-size:14.5px;font-weight:500;box-shadow:none;line-height:1.15}
+.chips label{flex:1 1 28%;display:flex;align-items:center;justify-content:center;gap:6px;min-height:50px;margin:0;padding:10px 8px;border-radius:14px;border:0;background:var(--fill);color:#333;font-size:14.5px;font-weight:500;box-shadow:none;line-height:1.15}
 .chips label .ic{width:18px;height:18px}
 .chips input:checked + label{background:var(--ac-soft);color:var(--ac);font-weight:600;box-shadow:inset 0 0 0 2px var(--ac)}
 .chips label:active{transform:scale(.96)}
-.chips label:has(.sub){border-radius:16px;padding-top:7px;padding-bottom:7px}
+.chips label:has(.sub){flex-direction:column;gap:1px;padding-top:7px;padding-bottom:7px}
 .chips label .sub{color:inherit;opacity:.7}
 #whenChips,#payerChips{background:var(--fill);border-radius:14px;padding:4px;gap:4px;flex-wrap:nowrap}
 #whenChips label,#payerChips label{flex:1 1 0;border-radius:11px;min-height:40px;padding:8px 4px;font-size:14px;background:none;gap:5px}
 #whenChips input:checked + label,#payerChips input:checked + label{background:#fff;color:var(--tx);box-shadow:0 2px 8px #00000018}
-#whenChips em{font-style:normal;font-size:11.5px;font-weight:700;color:var(--ac)}
-#sizeChips label{flex-direction:column;gap:4px;border-radius:16px;padding:11px 6px 9px;font-size:14px}
+#whenChips em{font-style:normal;font-size:11.5px;font-weight:700;color:var(--ac);direction:ltr;unicode-bidi:isolate}
+#sizeChips label{flex-direction:column;gap:4px;padding:11px 6px 9px;font-size:14px}
 #sizeChips label .ic{width:21px;height:21px}
 .f input[type=tel]{direction:ltr;text-align:right}
-button.lnk{width:auto;display:inline-flex;align-items:center;gap:7px;background:none;color:var(--ac);font-size:14.5px;font-weight:500;padding:8px 2px;margin:12px 0 0;box-shadow:none;border:0}
+button.lnk{width:100%;display:flex;align-items:center;gap:12px;background:#fff;color:var(--tx);font-size:15px;font-weight:500;padding:12px 14px;margin:16px 0 0;box-shadow:none;border:1.5px dashed #d4d4d8;border-radius:14px;text-align:right}
+button.lnk .pl{width:34px;height:34px;border-radius:50%;background:var(--ac-soft);color:var(--ac);display:grid;place-items:center;flex:none}
+button.lnk .lt{flex:1;min-width:0}
+button.lnk b{display:block;font-weight:600;font-size:15px}
+button.lnk small{display:block;color:var(--mu);font-size:12.5px;font-weight:400;margin-top:1px}
 #historyBtn{display:none}
 /* כפתור השליחה – קבוע בתחתית, עם המחיר בתוכו */
 #orderForm > button[type=submit],button.primary#doneMore{position:fixed;z-index:30;left:16px;right:16px;bottom:calc(14px + env(safe-area-inset-bottom));width:auto;max-width:488px;margin:0 auto;display:flex;align-items:center;gap:10px;border-radius:16px;padding:16px 18px;font-size:17px;font-weight:600;color:#fff}
@@ -397,7 +401,7 @@ input::placeholder,textarea::placeholder{color:#a8a8b0;font-weight:400;opacity:1
         <div class="f" style="margin-top:16px"><label for="greeting">ברכה לכרטיס <span class="opt">(לא חובה)</span></label>
         <textarea id="greeting" placeholder="מזל טוב! באהבה, ..."></textarea></div>
       </div>
-      <button type="button" class="lnk" id="notesLink"><svg class="ic s"><use href="#i-message-square-text"/></svg><span>הוספת הערה לשליח</span></button>
+      <button type="button" class="lnk" id="notesLink"><span class="pl"><svg class="ic s"><use href="#i-plus"/></svg></span><span class="lt"><b>הוספת הערה לשליח</b><small>קומה, קוד לבניין, מה בחבילה… (לא חובה)</small></span></button>
       <div id="notesBox" style="display:none">
         <div class="f" style="margin-top:14px"><label for="notes">הערה לשליח <span class="opt">(קומה, קוד לבניין, מה בחבילה…)</span></label>
         <textarea id="notes"></textarea></div>
@@ -594,17 +598,23 @@ const CONFIG = {
     start();
   };
   if (!CONFIG.sheetUrl) return go();
-  document.querySelector("main").style.visibility = "hidden";
-  const loading = document.createElement("div");
-  loading.id = "bootLoading"; loading.className = "bootLoading"; loading.textContent = "טוען מחירון…";
-  document.querySelector("main").before(loading);
+  // יש מחירון שמור מהביקור הקודם – הדף נפתח מיד, והעדכון מגוגל נבדק ברקע
+  let cached = null;
+  try { cached = JSON.parse(localStorage.getItem(CACHE) || "null"); } catch (e) {}
+  if (cached && cached.ok && "customer" in cached) { apply(cached); usedKey = sig(cached); go(); }
+  if (!started) {
+    document.querySelector("main").style.visibility = "hidden";
+    const loading = document.createElement("div");
+    loading.id = "bootLoading"; loading.className = "bootLoading"; loading.textContent = "טוען מחירון…";
+    document.querySelector("main").before(loading);
+  }
   const fallback = () => {
     let c = null;
     try { c = JSON.parse(localStorage.getItem(CACHE) || "null"); } catch (e) {}
     apply(c); usedKey = c && c.ok ? sig(c) : "builtin"; go();
   };
   // גוגל לפעמים עונה לאט (במיוחד בבקשה הראשונה אחרי הפסקה) – מחכים עד 8 שניות
-  const timer = setTimeout(fallback, 8000);
+  const timer = started ? 0 : setTimeout(fallback, 8000);
   fetch(CONFIG.sheetUrl + "?action=config&code=" + encodeURIComponent(code))
     .then(r => r.json())
     .then(cfg => {
@@ -619,7 +629,7 @@ const CONFIG = {
         go(); return;
       }
       // התשובה הגיעה אחרי שהדף כבר נפתח עם מחירון ישן – טוענים מחדש פעם אחת עם המחירון העדכני
-      if (sig(cfg) === usedKey) return;
+      if (sig(cfg) === usedKey) { try { sessionStorage.removeItem(RELOADED); } catch (e) {} return; }
       const typed = ["dName", "dAddr", "dPhone"].some(id => { const el = document.getElementById(id); return el && el.value.trim(); });
       let already = false; try { already = !!sessionStorage.getItem(RELOADED); } catch (e) {}
       if (!typed && !already) {
@@ -641,6 +651,8 @@ const PAY    = ["מזומן (סכום מדויק)", "ביט", "פייבוקס"];
 const PAYER  = ["השולח", "המקבל"];
 const OTHER_CITY = "עיר אחרת";
 const STORE_KEY = "ariDelivery.pickup";
+// זיכרון נפרד לכל דף: הדף הכללי לא מקבל פרטים שנשמרו בדף של לקוח קבוע (ולהפך)
+const pickKey = () => CUSTOMER ? STORE_KEY + "." + CUSTOMER_CODE : STORE_KEY;
 
 const $ = id => document.getElementById(id);
 const val = name => (document.querySelector(`input[name=${name}]:checked`) || {}).value;
@@ -673,7 +685,7 @@ function chipLabel(t) {
   return m ? `${m[1]}<small class="sub">${m[2]}</small>` : t;
 }
 chips("sizeChips", "size", (CUSTOMER && CUSTOMER.sizes) || SIZES, t => ICO(sizeIcon(t)) + `<span>${chipLabel(t)}</span>`);
-chips("whenChips", "when", WHEN, (t, i) => i === 1 ? ICO("zap", "s") + "דחוף" + (URGENT_EXTRA ? `<em>+${URGENT_EXTRA}</em>` : "")
+chips("whenChips", "when", WHEN, (t, i) => i === 1 ? ICO("zap", "s") + "דחוף" + (URGENT_EXTRA ? `<em>+${URGENT_EXTRA} ₪</em>` : "")
   : i === 2 ? ICO("calendar-clock", "s") + "מתוזמן" : t);
 // לקוחות מזדמנים (הדף בלי לינק אישי): תשלום מראש בלבד – ביט / פייבוקס, והמזמין הוא המשלם
 const PREPAY = !CUSTOMER;
@@ -687,8 +699,8 @@ $("dCity").replaceChildren(Object.assign(opt("בחרו יעד…"), { value: "" 
 
 /* ---------- זכור אותי ---------- */
 try {
-  const saved = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
-  if (saved && !CUSTOMER) {
+  const saved = JSON.parse(localStorage.getItem(pickKey()) || "null");
+  if (saved && !CUSTOMER && !saved.code) {
     ["pName", "pAddr", "pPhone"].forEach(k => { if (saved[k]) $(k).value = saved[k]; });
   }
   if (saved && saved.pay) { const r = document.querySelector(`input[name=pay][value="${saved.pay}"]`); if (r) r.checked = true; }
@@ -912,11 +924,11 @@ $("orderForm").addEventListener("submit", e => {
 
   try {
     if ($("remember").checked) {
-      localStorage.setItem(STORE_KEY, JSON.stringify(CUSTOMER
+      localStorage.setItem(pickKey(), JSON.stringify(CUSTOMER
         ? { code: CUSTOMER_CODE, pPhone: $("pPhone").value.trim(), pay: val("pay") }
         : { pName: $("pName").value.trim(), pAddr: $("pAddr").value.trim(),
             pPhone: $("pPhone").value.trim(), pay: val("pay") }));
-    } else localStorage.removeItem(STORE_KEY);
+    } else localStorage.removeItem(pickKey());
   } catch (e) {}
 
   const text = lines.join("\n");
