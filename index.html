@@ -321,6 +321,9 @@ button.li .ck{color:var(--ac)}
 button.li:active{transform:none;background:var(--fill)}
 .empty{color:var(--mu);text-align:center;padding:20px 0;font-size:14px}
 footer{padding:4px 16px 18px}
+button.lnkc.cancel{color:#e11d48;margin-top:6px;font-size:13.5px;text-decoration:underline;text-underline-offset:3px}
+.trkNo.cx{background:#f4f4f5;color:#555}
+button.hcancel{display:inline-block;width:auto;background:none;border:0;padding:4px 0 0;margin:0;color:#e11d48;font:inherit;font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px;box-shadow:none}
 footer .priv{font-size:11px;color:#a0a0a8;margin-top:4px;line-height:1.5}
 #orderForm .card .recBox h2{display:flex;align-items:baseline;gap:8px}
 .recBox h2 em{font-style:normal;font-size:12px;font-weight:500;color:var(--ac)}
@@ -450,6 +453,7 @@ input::placeholder,textarea::placeholder{color:#a8a8b0;font-weight:400;opacity:1
       </div>
       <div class="trkNo" id="trkNo" style="display:none">ארי לא פנוי למשלוח הזה – צריך לתאם משלוח אחר</div>
       <p id="doneNo"></p>
+      <button type="button" class="lnkc cancel" id="doneCancel" style="display:none">ביטול ההזמנה</button>
     </div>
     <div class="payCard" id="payCard" style="display:none">
       <div class="payTop"><svg class="ic s"><use href="#i-wallet"/></svg><b id="payTitle"></b><span class="payAmt" id="payAmt"></span></div>
@@ -1026,7 +1030,11 @@ function sendOrder(record, waLink, label) {
   const timer = setTimeout(() => ctrl.abort(), 10000);
   fetch(CONFIG.sheetUrl, { method: "POST", body: JSON.stringify(record), signal: ctrl.signal })
     .then(r => r.json())
-    .then(d => { if (!d || !d.ok) throw new Error("not saved"); showDone(record, waLink); })
+    .then(d => {
+      if (!d || !d.ok) throw new Error("not saved");
+      if (d.ct) { record.ct = d.ct; setCt(record.no, d.ct); }      // קוד ביטול – נשמר רק בטלפון הזה
+      showDone(record, waLink);
+    })
     .catch(() => showFallback(record, waLink, label))
     .finally(() => {
       clearTimeout(timer);
@@ -1044,10 +1052,14 @@ function showOnly(id) {
   window.scrollTo(0, 0);
 }
 /* ---------- מעקב אחרי ההזמנה במסך האישור (מתעדכן כשארי משנה סטטוס) ---------- */
-let trackNo = null, trackTimer = null;
+let trackNo = null, trackTimer = null, trackCt = null;
+const STEP_NEW = "חדשה";
 const STEP = { "חדשה": 1, "אושרה": 2, "נאסף": 3, "נמסר": 4 };
 function paintTrack(st) {
-  const off = st === "לא פנוי", n = off ? 0 : (STEP[st] || 1);
+  const off = st === "לא פנוי" || st === "בוטלה", n = off ? 0 : (STEP[st] || 1);
+  $("trkNo").textContent = st === "בוטלה" ? "✓ ההזמנה בוטלה – ארי קיבל הודעה" : "ארי לא פנוי למשלוח הזה – צריך לתאם משלוח אחר";
+  $("trkNo").classList.toggle("cx", st === "בוטלה");
+  $("doneCancel").style.display = st === STEP_NEW && trackCt ? "" : "none";
   document.querySelectorAll("#trk .st").forEach((el, i) => {
     el.className = "st" + (off ? (i === 0 ? " sOk" : "") : i < n ? " sOk" : i === n ? " sNow" : "");
   });
@@ -1074,6 +1086,8 @@ const money = a => a.reduce((t, x) => t + (typeof x.price === "number" ? x.price
 
 function showDone(record, waLink) {
   $("doneNo").textContent = `מס' הזמנה ${record.no}`;
+  trackCt = record.ct || null;
+  $("doneCancel").onclick = () => cancelMyOrder(record.no, record.ct, () => paintTrack("בוטלה"));
   const tn = new Date(record.time);
   $("trkTime").textContent = `${pad(tn.getHours())}:${pad(tn.getMinutes())}`;
   const sum = $("doneSum"); sum.replaceChildren();
@@ -1285,8 +1299,29 @@ function renderStats(excluded) {
     stat(m.length, "משלוחים החודש"), stat("₪" + sum(m), "סה״כ החודש"));
 }
 
+/* ---------- ביטול הזמנה על ידי הלקוח (רק לפני שארי אישר) ---------- */
+function setCt(no, ct) {
+  const h = load(HISTORY_KEY) || [];
+  const x = h.find(r => r.no === no);
+  if (x) { x.ct = ct; save(HISTORY_KEY, h); }
+}
+const ctOf = no => ((load(HISTORY_KEY) || []).find(r => r.no === no) || {}).ct;
+function cancelMyOrder(no, ct, onDone) {
+  if (!ct || !CONFIG.sheetUrl) return;
+  if (!confirm("לבטל את ההזמנה?\nארי יקבל הודעה שהיא בוטלה.")) return;
+  const call = `להתקשר לארי: ${CONFIG.payPhone}`;
+  fetch(CONFIG.sheetUrl, { method: "POST", body: JSON.stringify({ action: "cancelOrder", no, t: ct }) })
+    .then(r => r.json())
+    .then(d => {
+      if (d && d.ok) { onDone && onDone(); return; }
+      if (d && d.status) alert(`אי אפשר לבטל דרך הדף – ${d.status === "אושרה" ? "ארי כבר אישר את ההזמנה" : "ההזמנה כבר בטיפול"}.\nלביטול צריך ${call}`);
+      else alert("הביטול לא נשלח. נסו שוב, או " + call);
+    })
+    .catch(() => alert("אין חיבור כרגע. נסו שוב בעוד רגע, או " + call));
+}
+
 /* ---------- סטטוס משלוח (מהטבלה בגוגל) ---------- */
-const BADGES = { "חדשה": ["🕓 ממתין", "new"], "נאסף": ["🚙 בדרך", "picked"], "נמסר": ["✅ נמסר", "done"], "אושרה": ["👍 ארי אישר", "ok"], "לא פנוי": ["❌ לא פנוי", "no"] };
+const BADGES = { "חדשה": ["🕓 ממתין", "new"], "נאסף": ["🚙 בדרך", "picked"], "נמסר": ["✅ נמסר", "done"], "אושרה": ["👍 ארי אישר", "ok"], "לא פנוי": ["❌ לא פנוי", "no"], "בוטלה": ["✖ בוטלה", "no"] };
 function paintBadges(statuses) {
   document.querySelectorAll(".badge[data-no]").forEach(b => {
     const st = statuses ? statuses[b.dataset.no] : undefined;
@@ -1301,12 +1336,23 @@ function paintBadges(statuses) {
       warn.textContent = "ארי לא פנוי למשלוח הזה – צריך לתאם משלוח אחר";
       info.append(warn);
     } else if (st !== "לא פנוי" && warn) warn.remove();
+    // הזמנה שבוטלה / לא פנוי – לא מציגים "לא שולם"
+    const pd = info.querySelector(".paidY,.paidN");
+    if (pd) pd.style.display = st === "בוטלה" || st === "לא פנוי" ? "none" : "";
+    // "ממתין" (ארי עוד לא אישר): אפשר לבטל מכאן
+    let cx = info.querySelector(".hcancel");
+    const ct = st === "חדשה" ? ctOf(b.dataset.no) : null;
+    if (ct && !cx) {
+      cx = document.createElement("button"); cx.type = "button"; cx.className = "hcancel"; cx.textContent = "ביטול ההזמנה";
+      cx.onclick = () => cancelMyOrder(b.dataset.no, ct, renderHistory);
+      info.append(cx);
+    } else if (!ct && cx) cx.remove();
     // ימים קודמים: מציגים רק מה שעוד לא נסגר
-    if (li.parentElement.id === "historyOlder") li.style.display = st === "נמסר" || st === "לא פנוי" ? "none" : "";
+    if (li.parentElement.id === "historyOlder") li.style.display = st === "נמסר" || st === "לא פנוי" || st === "בוטלה" ? "none" : "";
   });
   const older = [...$("historyOlder").children].filter(li => li.style.display !== "none");
   $("historyOlderBox").style.display = statuses && older.length ? "block" : "none";
-  if (statuses) renderStats(new Set(Object.keys(statuses).filter(n => statuses[n] === "לא פנוי")));
+  if (statuses) renderStats(new Set(Object.keys(statuses).filter(n => statuses[n] === "לא פנוי" || statuses[n] === "בוטלה")));
 }
 function loadStatuses(nos) {
   if (!CONFIG.sheetUrl || !nos.length) { $("statusNote").textContent = ""; return; }
