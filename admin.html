@@ -2,7 +2,7 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>ארי משלוחים – ניהול הזמנות</title>
 <meta name="theme-color" content="#ffffff">
@@ -315,6 +315,11 @@ details.quick{background:var(--fill);border-radius:14px}
 .quotaBox{border:0;background:#fff7e0;border-radius:16px}
 .empty{color:var(--mu)}
 .card.login{margin-top:20px;padding:0}
+.qbox{display:flex;align-items:center;gap:8px;background:var(--fill);border-radius:14px;padding:0 12px;margin:0 0 12px;color:#8a8a94}
+.qbox input{flex:1;min-width:0;border:0;background:none;padding:12px 0;font:inherit;font-size:16px;color:var(--tx);outline:0;-webkit-appearance:none;appearance:none}
+.qbox input::-webkit-search-cancel-button{display:none}
+.qbox button{border:0;background:#d4d4d8;color:#fff;width:22px;height:22px;border-radius:50%;font-size:11px;padding:0;cursor:pointer}
+.tabs.searching{opacity:.35;pointer-events:none}
 button.py{border:0;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:4px;font-weight:600;padding:7px 10px;border-radius:10px}
 .py.unp{background:#fff;color:#c2410c;box-shadow:inset 0 0 0 1.5px #fdba74}
 button.py.wait{box-shadow:inset 0 0 0 1.5px #fcd34d}
@@ -335,10 +340,17 @@ button.waRep:disabled{opacity:.5}
 #oBody button.secondary{display:flex;align-items:center;justify-content:center;gap:6px}
 @media (display-mode:standalone){header{padding-top:calc(16px + env(safe-area-inset-top))}}
 input::placeholder,textarea::placeholder{color:#a8a8b0;font-weight:400;opacity:1}
+
+/* ===== האפליקציה "קבועה" במסך: בלי זום, בלי קפיצות, בלי תזוזה הצידה ===== */
+html,body{overscroll-behavior:none;overflow-x:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html{touch-action:manipulation}
+button,label,.chips label,.rc,.dest,.bnav,.qrow,.al{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body.typing .bnav{display:none}
+body.typing{padding-bottom:24px}
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-file-text" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4" /><path d="M10 9H8" /><path d="M16 13H8" /><path d="M16 17H8" /></symbol><symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></symbol><symbol id="i-inbox" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12" /><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /></symbol><symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14" /><path d="M12 5v14" /></symbol><symbol id="i-refresh-cw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /><path d="M8 16H3v5" /></symbol><symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></symbol><symbol id="i-navigation" viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11" /></symbol><symbol id="i-ellipsis" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" /></symbol><symbol id="i-thumbs-up" viewBox="0 0 24 24"><path d="M7 10v12" /><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z" /></symbol><symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" /><path d="M15 18H9" /><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" /><circle cx="17" cy="18" r="2" /><circle cx="7" cy="18" r="2" /></symbol><symbol id="i-package-check" viewBox="0 0 24 24"><path d="m16 16 2 2 4-4" /><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14" /><path d="m7.5 4.27 9 5.15" /><polyline points="3.29 7 12 12 20.71 7" /><line x1="12" x2="12" y1="22" y2="12" /></symbol><symbol id="i-banknote" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01M18 12h.01" /></symbol><symbol id="i-circle-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="m15 9-6 6" /><path d="m9 9 6 6" /></symbol><symbol id="i-undo-2" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5" /><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11" /></symbol><symbol id="i-trash-2" viewBox="0 0 24 24"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" /></symbol><symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></symbol><symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></symbol><symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></symbol><symbol id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></symbol><symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /><circle cx="12" cy="10" r="3" /></symbol><symbol id="i-message-circle" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></symbol><symbol id="i-message-square-text" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /><path d="M13 8H7" /><path d="M17 12H7" /></symbol><symbol id="i-send" viewBox="0 0 24 24"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" /><path d="m21.854 2.147-10.94 10.939" /></symbol><symbol id="i-store" viewBox="0 0 24 24"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" /><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" /><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" /><path d="M2 7h20" /><path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7" /></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol><symbol id="i-package" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" /><path d="M12 22V12" /><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7" /><path d="m7.5 4.27 9 5.15" /></symbol></svg>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-file-text" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4" /><path d="M10 9H8" /><path d="M16 13H8" /><path d="M16 17H8" /></symbol><symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></symbol><symbol id="i-inbox" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12" /><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /></symbol><symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14" /><path d="M12 5v14" /></symbol><symbol id="i-refresh-cw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /><path d="M8 16H3v5" /></symbol><symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></symbol><symbol id="i-navigation" viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11" /></symbol><symbol id="i-ellipsis" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" /></symbol><symbol id="i-thumbs-up" viewBox="0 0 24 24"><path d="M7 10v12" /><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z" /></symbol><symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" /><path d="M15 18H9" /><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" /><circle cx="17" cy="18" r="2" /><circle cx="7" cy="18" r="2" /></symbol><symbol id="i-package-check" viewBox="0 0 24 24"><path d="m16 16 2 2 4-4" /><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14" /><path d="m7.5 4.27 9 5.15" /><polyline points="3.29 7 12 12 20.71 7" /><line x1="12" x2="12" y1="22" y2="12" /></symbol><symbol id="i-banknote" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01M18 12h.01" /></symbol><symbol id="i-circle-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="m15 9-6 6" /><path d="m9 9 6 6" /></symbol><symbol id="i-undo-2" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5" /><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11" /></symbol><symbol id="i-trash-2" viewBox="0 0 24 24"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" /></symbol><symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></symbol><symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></symbol><symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></symbol><symbol id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></symbol><symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /><circle cx="12" cy="10" r="3" /></symbol><symbol id="i-message-circle" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></symbol><symbol id="i-message-square-text" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /><path d="M13 8H7" /><path d="M17 12H7" /></symbol><symbol id="i-send" viewBox="0 0 24 24"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" /><path d="m21.854 2.147-10.94 10.939" /></symbol><symbol id="i-store" viewBox="0 0 24 24"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" /><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" /><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" /><path d="M2 7h20" /><path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7" /></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol><symbol id="i-package" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" /><path d="M12 22V12" /><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7" /><path d="m7.5 4.27 9 5.15" /></symbol></svg>
 <header>
   <div class="ht"><small>ארי משלוחים</small><h1 id="viewTitle">הזמנות</h1></div>
   <button type="button" class="ib" id="refresh" aria-label="רענון"><svg class="ic s"><use href="#i-refresh-cw"/></svg></button>
@@ -367,6 +379,7 @@ input::placeholder,textarea::placeholder{color:#a8a8b0;font-weight:400;opacity:1
       </div>
     </section>
     <div class="kpi" id="kpi"></div>
+    <div class="qbox"><svg class="ic s"><use href="#i-search"/></svg><input id="q" type="search" placeholder="חיפוש: שם, טלפון, כתובת, מס' הזמנה" autocomplete="off"><button type="button" id="qClear" aria-label="ניקוי">✕</button></div>
     <div class="tabs">
       <button type="button" id="tabOpen" class="on">פתוחות</button>
       <button type="button" id="tabDone">נסגרו (90 יום)</button>
@@ -481,8 +494,9 @@ input::placeholder,textarea::placeholder{color:#a8a8b0;font-weight:400;opacity:1
 // אותה כתובת כמו CONFIG.sheetUrl ב-index.html
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbyeVkFBCgZJMi6gE5yBoK-ydIinjDWaGL2zSAlOhnRfsai7hz45T8abdZ7cyP23ckowTQ/exec";
 const KEY_STORE = "ariDelivery.adminKey";
-const BADGES = { "חדשה": ["חדשה", "new"], "נאסף": ["נאסף", "picked"], "נמסר": ["נמסר", "done"], "אושרה": ["אושרה", "ok"], "לא פנוי": ["לא פנוי", "no"] };
-const CLOSED = ["נמסר", "לא פנוי"];
+const BADGES = { "חדשה": ["חדשה", "new"], "נאסף": ["נאסף", "picked"], "נמסר": ["נמסר", "done"], "אושרה": ["אושרה", "ok"], "לא פנוי": ["לא פנוי", "no"], "בוטלה": ["בוטלה ע״י הלקוח", "no"] };
+const CLOSED = ["נמסר", "לא פנוי", "בוטלה"];
+const VOID = s => s === "לא פנוי" || s === "בוטלה";        // לא בוצעו – לא נספרים בכסף
 let avail = { available: true, message: "" };
 
 const $ = id => document.getElementById(id);
@@ -602,7 +616,7 @@ function render() {
   $("rangeFilter").classList.add("set");
   // מספרים למעלה: פתוחות · לא שולם · היום (בלי "לא פנוי")
   const sumP = a => a.reduce((t, o) => t + (isNaN(o.price) || o.price === "" ? 0 : Number(o.price)), 0);
-  const valid = mine.filter(o => o.status !== "לא פנוי");
+  const valid = mine.filter(o => !VOID(o.status));
   const isToday = o => { const d = orderTime(o); return d && d.toDateString() === new Date().toDateString(); };
   const tile = (n, t, cls) => el("div", {}, el("b", { className: cls || "", textContent: n }), el("small", { textContent: t }));
   $("kpi").replaceChildren(tile(openN, "פתוחות"), tile("₪" + sumP(valid.filter(o => !o.paid)), "לא שולם", "or"),
@@ -610,32 +624,41 @@ function render() {
   // טווח הזמן חל על הזמנות שנסגרו; פתוחות מוצגות תמיד
   $("rangeFilter").style.display = tab === "done" ? "" : "none";
   const pf = $("paidFilter").value;
-  const shown = mine.filter(o => tab === "open" ? !closed(o) : closed(o) && inRange(o))
+  // חיפוש: מחפש בכל ההזמנות (פתוחות וסגורות), בלי קשר ללשונית
+  const q = $("q").value.trim(), qd = q.replace(/\D/g, "");
+  const hit = o => {
+    const txt = [o.recipient, o.address, o.customer, o.no, o.notes, o.item, o.pickup].join(" ");
+    return txt.indexOf(q) !== -1 || (qd.length >= 3 && String(o.phone || "").replace(/\D/g, "").indexOf(qd) !== -1);
+  };
+  $("qClear").style.display = q ? "" : "none";
+  document.querySelector(".tabs").classList.toggle("searching", !!q);
+  const shown = (q ? mine.filter(hit) : mine.filter(o => tab === "open" ? !closed(o) : closed(o) && inRange(o)))
     .filter(o => !pf || (pf === "yes") === !!o.paid);
 
   // סיכום: כמה משלוחים נמסרו ובכמה כסף (בלי "לא פנוי")
   const delivered = shown.filter(o => o.status === "נמסר");
   const total = delivered.reduce((t, o) => t + (isNaN(o.price) || o.price === "" ? 0 : Number(o.price)), 0);
-  const notAvail = shown.filter(o => o.status === "לא פנוי").length;
+  const notAvail = shown.filter(o => o.status === "לא פנוי").length, cancelled = shown.filter(o => o.status === "בוטלה").length;
   const sum = $("summary");
-  sum.style.display = tab === "done" && shown.length ? "block" : "none";
+  sum.style.display = tab === "done" && !q && shown.length ? "block" : "none";
+  if (q) $("note").textContent = shown.length ? `נמצאו ${shown.length} הזמנות (פתוחות וסגורות, 90 יום)` : "";
   const amount = a => a.reduce((t, o) => t + (isNaN(o.price) || o.price === "" ? 0 : Number(o.price)), 0);
   const unpaid = delivered.filter(o => !o.paid);
   sum.replaceChildren(el("b", { textContent: `${delivered.length} משלוחים נמסרו · ₪${total}` }),
-    `${cust ? " · " + cust : ""}${notAvail ? ` · ${notAvail} לא פנוי` : ""}`,
+    `${cust ? " · " + cust : ""}${notAvail ? ` · ${notAvail} לא פנוי` : ""}${cancelled ? ` · ${cancelled} בוטלו` : ""}`,
     el("div", { className: "money" },
       el("span", { className: "paidY", textContent: `✓ שולם ₪${total - amount(unpaid)}` }),
       el("span", { className: "paidN", textContent: `לא שולם ₪${amount(unpaid)} (${unpaid.length})` })));
 
   if (!shown.length) {
-    $("list").replaceChildren(el("div", { className: "empty", textContent: tab === "open" ? "אין הזמנות פתוחות 🎉" : "אין הזמנות שנסגרו בטווח הזה" }));
+    $("list").replaceChildren(el("div", { className: "empty", textContent: q ? `לא נמצאו הזמנות עבור "${q}"` : tab === "open" ? "אין הזמנות פתוחות 🎉" : "אין הזמנות שנסגרו בטווח הזה" }));
     return;
   }
   $("list").replaceChildren(...shown.map(card));
 }
 
 const NEXT = { "חדשה": ["אושרה", "thumbs-up", "קיבלתי", ""], "אושרה": ["נאסף", "truck", "נאסף", ""], "נאסף": ["נמסר", "package-check", "נמסר", "grn"] };
-const PREV = { "נמסר": "נאסף", "נאסף": "אושרה", "אושרה": "חדשה", "לא פנוי": "חדשה" };
+const PREV = { "נמסר": "נאסף", "נאסף": "אושרה", "אושרה": "חדשה", "לא פנוי": "חדשה", "בוטלה": "חדשה" };
 const priceTxt = o => o.price === "" || o.price == null ? "" : isNaN(o.price) ? String(o.price) : "₪" + o.price;
 const navAddr = o => (o.address || "").replace(/ – [^,]*$/, "");
 function splitAddr(a) { a = a || ""; const i = a.lastIndexOf(", "); return i > 0 ? [a.slice(i + 2), a.slice(0, i)] : [a, ""]; }
@@ -644,7 +667,7 @@ function card(o) {
   const [bt, bc] = BADGES[o.status] || BADGES["חדשה"];
   const [area, street] = splitAddr(o.address);
   const d = orderTime(o), today = d && d.toDateString() === new Date().toDateString();
-  const prepay = /מראש/.test(o.pay || ""), off = o.status === "לא פנוי";
+  const prepay = /מראש/.test(o.pay || ""), off = VOID(o.status);
   const payTxt = [String(o.pay || "").replace(/\s*\(מראש\)/, ""), priceTxt(o)].filter(Boolean).join(" · ");
   // "שולם" בלחיצה אחת: לחיצה על התגית מחליפה שולם / לא שולם
   const py = off ? el("span", { className: "py", textContent: payTxt })
@@ -689,7 +712,7 @@ function openOrder(o) {
     if (o.status !== "נאסף") A("truck", "נאסף", "", b => update(o, "נאסף", b));
     A("package-check", "נמסר", "", b => update(o, "נמסר", b));
   }
-  if (o.status !== "לא פנוי") A("banknote", o.paid ? "סמן כלא שולם" : "סמן כשולם", "", b => setPaid(o, !o.paid, b));
+  if (!VOID(o.status)) A("banknote", o.paid ? "סמן כלא שולם" : "סמן כשולם", "", b => setPaid(o, !o.paid, b));
   if (o.status === "חדשה") A("circle-x", "לא פנוי – להחזיר ללקוח", "warn", b => {
     if (confirm(`לסמן שאתה לא פנוי להזמנה של ${o.recipient}? הלקוח יראה שצריך משלוח אחר.`)) update(o, "לא פנוי", b); });
   if (o.status !== "חדשה") A("undo-2", "ביטול סטטוס (שלב אחורה)", "", b => update(o, PREV[o.status] || "חדשה", b));
@@ -851,6 +874,8 @@ $("addCancel").onclick = closeAdd;
 $("custFilter").onchange = render;
 $("rangeFilter").onchange = render;
 $("paidFilter").onchange = render;
+$("q").addEventListener("input", render);
+$("qClear").onclick = () => { $("q").value = ""; render(); $("q").focus(); };
 $("tabOpen").onclick = () => { tab = "open"; $("tabOpen").classList.add("on"); $("tabDone").classList.remove("on"); render(); };
 $("tabDone").onclick = () => { tab = "done"; $("tabDone").classList.add("on"); $("tabOpen").classList.remove("on"); render(); };
 setInterval(() => { if (key && !document.hidden && view === "orders") load(); }, 30000);
@@ -950,7 +975,7 @@ const ymOf = o => { const d = orderTime(o); return d ? d.getFullYear() * 100 + d
 const ymName = ym => `${MONTHS[ym % 100]} ${Math.floor(ym / 100)}`;
 const priceNum = o => isNaN(o.price) || o.price === "" ? 0 : Number(o.price);
 function openReport(c, ym) {
-  const all = orders.filter(o => o.customer === c.name && o.status !== "לא פנוי");
+  const all = orders.filter(o => o.customer === c.name && !VOID(o.status));
   const now = new Date(), cur = now.getFullYear() * 100 + now.getMonth();
   const months = [...new Set([cur, ...all.map(ymOf).filter(Boolean)])].sort((a, b) => b - a);
   if (ym === undefined) ym = all.some(o => ymOf(o) === cur) ? cur : (months.find(m => all.some(o => ymOf(o) === m)) || cur);
@@ -980,7 +1005,7 @@ function openReport(c, ym) {
     el("div", { className: "mon" }, navBtn("chevron-right", newer), el("b", { textContent: ymName(ym) }), navBtn("chevron-left", older)),
     el("div", { className: "kpi" }, tile(list.length, "משלוחים"), tile("₪" + total, "סה״כ"), tile("₪" + due, "נשאר לתשלום", "or")),
     el("div", { className: "rls" }, ...rows),
-    el("p", { className: "note", textContent: "מתוך ההזמנות של 90 הימים האחרונים · בלי הזמנות \"לא פנוי\"" }),
+    el("p", { className: "note", textContent: "מתוך ההזמנות של 90 הימים האחרונים · בלי הזמנות שבוטלו / \"לא פנוי\"" }),
     el("button", { type: "button", className: "waRep", disabled: !list.length, onclick: () => window.open(waTo(c.phone) + encodeURIComponent(text()), "_blank") },
       el("span", { textContent: `שליחת הדוח ל${c.name} בווצאפ` })),
     copyBtn);
@@ -1166,6 +1191,19 @@ $("navCust").onclick = () => { showView("customers"); loadCustomers(); };
 $("navOrders").onclick = () => { showView("orders"); load(); };
 
 load();
+</script>
+<script>
+/* בלי זום בצביטה (אייפון) ובלי זום בהקשה כפולה */
+(function () {
+  ["gesturestart", "gesturechange", "gestureend"].forEach(t => document.addEventListener(t, e => e.preventDefault(), { passive: false }));
+  document.addEventListener("touchmove", e => { if (e.scale !== undefined && e.scale !== 1) e.preventDefault(); }, { passive: false });
+  // בזמן הקלדה מסתירים את הכפתורים הקבועים למטה, כדי שלא יקפצו מעל המקלדת ויסתירו את השדה
+  const typing = el => el && (el.tagName === "TEXTAREA" || el.tagName === "SELECT" ||
+    (el.tagName === "INPUT" && !/^(radio|checkbox|button|submit)$/.test(el.type)));
+  let t = 0;
+  document.addEventListener("focusin", e => { if (typing(e.target) && !e.target.closest(".sheet")) { clearTimeout(t); document.body.classList.add("typing"); } });
+  document.addEventListener("focusout", () => { clearTimeout(t); t = setTimeout(() => { if (!typing(document.activeElement)) document.body.classList.remove("typing"); }, 120); });
+})();
 </script>
 </body>
 </html>

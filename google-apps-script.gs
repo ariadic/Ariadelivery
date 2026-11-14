@@ -12,7 +12,7 @@
 const NOTIFY_EMAIL = "";
 
 // גרסת הקוד – מופיעה בבדיקת הכתובת, כדי לדעת שהפריסה באמת עודכנה
-const CODE_VERSION = "2026-11-14a";
+const CODE_VERSION = "2026-11-14b";
 
 // התראות לאייפון דרך אפליקציית Pushover (הכי אמין – עם צלצול חירום ו"קיבלתי" ישר מההתראה).
 // מדביקים כאן את שני המפתחות מ-pushover.net. לא לשמור אותם באתר (הקוד באתר גלוי לכולם).
@@ -26,8 +26,8 @@ const NTFY_TOPIC = "ari-orders-bawytzw56nm2wo";
 // אותה סיסמה מקלידים פעם אחת בדף המנהל.
 const ADMIN_PASSWORD = "";
 
-const STATUSES = ["חדשה", "נאסף", "נמסר", "לא פנוי", "אושרה"];   // "אושרה" = ארי לחץ "קיבלתי"
-const CLOSED = ["נמסר", "לא פנוי"];               // הזמנות סגורות – מוצגות בדף המנהל עד CLOSED_DAYS ימים אחורה
+const STATUSES = ["חדשה", "נאסף", "נמסר", "לא פנוי", "אושרה", "בוטלה"];   // "אושרה" = ארי לחץ "קיבלתי" · "בוטלה" = הלקוח ביטל
+const CLOSED = ["נמסר", "לא פנוי", "בוטלה"];      // הזמנות סגורות – מוצגות בדף המנהל עד CLOSED_DAYS ימים אחורה
 const CLOSED_DAYS = 90;
 const HEADERS = [
   "תאריך", "שעה", "מס' הזמנה", "לקוח", "מקבל", "יעד", "כתובת מסירה",
@@ -45,6 +45,7 @@ function doPost(e) {
     if (q.action === "ack") return json(ackOrder(q));               // אישור התראת חירום ב-Pushover
     const o = JSON.parse(e.postData.contents);
     if (o && o.action === "setStatus") return setStatus(o);
+    if (o && o.action === "cancelOrder") return cancelOrder(o);
     if (o && o.action === "setAvailability") return setAvailability(o);
     if (o && o.action === "setPaid") return setPaid(o);
     if (o && o.action === "deleteOrder") return deleteOrder(o);
@@ -53,7 +54,7 @@ function doPost(e) {
     if (!o || !o.no || !o.message) return json({ ok: false, error: "bad request" });
 
     const sheet = getSheet();
-    if (findRow(sheet, o.no)) return json({ ok: true, duplicate: true });
+    if (findRow(sheet, o.no)) return json({ ok: true, duplicate: true, ct: cancelToken(o.no) });
     if (isDeleted(o.no)) return json({ ok: true, deleted: true });       // הזמנה שנמחקה – לא להחזיר אותה
     if (tooMany()) return json({ ok: false, error: "יותר מדי הזמנות בזמן קצר" });   // הגנה מהצפה – הלקוח עובר לווצאפ
 
@@ -80,9 +81,9 @@ function doPost(e) {
         body: String(o.message).replace(/\*/g, ""),
       });
     } catch (mailErr) {
-      return json({ ok: true, saved: true, mailError: String(mailErr) });
+      return json({ ok: true, saved: true, mailError: String(mailErr), ct: cancelToken(o.no) });
     }
-    return json({ ok: true });
+    return json({ ok: true, ct: cancelToken(o.no) });
   } catch (err) {
     return json({ ok: false, error: String(err) });
   } finally {
@@ -98,6 +99,36 @@ function tooMany() {
     c.put("ordersBurst", String(n + 1), 600);
   } catch (e) {}
   return false;
+}
+
+/* ---------- ביטול הזמנה על ידי הלקוח – רק לפני שארי אישר ----------
+   כל הזמנה מקבלת "קוד ביטול" סודי שנשמר רק בטלפון של מי ששלח אותה, כך שאי אפשר לבטל הזמנה של מישהו אחר. */
+function cancelToken(no) {
+  try {                                   // תקלה כאן לא תפיל הזמנה – פשוט לא יהיה כפתור ביטול
+    const sig = Utilities.computeHmacSha256Signature("cancel:" + String(no), ackSecret());
+    return Utilities.base64EncodeWebSafe(sig).replace(/=+$/, "").slice(0, 20);
+  } catch (e) { return ""; }
+}
+function cancelOrder(o) {
+  const no = str(o.no, 30);
+  const tok = cancelToken(no);
+  if (!no || !tok || String(o.t || "") !== tok) return json({ ok: false, error: "קוד ביטול לא תקין" });
+  const sheet = getSheet();
+  const row = findRow(sheet, no);
+  if (!row) return json({ ok: false, error: "ההזמנה לא נמצאה" });
+  const cur = sheet.getRange(row, COL.status).getDisplayValue();
+  if (cur === "בוטלה") return json({ ok: true, already: true });
+  if (cur !== STATUSES[0]) return json({ ok: false, error: "כבר בטיפול", status: cur });
+  sheet.getRange(row, COL.status).setValue("בוטלה");
+  addStatusDropdown(sheet, row);
+  const g = c => sheet.getRange(row, c).getDisplayValue();
+  const what = g(COL.recipient) + " ← " + g(COL.address) + " · #" + no;
+  pushNote("❌ הזמנה בוטלה – " + g(COL.customer), what + "\nהלקוח ביטל לפני שאישרת – לא צריך לצאת.");
+  try {
+    MailApp.sendEmail({ to: NOTIFY_EMAIL || Session.getEffectiveUser().getEmail(),
+      subject: "❌ הזמנה בוטלה #" + no + " – " + g(COL.customer), body: what + "\nהלקוח ביטל את ההזמנה לפני שאישרת." });
+  } catch (e) {}
+  return json({ ok: true });
 }
 
 function setStatus(o) {
@@ -592,7 +623,7 @@ function morningReport() {
   const sheet = getSheet();
   const rows = sheet.getLastRow() > 1 ? sheet.getRange(2, 1, sheet.getLastRow() - 1, HEADERS.length).getDisplayValues() : [];
   const price = r => { const n = Number(r[COL.price - 1]); return isFinite(n) ? n : 0; };
-  const y = rows.filter(r => r[COL.date - 1] === yest && r[COL.status - 1] !== "לא פנוי");
+  const y = rows.filter(r => r[COL.date - 1] === yest && r[COL.status - 1] !== "לא פנוי" && r[COL.status - 1] !== "בוטלה");
   const notAvail = rows.filter(r => r[COL.date - 1] === yest && r[COL.status - 1] === "לא פנוי").length;
   const open = rows.filter(r => CLOSED.indexOf(r[COL.status - 1]) === -1);
   const openBy = {};
@@ -668,6 +699,19 @@ function notifyPhone(o) {
   } catch (e) {
     return false;
   }
+}
+
+// התראה כללית קצרה לאייפון (למשל: הזמנה בוטלה)
+function pushNote(title, message) {
+  try {
+    if (PUSHOVER_TOKEN && PUSHOVER_USER) {
+      UrlFetchApp.fetch("https://api.pushover.net/1/messages.json", { method: "post", muteHttpExceptions: true,
+        payload: { token: PUSHOVER_TOKEN, user: PUSHOVER_USER, title: title.slice(0, 240), message: message.slice(0, 1000), priority: "1" } });
+    } else if (NTFY_TOPIC) {
+      UrlFetchApp.fetch("https://ntfy.sh/", { method: "post", contentType: "application/json", muteHttpExceptions: true,
+        payload: JSON.stringify({ topic: NTFY_TOPIC, title: title, message: message, priority: 4, click: ADMIN_URL }) });
+    }
+  } catch (e) {}
 }
 
 /* ---------- Pushover: התראה לכל הזמנה, צלצול חירום לדחוף, "קיבלתי" מההתראה ---------- */
