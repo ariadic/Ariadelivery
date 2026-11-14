@@ -314,6 +314,7 @@ details.quick{background:var(--fill);border-radius:14px}
 .alertBox{border:0;background:#fff1f2;border-radius:16px}
 .quotaBox{border:0;background:#fff7e0;border-radius:16px}
 .empty{color:var(--mu)}
+.card.login{margin-top:20px;padding:0}
 button.py{border:0;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:4px;font-weight:600;padding:7px 10px;border-radius:10px}
 .py.unp{background:#fff;color:#c2410c;box-shadow:inset 0 0 0 1.5px #fdba74}
 button.py.wait{box-shadow:inset 0 0 0 1.5px #fcd34d}
@@ -344,8 +345,8 @@ input::placeholder,textarea::placeholder{color:#a8a8b0;font-weight:400;opacity:1
 </header>
 <main>
   <section class="card login" id="loginBox" style="display:none">
-    <h2 style="margin-top:0">כניסה</h2>
-    <p class="meta">הסיסמה שהגדרת ב-ADMIN_PASSWORD בקוד של גוגל. מקלידים פעם אחת – המכשיר יזכור.</p>
+    <h2 style="margin-top:0;display:none">כניסה</h2>
+    <p class="meta">הסיסמה של דף הניהול. מקלידים פעם אחת – המכשיר יזכור.</p>
     <input type="password" id="pw" autocomplete="current-password" placeholder="סיסמה">
     <div class="err" id="loginErr"></div>
     <button type="button" id="loginBtn">כניסה</button>
@@ -386,7 +387,7 @@ input::placeholder,textarea::placeholder{color:#a8a8b0;font-weight:400;opacity:1
   </div>
 
   <section class="card" id="addBox" style="display:none">
-    <h2 style="margin-top:0">הוספת הזמנה ידנית</h2>
+    <h2 style="margin-top:0;display:none">הוספת הזמנה ידנית</h2>
     <p class="meta">מדביקים את הודעת ההזמנה מווצאפ כמו שהיא – הפרטים יתמלאו לבד. אפשר גם למלא ידנית.</p>
     <textarea id="paste" placeholder="הדבק כאן את הודעת הווצאפ…"></textarea>
     <button type="button" class="secondary" id="parseBtn">📋 מלא פרטים מההודעה</button>
@@ -514,6 +515,7 @@ function link(text, href) { return el("a", { href, textContent: text, target: hr
 
 function showLogin(msg) {
   $("app").style.display = "none"; $("loginBox").style.display = "block";
+  $("viewTitle").textContent = "כניסה"; $("refresh").style.display = "none";
   $("loginErr").textContent = msg || "";
 }
 
@@ -529,7 +531,8 @@ function applyList(d, savedAt) {
   fillCustomers();
   if (typeof d.available === "boolean") avail = { available: d.available, message: d.message || "" };
   renderAvail();
-  $("loginBox").style.display = "none"; $("bnav").style.display = "";
+  $("loginBox").style.display = "none"; $("bnav").style.display = ""; $("refresh").style.display = "";
+  if (view === "orders") $("viewTitle").textContent = "הזמנות";
   if (view === "orders") $("app").style.display = "block";
   render();
   if (savedAt) { $("note").textContent = `מוצגים הנתונים מ-${hhmm(savedAt)} · מתעדכן…`; return; }
@@ -621,8 +624,8 @@ function render() {
   sum.replaceChildren(el("b", { textContent: `${delivered.length} משלוחים נמסרו · ₪${total}` }),
     `${cust ? " · " + cust : ""}${notAvail ? ` · ${notAvail} לא פנוי` : ""}`,
     el("div", { className: "money" },
-      el("span", { className: "paidY", textContent: `💰 שולם: ₪${total - amount(unpaid)}` }),
-      el("span", { className: "paidN", textContent: `💸 לא שולם: ₪${amount(unpaid)} (${unpaid.length})` })));
+      el("span", { className: "paidY", textContent: `✓ שולם ₪${total - amount(unpaid)}` }),
+      el("span", { className: "paidN", textContent: `לא שולם ₪${amount(unpaid)} (${unpaid.length})` })));
 
   if (!shown.length) {
     $("list").replaceChildren(el("div", { className: "empty", textContent: tab === "open" ? "אין הזמנות פתוחות 🎉" : "אין הזמנות שנסגרו בטווח הזה" }));

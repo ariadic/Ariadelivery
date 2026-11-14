@@ -321,6 +321,7 @@ button.li .ck{color:var(--ac)}
 button.li:active{transform:none;background:var(--fill)}
 .empty{color:var(--mu);text-align:center;padding:20px 0;font-size:14px}
 footer{padding:4px 16px 18px}
+footer .priv{font-size:11px;color:#a0a0a8;margin-top:4px;line-height:1.5}
 #orderForm .card .recBox h2{display:flex;align-items:baseline;gap:8px}
 .recBox h2 em{font-style:normal;font-size:12px;font-weight:500;color:var(--ac)}
 .recs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -16px 4px;padding:0 16px 2px}
@@ -406,7 +407,7 @@ input::placeholder,textarea::placeholder{color:#a8a8b0;font-weight:400;opacity:1
       <div id="whenTimeBox" style="display:none">
         <div class="f" style="margin-top:10px"><label for="whenTime">מועד מבוקש</label>
         <input id="whenTime" type="datetime-local">
-        <div class="errmsg">נא לבחור מועד</div></div>
+        <div class="errmsg">נא לבחור מועד עתידי</div></div>
       </div>
       <div id="payBox">
         <label class="lab">תשלום</label>
@@ -501,6 +502,7 @@ input::placeholder,textarea::placeholder{color:#a8a8b0;font-weight:400;opacity:1
 
 <footer>
   ארי משלוחים · <a href="tel:0504848398">050-4848398</a>
+  <div class="priv">הפרטים שממלאים משמשים רק לביצוע המשלוח ולתיעוד, ולא מועברים לאף אחד אחר.</div>
 </footer>
 
 <div class="dim" id="destDim"></div>
@@ -846,6 +848,9 @@ $("notesLink").addEventListener("click", () => {
   $("notesBox").style.display = "block"; $("notesLink").style.display = "none"; $("notes").focus();
 });
 $("hHist").addEventListener("click", () => $("historyBtn").click());
+// מתוזמן: אי אפשר לבחור מועד שעבר
+const localNow = () => { const d = new Date(Date.now() - new Date().getTimezoneOffset() * 60000); return d.toISOString().slice(0, 16); };
+$("whenTime").addEventListener("focus", () => { $("whenTime").min = localNow(); });
 
 function showPickup() {
   $("pickupCard").style.display = "";
@@ -915,7 +920,7 @@ function validate() {
   ok = check("dPhone", phoneOk($("dPhone").value)) && ok;
   // פרטי האיסוף מוסתרים (שורה למעלה) אבל משהו בהם חסר – פותחים אותם
   if (!fixedPick && $("pickupCard").style.display === "none" && ["pName", "pAddr", "pPhone"].some(id => $(id).classList.contains("bad"))) showPickup();
-  if (val("when") === WHEN[2]) ok = check("whenTime", $("whenTime").value !== "") && ok;
+  if (val("when") === WHEN[2]) ok = check("whenTime", $("whenTime").value !== "" && new Date($("whenTime").value).getTime() > Date.now() - 5 * 60000) && ok;
   return ok;
 }
 document.querySelectorAll("input,select,textarea").forEach(el => el.addEventListener("input", () => el.classList.remove("bad")));
@@ -1209,7 +1214,10 @@ function renderHistory() {
         const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(o.date || ""), t = /^(\d{1,2}):(\d{2})/.exec(o.time || "") || [0, 0, 0];
         const time = m ? new Date(+m[3], m[2] - 1, +m[1], +t[1], +t[2]).toISOString() : (merged.get(o.no) || {}).time;
         const price = o.price !== "" && !isNaN(o.price) ? Number(o.price) : o.price;
-        merged.set(o.no, Object.assign({}, merged.get(o.no), { no: o.no, time, recipient: o.recipient, address: o.address, item: o.item, price, paid: o.paid }));
+        const prev = merged.get(o.no) || {};
+        merged.set(o.no, Object.assign({}, prev, { no: o.no, time, item: o.item, price, paid: o.paid,
+          recipient: o.recipient !== undefined ? o.recipient : prev.recipient,      // לפי מספר הזמנה גוגל לא מחזיר שם/כתובת
+          address: o.address !== undefined ? o.address : prev.address }));
         statuses[o.no] = o.status;
       });
       const list = [...merged.values()].filter(x => x.time).sort((a, b) => new Date(a.time) - new Date(b.time));
@@ -1390,7 +1398,7 @@ function renderPending() {
     const btns = document.createElement("div"); btns.className = "btns";
     const yes = document.createElement("button"); yes.type = "button"; yes.textContent = "✅ כן, נשלחה";
     yes.onclick = () => setPending(getPending().filter(x => x.no !== o.no));
-    const again = document.createElement("button"); again.type = "button"; again.className = "resend"; again.textContent = "🔁 שלחי שוב";
+    const again = document.createElement("button"); again.type = "button"; again.className = "resend"; again.textContent = "🔁 שליחה שוב";
     again.onclick = () => { window.location.href = o.link; };
     btns.append(yes, again); card.append(h, t, btns);
     return card;

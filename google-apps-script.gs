@@ -12,7 +12,7 @@
 const NOTIFY_EMAIL = "";
 
 // גרסת הקוד – מופיעה בבדיקת הכתובת, כדי לדעת שהפריסה באמת עודכנה
-const CODE_VERSION = "2026-11-12g";
+const CODE_VERSION = "2026-11-14a";
 
 // התראות לאייפון דרך אפליקציית Pushover (הכי אמין – עם צלצול חירום ו"קיבלתי" ישר מההתראה).
 // מדביקים כאן את שני המפתחות מ-pushover.net. לא לשמור אותם באתר (הקוד באתר גלוי לכולם).
@@ -55,6 +55,7 @@ function doPost(e) {
     const sheet = getSheet();
     if (findRow(sheet, o.no)) return json({ ok: true, duplicate: true });
     if (isDeleted(o.no)) return json({ ok: true, deleted: true });       // הזמנה שנמחקה – לא להחזיר אותה
+    if (tooMany()) return json({ ok: false, error: "יותר מדי הזמנות בזמן קצר" });   // הגנה מהצפה – הלקוח עובר לווצאפ
 
     const t = o.time ? new Date(o.time) : new Date();
     const tz = Session.getScriptTimeZone();
@@ -87,6 +88,16 @@ function doPost(e) {
   } finally {
     lock.releaseLock();
   }
+}
+
+// הגנה מהצפה (הכתובת של גוגל ציבורית): עד 40 הזמנות חדשות ב-10 דקות מכל המקורות ביחד
+function tooMany() {
+  try {
+    const c = CacheService.getScriptCache(), n = Number(c.get("ordersBurst") || 0);
+    if (n >= 40) return true;
+    c.put("ordersBurst", String(n + 1), 600);
+  } catch (e) {}
+  return false;
 }
 
 function setStatus(o) {
@@ -333,7 +344,8 @@ function doGetInner(e) {
   }
 
   // ללקוח: ההזמנות שלו – לפי קוד הלינק האישי, או לפי מספרי הזמנות שנשמרו במכשיר שלו.
-  // מחזיר רק את מה שמוצג ב"ההזמנות שלי" (בלי טלפונים), 100 ימים אחורה.
+  // לפי קוד: מה שמוצג ב"ההזמנות שלי" (בלי טלפונים). לפי מספר הזמנה בלבד: רק סטטוס/מחיר/שולם –
+  // מספרי הזמנה קלים לניחוש, ולכן לא מחזירים לפיהם שם וכתובת (הם כבר שמורים במכשיר של הלקוח).
   if (p.action === "history") {
     const code = String(p.code || "").trim();
     const byCode = code.length >= 4;
@@ -345,11 +357,10 @@ function doGetInner(e) {
       const noMatch = wanted.indexOf(r[COL.no - 1]) !== -1;
       if (!codeMatch && !noMatch) return;
       if (parseDate(r[COL.date - 1], r[COL.time - 1]) < cutoff) return;
-      // הזמנה ישנה בלי קוד – משייכים אותה ללקוח, כדי שתופיע לו גם במכשירים אחרים
-      if (noMatch && byCode && !r[COL.code - 1]) sheet.getRange(i + 2, COL.code).setValue(code);
-      out.push({ no: r[COL.no - 1], date: r[COL.date - 1], time: r[COL.time - 1], recipient: r[COL.recipient - 1],
-        address: r[COL.address - 1], item: r[COL.item - 1], price: r[COL.price - 1], status: r[COL.status - 1],
-        paid: r[COL.paid - 1] === "כן" });
+      const o = { no: r[COL.no - 1], date: r[COL.date - 1], time: r[COL.time - 1], item: r[COL.item - 1],
+        price: r[COL.price - 1], status: r[COL.status - 1], paid: r[COL.paid - 1] === "כן" };
+      if (codeMatch) { o.recipient = r[COL.recipient - 1]; o.address = r[COL.address - 1]; }
+      out.push(o);
     });
     return json({ ok: true, orders: out, deleted: wanted.filter(isDeleted) });
   }
