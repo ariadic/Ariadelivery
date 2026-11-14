@@ -2,7 +2,7 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>ארי משלוחים – הזמנת משלוח</title>
 <meta name="description" content="הזמנת משלוח מהירה – ממלאים פרטים ושולחים בווצאפ">
 <meta name="theme-color" content="#ffffff">
@@ -339,6 +339,13 @@ header p{display:flex;gap:6px;align-items:baseline;white-space:nowrap}
 header p .pt{min-width:0;overflow:hidden;text-overflow:ellipsis}
 button.hchg{flex:none;display:inline;width:auto;background:none;border:0;padding:0;margin:0;color:var(--ac);font:inherit;font-weight:600;box-shadow:none;cursor:pointer}
 input::placeholder,textarea::placeholder{color:#a8a8b0;font-weight:400;opacity:1}
+
+/* ===== האפליקציה "קבועה" במסך: בלי זום, בלי קפיצות, בלי תזוזה הצידה ===== */
+html,body{overscroll-behavior:none;overflow-x:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html{touch-action:manipulation}
+button,label,.chips label,.rc,.dest,.bnav,.qrow,.al{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body.typing .sbarBg,body.typing #orderForm > button[type=submit],body.typing #doneMore{display:none!important}
+body.typing{padding-bottom:24px}
 </style>
 </head>
 <body>
@@ -1490,6 +1497,19 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden) show
 
 
 }
+</script>
+<script>
+/* בלי זום בצביטה (אייפון) ובלי זום בהקשה כפולה */
+(function () {
+  ["gesturestart", "gesturechange", "gestureend"].forEach(t => document.addEventListener(t, e => e.preventDefault(), { passive: false }));
+  document.addEventListener("touchmove", e => { if (e.scale !== undefined && e.scale !== 1) e.preventDefault(); }, { passive: false });
+  // בזמן הקלדה מסתירים את הכפתורים הקבועים למטה, כדי שלא יקפצו מעל המקלדת ויסתירו את השדה
+  const typing = el => el && (el.tagName === "TEXTAREA" || el.tagName === "SELECT" ||
+    (el.tagName === "INPUT" && !/^(radio|checkbox|button|submit)$/.test(el.type)));
+  let t = 0;
+  document.addEventListener("focusin", e => { if (typing(e.target) && !e.target.closest(".sheet")) { clearTimeout(t); document.body.classList.add("typing"); } });
+  document.addEventListener("focusout", () => { clearTimeout(t); t = setTimeout(() => { if (!typing(document.activeElement)) document.body.classList.remove("typing"); }, 120); });
+})();
 </script>
 </body>
 </html>

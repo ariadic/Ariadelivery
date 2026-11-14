@@ -2,7 +2,7 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>ארי משלוחים – ניהול הזמנות</title>
 <meta name="theme-color" content="#ffffff">
@@ -340,6 +340,13 @@ button.waRep:disabled{opacity:.5}
 #oBody button.secondary{display:flex;align-items:center;justify-content:center;gap:6px}
 @media (display-mode:standalone){header{padding-top:calc(16px + env(safe-area-inset-top))}}
 input::placeholder,textarea::placeholder{color:#a8a8b0;font-weight:400;opacity:1}
+
+/* ===== האפליקציה "קבועה" במסך: בלי זום, בלי קפיצות, בלי תזוזה הצידה ===== */
+html,body{overscroll-behavior:none;overflow-x:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html{touch-action:manipulation}
+button,label,.chips label,.rc,.dest,.bnav,.qrow,.al{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body.typing .bnav{display:none}
+body.typing{padding-bottom:24px}
 </style>
 </head>
 <body>
@@ -1184,6 +1191,19 @@ $("navCust").onclick = () => { showView("customers"); loadCustomers(); };
 $("navOrders").onclick = () => { showView("orders"); load(); };
 
 load();
+</script>
+<script>
+/* בלי זום בצביטה (אייפון) ובלי זום בהקשה כפולה */
+(function () {
+  ["gesturestart", "gesturechange", "gestureend"].forEach(t => document.addEventListener(t, e => e.preventDefault(), { passive: false }));
+  document.addEventListener("touchmove", e => { if (e.scale !== undefined && e.scale !== 1) e.preventDefault(); }, { passive: false });
+  // בזמן הקלדה מסתירים את הכפתורים הקבועים למטה, כדי שלא יקפצו מעל המקלדת ויסתירו את השדה
+  const typing = el => el && (el.tagName === "TEXTAREA" || el.tagName === "SELECT" ||
+    (el.tagName === "INPUT" && !/^(radio|checkbox|button|submit)$/.test(el.type)));
+  let t = 0;
+  document.addEventListener("focusin", e => { if (typing(e.target) && !e.target.closest(".sheet")) { clearTimeout(t); document.body.classList.add("typing"); } });
+  document.addEventListener("focusout", () => { clearTimeout(t); t = setTimeout(() => { if (!typing(document.activeElement)) document.body.classList.remove("typing"); }, 120); });
+})();
 </script>
 </body>
 </html>
