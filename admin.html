@@ -479,6 +479,7 @@ body.typing{padding-bottom:24px}
     <div class="err" id="ceErr"></div>
     <button type="button" class="saveBtn" id="ceSave">💾 שמירה</button>
     <button type="button" class="secondary" id="ceCancel">ביטול</button>
+    <button type="button" class="secondary" id="ceDup">📄 שכפול ללקוח חדש (אותן הגדרות ומחירון)</button>
     <button type="button" class="danger" id="ceDelete">🗑 מחיקת הלקוח</button>
   </section>
 </main>
@@ -1032,11 +1033,15 @@ function newCode() {
   while (customers.some(x => x.code === c));
   return c;
 }
-function openEditor(c) {
-  const isNew = !c, isDef = c && c.code === DEFAULT_CODE;
+// dup = שכפול: לקוח חדש עם כל ההגדרות והמחירון של c, בלי שם/כתובת/טלפון
+function openEditor(c, dup) {
+  const isNew = !c || !!dup, isDef = !dup && !!c && c.code === DEFAULT_CODE;
   editing = { code: isNew ? newCode() : c.code, isNew, isDef };
-  c = c || {};
-  $("ceTitle").textContent = isDef ? "לקוחות מזדמנים" : isNew ? "לקוח חדש" : c.name;
+  const src = c || {};
+  const emo = (/^(\p{Extended_Pictographic}\uFE0F?\s*)/u.exec(src.title || "") || [""])[0];
+  c = dup ? Object.assign({}, src, { name: "", addr: "", phone: "", title: emo }) : src;
+  $("ceTitle").textContent = isDef ? "לקוחות מזדמנים" : dup ? `לקוח חדש · שכפול מ${src.name}` : isNew ? "לקוח חדש" : c.name;
+  $("ceDup").style.display = isNew || isDef ? "none" : "";
   $("ceCustFields").style.display = isDef ? "none" : "";
   $("ceDefFields").style.display = isDef ? "" : "none";
   $("ceDelete").style.display = isNew || isDef ? "none" : "";
@@ -1045,7 +1050,7 @@ function openEditor(c) {
   $("ce_title").value = c.title || ""; $("ce_pay").value = c.pay || ""; $("ce_urgent").value = c.urgentExtra || "";
   $("ce_urgentDef").value = c.urgentExtra || "";
   $("ce_sizes").value = (c.sizes || []).join(", ");
-  $("ce_fixed").checked = isNew ? true : !!c.fixedPickup;
+  $("ce_fixed").checked = isNew && !dup ? true : !!c.fixedPickup;
   $("ce_hidePayer").checked = !!c.hidePayer; $("ce_greeting").checked = !!c.greeting;
   $("ceRows").replaceChildren();
   (c.prices || []).forEach(p => addRow(p));
@@ -1053,7 +1058,7 @@ function openEditor(c) {
   $("ceCopySel").replaceChildren(el("option", { value: "", textContent: "העתקת מחירון מ…" }),
     ...customers.filter(x => x.code !== editing.code && (x.prices || []).length)
       .map(x => el("option", { value: x.code, textContent: x.code === DEFAULT_CODE ? "לקוחות מזדמנים" : x.name })));
-  $("ceQuick").value = ""; $("ceErr").textContent = "";
+  $("ceQuick").value = ""; $("ceErr").textContent = ""; $("ceErr").style.color = "";
   countRows();
   showView("edit");
 }
@@ -1175,6 +1180,14 @@ $("ceSave").onclick = () => {
     })
     .catch(() => { err.textContent = "השמירה נכשלה – בדוק חיבור לאינטרנט ונסה שוב"; })
     .finally(() => { btn.disabled = false; btn.textContent = "💾 שמירה"; });
+};
+$("ceDup").onclick = () => {
+  const c = customers.find(x => x.code === editing.code);
+  if (!c) return;
+  openEditor(c, true);
+  $("ceErr").textContent = "✓ הועתקו כל ההגדרות והמחירון – נשאר למלא שם, כתובת וטלפון ולשמור";
+  $("ceErr").style.color = "#15803d";
+  setTimeout(() => $("ce_name").focus(), 50);
 };
 $("ceDelete").onclick = () => {
   const c = customers.find(x => x.code === editing.code);
