@@ -319,6 +319,12 @@ details.quick{background:var(--fill);border-radius:14px}
 button.etaline{flex:1;min-width:0;display:flex;align-items:center;gap:6px;border:0;background:none;color:#92400e;padding:5px 6px;font:inherit;font-size:13.5px;text-align:right;cursor:pointer}
 button.etaline span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 button.nearBtn{flex:none;display:inline-flex;align-items:center;gap:4px;border:0;background:#fff;color:#c2410c;border-radius:9px;padding:7px 10px;font:inherit;font-size:13px;font-weight:600;box-shadow:0 1px 3px #0001;cursor:pointer}
+.lateBox{background:#fff1eb;border-radius:14px;padding:8px;margin:-2px 0 9px}
+button.lateQ{display:block;width:100%;border:0;background:none;color:#c2410c;font:inherit;font-weight:700;font-size:14px;text-align:right;padding:2px 4px 8px;cursor:pointer}
+.lateChips{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+button.lateChip{border:1.5px solid #ffd2bf;background:#fff;color:#c2410c;border-radius:11px;padding:7px 0;font:inherit;font-weight:700;font-size:14px;line-height:1.15;cursor:pointer}
+button.lateChip small{display:block;font-size:11px;font-weight:500;color:#9a3412}
+button.lateChip:disabled{opacity:.5}
 .etarow .nearTag{flex:none;color:#15803d;font-size:12.5px;padding:0 8px}
 .etaHint{color:var(--mu);font-size:13.5px;margin:6px 0 14px}
 label.etaBox{display:flex;align-items:center;gap:10px;background:var(--fill);border-radius:16px;padding:10px 14px;margin-bottom:14px}
@@ -695,14 +701,19 @@ function card(o) {
   const nx = NEXT[o.status];
   const act = nx ? el("button", { type: "button", className: "act " + nx[3],
     onclick: e => nx[0] === "נאסף" ? openEta(o) : update(o, nx[0], e.currentTarget) }, ico(nx[1], "s"), nx[2]) : null;
-  // בדרך: זמן הגעה משוער + "אני ב-5 דק'"
+  // בדרך: זמן הגעה משוער + "עוד 5 דק'"; כשהשעה מגיעה – עוד 5 / 10 / 15 / 20
   const et = parseEta(o.eta);
+  const late = o.status === "נאסף" && et.time && etaMin(et.time) <= 0;
   const nearBtn = o.status === "נאסף" && !et.near ? el("button", { type: "button", className: "nearBtn",
-    onclick: e => setNear(o, e.currentTarget) }, ico("map-pin", "s"), "אני ב-5 דק׳") : null;
-  const etaLine = o.status === "נאסף" ? el("div", { className: "etarow" },
+    onclick: e => bumpEta(o, 5, e.currentTarget) }, ico("map-pin", "s"), "עוד 5 דק׳") : null;
+  const etaLine = o.status !== "נאסף" ? null : late ? el("div", { className: "lateBox" },
+    el("button", { type: "button", className: "lateQ", onclick: () => openEta(o) }, `⏰ השעה ${et.time} הגיעה · כמה עוד?`),
+    el("div", { className: "lateChips" }, ...[5, 10, 15, 20].map(m => el("button", { type: "button", className: "lateChip",
+      onclick: e => bumpEta(o, m, e.currentTarget) }, `עוד ${m}`, el("small", { textContent: "דק׳" })))))
+    : el("div", { className: "etarow" },
     el("button", { type: "button", className: "etaline", onclick: () => openEta(o) }, ico("clock", "s"),
       el("span", { textContent: et.time ? `מגיע ב-${et.time}` + etaLeft(et.time) : "בלי זמן הגעה · להוספה" })),
-    et.near ? el("b", { className: "nearTag", textContent: "📍 ממש קרוב" }) : nearBtn) : null;
+    et.near ? el("b", { className: "nearTag", textContent: "📍 ממש קרוב" }) : nearBtn);
   if (o.status === "חדשה" && act) act.title = "הלקוח יראה שאישרת";
   const more = aria(el("button", { type: "button", className: "more", onclick: () => openOrder(o) }, ico("ellipsis")), "עוד פעולות");
   const qi = (icon, href, l) => aria(el("a", { className: "qi", href, target: href.startsWith("http") ? "_blank" : "" }, ico(icon, "s")), l);
@@ -770,10 +781,16 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") closeOrder()
 
 /* ---------- זמן הגעה משוער ---------- */
 function parseEta(v) { const m = /^(\d{1,2}:\d{2})?(\|קרוב)?$/.exec(String(v || "").trim()); return { time: m && m[1] || "", near: !!(m && m[2]) }; }
-function etaLeft(t) {
-  const [h, mi] = t.split(":").map(Number), d = new Date(); d.setHours(h, mi, 0, 0);
-  const min = Math.round((d - new Date()) / 60000);
-  return min > 0 ? ` · עוד ${min} דק׳` : " · הזמן עבר – לעדכן?";
+function etaMin(t) { const [h, mi] = t.split(":").map(Number), d = new Date(); d.setHours(h, mi, 0, 0); return Math.round((d - new Date()) / 60000); }
+function etaLeft(t) { const min = etaMin(t); return min > 0 ? ` · עוד ${min} דק׳` : " · הזמן עבר – לעדכן?"; }
+// "עוד X דק'" – שעה חדשה = עכשיו + X. עוד 5 = גם "ממש קרוב" אצל הלקוח
+function bumpEta(o, mins, btn) {
+  const d = new Date(Date.now() + mins * 60000), t = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  if (mins > 5) return update(o, "נאסף", btn, { eta: t });
+  if (btn) btn.disabled = true;
+  fetch(SHEET_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "setNear", key, no: o.no, eta: t }) })
+    .then(() => { o.eta = t + "|קרוב"; render(); setTimeout(load, 1500); })
+    .catch(() => { if (btn) btn.disabled = false; alert("העדכון לא נשלח – בדוק חיבור ונסה שוב"); });
 }
 function suggestEta() { const d = new Date(Date.now() + 30 * 60000); d.setMinutes(Math.ceil(d.getMinutes() / 5) * 5, 0, 0); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; }
 function openEta(o) {

@@ -12,7 +12,7 @@
 const NOTIFY_EMAIL = "";
 
 // גרסת הקוד – מופיעה בבדיקת הכתובת, כדי לדעת שהפריסה באמת עודכנה
-const CODE_VERSION = "2026-11-15a";
+const CODE_VERSION = "2026-11-15b";
 
 // התראות לאייפון דרך אפליקציית Pushover (הכי אמין – עם צלצול חירום ו"קיבלתי" ישר מההתראה).
 // מדביקים כאן את שני המפתחות מ-pushover.net. לא לשמור אותם באתר (הקוד באתר גלוי לכולם).
@@ -56,7 +56,17 @@ function doPost(e) {
     if (!o || !o.no || !o.message) return json({ ok: false, error: "bad request" });
 
     const sheet = getSheet();
-    if (findRow(sheet, o.no)) return json({ ok: true, duplicate: true, ct: cancelToken(o.no) });
+    // אותו מספר כבר קיים: אם זו אותה הזמנה (שליחה חוזרת) – לא לשמור פעמיים.
+    // אם זו הזמנה אחרת שנשלחה באותה שנייה בדיוק – נותנים לה מספר חדש, כדי ששום הזמנה לא תלך לאיבוד.
+    let hit = findRow(sheet, o.no);
+    if (hit) {
+      const r = sheet.getRange(hit, 1, 1, HEADERS.length).getDisplayValues()[0];
+      const same = r[COL.phone - 1] === clean(o.recipientPhone) && r[COL.recipient - 1] === clean(o.recipient);
+      if (same) return json({ ok: true, duplicate: true, no: o.no, ct: cancelToken(o.no) });
+      const base = o.no;
+      for (let k = 0; hit && k < 26; k++) { o.no = base + "abcdefghijklmnopqrstuvwxyz"[k]; hit = findRow(sheet, o.no); }
+      o.message = String(o.message).split(base).join(o.no);
+    }
     if (isDeleted(o.no)) return json({ ok: true, deleted: true });       // הזמנה שנמחקה – לא להחזיר אותה
     if (tooMany()) return json({ ok: false, error: "יותר מדי הזמנות בזמן קצר" });   // הגנה מהצפה – הלקוח עובר לווצאפ
 
@@ -83,9 +93,9 @@ function doPost(e) {
         body: String(o.message).replace(/\*/g, ""),
       });
     } catch (mailErr) {
-      return json({ ok: true, saved: true, mailError: String(mailErr), ct: cancelToken(o.no) });
+      return json({ ok: true, saved: true, mailError: String(mailErr), no: o.no, ct: cancelToken(o.no) });
     }
-    return json({ ok: true, ct: cancelToken(o.no) });
+    return json({ ok: true, no: o.no, ct: cancelToken(o.no) });
   } catch (err) {
     return json({ ok: false, error: String(err) });
   } finally {
@@ -147,13 +157,13 @@ function setStatus(o) {
   return json({ ok: true });
 }
 
-// "אני ב-5 דק'" – מסמן שארי ממש קרוב
+// "עוד 5 דק'" – מסמן שארי ממש קרוב (ואם נשלחה שעה – מעדכן גם אותה)
 function setNear(o) {
   if (!checkPassword(o.key)) return json({ ok: false, error: "סיסמה שגויה" });
   const sheet = getSheet();
   const row = findRow(sheet, o.no);
   if (!row) return json({ ok: false, error: "הזמנה לא נמצאה" });
-  const cur = sheet.getRange(row, COL.eta).getDisplayValue().replace(/\|.*$/, "");
+  const cur = /^\d{1,2}:\d{2}$/.test(String(o.eta || "")) ? o.eta : sheet.getRange(row, COL.eta).getDisplayValue().replace(/\|.*$/, "");
   sheet.getRange(row, COL.eta).setValue((cur ? "'" + cur : "") + "|קרוב");
   return json({ ok: true });
 }
