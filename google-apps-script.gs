@@ -12,7 +12,7 @@
 const NOTIFY_EMAIL = "";
 
 // גרסת הקוד – מופיעה בבדיקת הכתובת, כדי לדעת שהפריסה באמת עודכנה
-const CODE_VERSION = "2026-11-14b";
+const CODE_VERSION = "2026-11-15a";
 
 // התראות לאייפון דרך אפליקציית Pushover (הכי אמין – עם צלצול חירום ו"קיבלתי" ישר מההתראה).
 // מדביקים כאן את שני המפתחות מ-pushover.net. לא לשמור אותם באתר (הקוד באתר גלוי לכולם).
@@ -32,9 +32,10 @@ const CLOSED_DAYS = 90;
 const HEADERS = [
   "תאריך", "שעה", "מס' הזמנה", "לקוח", "מקבל", "יעד", "כתובת מסירה",
   "טלפון מקבל", "מה", "מתי", "תשלום", "מחיר", "הערות", "כתובת איסוף", "טלפון איסוף", "סטטוס", "קוד לקוח", "שולם",
+  "זמן הגעה",
 ];
 const COL = { date: 1, time: 2, no: 3, customer: 4, recipient: 5, dest: 6, address: 7, phone: 8,
-  item: 9, when: 10, pay: 11, price: 12, notes: 13, pickup: 14, pickupPhone: 15, status: 16, code: 17, paid: 18 };
+  item: 9, when: 10, pay: 11, price: 12, notes: 13, pickup: 14, pickupPhone: 15, status: 16, code: 17, paid: 18, eta: 19 };
 
 /* ---------- קבלת הזמנה חדשה / עדכון סטטוס ---------- */
 function doPost(e) {
@@ -46,6 +47,7 @@ function doPost(e) {
     const o = JSON.parse(e.postData.contents);
     if (o && o.action === "setStatus") return setStatus(o);
     if (o && o.action === "cancelOrder") return cancelOrder(o);
+    if (o && o.action === "setNear") return setNear(o);
     if (o && o.action === "setAvailability") return setAvailability(o);
     if (o && o.action === "setPaid") return setPaid(o);
     if (o && o.action === "deleteOrder") return deleteOrder(o);
@@ -139,6 +141,20 @@ function setStatus(o) {
   if (!row) return json({ ok: false, error: "הזמנה לא נמצאה" });
   sheet.getRange(row, COL.status).setValue(o.status);
   addStatusDropdown(sheet, row);            // שורות ישנות – מעדכנים את הרשימה הנפתחת לסטטוסים החדשים
+  // זמן הגעה משוער ("16:30") – נשמר כשארי מסמן "נאסף"; חזרה אחורה מוחקת אותו
+  if (o.eta !== undefined) sheet.getRange(row, COL.eta).setValue(/^\d{1,2}:\d{2}$/.test(String(o.eta)) ? "'" + o.eta : "");
+  else if (o.status !== "נאסף" && o.status !== "נמסר") sheet.getRange(row, COL.eta).setValue("");
+  return json({ ok: true });
+}
+
+// "אני ב-5 דק'" – מסמן שארי ממש קרוב
+function setNear(o) {
+  if (!checkPassword(o.key)) return json({ ok: false, error: "סיסמה שגויה" });
+  const sheet = getSheet();
+  const row = findRow(sheet, o.no);
+  if (!row) return json({ ok: false, error: "הזמנה לא נמצאה" });
+  const cur = sheet.getRange(row, COL.eta).getDisplayValue().replace(/\|.*$/, "");
+  sheet.getRange(row, COL.eta).setValue((cur ? "'" + cur : "") + "|קרוב");
   return json({ ok: true });
 }
 
@@ -389,7 +405,7 @@ function doGetInner(e) {
       if (!codeMatch && !noMatch) return;
       if (parseDate(r[COL.date - 1], r[COL.time - 1]) < cutoff) return;
       const o = { no: r[COL.no - 1], date: r[COL.date - 1], time: r[COL.time - 1], item: r[COL.item - 1],
-        price: r[COL.price - 1], status: r[COL.status - 1], paid: r[COL.paid - 1] === "כן" };
+        price: r[COL.price - 1], status: r[COL.status - 1], paid: r[COL.paid - 1] === "כן", eta: r[COL.eta - 1] || "" };
       if (codeMatch) { o.recipient = r[COL.recipient - 1]; o.address = r[COL.address - 1]; }
       out.push(o);
     });
@@ -400,9 +416,14 @@ function doGetInner(e) {
   if (p.action === "status") {
     const wanted = String(p.nos || "").split(",").slice(0, 200);
     const out = {};
-    rows.forEach(r => { if (wanted.indexOf(r[COL.no - 1]) !== -1) out[r[COL.no - 1]] = r[COL.status - 1]; });
+    const etas = {};
+    rows.forEach(r => {
+      if (wanted.indexOf(r[COL.no - 1]) === -1) return;
+      out[r[COL.no - 1]] = r[COL.status - 1];
+      if (r[COL.eta - 1]) etas[r[COL.no - 1]] = r[COL.eta - 1];
+    });
     wanted.filter(isDeleted).forEach(n => { out[n] = DELETED; });
-    return json({ ok: true, statuses: out });
+    return json({ ok: true, statuses: out, etas: etas });
   }
 
   // למנהל: הזמנות פתוחות + הזמנות שנסגרו ב-90 הימים האחרונים, ומצב הזמינות
@@ -411,7 +432,7 @@ function doGetInner(e) {
     const cutoff = Date.now() - CLOSED_DAYS * 24 * 3600 * 1000;
     const orders = rows.map(r => ({
       date: r[0], time: r[1], no: r[2], customer: r[3], recipient: r[4], dest: r[5], address: r[6],
-      phone: r[7], item: r[8], when: r[9], pay: r[10], price: r[11], notes: r[12],
+      phone: r[7], item: r[8], when: r[9], pay: r[10], price: r[11], notes: r[12], eta: r[COL.eta - 1] || "",
       pickup: r[13], pickupPhone: r[14], status: r[15], paid: r[COL.paid - 1] === "כן",
     })).filter(o => CLOSED.indexOf(o.status) === -1 || parseDate(o.date, o.time) > cutoff);
     return json(Object.assign({ ok: true, orders: orders.reverse(), mailQuota: mailQuota() }, getAvailability()));
@@ -446,7 +467,7 @@ function getSheet() {
     sheet.setRightToLeft(true);
   } else {
     // טבלה מגרסה קודמת – משלימים כותרות של עמודות חדשות
-    [COL.code, COL.paid].forEach(c => {
+    [COL.code, COL.paid, COL.eta].forEach(c => {
       if (sheet.getRange(1, c).getDisplayValue() === "") sheet.getRange(1, c).setValue(HEADERS[c - 1]).setFontWeight("bold");
     });
   }
