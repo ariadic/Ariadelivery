@@ -315,6 +315,9 @@ details.quick{background:var(--fill);border-radius:14px}
 .quotaBox{border:0;background:#fff7e0;border-radius:16px}
 .empty{color:var(--mu)}
 .card.login{margin-top:20px;padding:0}
+.fromSel{display:block;background:var(--ac-soft);border-radius:14px;padding:8px 12px 9px;margin:4px 0 14px;font-size:12px;color:#c2410c}
+.fromSel span{display:block}
+.fromSel select{display:block;width:100%;border:0;background:none;font:inherit;font-size:16px;font-weight:600;color:var(--tx);padding:2px 0 0;outline:0}
 .qbox{display:flex;align-items:center;gap:8px;background:var(--fill);border-radius:14px;padding:0 12px;margin:0 0 12px;color:#8a8a94}
 .qbox input{flex:1;min-width:0;border:0;background:none;padding:12px 0;font:inherit;font-size:16px;color:var(--tx);outline:0;-webkit-appearance:none;appearance:none}
 .qbox input::-webkit-search-cancel-button{display:none}
@@ -441,6 +444,7 @@ body.typing{padding-bottom:24px}
 
   <section class="card" id="custEdit" style="display:none">
     <h2 style="margin-top:0" id="ceTitle"></h2>
+    <label class="fromSel" id="ceFromBox"><span>להתחיל מ…</span><select id="ceFrom"></select></label>
     <div id="ceCustFields">
       <div class="grid">
         <label class="wide">שם העסק *<input id="ce_name" maxlength="80"></label>
@@ -1042,6 +1046,16 @@ function openEditor(c, dup) {
   c = dup ? Object.assign({}, src, { name: "", addr: "", phone: "", title: emo }) : src;
   $("ceTitle").textContent = isDef ? "לקוחות מזדמנים" : dup ? `לקוח חדש · שכפול מ${src.name}` : isNew ? "לקוח חדש" : c.name;
   $("ceDup").style.display = isNew || isDef ? "none" : "";
+  // לקוח חדש: אפשר להתחיל מאפס או מהגדרות ומחירון של לקוח קיים
+  $("ceFromBox").style.display = isNew ? "" : "none";
+  if (isNew) {
+    $("ceFrom").replaceChildren(el("option", { value: "", textContent: "לקוח ריק (מאפס)" }),
+      ...customers.filter(x => x.code !== DEFAULT_CODE).sort((a, b) => a.name.localeCompare(b.name, "he"))
+        .map(x => el("option", { value: x.code, textContent: "כמו " + x.name })),
+      ...customers.filter(x => x.code === DEFAULT_CODE && (x.prices || []).length)
+        .map(x => el("option", { value: x.code, textContent: "כמו לקוחות מזדמנים (המחירון הכללי)" })));
+    $("ceFrom").value = dup ? src.code : "";
+  }
   $("ceCustFields").style.display = isDef ? "none" : "";
   $("ceDefFields").style.display = isDef ? "" : "none";
   $("ceDelete").style.display = isNew || isDef ? "none" : "";
@@ -1195,6 +1209,13 @@ $("ceDelete").onclick = () => {
   post({ action: "deleteCustomer", code: c.code }).then(() => setTimeout(() => { loadCustomers(); showView("customers"); }, 1200));
 };
 $("custNew").onclick = () => openEditor(null);
+$("ceFrom").onchange = () => {
+  const c = customers.find(x => x.code === $("ceFrom").value);
+  if (!c) { openEditor(null); return; }
+  openEditor(c, true);
+  $("ceErr").textContent = "✓ הועתקו ההגדרות והמחירון – נשאר למלא שם, כתובת וטלפון ולשמור";
+  $("ceErr").style.color = "#15803d";
+};
 $("seedBtn").onclick = () => {
   const btn = $("seedBtn"); btn.disabled = true; btn.textContent = "מייבא…";
   SEED.reduce((pr, s) => pr.then(() => post(Object.assign({ action: "saveCustomer" }, s))), Promise.resolve())
