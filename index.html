@@ -166,7 +166,7 @@ button.waOpt svg,button.waBtn svg{width:20px;height:20px;fill:currentColor}
 @keyframes sp{to{transform:rotate(360deg)}}
 /* ===== עיצוב 2026: נקי בסגנון אפליקציית משלוחים (לבן, צבע אחד, חלונית מלמטה) ===== */
 :root{--ac:#ff5a1f;--ac-soft:#fff1eb;--ok:#1fbf5a;--fill:#f4f4f5;--ln:#ececef;--tx:#111;--mu:#70707a;--brand:#ff5a1f;--brand-soft:#fff1eb;--bg:#fff;--text:#111;--muted:#70707a;--ring:#ff5a1f2e}
-body{font-family:Rubik,Heebo,system-ui,sans-serif;background:#fff;color:var(--tx);padding-bottom:calc(92px + env(safe-area-inset-bottom))}
+body{font-family:Rubik,Heebo,system-ui,sans-serif;background:#fff;color:var(--tx);padding-bottom:calc(130px + env(safe-area-inset-bottom))}
 .ic{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .ic.s{width:17px;height:17px}
 button,.chips label,.dest{-webkit-tap-highlight-color:transparent;transition:transform .12s ease,background .15s,box-shadow .15s,color .15s}
@@ -342,7 +342,8 @@ button.hchg{flex:none;display:inline;width:auto;background:none;border:0;padding
 input::placeholder,textarea::placeholder{color:#a8a8b0;font-weight:400;opacity:1}
 
 /* ===== האפליקציה "קבועה" במסך: בלי זום, בלי קפיצות, בלי תזוזה הצידה ===== */
-html,body{overscroll-behavior:none;overflow-x:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html{overscroll-behavior-y:none}
+html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 html{touch-action:manipulation}
 button,label,.chips label,.rc,.dest,.bnav,.qrow,.al{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 body.typing .sbarBg,body.typing #orderForm > button[type=submit],body.typing #doneMore{display:none!important}
@@ -1503,8 +1504,11 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden) show
 <script>
 /* בלי זום בצביטה (אייפון) ובלי זום בהקשה כפולה */
 (function () {
-  ["gesturestart", "gesturechange", "gestureend"].forEach(t => document.addEventListener(t, e => e.preventDefault(), { passive: false }));
-  document.addEventListener("touchmove", e => { if (e.scale !== undefined && e.scale !== 1) e.preventDefault(); }, { passive: false });
+  // רק באייפון (באנדרואיד אין צורך, ומאזין כזה עלול להאט את הגלילה)
+  if ("ongesturestart" in window) {
+    ["gesturestart", "gesturechange", "gestureend"].forEach(t => document.addEventListener(t, e => e.preventDefault(), { passive: false }));
+    document.addEventListener("touchmove", e => { if (e.scale !== undefined && e.scale !== 1) e.preventDefault(); }, { passive: false });
+  }
   // בזמן הקלדה מסתירים את הכפתורים הקבועים למטה, כדי שלא יקפצו מעל המקלדת ויסתירו את השדה
   const typing = el => el && (el.tagName === "TEXTAREA" || el.tagName === "SELECT" ||
     (el.tagName === "INPUT" && !/^(radio|checkbox|button|submit)$/.test(el.type)));
