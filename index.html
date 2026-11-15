@@ -343,6 +343,7 @@ input::placeholder,textarea::placeholder{color:#a8a8b0;font-weight:400;opacity:1
 
 /* ===== האפליקציה "קבועה" במסך: בלי זום, בלי קפיצות, בלי תזוזה הצידה ===== */
 html{overscroll-behavior-y:none}
+@media (max-height:700px){h2.big{font-size:25px;margin:10px 2px 0}#orderForm .card h2,label.lab{margin-top:16px}}
 html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 html{touch-action:manipulation}
 button,label,.chips label,.rc,.dest,.bnav,.qrow,.al{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
@@ -424,7 +425,7 @@ body.typing{padding-bottom:24px}
       <div id="payBox">
         <label class="lab">תשלום</label>
         <div class="chips" id="payChips"></div>
-        <div class="preNote" id="preNote" style="display:none">💳 <b>תשלום מראש בלבד.</b> אחרי שליחת ההזמנה יופיעו פרטים להעברה. המשלוח יוצא לדרך אחרי שהתשלום מתקבל.</div>
+        <div class="preNote" id="preNote" style="display:none">💳 <b>תשלום מראש</b> · פרטי ההעברה יופיעו אחרי השליחה</div>
       </div>
       <div id="payerBox">
         <label class="lab">מי משלם?</label>
@@ -742,6 +743,18 @@ try {
   if (saved && saved.pay) { const r = document.querySelector(`input[name=pay][value="${saved.pay}"]`); if (r) r.checked = true; }
   if (saved && CUSTOMER && saved.code === CUSTOMER_CODE && saved.pPhone) $("pPhone").value = saved.pPhone;
 } catch (e) {}
+
+// לקוח מזדמן חוזר (הפרטים שמורים במכשיר): שורה אחת למעלה במקום שלושה שדות – פחות גלילה
+if (!CUSTOMER && $("pName").value.trim() && $("pAddr").value.trim() &&
+    /^0\d{8,9}$/.test($("pPhone").value.replace(/\D/g, "").replace(/^972/, "0"))) {
+  $("pickupCard").style.display = "none";
+  const hp = document.querySelector("header p"), sp = document.createElement("span");
+  sp.className = "pt"; sp.textContent = "איסוף: " + $("pAddr").value.trim();
+  const ch = document.createElement("button");
+  ch.type = "button"; ch.className = "hchg"; ch.id = "pickEdit"; ch.textContent = "שינוי";
+  ch.onclick = () => showPickup();
+  hp.replaceChildren(sp, ch);
+}
 
 if (CUSTOMER) {
   $("pName").value = CUSTOMER.name || "";
