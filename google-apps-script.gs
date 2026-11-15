@@ -12,7 +12,7 @@
 const NOTIFY_EMAIL = "";
 
 // גרסת הקוד – מופיעה בבדיקת הכתובת, כדי לדעת שהפריסה באמת עודכנה
-const CODE_VERSION = "2026-11-15b";
+const CODE_VERSION = "2026-11-16a";
 
 // התראות לאייפון דרך אפליקציית Pushover (הכי אמין – עם צלצול חירום ו"קיבלתי" ישר מההתראה).
 // מדביקים כאן את שני המפתחות מ-pushover.net. לא לשמור אותם באתר (הקוד באתר גלוי לכולם).
@@ -32,10 +32,10 @@ const CLOSED_DAYS = 90;
 const HEADERS = [
   "תאריך", "שעה", "מס' הזמנה", "לקוח", "מקבל", "יעד", "כתובת מסירה",
   "טלפון מקבל", "מה", "מתי", "תשלום", "מחיר", "הערות", "כתובת איסוף", "טלפון איסוף", "סטטוס", "קוד לקוח", "שולם",
-  "זמן הגעה",
+  "זמן הגעה", "זמני סטטוס",
 ];
 const COL = { date: 1, time: 2, no: 3, customer: 4, recipient: 5, dest: 6, address: 7, phone: 8,
-  item: 9, when: 10, pay: 11, price: 12, notes: 13, pickup: 14, pickupPhone: 15, status: 16, code: 17, paid: 18, eta: 19 };
+  item: 9, when: 10, pay: 11, price: 12, notes: 13, pickup: 14, pickupPhone: 15, status: 16, code: 17, paid: 18, eta: 19, steps: 20 };
 
 /* ---------- קבלת הזמנה חדשה / עדכון סטטוס ---------- */
 function doPost(e) {
@@ -151,10 +151,26 @@ function setStatus(o) {
   if (!row) return json({ ok: false, error: "הזמנה לא נמצאה" });
   sheet.getRange(row, COL.status).setValue(o.status);
   addStatusDropdown(sheet, row);            // שורות ישנות – מעדכנים את הרשימה הנפתחת לסטטוסים החדשים
-  // זמן הגעה משוער ("16:30") – נשמר כשארי מסמן "נאסף"; חזרה אחורה מוחקת אותו
+  // שעה משוערת ("16:30"): ב"קיבלתי" = מתי ארי יאסוף, ב"נאסף" = מתי יגיע. שינוי סטטוס בלי שעה מוחק אותה
   if (o.eta !== undefined) sheet.getRange(row, COL.eta).setValue(/^\d{1,2}:\d{2}$/.test(String(o.eta)) ? "'" + o.eta : "");
-  else if (o.status !== "נאסף" && o.status !== "נמסר") sheet.getRange(row, COL.eta).setValue("");
+  else if (o.status !== "נמסר") sheet.getRange(row, COL.eta).setValue("");
+  stampStep(sheet, row, o.status);
   return json({ ok: true });
+}
+
+// שעה של כל שלב ("אושרה 15:34|נאסף 16:01|נמסר 16:22") – כדי שהלקוח יראה מתי כל דבר קרה.
+// חזרה אחורה מוחקת את השלבים שאחרי.
+const STEPS = ["אושרה", "נאסף", "נמסר"];
+function stampStep(sheet, row, status) {
+  try {
+    const i = STEPS.indexOf(status);
+    const keep = String(sheet.getRange(row, COL.steps).getDisplayValue() || "").split("|").filter(p => {
+      const j = STEPS.indexOf(p.split(" ")[0]);
+      return j !== -1 && (i === -1 ? false : j < i);
+    });
+    if (i !== -1) keep.push(status + " " + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "HH:mm"));
+    sheet.getRange(row, COL.steps).setValue(keep.join("|"));
+  } catch (e) {}
 }
 
 // "עוד 5 דק'" – מסמן שארי ממש קרוב (ואם נשלחה שעה – מעדכן גם אותה)
@@ -415,7 +431,8 @@ function doGetInner(e) {
       if (!codeMatch && !noMatch) return;
       if (parseDate(r[COL.date - 1], r[COL.time - 1]) < cutoff) return;
       const o = { no: r[COL.no - 1], date: r[COL.date - 1], time: r[COL.time - 1], item: r[COL.item - 1],
-        price: r[COL.price - 1], status: r[COL.status - 1], paid: r[COL.paid - 1] === "כן", eta: r[COL.eta - 1] || "" };
+        price: r[COL.price - 1], status: r[COL.status - 1], paid: r[COL.paid - 1] === "כן", eta: r[COL.eta - 1] || "",
+        steps: r[COL.steps - 1] || "", pay: r[COL.pay - 1] };
       if (codeMatch) { o.recipient = r[COL.recipient - 1]; o.address = r[COL.address - 1]; }
       out.push(o);
     });
@@ -426,14 +443,15 @@ function doGetInner(e) {
   if (p.action === "status") {
     const wanted = String(p.nos || "").split(",").slice(0, 200);
     const out = {};
-    const etas = {};
+    const etas = {}, steps = {};
     rows.forEach(r => {
       if (wanted.indexOf(r[COL.no - 1]) === -1) return;
       out[r[COL.no - 1]] = r[COL.status - 1];
       if (r[COL.eta - 1]) etas[r[COL.no - 1]] = r[COL.eta - 1];
+      if (r[COL.steps - 1]) steps[r[COL.no - 1]] = r[COL.steps - 1];
     });
     wanted.filter(isDeleted).forEach(n => { out[n] = DELETED; });
-    return json({ ok: true, statuses: out, etas: etas });
+    return json({ ok: true, statuses: out, etas: etas, steps: steps });
   }
 
   // למנהל: הזמנות פתוחות + הזמנות שנסגרו ב-90 הימים האחרונים, ומצב הזמינות
@@ -477,7 +495,7 @@ function getSheet() {
     sheet.setRightToLeft(true);
   } else {
     // טבלה מגרסה קודמת – משלימים כותרות של עמודות חדשות
-    [COL.code, COL.paid, COL.eta].forEach(c => {
+    [COL.code, COL.paid, COL.eta, COL.steps].forEach(c => {
       if (sheet.getRange(1, c).getDisplayValue() === "") sheet.getRange(1, c).setValue(HEADERS[c - 1]).setFontWeight("bold");
     });
   }
@@ -806,7 +824,7 @@ function ackOrder(q) {
   const row = findRow(sheet, no);
   if (!row) return { ok: false, error: "ההזמנה לא נמצאה (אולי נמחקה)" };
   const cur = sheet.getRange(row, COL.status).getDisplayValue();
-  if (cur === STATUSES[0]) { sheet.getRange(row, COL.status).setValue("אושרה"); addStatusDropdown(sheet, row); }
+  if (cur === STATUSES[0]) { sheet.getRange(row, COL.status).setValue("אושרה"); addStatusDropdown(sheet, row); stampStep(sheet, row, "אושרה"); }
   return { ok: true, no: no, status: cur === STATUSES[0] ? "אושרה" : cur,
     recipient: sheet.getRange(row, COL.recipient).getDisplayValue(), dest: sheet.getRange(row, COL.dest).getDisplayValue() };
 }

@@ -342,11 +342,43 @@ button.hcancel{display:inline-block;width:auto;background:none;border:0;padding:
 .hact button .ic{fill:none}
 .hact button:disabled{opacity:.45}
 .paidY,.paidN{white-space:nowrap}
-.etaBig{display:flex;align-items:center;gap:14px;background:#fff7e0;color:#92400e;border-radius:20px;padding:14px 18px;margin:16px 0 4px;text-align:right}
-.etaBig .ic{width:32px;height:32px}
-.etaBig small{display:block;font-size:12.5px}.etaBig b{display:block;font-size:34px;line-height:1.1;color:var(--tx)}.etaBig span{font-size:13px}
-.etaUpd{background:#ecfdf3;color:#15803d;border-radius:12px;padding:8px 12px;font-size:13.5px;font-weight:600;margin:8px 0 0}
-.nearBox{background:#e8f8ee;color:#15803d;border-radius:14px;padding:11px 14px;font-size:14.5px;margin:8px 0 4px}
+.etaBig{display:flex;align-items:center;gap:12px;background:#fff;color:var(--tx);border-radius:18px;padding:12px 14px;margin:16px 0 4px;text-align:right;box-shadow:0 0 0 1px var(--ln),0 4px 14px #0000000a}
+.etaBig .eIc{flex:none;width:42px;height:42px;border-radius:13px;background:var(--ac-soft);color:var(--ac);display:grid;place-items:center}
+.etaBig .eIc .ic{width:21px;height:21px}
+.etaBig small{display:block;font-size:12.5px;color:var(--mu)}.etaBig b{display:block;font-size:30px;line-height:1.1;letter-spacing:.3px;font-variant-numeric:tabular-nums}
+.etaBig .eLeft{margin-right:auto;flex:none;font-size:13px;font-weight:700;color:#c2410c;background:var(--ac-soft);border-radius:20px;padding:5px 11px}
+.etaUpd,.nearBox{display:flex;align-items:center;gap:7px;border-radius:12px;padding:9px 12px;font-size:13.5px;font-weight:600;margin:8px 0 0}
+.etaUpd{background:var(--fill);color:var(--tx)}.nearBox{background:#ecfdf3;color:#15803d}
+.etaUpd .ic,.nearBox .ic{flex:none;width:16px;height:16px}
+/* ההזמנות שלי – שורה + פס התקדמות + פתיחה */
+#historyToday li.ho{display:block;padding:0;border-bottom:0}
+.hh{display:flex;align-items:center;gap:11px;width:100%;margin:0;border:0;background:none;box-shadow:none;font:inherit;color:inherit;text-align:right;padding:12px;border-radius:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.hic{flex:none;width:38px;height:38px;border-radius:12px;background:var(--fill);color:#9a9aa3;display:grid;place-items:center}
+.hic .ic{width:19px;height:19px}
+.htx{flex:1;min-width:0}
+.htx b{display:block;font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hst{display:block;font-size:12.5px;color:var(--mu);margin-top:2px}
+.hst em{font-style:normal;font-weight:700}
+.hch{flex:none;width:28px;height:28px;border-radius:50%;background:var(--fill);color:#80808a;display:grid;place-items:center;transform:rotate(-90deg);transition:transform .25s}
+.hch .ic{width:15px;height:15px}
+li.ho.open .hch{transform:rotate(90deg)}
+li.ho.a .hic,li.ho.a .hst em{color:var(--ac)}li.ho.a .hic{background:var(--ac-soft)}
+li.ho.g .hic,li.ho.g .hst em{color:#15803d}li.ho.g .hic{background:#ecfdf3}
+li.ho.r .hic,li.ho.r .hst em{color:#be123c}li.ho.r .hic{background:#fff1f2}
+li.ho.w .hst em{color:var(--tx)}
+.hbar{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:-4px 61px 12px 51px}
+.hbar i{height:4px;border-radius:4px;background:var(--ln);transition:background .3s}.hbar i.f{background:var(--ac)}
+li.ho.open .hbar{display:none!important}
+.hex{display:none;margin:0 12px 12px;background:#fafafb;border-radius:16px;padding:2px 12px 12px}
+li.ho.open .hex{display:block;animation:hexIn .22s ease}
+@keyframes hexIn{from{opacity:0;transform:translateY(-4px)}}
+.trk.mini{margin:14px 0 6px}.trk.mini .sd{width:30px;height:30px;border-width:2px;margin-bottom:5px}.trk.mini .line{top:15px}
+.trk.mini b{font-size:11.5px}.trk.mini .st.sNow .sd{animation:none;box-shadow:0 0 0 2px var(--ac),0 0 0 6px #ff5a1f1f}
+.hex .etaBig{margin:10px 0 0;padding:10px 12px}.hex .etaBig b{font-size:24px}.hex .etaBig .eIc{width:36px;height:36px}
+.hex .nearBox,.hex .warn{margin:8px 0 0}
+.hdet{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12.5px;color:var(--mu);margin-top:11px;padding:0 2px}
+.hdet b{color:var(--tx);font-weight:600;text-align:left}
+.hex button.hcancel{display:block;margin:12px auto 0;padding:4px 8px}
 #printArea{display:none}
 @media print{
   body{padding:0!important;background:#fff}
@@ -496,9 +528,9 @@ body.typing{padding-bottom:24px}
         <div class="st"><span class="sd"><svg class="ic s"><use href="#i-truck"/></svg></span><b>בדרך</b><small></small></div>
         <div class="st"><span class="sd"><svg class="ic s"><use href="#i-package-check"/></svg></span><b>נמסרה</b><small></small></div>
       </div>
-      <div class="etaBig" id="etaBig" style="display:none"><svg class="ic"><use href="#i-clock"/></svg><div><small>זמן הגעה משוער</small><b id="etaTime"></b><span id="etaLeft"></span></div></div>
-      <div class="etaUpd" id="etaUpd" style="display:none">🔄 זמן ההגעה עודכן</div>
-      <div class="nearBox" id="nearBox" style="display:none">📍 <b>ארי ממש קרוב – עוד כ-5 דקות</b></div>
+      <div class="etaBig" id="etaBig" style="display:none"><span class="eIc"><svg class="ic"><use id="etaIc" href="#i-clock"/></svg></span><div><small id="etaLbl">זמן הגעה משוער</small><b id="etaTime"></b></div><span class="eLeft" id="etaLeft"></span></div>
+      <div class="etaUpd" id="etaUpd" style="display:none"><svg class="ic"><use href="#i-refresh-cw"/></svg><span id="etaUpdT">זמן ההגעה עודכן</span></div>
+      <div class="nearBox" id="nearBox" style="display:none"><svg class="ic"><use href="#i-map-pin"/></svg><b>ארי ממש קרוב – עוד כ-5 דקות</b></div>
       <div class="trkNo" id="trkNo" style="display:none">ארי לא פנוי למשלוח הזה – צריך לתאם משלוח אחר</div>
       <p id="doneNo"></p>
       <button type="button" class="lnkc cancel" id="doneCancel" style="display:none">ביטול ההזמנה</button>
@@ -1129,23 +1161,28 @@ const STEP = { "חדשה": 1, "אושרה": 2, "נאסף": 3, "נמסר": 4 };
 // זמן הגעה משוער מארי ("16:30" / "16:30|קרוב")
 const parseEta = v => { const m = /^(\d{1,2}:\d{2})?(\|קרוב)?$/.exec(String(v || "").trim()); return { time: m && m[1] || "", near: !!(m && m[2]) }; };
 const etaMins = t => { const [h, mi] = t.split(":").map(Number), d = new Date(); d.setHours(h, mi, 0, 0); return Math.round((d - new Date()) / 60000); };
-let etaSeen = { no: null, t: "", at: 0 };          // לזהות שארי שינה את השעה → "זמן ההגעה עודכן" לכמה דקות
+let etaSeen = { no: null, st: "", t: "", at: 0 };   // לזהות שארי שינה את השעה → "עודכן" לכמה דקות
 function paintEta(st, eta) {
-  const e = parseEta(eta), on = st === "נאסף";
-  if (etaSeen.no !== trackNo) etaSeen = { no: trackNo, t: e.time, at: 0 };
+  const e = parseEta(eta), pick = st === "אושרה", on = (st === "נאסף" || pick) && !!e.time;
+  if (etaSeen.no !== trackNo || etaSeen.st !== st) etaSeen = { no: trackNo, st, t: e.time, at: 0 };
   else if (e.time && etaSeen.t && e.time !== etaSeen.t) etaSeen.at = Date.now();
   if (e.time) etaSeen.t = e.time;
-  $("etaUpd").style.display = on && e.time && !e.near && Date.now() - etaSeen.at < 5 * 60000 ? "" : "none";
-  $("etaBig").style.display = on && e.time ? "" : "none";
-  $("nearBox").style.display = on && e.near ? "" : "none";
-  if (on && e.time) {
+  $("etaUpd").style.display = on && !e.near && Date.now() - etaSeen.at < 5 * 60000 ? "" : "none";
+  $("etaUpdT").textContent = pick ? "שעת האיסוף עודכנה" : "זמן ההגעה עודכן";
+  $("etaBig").style.display = on ? "" : "none";
+  $("nearBox").style.display = st === "נאסף" && e.near ? "" : "none";
+  if (on) {
+    $("etaLbl").textContent = pick ? "שעת איסוף משוערת" : "זמן הגעה משוער";
+    $("etaIc").setAttribute("href", pick ? "#i-package" : "#i-clock");
     $("etaTime").textContent = e.time;
     const m = etaMins(e.time);
-    $("etaLeft").textContent = m > 1 ? `בעוד כ-${m} דק׳` : "בכל רגע";
+    $("etaLeft").textContent = m > 1 ? `עוד ${m} דק׳` : "בכל רגע";
   }
 }
-function paintTrack(st, eta) {
+function paintTrack(st, eta, steps) {
   paintEta(st, eta);
+  const sp = parseSteps(steps), sm = document.querySelectorAll("#trk .st small");
+  ["אושרה", "נאסף", "נמסר"].forEach((k, i) => { if (sm[i + 1]) sm[i + 1].textContent = sp[k] || ""; });
   const off = st === "לא פנוי" || st === "בוטלה", n = off ? 0 : (STEP[st] || 1);
   $("trkNo").textContent = st === "בוטלה" ? "✓ ההזמנה בוטלה – ארי קיבל הודעה" : "ארי לא פנוי למשלוח הזה – צריך לתאם משלוח אחר";
   $("trkNo").classList.toggle("cx", st === "בוטלה");
@@ -1162,7 +1199,7 @@ function pollTrack() {
   const no = trackNo;
   fetch(CONFIG.sheetUrl + "?action=status&nos=" + encodeURIComponent(no))
     .then(r => r.json())
-    .then(d => { const st = d && d.statuses && d.statuses[no]; if (st && st !== "נמחקה" && no === trackNo) paintTrack(st, d.etas && d.etas[no]); })
+    .then(d => { const st = d && d.statuses && d.statuses[no]; if (st && st !== "נמחקה" && no === trackNo) paintTrack(st, d.etas && d.etas[no], d.steps && d.steps[no]); })
     .catch(() => {});
 }
 function track(no) {
@@ -1323,7 +1360,9 @@ function renderHistory() {
           recipient: o.recipient !== undefined ? o.recipient : prev.recipient,      // לפי מספר הזמנה גוגל לא מחזיר שם/כתובת
           address: o.address !== undefined ? o.address : prev.address }));
         statuses[o.no] = o.status;
-        if (o.eta) histEtas[o.no] = o.eta;
+        if (o.eta) histEtas[o.no] = o.eta; else delete histEtas[o.no];
+        if (o.steps) histSteps[o.no] = o.steps;
+        if (o.pay && !merged.get(o.no).pay) merged.get(o.no).pay = o.pay;
       });
       const list = [...merged.values()].filter(x => x.time).sort((a, b) => new Date(a.time) - new Date(b.time));
       drawHistory(list);
@@ -1359,20 +1398,18 @@ function drawHistory(list) {
   const sameDay = d => d.toDateString() === new Date().toDateString();
   const item = x => {
     const li = document.createElement("li");
-    const t = new Date(x.time);
-    const info = document.createElement("div");
-    info.append(`${x.recipient} – ${x.address}`);
-    const m = document.createElement("div"); m.className = "meta";
-    m.textContent = `#${x.no} · ${sameDay(t) ? "" : pad(t.getDate()) + "/" + pad(t.getMonth() + 1) + " "}${pad(t.getHours())}:${pad(t.getMinutes())} · ${x.item} · ${typeof x.price === "number" ? "₪" + x.price : x.price}`;
-    if (typeof x.paid === "boolean") {
-      const pd = document.createElement("span");
-      pd.className = x.paid ? "paidY" : "paidN"; pd.textContent = x.paid ? " · ✓ שולם" : " · לא שולם";
-      m.append(pd);
-    }
-    info.append(m);
-    const badge = document.createElement("span");
-    badge.className = "badge"; badge.dataset.no = x.no;
-    li.append(info, badge);
+    li.className = "ho"; li.dataset.no = x.no;
+    li.innerHTML = '<button type="button" class="hh" aria-expanded="false"><span class="hic"><svg class="ic"><use href="#i-send"/></svg></span>' +
+      '<span class="htx"><b></b><span class="hst"></span></span><span class="hch"><svg class="ic"><use href="#i-chevron-left"/></svg></span></button>' +
+      '<div class="hbar"><i></i><i></i><i></i><i></i></div><div class="hex"></div>';
+    const city = shortAddr(x.address);
+    li.querySelector(".htx b").textContent = x.recipient && x.recipient !== "—" ? `${x.recipient}${city ? " · " + city : ""}` : (x.address || "");
+    li.querySelector(".hh").onclick = () => {
+      const open = !li.classList.contains("open");
+      histOpen[x.no] = open; li.classList.toggle("open", open);
+      li.querySelector(".hh").setAttribute("aria-expanded", open);
+    };
+    paintRow(li, x);
     return li;
   };
   const rows = periodList(), out = [];
@@ -1389,7 +1426,7 @@ function drawHistory(list) {
     : [Object.assign(document.createElement("li"), { className: "emptyh", textContent: "אין הזמנות בתקופה הזו" })]));
   $("historyOlder").replaceChildren();
   $("historyOlderBox").style.display = "none";
-  if (histStatuses) paintBadges(histStatuses); else renderStats();
+  renderStats();
 }
 function renderStats() {
   const rows = periodList().filter(x => !VOIDST(stOf(x)));
@@ -1472,40 +1509,89 @@ function cancelMyOrder(no, ct, onDone) {
 }
 
 /* ---------- סטטוס משלוח (מהטבלה בגוגל) ---------- */
-let histEtas = {};
-const BADGES = { "חדשה": ["🕓 ממתין", "new"], "נאסף": ["🚙 בדרך", "picked"], "נמסר": ["✅ נמסר", "done"], "אושרה": ["👍 ארי אישר", "ok"], "לא פנוי": ["❌ לא פנוי", "no"], "בוטלה": ["✖ בוטלה", "no"] };
+/* ---------- שורת הזמנה ב"ההזמנות שלי": שורה אחת + פס התקדמות, ובלחיצה – כל השלבים עם השעות ---------- */
+const HST = {
+  "חדשה":    { t: "נשלח לארי", c: "w", i: "send", n: 1 },
+  "אושרה":   { t: "ארי אישר", c: "a", i: "thumbs-up", n: 2 },
+  "נאסף":    { t: "בדרך", c: "a", i: "truck", n: 3 },
+  "נמסר":    { t: "נמסר", c: "g", i: "package-check", n: 4 },
+  "לא פנוי": { t: "ארי לא פנוי", c: "r", i: "circle-x", n: 0 },
+  "בוטלה":   { t: "בוטלה", c: "r", i: "circle-x", n: 0 },
+};
+let histEtas = {}, histSteps = {}, histOpen = {};
+const parseSteps = s => { const o = {}; String(s || "").split("|").forEach(p => { const [k, v] = p.split(" "); if (k && v) o[k] = v; }); return o; };
+const hhmm = t => `${pad(t.getHours())}:${pad(t.getMinutes())}`;
+function svgUse(id, cls) { return `<svg class="ic${cls ? " " + cls : ""}"><use href="#i-${id}"/></svg>`; }
+function etaCard(st, eta) {
+  const e = parseEta(eta), pick = st === "אושרה";
+  if (!(st === "נאסף" || pick) || !e.time) return null;
+  const d = document.createElement("div"); d.className = "etaBig";
+  const m = etaMins(e.time);
+  d.innerHTML = `<span class="eIc">${svgUse(pick ? "package" : "clock")}</span><div><small></small><b></b></div><span class="eLeft"></span>`;
+  d.querySelector("small").textContent = pick ? "שעת איסוף משוערת" : "זמן הגעה משוער";
+  d.querySelector("b").textContent = e.time;
+  d.querySelector(".eLeft").textContent = m > 1 ? `עוד ${m} דק׳` : "בכל רגע";
+  return d;
+}
+function miniTrack(x, st) {
+  // כמו במסך המעקב: שלבים שעברו ירוקים, השלב הבא מסומן בכתום
+  const S = HST[st] || HST["חדשה"], off = !S.n, n = off ? 0 : S.n, sp = parseSteps(histSteps[x.no]);
+  const times = [hhmm(new Date(x.time)), sp["אושרה"], sp["נאסף"], sp["נמסר"]];
+  const w = document.createElement("div"); w.className = "trk mini" + (off ? " off" : "");
+  w.innerHTML = `<div class="line"><i style="width:${Math.min(n, 3) / 3 * 100}%"></i></div>` +
+    [["send", "נשלחה"], ["thumbs-up", "ארי אישר"], ["truck", "בדרך"], ["package-check", "נמסרה"]].map(([ic, t], i) =>
+      `<div class="st${off ? (i === 0 ? " sOk" : "") : i < n ? " sOk" : i === n ? " sNow" : ""}"><span class="sd">${svgUse(ic, "s")}</span><b>${t}</b><small>${(off ? i === 0 : i < n) && times[i] ? times[i] : ""}</small></div>`).join("");
+  return w;
+}
+function paintRow(li, x) {
+  const st = histStatuses ? (histStatuses[x.no] || "חדשה") : undefined;
+  const S = HST[st], e = parseEta(histEtas[x.no]), t = new Date(x.time);
+  const money = typeof x.price === "number" ? "₪" + x.price : (x.price || "");
+  li.className = "ho" + (S ? " " + S.c : "") + (histOpen[x.no] ? " open" : "");
+  li.querySelector(".hic").innerHTML = svgUse(S ? S.i : "send");
+  // שורת הסטטוס
+  const hs = li.querySelector(".hst"); hs.replaceChildren();
+  if (S) { const em = document.createElement("em"); em.textContent = S.t; hs.append(em); }
+  let more = "";
+  if (st === "חדשה") more = "ממתין לאישור";
+  else if (st === "אושרה") more = e.time ? `יאסוף בערך ב-${e.time}` : "";
+  else if (st === "נאסף") more = e.near ? "ממש קרוב" : e.time ? `מגיע בערך ב-${e.time}` : "";
+  else more = [hhmm(t), st === "לא פנוי" || st === "בוטלה" ? "" : money].filter(Boolean).join(" · ");
+  if (more) hs.append((S ? " · " : "") + more);
+  if (!S || st === "נמסר") {
+    if (typeof x.paid === "boolean" && st !== "בוטלה" && st !== "לא פנוי") {
+      const pd = document.createElement("span"); pd.className = x.paid ? "paidY" : "paidN"; pd.textContent = x.paid ? " · ✓ שולם" : " · לא שולם"; hs.append(pd);
+    }
+  }
+  // פס התקדמות דק – רק להזמנות שעוד בדרך
+  const bar = li.querySelector(".hbar");
+  bar.style.display = S && S.n && S.n < 4 ? "" : "none";
+  [...bar.children].forEach((b, i) => b.classList.toggle("f", !!S && i < S.n));
+  // פתוח: כל השלבים + שעה + פרטים
+  const ex = li.querySelector(".hex"); ex.replaceChildren();
+  if (S) ex.append(miniTrack(x, st));
+  const ec = etaCard(st, histEtas[x.no]); if (ec) ex.append(ec);
+  if (st === "נאסף" && e.near) { const nb = document.createElement("div"); nb.className = "nearBox"; nb.innerHTML = svgUse("map-pin") + "<b>ארי ממש קרוב – עוד כ-5 דקות</b>"; ex.append(nb); }
+  if (st === "לא פנוי") { const w = document.createElement("div"); w.className = "warn"; w.textContent = "ארי לא פנוי למשלוח הזה – צריך לתאם משלוח אחר"; ex.append(w); }
+  const det = document.createElement("div"); det.className = "hdet";
+  const l = document.createElement("span"); l.textContent = [`#${x.no}`, x.item].filter(Boolean).join(" · ");
+  const r = document.createElement("b");
+  r.textContent = [money, x.pay, typeof x.paid === "boolean" && st !== "בוטלה" && st !== "לא פנוי" ? (x.paid ? "שולם" : "לא שולם") : ""].filter(Boolean).join(" · ");
+  det.append(l, r); ex.append(det);
+  const ct = st === "חדשה" ? ctOf(x.no) : null;
+  if (ct) {
+    const cx = document.createElement("button"); cx.type = "button"; cx.className = "hcancel"; cx.textContent = "ביטול ההזמנה";
+    cx.onclick = () => cancelMyOrder(x.no, ct, renderHistory); ex.append(cx);
+  }
+}
 function paintBadges(statuses) {
-  if (statuses) histStatuses = statuses;
-  document.querySelectorAll(".badge[data-no]").forEach(b => {
-    const st = statuses ? statuses[b.dataset.no] : undefined;
-    const [text, cls] = BADGES[st] || (statuses ? ["🕓 ממתין", "new"] : ["", ""]);
-    const et = st === "נאסף" ? parseEta(histEtas[b.dataset.no]) : {};
-    b.textContent = text + (et.near ? " · ממש קרוב" : et.time ? " · ~" + et.time : ""); b.className = "badge " + cls;
-    const li = b.closest("li");
-    // "לא פנוי": הסבר קצר מתחת לפרטי ההזמנה
-    const info = li.firstElementChild;
-    let warn = info.querySelector(".warn");
-    if (st === "לא פנוי" && !warn) {
-      warn = document.createElement("div"); warn.className = "warn";
-      warn.textContent = "ארי לא פנוי למשלוח הזה – צריך לתאם משלוח אחר";
-      info.append(warn);
-    } else if (st !== "לא פנוי" && warn) warn.remove();
-    // הזמנה שבוטלה / לא פנוי – לא מציגים "לא שולם"
-    const pd = info.querySelector(".paidY,.paidN");
-    if (pd) pd.style.display = st === "בוטלה" || st === "לא פנוי" ? "none" : "";
-    // "ממתין" (ארי עוד לא אישר): אפשר לבטל מכאן
-    let cx = info.querySelector(".hcancel");
-    const ct = st === "חדשה" ? ctOf(b.dataset.no) : null;
-    if (ct && !cx) {
-      cx = document.createElement("button"); cx.type = "button"; cx.className = "hcancel"; cx.textContent = "ביטול ההזמנה";
-      cx.onclick = () => cancelMyOrder(b.dataset.no, ct, renderHistory);
-      info.append(cx);
-    } else if (!ct && cx) cx.remove();
-    // ימים קודמים: מציגים רק מה שעוד לא נסגר
-    if (li.parentElement.id === "historyOlder") li.style.display = st === "נמסר" || st === "לא פנוי" || st === "בוטלה" ? "none" : "";
-  });
-  const older = [...$("historyOlder").children].filter(li => li.style.display !== "none");
-  $("historyOlderBox").style.display = statuses && older.length ? "block" : "none";
+  if (statuses) {
+    histStatuses = statuses;
+    // הזמנה שבדרך נפתחת לבד (עד שהלקוח סוגר אותה)
+    Object.keys(statuses).forEach(no => { if (statuses[no] === "נאסף" && histOpen[no] === undefined) histOpen[no] = true; });
+  }
+  const byNo = new Map(histList.map(x => [x.no, x]));
+  document.querySelectorAll("#historyToday li.ho").forEach(li => { const x = byNo.get(li.dataset.no); if (x) paintRow(li, x); });
   renderStats();
 }
 function loadStatuses(nos) {
@@ -1515,6 +1601,7 @@ function loadStatuses(nos) {
   fetch(CONFIG.sheetUrl + "?action=status&nos=" + encodeURIComponent(nos.join(",")))
     .then(r => r.json())
     .then(d => {
+      Object.assign(histEtas, d.etas || {}); Object.assign(histSteps, d.steps || {});
       paintBadges(d.statuses || {});
       const n = new Date();
       $("statusNote").textContent = `סטטוס עודכן ב-${pad(n.getHours())}:${pad(n.getMinutes())}`;

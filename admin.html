@@ -319,6 +319,12 @@ details.quick{background:var(--fill);border-radius:14px}
 button.etaline{flex:1;min-width:0;display:flex;align-items:center;gap:6px;border:0;background:none;color:#92400e;padding:5px 6px;font:inherit;font-size:13.5px;text-align:right;cursor:pointer}
 button.etaline span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 button.nearBtn{flex:none;display:inline-flex;align-items:center;gap:4px;border:0;background:#fff;color:#c2410c;border-radius:9px;padding:7px 10px;font:inherit;font-size:13px;font-weight:600;box-shadow:0 1px 3px #0001;cursor:pointer}
+.pkChips{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+button.pkChip{border:1.5px solid var(--ln);background:#fff;border-radius:14px;padding:10px 0;font:inherit;cursor:pointer;line-height:1.2}
+button.pkChip b{display:block;font-size:17px;color:var(--tx)}button.pkChip small{display:block;font-size:11.5px;color:var(--mu)}
+button.pkChip.on{border-color:var(--ac);background:#fff1eb}button.pkChip.on b,button.pkChip.on small{color:#c2410c}
+.lateChips.c3{grid-template-columns:repeat(3,1fr)}
+button.lateQ .ic,.etarow .nearTag .ic{vertical-align:-3px;margin-left:4px}
 .lateBox{background:#fff1eb;border-radius:14px;padding:8px;margin:-2px 0 9px}
 button.lateQ{display:block;width:100%;border:0;background:none;color:#c2410c;font:inherit;font-weight:700;font-size:14px;text-align:right;padding:2px 4px 8px;cursor:pointer}
 .lateChips{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
@@ -700,20 +706,28 @@ function card(o) {
         o.paid ? ico("check", "xs") : null, payTxt + (o.paid ? " · שולם" : prepay ? " · ממתין" : " · לא שולם"));
   const nx = NEXT[o.status];
   const act = nx ? el("button", { type: "button", className: "act " + nx[3],
-    onclick: e => nx[0] === "נאסף" ? openEta(o) : update(o, nx[0], e.currentTarget) }, ico(nx[1], "s"), nx[2]) : null;
+    onclick: e => nx[0] === "נאסף" ? openEta(o) : nx[0] === "אושרה" ? openPick(o) : update(o, nx[0], e.currentTarget) }, ico(nx[1], "s"), nx[2]) : null;
   // בדרך: זמן הגעה משוער + "עוד 5 דק'"; כשהשעה מגיעה – עוד 5 / 10 / 15 / 20
   const et = parseEta(o.eta);
   const late = o.status === "נאסף" && et.time && etaMin(et.time) <= 0;
+  // אושרה: מתי אאסוף; כשהשעה מגיעה – עוד 10 / 20 / 30
+  const pk = o.status === "אושרה" ? et.time : "";
+  const pickLine = o.status !== "אושרה" ? null : pk && etaMin(pk) <= 0 ? el("div", { className: "lateBox" },
+    el("button", { type: "button", className: "lateQ", onclick: () => openPick(o) }, ico("clock", "s"), `שעת האיסוף ${pk} הגיעה · כמה עוד?`),
+    el("div", { className: "lateChips c3" }, ...[10, 20, 30].map(m => el("button", { type: "button", className: "lateChip",
+      onclick: e => update(o, "אושרה", e.currentTarget, { eta: hmIn(m) }) }, `עוד ${m}`, el("small", { textContent: "דק׳" })))))
+    : el("div", { className: "etarow" }, el("button", { type: "button", className: "etaline", onclick: () => openPick(o) }, ico("package", "s"),
+      el("span", { textContent: pk ? `אאסוף ב-${pk}` + etaLeft(pk) : "בלי שעת איסוף · להוספה" })));
   const nearBtn = o.status === "נאסף" && !et.near ? el("button", { type: "button", className: "nearBtn",
     onclick: e => bumpEta(o, 5, e.currentTarget) }, ico("map-pin", "s"), "עוד 5 דק׳") : null;
   const etaLine = o.status !== "נאסף" ? null : late ? el("div", { className: "lateBox" },
-    el("button", { type: "button", className: "lateQ", onclick: () => openEta(o) }, `⏰ השעה ${et.time} הגיעה · כמה עוד?`),
+    el("button", { type: "button", className: "lateQ", onclick: () => openEta(o) }, ico("clock", "s"), `השעה ${et.time} הגיעה · כמה עוד?`),
     el("div", { className: "lateChips" }, ...[5, 10, 15, 20].map(m => el("button", { type: "button", className: "lateChip",
       onclick: e => bumpEta(o, m, e.currentTarget) }, `עוד ${m}`, el("small", { textContent: "דק׳" })))))
     : el("div", { className: "etarow" },
     el("button", { type: "button", className: "etaline", onclick: () => openEta(o) }, ico("clock", "s"),
       el("span", { textContent: et.time ? `מגיע ב-${et.time}` + etaLeft(et.time) : "בלי זמן הגעה · להוספה" })),
-    et.near ? el("b", { className: "nearTag", textContent: "📍 ממש קרוב" }) : nearBtn);
+    et.near ? el("b", { className: "nearTag" }, ico("map-pin", "s"), "ממש קרוב") : nearBtn);
   if (o.status === "חדשה" && act) act.title = "הלקוח יראה שאישרת";
   const more = aria(el("button", { type: "button", className: "more", onclick: () => openOrder(o) }, ico("ellipsis")), "עוד פעולות");
   const qi = (icon, href, l) => aria(el("a", { className: "qi", href, target: href.startsWith("http") ? "_blank" : "" }, ico(icon, "s")), l);
@@ -730,7 +744,7 @@ function card(o) {
       o.address ? qi("navigation", waze(navAddr(o)), "ניווט בווייז") : null),
     o.notes ? el("div", { className: "nt" }, ico("message-square-text", "xs"), el("span", { textContent: o.notes })) : null,
     prepay && !o.paid && !off ? el("div", { className: "waitPay", textContent: "תשלום מראש – לבדוק שהתקבל לפני יציאה" }) : null,
-    etaLine,
+    pickLine, etaLine,
     el("div", { className: "r3" }, py, act, more));
 }
 
@@ -747,7 +761,8 @@ function openOrder(o) {
   const A = (i, t, cls, fn) => list.append(el("button", { type: "button", className: "al " + (cls || ""),
     onclick: e => { const b = e.currentTarget; closeOrder(); fn(b); } }, ico(i), el("span", { textContent: t })));
   if (!closed) {
-    if (o.status === "חדשה") A("thumbs-up", "קיבלתי את ההזמנה", "", b => update(o, "אושרה", b));
+    if (o.status === "חדשה") A("thumbs-up", "קיבלתי את ההזמנה", "", () => setTimeout(() => openPick(o), 350));
+    if (o.status === "אושרה") A("package", "עדכון שעת איסוף", "", () => setTimeout(() => openPick(o), 350));
     if (o.status !== "נאסף") A("truck", "נאסף", "", () => setTimeout(() => openEta(o), 350));
     else A("clock", "עדכון זמן הגעה", "", () => setTimeout(() => openEta(o), 350));
     A("package-check", "נמסר", "", b => update(o, "נמסר", b));
@@ -781,6 +796,38 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") closeOrder()
 
 /* ---------- זמן הגעה משוער ---------- */
 function parseEta(v) { const m = /^(\d{1,2}:\d{2})?(\|קרוב)?$/.exec(String(v || "").trim()); return { time: m && m[1] || "", near: !!(m && m[2]) }; }
+const hmIn = m => { const d = new Date(Date.now() + m * 60000); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+// "קיבלתי" – מתי אאסוף? עכשיו / 30 / 60 / 90 או שעה אחרת. הלקוח רואה "ארי יאסוף בערך ב…"
+function openPick(o) {
+  const editing = o.status === "אושרה";
+  const cur = editing ? parseEta(o.eta).time : "";
+  const opts = [[0, "עכשיו"], [30, "30"], [60, "60"], [90, "90"]].map(([m, t]) => ({ m, t, v: hmIn(m === 0 ? 3 : m) }));
+  let val = cur || opts[1].v;
+  const go = el("button", { type: "button", className: "etaGo" });
+  const inp = el("input", { type: "time", step: 300, className: "etaIn", value: val });
+  aria(inp, "שעת איסוף");
+  const chips = opts.map(x => el("button", { type: "button", className: "pkChip", onclick: () => set(x.v) },
+    el("b", { textContent: x.t }), el("small", { textContent: (x.m ? "דק׳ · " : "") + x.v })));
+  function set(v) {
+    val = v; inp.value = v;
+    chips.forEach((c, i) => c.classList.toggle("on", opts[i].v === v));
+    go.textContent = (editing ? "עדכון · " : "קיבלתי · ") + "אאסוף בערך ב-" + (v || "…");
+  }
+  inp.addEventListener("input", () => set(inp.value)); inp.addEventListener("change", () => set(inp.value));
+  go.onclick = () => { if (!val) return; closeOrder(); update(o, "אושרה", null, { eta: val }); };
+  const skip = el("button", { type: "button", className: "etaSkip", textContent: editing ? "בלי שעת איסוף" : "קיבלתי בלי זמן",
+    onclick: () => { closeOrder(); update(o, "אושרה", null, { eta: "" }); } });
+  $("oBody").replaceChildren(
+    el("div", { className: "shh" },
+      el("div", {}, el("small", { textContent: `${o.recipient || ""} · ${splitAddr(o.address)[0]}` }), el("h2", { textContent: editing ? "עדכון שעת איסוף" : "קיבלתי · מתי תאסוף?" })),
+      aria(el("button", { type: "button", className: "ib", onclick: closeOrder }, ico("x", "s")), "סגירה")),
+    el("p", { className: "etaHint", textContent: "הלקוח יראה \"ארי אישר\" ואת שעת האיסוף" }),
+    el("div", { className: "pkChips" }, ...chips),
+    el("label", { className: "etaBox" }, ico("clock"), el("span", { textContent: "שעה אחרת" }), inp),
+    go, skip);
+  set(val);
+  document.body.classList.add("sheetOpen");
+}
 function etaMin(t) { const [h, mi] = t.split(":").map(Number), d = new Date(); d.setHours(h, mi, 0, 0); return Math.round((d - new Date()) / 60000); }
 function etaLeft(t) { const min = etaMin(t); return min > 0 ? ` · עוד ${min} דק׳` : " · הזמן עבר – לעדכן?"; }
 // "עוד X דק'" – שעה חדשה = עכשיו + X. עוד 5 = גם "ממש קרוב" אצל הלקוח
@@ -840,7 +887,7 @@ function update(o, status, btn, extra) {
   fetch(SHEET_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(Object.assign({ action: "setStatus", key, no: o.no, status }, extra || {})) })
     .then(() => {
       o.status = status;
-      if (extra && extra.eta !== undefined) o.eta = extra.eta; else if (status !== "נאסף" && status !== "נמסר") o.eta = "";
+      if (extra && extra.eta !== undefined) o.eta = extra.eta; else if (status !== "נמסר") o.eta = "";
       render(); setTimeout(load, 1500);
     })
     .catch(() => { btn.disabled = false; alert("העדכון לא נשלח – בדוק חיבור ונסה שוב"); });
