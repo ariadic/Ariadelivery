@@ -125,7 +125,7 @@ header p{color:#fff;opacity:.92;margin-top:6px}
 /* ----- שליחה חכמה: מסך אישור / גיבוי ווצאפ / עוד משלוח ----- */
 .done{text-align:center;padding:26px 16px 18px}
 .okic{width:76px;height:76px;border-radius:50%;background:#dcfce7;display:grid;place-items:center;font-size:38px;margin:0 auto 10px}
-.okic.warnic{background:#fef3c7}
+.okic.warnic{background:var(--fill)}.okic.warnic .okin{background:var(--ac);box-shadow:none}.okic.warnic .okin .ic{stroke-width:2;stroke-dasharray:none;stroke-dashoffset:0;animation:none;width:30px;height:30px}
 .done h2{font-size:22px;font-weight:800;margin:0 0 4px;color:var(--text)}
 .done p{color:var(--muted);margin:0;font-size:14px;line-height:1.6}
 .doneSum{border-top:1px solid #f0f1f4;margin-top:14px;padding-top:12px;font-size:14px;line-height:1.7;color:#374151;text-align:right}
@@ -242,11 +242,12 @@ button.primary#doneMore{background:var(--ac);box-shadow:0 8px 22px #ff5a1f44;jus
 button.primary#doneMore .ic{width:22px;height:22px}
 .sbarBg{position:fixed;z-index:29;left:0;right:0;bottom:0;height:calc(84px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #f0f0f2;pointer-events:none}
 /* הודעות */
-.notice{border:0;border-radius:14px;background:#fff7e6;color:#92400e;font-size:13.5px;margin:12px 0 0}
+.notice{border:0;border-radius:14px;background:var(--fill);color:var(--tx);font-size:13.5px;margin:12px 0 0}
 .notice.off{background:#fff1f2;color:#be123c;border:0}
 .count{background:var(--ac-soft);color:var(--ac);border-radius:12px;margin:12px 0 0;font-weight:600}
 .kept{border:0;background:#effaf3;color:#166534;border-radius:12px;margin:8px 0 0}
-.preNote{border:0;background:#fff7e6;border-radius:12px}
+.preNote{border:0;background:var(--ac-soft);color:#9a3412;border-radius:12px;display:flex;gap:8px;align-items:flex-start}
+.preNote .ic{flex:none;margin-top:2px;color:var(--ac)}.preNote b{color:#9a3412}
 /* מסך "ההזמנה אצל ארי" */
 .done{text-align:center;padding:14px 4px 4px}
 .okic{width:96px;height:96px;border-radius:50%;background:#e8f8ee;display:grid;place-items:center;margin:6px auto 12px;font-size:40px;animation:pop .5s cubic-bezier(.2,1.4,.4,1) both}
@@ -417,6 +418,10 @@ html{touch-action:manipulation}
 button,label,.chips label,.rc,.dest,.bnav,.qrow,.al{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 body.typing .sbarBg,body.typing #orderForm > button[type=submit],body.typing #doneMore{display:none!important}
 body.typing{padding-bottom:24px}
+/* שפה אחידה: אפור = מידע · כתום רך = לתשומת לב · ירוק = הצליח · אדום = בעיה */
+.pending{background:var(--ac-soft);box-shadow:none}
+.pending h2{color:#9a3412}
+.pending .resend{background:#fff;color:var(--ac);border:0;box-shadow:inset 0 0 0 1.5px #fdba74}
 </style>
 </head>
 <body>
@@ -493,7 +498,7 @@ body.typing{padding-bottom:24px}
       <div id="payBox">
         <label class="lab">תשלום</label>
         <div class="chips" id="payChips"></div>
-        <div class="preNote" id="preNote" style="display:none">💳 <b>תשלום מראש</b> · פרטי ההעברה יופיעו אחרי השליחה</div>
+        <div class="preNote" id="preNote" style="display:none"><svg class="ic s"><use href="#i-wallet"/></svg><span><b>תשלום מראש</b> · פרטי ההעברה יופיעו אחרי השליחה</span></div>
       </div>
       <div id="payerBox">
         <label class="lab">מי משלם?</label>
@@ -541,7 +546,7 @@ body.typing{padding-bottom:24px}
       <div class="cp"><div class="t"><span class="lb">למי מעבירים (ארי משלוחים)</span><span class="vl" id="payPhone"></span></div><button type="button" class="cpb" id="cpPhone">העתק</button></div>
       <div class="cp"><div class="t"><span class="lb">מה לכתוב בהערה</span><span class="vl" id="payNo"></span></div><button type="button" class="cpb" id="cpNo">העתק</button></div>
       <div class="payHint" id="payHint"></div>
-      <div class="preNote" id="payPre" style="display:none">⏳ <b>המשלוח יוצא לדרך אחרי שהתשלום מתקבל.</b></div>
+      <div class="preNote" id="payPre" style="display:none"><svg class="ic s"><use href="#i-clock"/></svg><b>המשלוח יוצא לדרך אחרי שהתשלום מתקבל.</b></div>
     </div>
     <div class="two">
       <button type="button" class="secondary" id="doneHistory"><svg class="ic s"><use href="#i-clipboard-list"/></svg><span>ההזמנות שלי</span></button>
@@ -559,7 +564,7 @@ body.typing{padding-bottom:24px}
   <!-- המערכת לא אישרה – עוברים לווצאפ -->
   <section id="fallbackBox" style="display:none">
     <div class="card done">
-      <div class="okic warnic">⚠️</div>
+      <div class="okic warnic"><span class="okin"><svg class="ic"><use href="#i-message-square-text"/></svg></span></div>
       <h2>שולחים בווצאפ</h2>
       <p>המערכת לא אישרה שההזמנה נקלטה,<br>אז ווצאפ נפתח עם ההזמנה מוכנה – רק ללחוץ "שלח" שם.</p>
       <div class="bar"><i id="fbBar"></i></div>
@@ -753,7 +758,7 @@ const CONFIG = {
         location.reload();
       } else {
         const n = document.getElementById("closedNotice");
-        if (n) { n.textContent = "🔄 המחירון עודכן – רעננו את הדף כדי לראות את המחירים החדשים"; n.style.display = "block"; }
+        if (n) { n.textContent = "המחירון עודכן – רעננו את הדף כדי לראות את המחירים החדשים"; n.style.display = "block"; }
       }
     })
     .catch(() => { if (!started) { clearTimeout(timer); fallback(); } });
@@ -841,7 +846,7 @@ if (CUSTOMER) {
   if (CUSTOMER.phone) $("pPhone").value = CUSTOMER.phone;
   document.querySelector("header h1").textContent = CUSTOMER.title || CUSTOMER.name || "ארי משלוחים";
   document.querySelector("header p").textContent = CUSTOMER.title
-    ? "משלוחים עם ארי משלוחים" : `שלום ${CUSTOMER.name} 👋`;
+    ? "משלוחים עם ארי משלוחים" : `שלום ${CUSTOMER.name}`;
   // אימוג'י בתחילת הכותרת (🌸 …) עובר לעיגול הלוגו
   const h1 = document.querySelector("header h1"), em = /^(\p{Extended_Pictographic}\uFE0F?)\s*/u.exec(h1.textContent);
   if (em) {
@@ -856,7 +861,7 @@ if (CUSTOMER) {
     $("rememberRow").style.display = "none";
     // פרטי האיסוף הקבועים לא מוצגים – בית העסק מכיר אותם (נשלחים בהודעה כרגיל)
     $("pickupFixedText").innerHTML = "";
-    [CUSTOMER.name, CUSTOMER.addr, CUSTOMER.phone && "📞 " + CUSTOMER.phone].filter(Boolean)
+    [CUSTOMER.name, CUSTOMER.addr, CUSTOMER.phone].filter(Boolean)
       .forEach(t => { const d = document.createElement("div"); d.textContent = t; $("pickupFixedText").append(d); });
   }
   // לקוח עם לינק אישי: פרטי האיסוף מופיעים כשורה קטנה למעלה ולא כשדות למילוי
@@ -874,7 +879,7 @@ if (CUSTOMER) {
   }
   if (CUSTOMER.pay) $("payBox").style.display = "none";
   if (CUSTOMER.hidePayer) $("payerBox").style.display = "none";
-  if (AGREED) $("priceBox").textContent = "🤝 מחיר לפי הסכם";
+  if (AGREED) $("priceBox").textContent = "מחיר לפי הסכם";
 }
 
 /* ---------- "אפליקציה" במסך הבית: אייקון ושם לפי הלקוח, נפתח במסך מלא ---------- */
@@ -991,7 +996,7 @@ showPrice();
   const hhmm = now.toTimeString().slice(0, 5);
   if (h && hhmm >= h[0] && hhmm < h[1]) return;
   const n = $("closedNotice");
-  n.textContent = "🌙 כרגע אנחנו מחוץ לשעות הפעילות. אפשר לשלוח הזמנה – נטפל בה בפתיחה הקרובה.";
+  n.textContent = "כרגע אנחנו מחוץ לשעות הפעילות. אפשר לשלוח הזמנה – נטפל בה בפתיחה הקרובה.";
   n.style.display = "block";
 })();
 
@@ -1005,7 +1010,7 @@ function checkAvailability() {
       if (!d || typeof d.available !== "boolean") return;          // קוד ישן בגוגל – מתנהגים כרגיל
       arieAvailable = d.available;
       const n = $("availNotice");
-      n.textContent = d.available ? "" : "🔴 ארי לא פנוי כרגע למשלוחים" + (d.message ? ` – ${d.message}` : "");
+      n.textContent = d.available ? "" : "ארי לא פנוי כרגע למשלוחים" + (d.message ? ` – ${d.message}` : "");
       n.style.display = d.available ? "none" : "block";
     })
     .catch(() => {});
@@ -1192,7 +1197,7 @@ function paintTrack(st, eta, steps) {
   const sp = parseSteps(steps), sm = document.querySelectorAll("#trk .st small");
   ["אושרה", "נאסף", "נמסר"].forEach((k, i) => { if (sm[i + 1]) sm[i + 1].textContent = sp[k] || ""; });
   const off = st === "לא פנוי" || st === "בוטלה", n = off ? 0 : (STEP[st] || 1);
-  $("trkNo").textContent = st === "בוטלה" ? "✓ ההזמנה בוטלה – ארי קיבל הודעה" : "ארי לא פנוי למשלוח הזה – צריך לתאם משלוח אחר";
+  $("trkNo").textContent = st === "בוטלה" ? "ההזמנה בוטלה – ארי קיבל הודעה" : "ארי לא פנוי למשלוח הזה – צריך לתאם משלוח אחר";
   $("trkNo").classList.toggle("cx", st === "בוטלה");
   $("doneCancel").style.display = st === STEP_NEW && trackCt ? "" : "none";
   document.querySelectorAll("#trk .st").forEach((el, i) => {
@@ -1235,7 +1240,7 @@ function showDone(record, waLink) {
   $("doneWa").onclick = () => { window.location.href = waLink; };
   const today = todayOrders();
   $("todayBox").style.display = today.length > 1 ? "block" : "none";
-  $("todayTitle").textContent = `📦 היום שלחת ${today.length} משלוחים · ₪${money(today)}`;
+  $("todayTitle").textContent = `היום שלחת ${today.length} משלוחים · ₪${money(today)}`;
   $("todayList").replaceChildren(...today.slice().reverse().slice(0, 8).map(x => {
     const li = document.createElement("li"); const t = new Date(x.time);
     li.textContent = `${x.recipient} – ${x.address}`;
@@ -1307,11 +1312,11 @@ $("doneMore").addEventListener("click", () => {
       const r = document.querySelector(`input[name=${n}][value="${v}"]`); if (r) r.checked = true;
     });
     $("whenTimeBox").style.display = val("when") === WHEN[2] ? "block" : "none";
-    $("keptBanner").textContent = `✓ כמו במשלוח הקודם: ${lastKept.size} · ${lastKept.when}`;
+    $("keptBanner").textContent = `כמו במשלוח הקודם: ${lastKept.size} · ${String(lastKept.when).replace(/\s*⚡/, "")}`;
     $("keptBanner").style.display = "block";
   }
   const today = todayOrders();
-  $("countBanner").textContent = `📦 משלוח ${today.length + 1} היום · ₪${money(today)} עד עכשיו`;
+  $("countBanner").textContent = `משלוח ${today.length + 1} היום · ₪${money(today)} עד עכשיו`;
   $("countBanner").style.display = "block";
   showPrice();
   showOnly("orderForm");
@@ -1688,12 +1693,12 @@ function renderPending() {
   box.replaceChildren(...getPending().map(o => {
     const card = document.createElement("section");
     card.className = "card pending";
-    const h = document.createElement("h2"); h.textContent = `📤 הזמנה #${o.no} נשלחה בווצאפ?`;
+    const h = document.createElement("h2"); h.textContent = `הזמנה #${o.no} נשלחה בווצאפ?`;
     const t = document.createElement("p"); t.textContent = o.summary;
     const btns = document.createElement("div"); btns.className = "btns";
-    const yes = document.createElement("button"); yes.type = "button"; yes.textContent = "✅ כן, נשלחה";
+    const yes = document.createElement("button"); yes.type = "button"; yes.textContent = "כן, נשלחה";
     yes.onclick = () => setPending(getPending().filter(x => x.no !== o.no));
-    const again = document.createElement("button"); again.type = "button"; again.className = "resend"; again.textContent = "🔁 שליחה שוב";
+    const again = document.createElement("button"); again.type = "button"; again.className = "resend"; again.textContent = "שליחה שוב";
     again.onclick = () => { window.location.href = o.link; };
     btns.append(yes, again); card.append(h, t, btns);
     return card;

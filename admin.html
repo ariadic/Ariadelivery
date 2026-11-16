@@ -307,6 +307,8 @@ h3.sub{font-size:17px;font-weight:700;margin:20px 0 4px}
 button.secondary{border:0;background:var(--fill);border-radius:14px;color:var(--tx)}
 .saveBtn,#ceSave,#addSave{background:#111!important;box-shadow:none!important;border-radius:16px;font-weight:600}
 button.danger{border:0;background:#fff1f2;border-radius:14px;color:#e11d48}
+#parseBtn,#addSave,#seedBtn,#ceAddRow,#ceSave,#ceDup,#ceDelete,a.sheetLink{display:flex;align-items:center;justify-content:center;gap:7px}
+#parseBtn .ic,#addSave .ic,#seedBtn .ic,#ceAddRow .ic,#ceSave .ic,#ceDup .ic,#ceDelete .ic,a.sheetLink .ic{flex:none}
 details.quick{background:var(--fill);border-radius:14px}
 .copyFrom select,.copyFrom button{border:0!important;background:var(--fill)!important;border-radius:12px}
 .login{box-shadow:none}
@@ -376,6 +378,13 @@ html{touch-action:manipulation}
 button,label,.chips label,.rc,.dest,.bnav,.qrow,.al{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 body.typing .bnav{display:none}
 body.typing{padding-bottom:24px}
+/* שפה אחידה: אפור = מידע · כתום רך = לתשומת לב · ירוק = הצליח · אדום = בעיה */
+.py.wait,button.py.wait{background:var(--ac-soft);color:#c2410c;box-shadow:none}
+.waitPay{background:var(--ac-soft);color:#c2410c}
+.sheetLink{color:var(--tx);font-size:14px;font-weight:500;padding:12px}.sheetLink .ic{color:var(--mu)}
+.quotaBox{background:var(--ac-soft);color:#9a3412}
+.pd{background:var(--ac-soft);color:#c2410c}
+.nt .ic{color:var(--mu)}
 </style>
 </head>
 <body>
@@ -394,7 +403,7 @@ body.typing{padding-bottom:24px}
   </section>
 
   <div id="app" style="display:none">
-    <div class="alertBox" id="connAlert" style="display:none"><b>🔴 אין חיבור לטבלה בגוגל</b><br>הזמנות חדשות יגיעו אליך <b>בווצאפ</b> עד שזה יסתדר.<br><span class="small">כדאי לבדוק: האינטרנט · הקוד בגוגל (פריסה / הרשאה)</span></div>
+    <div class="alertBox" id="connAlert" style="display:none"><b>אין חיבור לטבלה בגוגל</b><br>הזמנות חדשות יגיעו אליך <b>בווצאפ</b> עד שזה יסתדר.<br><span class="small">כדאי לבדוק: האינטרנט · הקוד בגוגל (פריסה / הרשאה)</span></div>
     <div class="quotaBox" id="quotaWarn" style="display:none"></div>
     <section class="card avail" id="availBox">
       <div class="availRow">
@@ -432,7 +441,7 @@ body.typing{padding-bottom:24px}
     <h2 style="margin-top:0;display:none">הוספת הזמנה ידנית</h2>
     <p class="meta">מדביקים את הודעת ההזמנה מווצאפ כמו שהיא – הפרטים יתמלאו לבד. אפשר גם למלא ידנית.</p>
     <textarea id="paste" placeholder="הדבק כאן את הודעת הווצאפ…"></textarea>
-    <button type="button" class="secondary" id="parseBtn">📋 מלא פרטים מההודעה</button>
+    <button type="button" class="secondary" id="parseBtn"><svg class="ic s"><use href="#i-message-square-text"/></svg><span>מלא פרטים מההודעה</span></button>
     <div class="err" id="parseMsg"></div>
     <div class="grid">
       <label>מס' הזמנה<input id="f_no" placeholder="למשל 1111-134735"></label>
@@ -451,19 +460,19 @@ body.typing{padding-bottom:24px}
       <label class="wide">הערות<input id="f_notes"></label>
     </div>
     <div class="err" id="addErr"></div>
-    <button type="button" class="saveBtn" id="addSave">💾 שמירה בטבלה</button>
+    <button type="button" class="saveBtn" id="addSave"><svg class="ic s"><use href="#i-check"/></svg><span>שמירה בטבלה</span></button>
     <button type="button" class="secondary" id="addCancel">ביטול</button>
   </section>
   <!-- ===== לקוחות ומחירונים ===== -->
   <section id="custView" style="display:none">
     <div class="note" id="custNote"></div>
     <button type="button" class="addBtn" id="custNew"><svg class="ic s"><use href="#i-plus"/></svg><span>לקוח חדש</span></button>
-    <a class="sheetLink" id="sheetLink" target="_blank" rel="noopener" style="display:none">📊 עריכת המחירים בטבלה בגוגל (לשונית "מחירונים")</a>
+    <a class="sheetLink" id="sheetLink" target="_blank" rel="noopener" style="display:none"><svg class="ic s"><use href="#i-file-text"/></svg><span>עריכת מחירים בטבלה בגוגל</span></a>
     <div id="custList"></div>
     <section class="card" id="seedBox" style="display:none">
       <h2 style="margin-top:0">עוד אין לקוחות בטבלה</h2>
       <p class="meta">אפשר לייבא את מה שכבר מוגדר באתר (פרחי אודי ודורית ולקוחות מזדמנים) ולערוך מכאן.</p>
-      <button type="button" class="saveBtn" id="seedBtn">📥 ייבוא הלקוחות הקיימים</button>
+      <button type="button" class="saveBtn" id="seedBtn"><svg class="ic s"><use href="#i-users"/></svg><span>ייבוא הלקוחות הקיימים</span></button>
     </section>
   </section>
 
@@ -489,13 +498,13 @@ body.typing{padding-bottom:24px}
       <label>תוספת דחוף (₪)<input id="ce_urgentDef" inputmode="numeric" placeholder="0"></label>
     </div>
 
-    <h3 class="sub">📍 מחירון <span class="opt" id="ceCount"></span></h3>
+    <h3 class="sub">מחירון <span class="opt" id="ceCount"></span></h3>
     <p class="meta">גוררים את ☰ כדי לקבוע את הסדר – זה הסדר שהלקוח רואה ברשימת היעדים.</p>
     <p class="meta" id="ceAgreed">בלי יעדים במחירון = "מחיר לפי הסכם" (לא מוצג מחיר ללקוח).</p>
     <div id="ceRows"></div>
-    <button type="button" class="secondary" id="ceAddRow">➕ הוספת יעד</button>
+    <button type="button" class="secondary" id="ceAddRow"><svg class="ic s"><use href="#i-plus"/></svg><span>הוספת יעד</span></button>
     <details class="quick">
-      <summary>⚡ הוספה מהירה של הרבה יעדים</summary>
+      <summary>הוספה מהירה של הרבה יעדים</summary>
       <p class="meta">שורה לכל יעד: שם ואז מחיר. למשל:<br>נשר 40<br>טירת כרמל 45<br>יעד שכבר קיים – המחיר שלו יתעדכן.</p>
       <textarea id="ceQuick" placeholder="נשר 40&#10;טירת כרמל 45"></textarea>
       <button type="button" class="secondary" id="ceQuickBtn">הוסף / עדכן</button>
@@ -506,10 +515,10 @@ body.typing{padding-bottom:24px}
     </div>
 
     <div class="err" id="ceErr"></div>
-    <button type="button" class="saveBtn" id="ceSave">💾 שמירה</button>
+    <button type="button" class="saveBtn" id="ceSave"><svg class="ic s"><use href="#i-check"/></svg><span>שמירה</span></button>
     <button type="button" class="secondary" id="ceCancel">ביטול</button>
-    <button type="button" class="secondary" id="ceDup">📄 שכפול ללקוח חדש (אותן הגדרות ומחירון)</button>
-    <button type="button" class="danger" id="ceDelete">🗑 מחיקת הלקוח</button>
+    <button type="button" class="secondary" id="ceDup"><svg class="ic s"><use href="#i-copy"/></svg><span>שכפול ללקוח חדש (אותן הגדרות ומחירון)</span></button>
+    <button type="button" class="danger" id="ceDelete"><svg class="ic s"><use href="#i-trash-2"/></svg><span>מחיקת הלקוח</span></button>
   </section>
 </main>
 
@@ -613,7 +622,7 @@ function setLed(ok, quota) {
   $("connAlert").style.display = ok ? "none" : "block";
   const low = ok && typeof quota === "number" && quota < 15;
   $("quotaWarn").style.display = low ? "block" : "none";
-  if (low) $("quotaWarn").textContent = `⚠️ מיילים כמעט נגמרו להיום – נשארו ${quota}. ההזמנות ממשיכות להישמר בטבלה ובדף הזה.`;
+  if (low) $("quotaWarn").textContent = `מיילים כמעט נגמרו להיום – נשארו ${quota}. ההזמנות ממשיכות להישמר בטבלה ובדף הזה.`;
 }
 
 function orderTime(o) {
@@ -682,7 +691,7 @@ function render() {
       el("span", { className: "paidN", textContent: `לא שולם ₪${amount(unpaid)} (${unpaid.length})` })));
 
   if (!shown.length) {
-    $("list").replaceChildren(el("div", { className: "empty", textContent: q ? `לא נמצאו הזמנות עבור "${q}"` : tab === "open" ? "אין הזמנות פתוחות 🎉" : "אין הזמנות שנסגרו בטווח הזה" }));
+    $("list").replaceChildren(el("div", { className: "empty", textContent: q ? `לא נמצאו הזמנות עבור "${q}"` : tab === "open" ? "אין הזמנות פתוחות" : "אין הזמנות שנסגרו בטווח הזה" }));
     return;
   }
   $("list").replaceChildren(...shown.map(card));
@@ -873,10 +882,10 @@ function setNear(o, btn) {
 
 function deleteOrder(o, btn) {
   if (!confirm(`למחוק את ההזמנה #${o.no} (${o.recipient} – ${o.address})?\nהיא תימחק מהטבלה ומהרשימה של הלקוח. אי אפשר לבטל.`)) return;
-  btn.disabled = true; btn.textContent = "מוחק…";
+  const orig = btn.innerHTML; btn.disabled = true; btn.textContent = "מוחק…";
   fetch(SHEET_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "deleteOrder", key, no: o.no }) })
-    .then(() => { orders = orders.filter(x => x !== o); render(); $("note").textContent = `🗑 הזמנה #${o.no} נמחקה`; setTimeout(load, 1500); })
-    .catch(() => { btn.disabled = false; btn.textContent = "🗑 מחיקת ההזמנה"; alert("המחיקה לא נשלחה – בדוק חיבור ונסה שוב"); });
+    .then(() => { orders = orders.filter(x => x !== o); render(); $("note").textContent = `הזמנה #${o.no} נמחקה`; setTimeout(load, 1500); })
+    .catch(() => { btn.disabled = false; btn.innerHTML = orig; alert("המחיקה לא נשלחה – בדוק חיבור ונסה שוב"); });
 }
 
 function setPaid(o, paid, btn) {
@@ -975,7 +984,7 @@ $("parseBtn").onclick = () => {
     f(k).value = k === "time" ? toLocalInput(o[k]) : o[k]; n++;
   });
   $("parseMsg").style.color = n ? "var(--ok)" : "var(--err)";
-  $("parseMsg").textContent = n ? `✅ מולאו ${n} שדות – בדוק שהכול נכון ושמור` : "לא זוהו פרטים בהודעה – אפשר למלא ידנית";
+  $("parseMsg").textContent = n ? `✓ מולאו ${n} שדות – בדוק שהכול נכון ושמור` : "לא זוהו פרטים בהודעה – אפשר למלא ידנית";
 };
 
 $("addSave").onclick = () => {
@@ -994,16 +1003,16 @@ $("addSave").onclick = () => {
     message: $("paste").value.trim() || [`הזמנה ידנית #${no}`, `לקוח: ${v("customer")}`, `מסירה: ${v("recipient")} – ${v("address")} ${v("phone")}`,
       `${v("item")} ${v("when")}`, `מחיר: ${v("price")}`, v("notes")].filter(Boolean).join("\n"),
   };
-  const btn = $("addSave"); btn.disabled = true; btn.textContent = "שומר…"; $("addErr").textContent = "";
+  const btn = $("addSave"), orig = btn.innerHTML; btn.disabled = true; btn.textContent = "שומר…"; $("addErr").textContent = "";
   const post = body => fetch(SHEET_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(body) });
   post(rec)
     .then(() => status !== "חדשה" ? new Promise(r => setTimeout(r, 1500)).then(() => post({ action: "setStatus", key, no, status })) : null)
     .then(() => {
-      closeAdd(); $("note").textContent = `✅ הזמנה #${no} נשמרה – מרענן…`;
+      closeAdd(); $("note").textContent = `✓ הזמנה #${no} נשמרה – מרענן…`;
       setTimeout(load, 1500);
     })
     .catch(() => { $("addErr").textContent = "השמירה נכשלה – בדוק חיבור לאינטרנט ונסה שוב"; })
-    .finally(() => { btn.disabled = false; btn.textContent = "💾 שמירה בטבלה"; });
+    .finally(() => { btn.disabled = false; btn.innerHTML = orig; });
 };
 $("addOpen").onclick = openAdd;
 $("addCancel").onclick = closeAdd;
@@ -1055,7 +1064,7 @@ function loadCustomers() {
       if (!d.ok) { $("custNote").textContent = d.error === "סיסמה שגויה" ? "סיסמה שגויה" : "צריך לעדכן את הקוד בגוגל לגרסה החדשה (ראו הוראות)"; customers = []; renderCustomers(); return; }
       customers = d.customers || [];
       cacheSet(CUST_CACHE, { customers });
-      if (d.sheetUrl) { $("sheetLink").href = d.sheetUrl; $("sheetLink").style.display = "block"; }
+      if (d.sheetUrl) { $("sheetLink").href = d.sheetUrl; $("sheetLink").style.display = "flex"; }
       $("custNote").textContent = `${customers.filter(c => c.code !== DEFAULT_CODE).length} לקוחות`;
       renderCustomers();
     })
@@ -1152,7 +1161,7 @@ function priceRange(p) { const v = p.map(x => x.price); return `₪${Math.min(..
 function copyText(t, btn) {
   const done = () => {
     const o = btn.innerHTML; btn.classList.add("copied");
-    if (btn.classList.contains("ib")) btn.replaceChildren(ico("check", "s")); else btn.textContent = "✅ הועתק";
+    if (btn.classList.contains("ib")) btn.replaceChildren(ico("check", "s")); else btn.textContent = "✓ הועתק";
     setTimeout(() => { btn.innerHTML = o; btn.classList.remove("copied"); }, 1500);
   };
   if (navigator.clipboard) navigator.clipboard.writeText(t).then(done, () => prompt("העתק את הלינק:", t));
@@ -1284,7 +1293,7 @@ $("ceQuickBtn").onclick = () => {
   readRows().filter(r => !r.label && !r.price).forEach(r => r.row.remove());
   countRows();
   $("ceErr").style.color = "var(--ok)";
-  $("ceErr").textContent = added || updated ? `✅ נוספו ${added}, עודכנו ${updated} – לא לשכוח לשמור` : "לא זוהו שורות. כותבים: שם ואז מחיר, למשל: נשר 40";
+  $("ceErr").textContent = added || updated ? `✓ נוספו ${added}, עודכנו ${updated} – לא לשכוח לשמור` : "לא זוהו שורות. כותבים: שם ואז מחיר, למשל: נשר 40";
   $("ceQuick").value = "";
 };
 $("ceCopyBtn").onclick = () => {
@@ -1312,7 +1321,7 @@ $("ceSave").onclick = () => {
         hidePayer: $("ce_hidePayer").checked, greeting: $("ce_greeting").checked,
         sizes: $("ce_sizes").value.split(",").map(x => x.trim()).filter(Boolean) };
   customer.prices = rows.map(r => ({ label: r.label, price: Number(r.price), city: r.city || r.label }));
-  const btn = $("ceSave"); btn.disabled = true; btn.textContent = "שומר…";
+  const btn = $("ceSave"), orig = btn.innerHTML; btn.disabled = true; btn.textContent = "שומר…";
   post({ action: "saveCustomer", code: editing.code, customer })
     .then(() => new Promise(r => setTimeout(r, 1200)))
     .then(loadCustomers)
@@ -1320,10 +1329,10 @@ $("ceSave").onclick = () => {
       const saved = customers.find(c => c.code === editing.code);
       if (!saved) { err.textContent = "השמירה לא נקלטה – בדוק שהקוד בגוגל מעודכן, ונסה שוב"; return; }
       showView("customers");
-      $("custNote").textContent = `✅ נשמר: ${isDef ? "לקוחות מזדמנים" : saved.name}` + (editing.isNew ? " – הלינק שלו מוכן למטה" : "");
+      $("custNote").textContent = `✓ נשמר: ${isDef ? "לקוחות מזדמנים" : saved.name}` + (editing.isNew ? " – הלינק שלו מוכן למטה" : "");
     })
     .catch(() => { err.textContent = "השמירה נכשלה – בדוק חיבור לאינטרנט ונסה שוב"; })
-    .finally(() => { btn.disabled = false; btn.textContent = "💾 שמירה"; });
+    .finally(() => { btn.disabled = false; btn.innerHTML = orig; });
 };
 $("ceDup").onclick = () => {
   const c = customers.find(x => x.code === editing.code);
@@ -1347,10 +1356,10 @@ $("ceFrom").onchange = () => {
   $("ceErr").style.color = "#15803d";
 };
 $("seedBtn").onclick = () => {
-  const btn = $("seedBtn"); btn.disabled = true; btn.textContent = "מייבא…";
+  const btn = $("seedBtn"), orig = btn.innerHTML; btn.disabled = true; btn.textContent = "מייבא…";
   SEED.reduce((pr, s) => pr.then(() => post(Object.assign({ action: "saveCustomer" }, s))), Promise.resolve())
     .then(() => new Promise(r => setTimeout(r, 1200))).then(loadCustomers)
-    .finally(() => { btn.disabled = false; btn.textContent = "📥 ייבוא הלקוחות הקיימים"; });
+    .finally(() => { btn.disabled = false; btn.innerHTML = orig; });
 };
 $("navCust").onclick = () => { showView("customers"); loadCustomers(); };
 $("navOrders").onclick = () => { showView("orders"); load(); };
