@@ -12,7 +12,7 @@
 const NOTIFY_EMAIL = "";
 
 // גרסת הקוד – מופיעה בבדיקת הכתובת, כדי לדעת שהפריסה באמת עודכנה
-const CODE_VERSION = "2026-11-16a";
+const CODE_VERSION = "2026-11-16b";
 
 // התראות לאייפון דרך אפליקציית Pushover (הכי אמין – עם צלצול חירום ו"קיבלתי" ישר מההתראה).
 // מדביקים כאן את שני המפתחות מ-pushover.net. לא לשמור אותם באתר (הקוד באתר גלוי לכולם).
@@ -835,10 +835,11 @@ function ackPage(r) {
     : h(r.error);
   const html = '<!doctype html><html dir="rtl"><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta charset="utf-8"></head>' +
     '<body style="font-family:-apple-system,Arial,sans-serif;text-align:center;padding:48px 20px;color:#111">' +
-    '<div style="width:84px;height:84px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:44px;background:' + (r.ok ? "#e8f8ee" : "#fff1f2") + '">' + (r.ok ? "✅" : "⚠️") + '</div>' +
+    '<div style="width:84px;height:84px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;background:' + (r.ok ? "#1fbf5a" : "#a1a1aa") + '">' + (r.ok ? '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>' : '<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>') + '</div>' +
     (r.ok ? '<div style="font-size:15px;color:#70707a">' + h(r.recipient) + " · " + h(r.dest) + " · #" + h(r.no) + "</div>" : "") +
     '<p style="font-size:20px;line-height:1.5">' + msg + '</p>' +
-    '<a href="' + ADMIN_URL + '" style="display:inline-block;margin-top:12px;background:#ff5a1f;color:#fff;text-decoration:none;padding:14px 22px;border-radius:14px;font-weight:600">פתיחת דף הניהול</a></body></html>';
+    // target=_top: דף הניהול נפתח כדף רגיל ולא בתוך המסגרת של גוגל (שם שדות כמו בחירת שעה לא עובדים טוב)
+    '<a href="' + ADMIN_URL + '" target="_top" style="display:inline-block;margin-top:12px;background:#ff5a1f;color:#fff;text-decoration:none;padding:14px 22px;border-radius:14px;font-weight:600">פתיחת דף הניהול</a></body></html>';
   return HtmlService.createHtmlOutput(html).setTitle("ארי משלוחים").addMetaTag("viewport", "width=device-width, initial-scale=1");
 }
 

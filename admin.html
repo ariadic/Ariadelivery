@@ -496,6 +496,8 @@ body.typing{padding-bottom:24px}
     </div>
     <div id="ceDefFields" class="grid">
       <label>תוספת דחוף (₪)<input id="ce_urgentDef" inputmode="numeric" placeholder="0"></label>
+      <label>תשלום
+        <select id="ce_payDef"><option value="">מראש בלבד · ביט / פייבוקס</option><option value="מזומן">גם מזומן</option></select></label>
     </div>
 
     <h3 class="sub">מחירון <span class="opt" id="ceCount"></span></h3>
@@ -820,14 +822,14 @@ function openPick(o) {
   // לחיצה על זמן = מאשר מיד (לחיצה אחת). "שעה אחרת" – בוחרים שעה ואז מאשרים
   const chips = opts.map(x => el("button", { type: "button", className: "pkChip", onclick: () => confirm(x.v) },
     el("b", { textContent: x.t }), el("small", { textContent: (x.m ? "דק׳ · " : "") + x.v })));
+  // כפתור האישור תמיד גלוי, וקורא את השעה ישירות מהשדה בלחיצה (באייפון הגלגלת לא תמיד מעדכנת את הדף)
   function set(v, typed) {
     val = v; if (!typed) inp.value = v;
     chips.forEach((c, i) => c.classList.toggle("on", !!cur && opts[i].v === v));
-    go.textContent = (editing ? "עדכון · " : "קיבלתי · ") + "אאסוף בערך ב-" + (v || "…");
-    go.style.display = typed ? "" : "none";
+    go.textContent = (editing ? "שמירה · " : "קיבלתי · ") + "אאסוף בערך ב-" + (v || "…");
   }
-  inp.addEventListener("input", () => set(inp.value, true)); inp.addEventListener("change", () => set(inp.value, true));
-  go.onclick = () => { if (val) confirm(val); };
+  ["input", "change", "blur"].forEach(ev => inp.addEventListener(ev, () => set(inp.value, true)));
+  go.onclick = () => { const v = inp.value || val; if (v) confirm(v); };
   const skip = el("button", { type: "button", className: "etaSkip", textContent: editing ? "בלי שעת איסוף" : "קיבלתי בלי זמן",
     onclick: () => { closeOrder(); update(o, "אושרה", null, { eta: "" }); } });
   $("oBody").replaceChildren(
@@ -860,7 +862,7 @@ function openEta(o) {
   aria(inp, "שעת הגעה משוערת");
   const go = el("button", { type: "button", className: "etaGo" });
   const label = () => { go.textContent = (editing ? "עדכון · " : "נאסף · ") + "מגיע בערך ב-" + (inp.value || "…"); };
-  inp.addEventListener("input", label); inp.addEventListener("change", label); label();
+  ["input", "change", "blur"].forEach(ev => inp.addEventListener(ev, label)); label();
   go.onclick = () => { if (!inp.value) return; closeOrder(); update(o, "נאסף", null, { eta: inp.value }); };
   const skip = el("button", { type: "button", className: "etaSkip", textContent: editing ? "בלי זמן הגעה" : "נאסף בלי זמן",
     onclick: () => { closeOrder(); update(o, "נאסף", null, { eta: "" }); } });
@@ -1202,6 +1204,7 @@ function openEditor(c, dup) {
   $("ce_name").value = c.name || ""; $("ce_addr").value = c.addr || ""; $("ce_phone").value = c.phone || "";
   $("ce_title").value = c.title || ""; $("ce_pay").value = c.pay || ""; $("ce_urgent").value = c.urgentExtra || "";
   $("ce_urgentDef").value = c.urgentExtra || "";
+  $("ce_payDef").value = isDef && /מזומן/.test(c.pay || "") ? "מזומן" : "";
   $("ce_sizes").value = (c.sizes || []).join(", ");
   $("ce_fixed").checked = isNew && !dup ? true : !!c.fixedPickup;
   $("ce_hidePayer").checked = !!c.hidePayer; $("ce_greeting").checked = !!c.greeting;
@@ -1315,7 +1318,7 @@ $("ceSave").onclick = () => {
   const isDef = editing.isDef;
   if (!isDef && !$("ce_name").value.trim()) { $("ce_name").classList.add("bad"); err.textContent = "חסר שם העסק"; return; }
   const customer = isDef
-    ? { urgentExtra: $("ce_urgentDef").value || 0 }
+    ? { urgentExtra: $("ce_urgentDef").value || 0, pay: $("ce_payDef").value }
     : { name: $("ce_name").value, addr: $("ce_addr").value, phone: $("ce_phone").value, title: $("ce_title").value,
         pay: $("ce_pay").value, urgentExtra: $("ce_urgent").value || 0, fixedPickup: $("ce_fixed").checked,
         hidePayer: $("ce_hidePayer").checked, greeting: $("ce_greeting").checked,
