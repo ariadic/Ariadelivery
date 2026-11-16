@@ -820,14 +820,14 @@ function openPick(o) {
   // לחיצה על זמן = מאשר מיד (לחיצה אחת). "שעה אחרת" – בוחרים שעה ואז מאשרים
   const chips = opts.map(x => el("button", { type: "button", className: "pkChip", onclick: () => confirm(x.v) },
     el("b", { textContent: x.t }), el("small", { textContent: (x.m ? "דק׳ · " : "") + x.v })));
+  // כפתור האישור תמיד גלוי, וקורא את השעה ישירות מהשדה בלחיצה (באייפון הגלגלת לא תמיד מעדכנת את הדף)
   function set(v, typed) {
     val = v; if (!typed) inp.value = v;
     chips.forEach((c, i) => c.classList.toggle("on", !!cur && opts[i].v === v));
-    go.textContent = (editing ? "עדכון · " : "קיבלתי · ") + "אאסוף בערך ב-" + (v || "…");
-    go.style.display = typed ? "" : "none";
+    go.textContent = (editing ? "שמירה · " : "קיבלתי · ") + "אאסוף בערך ב-" + (v || "…");
   }
-  inp.addEventListener("input", () => set(inp.value, true)); inp.addEventListener("change", () => set(inp.value, true));
-  go.onclick = () => { if (val) confirm(val); };
+  ["input", "change", "blur"].forEach(ev => inp.addEventListener(ev, () => set(inp.value, true)));
+  go.onclick = () => { const v = inp.value || val; if (v) confirm(v); };
   const skip = el("button", { type: "button", className: "etaSkip", textContent: editing ? "בלי שעת איסוף" : "קיבלתי בלי זמן",
     onclick: () => { closeOrder(); update(o, "אושרה", null, { eta: "" }); } });
   $("oBody").replaceChildren(
@@ -860,7 +860,7 @@ function openEta(o) {
   aria(inp, "שעת הגעה משוערת");
   const go = el("button", { type: "button", className: "etaGo" });
   const label = () => { go.textContent = (editing ? "עדכון · " : "נאסף · ") + "מגיע בערך ב-" + (inp.value || "…"); };
-  inp.addEventListener("input", label); inp.addEventListener("change", label); label();
+  ["input", "change", "blur"].forEach(ev => inp.addEventListener(ev, label)); label();
   go.onclick = () => { if (!inp.value) return; closeOrder(); update(o, "נאסף", null, { eta: inp.value }); };
   const skip = el("button", { type: "button", className: "etaSkip", textContent: editing ? "בלי זמן הגעה" : "נאסף בלי זמן",
     onclick: () => { closeOrder(); update(o, "נאסף", null, { eta: "" }); } });
