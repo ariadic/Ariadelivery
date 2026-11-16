@@ -704,6 +704,7 @@ const CONFIG = {
     const fix = c => Object.assign({}, c, { prices: c.prices && c.prices.length ? c.prices : undefined,
       sizes: c.sizes && c.sizes.length ? c.sizes : undefined, pay: c.pay || undefined });
     if (code && cfg.customer) CONFIG.customers[code] = fix(cfg.customer);
+    CONFIG.occasionalCash = !!(cfg.defaults && /מזומן/.test(cfg.defaults.pay || ""));   // נקבע בדף הניהול: לקוחות מזדמנים · תשלום
     if (cfg.defaults && cfg.defaults.prices && cfg.defaults.prices.length) {
       CONFIG.defaultPrices = cfg.defaults.prices;
       CONFIG.urgentExtra = cfg.defaults.urgentExtra || 0;
@@ -808,11 +809,18 @@ function chipLabel(t) {
 chips("sizeChips", "size", (CUSTOMER && CUSTOMER.sizes) || SIZES, t => ICO(sizeIcon(t)) + `<span>${chipLabel(t)}</span>`);
 chips("whenChips", "when", WHEN, (t, i) => i === 1 ? ICO("zap", "s") + "דחוף" + (URGENT_EXTRA ? `<em>+${URGENT_EXTRA} ₪</em>` : "")
   : i === 2 ? ICO("calendar-clock", "s") + "מתוזמן" : t);
-// לקוחות מזדמנים (הדף בלי לינק אישי): תשלום מראש בלבד – ביט / פייבוקס, והמזמין הוא המשלם
-const PREPAY = !CUSTOMER;
-chips("payChips", "pay", PREPAY ? ["ביט", "פייבוקס"] : PAY);
+// לקוחות מזדמנים (הדף בלי לינק אישי): ביט / פייבוקס מראש. אם ארי פתח בדף הניהול – גם מזומן
+const CASH_OK = !CUSTOMER && !!CONFIG.occasionalCash;
+const isPre = () => !CUSTOMER && !/מזומן/.test(val("pay"));
+chips("payChips", "pay", CUSTOMER ? PAY : CASH_OK ? ["ביט", "פייבוקס", "מזומן"] : ["ביט", "פייבוקס"]);
 chips("payerChips", "payer", PAYER);
-if (PREPAY) { $("preNote").style.display = "block"; $("payerBox").style.display = "none"; }
+function updPay() {
+  if (CUSTOMER) return;
+  $("preNote").style.display = isPre() ? "flex" : "none";
+  $("payerBox").style.display = isPre() ? "none" : "";          // מזומן: מי משלם – השולח או המקבל
+}
+$("payChips").addEventListener("change", updPay);
+updPay();
 
 const opt = t => { const o = document.createElement("option"); o.value = o.textContent = t; return o; };
 $("dCity").replaceChildren(Object.assign(opt("בחרו יעד…"), { value: "" }),
@@ -1080,7 +1088,7 @@ $("orderForm").addEventListener("submit", e => {
     `🗺 ${waze(fullDest)}`,
     ``,
     `📏 ${val("size")} | ⏱ ${when}`,
-    PREPAY ? `💰 ${val("pay")} – תשלום מראש (לבדוק שהתקבל לפני יציאה)`
+    isPre() ? `💰 ${val("pay")} – תשלום מראש (לבדוק שהתקבל לפני יציאה)`
       : `💰 ${(CUSTOMER && CUSTOMER.pay) || val("pay")}${CUSTOMER && CUSTOMER.hidePayer ? "" : " – משלם " + val("payer")}`,
     AGREED ? `💵 מחיר: לפי הסכם`
       : price !== null ? `💵 מחיר: ₪${price}` : `💵 מחיר: לתיאום (${label})`,
@@ -1107,7 +1115,7 @@ $("orderForm").addEventListener("submit", e => {
     pickup: $("pAddr").value.trim(), pickupPhone: $("pPhone").value.trim(),
     recipient: $("dName").value.trim(), dest: label, address: destLine, recipientPhone: $("dPhone").value.trim(),
     item: val("size"), when,
-    pay: PREPAY ? val("pay") + " (מראש)" : (CUSTOMER && CUSTOMER.pay) || val("pay"),
+    pay: isPre() ? val("pay") + " (מראש)" : (CUSTOMER && CUSTOMER.pay) || val("pay"),
     price: AGREED ? "לפי הסכם" : price !== null ? price : "לתיאום",
     notes, message: text, code: CUSTOMER ? CUSTOMER_CODE : "",
   };
@@ -1265,7 +1273,7 @@ function showPayCard(record) {
   $("payAmt").textContent = amount;
   $("payPhone").textContent = CONFIG.payPhone;
   $("payNo").textContent = record.no;
-  $("payPre").style.display = PREPAY ? "block" : "none";
+  $("payPre").style.display = /מראש/.test(record.pay) ? "flex" : "none";
   $("payHint").textContent = `פותחים את ${method} ← מדביקים את המספר ← ${amount ? "סכום " + amount : "הסכום שסוכם עם ארי"} ← מדביקים את מספר ההזמנה בהערה`;
   [["cpPhone", CONFIG.payPhone.replace(/\D/g, "")], ["cpNo", record.no]].forEach(([id, val]) => {
     const b = $(id); b.innerHTML = ICO("copy") + "העתק"; b.classList.remove("done");
