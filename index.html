@@ -252,6 +252,7 @@ button.primary#doneMore .ic{width:22px;height:22px}
 .okic{width:96px;height:96px;border-radius:50%;background:#e8f8ee;display:grid;place-items:center;margin:6px auto 12px;font-size:40px;animation:pop .5s cubic-bezier(.2,1.4,.4,1) both}
 .okin{width:64px;height:64px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;box-shadow:0 8px 20px #1fbf5a55}
 .okin .ic{width:34px;height:34px;stroke-width:3;stroke-dasharray:30;stroke-dashoffset:30;animation:draw .45s .3s ease-out forwards}
+.done.void .okic{background:#f4f4f5}.done.void .okin{background:#a1a1aa;box-shadow:none}
 @keyframes pop{from{transform:scale(.4);opacity:0}}
 @keyframes draw{to{stroke-dashoffset:0}}
 .done h2{font-size:27px;font-weight:700;letter-spacing:-.02em;margin:0 0 4px}
@@ -518,8 +519,8 @@ body.typing{padding-bottom:24px}
   <!-- ההזמנה נקלטה במערכת -->
   <section id="doneBox" style="display:none">
     <div class="done">
-      <div class="okic"><span class="okin"><svg class="ic"><use href="#i-check"/></svg></span></div>
-      <h2>ההזמנה אצל ארי</h2>
+      <div class="okic"><span class="okin"><svg class="ic"><use id="okUse" href="#i-check"/></svg></span></div>
+      <h2 id="doneH">ההזמנה אצל ארי</h2>
       <div class="doneSum" id="doneSum"></div>
       <div class="trk" id="trk">
         <div class="line"><i id="trkFill"></i></div>
@@ -1179,8 +1180,15 @@ function paintEta(st, eta) {
     $("etaLeft").textContent = m > 1 ? `עוד ${m} דק׳` : "בכל רגע";
   }
 }
+// הכותרת הגדולה משתנה לפי השלב
+const DONE_H = { "חדשה": "ההזמנה אצל ארי", "אושרה": "ארי אישר את ההזמנה", "נאסף": "המשלוח בדרך", "נמסר": "המשלוח נמסר",
+  "לא פנוי": "ארי לא פנוי הפעם", "בוטלה": "ההזמנה בוטלה" };
 function paintTrack(st, eta, steps) {
   paintEta(st, eta);
+  $("doneH").textContent = DONE_H[st] || DONE_H["חדשה"];
+  const bad = st === "לא פנוי" || st === "בוטלה";
+  document.querySelector("#doneBox .done").classList.toggle("void", bad);
+  $("okUse").setAttribute("href", bad ? "#i-x" : "#i-check");
   const sp = parseSteps(steps), sm = document.querySelectorAll("#trk .st small");
   ["אושרה", "נאסף", "נמסר"].forEach((k, i) => { if (sm[i + 1]) sm[i + 1].textContent = sp[k] || ""; });
   const off = st === "לא פנוי" || st === "בוטלה", n = off ? 0 : (STEP[st] || 1);

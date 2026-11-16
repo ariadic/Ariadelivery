@@ -222,8 +222,8 @@ main{padding:8px 16px 24px}
 .r1 .tm{margin-right:auto;color:#999}
 .badge{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:99px}
 .badge.new{background:var(--ac-soft);color:var(--ac)}
-.badge.ok{background:#eef2ff;color:#4f46e5}
-.badge.picked{background:#fff7e0;color:#b7791f}
+.badge.ok{background:var(--fill);color:var(--tx)}
+.badge.picked{background:var(--fill);color:var(--tx)}
 .badge.done{background:#e8f8ee;color:#15803d}
 .badge.no{background:#fff1f2;color:#be123c}
 .urg{display:inline-flex;align-items:center;gap:2px;background:#ffe4e4;color:#e11d48;padding:2px 7px;border-radius:99px;font-weight:600;font-size:11.5px}
@@ -315,8 +315,9 @@ details.quick{background:var(--fill);border-radius:14px}
 .quotaBox{border:0;background:#fff7e0;border-radius:16px}
 .empty{color:var(--mu)}
 .card.login{margin-top:20px;padding:0}
-.etarow{display:flex;align-items:center;gap:6px;background:#fff7e0;border-radius:12px;padding:4px 4px 4px 4px;margin:-2px 0 9px}
-button.etaline{flex:1;min-width:0;display:flex;align-items:center;gap:6px;border:0;background:none;color:#92400e;padding:5px 6px;font:inherit;font-size:13.5px;text-align:right;cursor:pointer}
+.etarow{display:flex;align-items:center;gap:6px;background:var(--fill);border-radius:12px;padding:4px;margin:-2px 0 9px}
+button.etaline{flex:1;min-width:0;display:flex;align-items:center;gap:6px;border:0;background:none;color:var(--tx);padding:5px 6px;font:inherit;font-size:13.5px;font-weight:500;text-align:right;cursor:pointer}
+button.etaline .ic{color:var(--mu)}
 button.etaline span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 button.nearBtn{flex:none;display:inline-flex;align-items:center;gap:4px;border:0;background:#fff;color:#c2410c;border-radius:9px;padding:7px 10px;font:inherit;font-size:13px;font-weight:600;box-shadow:0 1px 3px #0001;cursor:pointer}
 .pkChips{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
@@ -806,22 +807,25 @@ function openPick(o) {
   const go = el("button", { type: "button", className: "etaGo" });
   const inp = el("input", { type: "time", step: 300, className: "etaIn", value: val });
   aria(inp, "שעת איסוף");
-  const chips = opts.map(x => el("button", { type: "button", className: "pkChip", onclick: () => set(x.v) },
+  const confirm = v => { closeOrder(); update(o, "אושרה", null, { eta: v }); };
+  // לחיצה על זמן = מאשר מיד (לחיצה אחת). "שעה אחרת" – בוחרים שעה ואז מאשרים
+  const chips = opts.map(x => el("button", { type: "button", className: "pkChip", onclick: () => confirm(x.v) },
     el("b", { textContent: x.t }), el("small", { textContent: (x.m ? "דק׳ · " : "") + x.v })));
-  function set(v) {
-    val = v; inp.value = v;
-    chips.forEach((c, i) => c.classList.toggle("on", opts[i].v === v));
+  function set(v, typed) {
+    val = v; if (!typed) inp.value = v;
+    chips.forEach((c, i) => c.classList.toggle("on", !!cur && opts[i].v === v));
     go.textContent = (editing ? "עדכון · " : "קיבלתי · ") + "אאסוף בערך ב-" + (v || "…");
+    go.style.display = typed ? "" : "none";
   }
-  inp.addEventListener("input", () => set(inp.value)); inp.addEventListener("change", () => set(inp.value));
-  go.onclick = () => { if (!val) return; closeOrder(); update(o, "אושרה", null, { eta: val }); };
+  inp.addEventListener("input", () => set(inp.value, true)); inp.addEventListener("change", () => set(inp.value, true));
+  go.onclick = () => { if (val) confirm(val); };
   const skip = el("button", { type: "button", className: "etaSkip", textContent: editing ? "בלי שעת איסוף" : "קיבלתי בלי זמן",
     onclick: () => { closeOrder(); update(o, "אושרה", null, { eta: "" }); } });
   $("oBody").replaceChildren(
     el("div", { className: "shh" },
       el("div", {}, el("small", { textContent: `${o.recipient || ""} · ${splitAddr(o.address)[0]}` }), el("h2", { textContent: editing ? "עדכון שעת איסוף" : "קיבלתי · מתי תאסוף?" })),
       aria(el("button", { type: "button", className: "ib", onclick: closeOrder }, ico("x", "s")), "סגירה")),
-    el("p", { className: "etaHint", textContent: "הלקוח יראה \"ארי אישר\" ואת שעת האיסוף" }),
+    el("p", { className: "etaHint", textContent: "לחיצה על זמן מאשרת מיד" }),
     el("div", { className: "pkChips" }, ...chips),
     el("label", { className: "etaBox" }, ico("clock"), el("span", { textContent: "שעה אחרת" }), inp),
     go, skip);
