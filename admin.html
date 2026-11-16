@@ -222,8 +222,8 @@ main{padding:8px 16px 24px}
 .r1 .tm{margin-right:auto;color:#999}
 .badge{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:99px}
 .badge.new{background:var(--ac-soft);color:var(--ac)}
-.badge.ok{background:#eef2ff;color:#4f46e5}
-.badge.picked{background:#fff7e0;color:#b7791f}
+.badge.ok{background:var(--fill);color:var(--tx)}
+.badge.picked{background:var(--fill);color:var(--tx)}
 .badge.done{background:#e8f8ee;color:#15803d}
 .badge.no{background:#fff1f2;color:#be123c}
 .urg{display:inline-flex;align-items:center;gap:2px;background:#ffe4e4;color:#e11d48;padding:2px 7px;border-radius:99px;font-weight:600;font-size:11.5px}
@@ -307,6 +307,8 @@ h3.sub{font-size:17px;font-weight:700;margin:20px 0 4px}
 button.secondary{border:0;background:var(--fill);border-radius:14px;color:var(--tx)}
 .saveBtn,#ceSave,#addSave{background:#111!important;box-shadow:none!important;border-radius:16px;font-weight:600}
 button.danger{border:0;background:#fff1f2;border-radius:14px;color:#e11d48}
+#parseBtn,#addSave,#seedBtn,#ceAddRow,#ceSave,#ceDup,#ceDelete,a.sheetLink{display:flex;align-items:center;justify-content:center;gap:7px}
+#parseBtn .ic,#addSave .ic,#seedBtn .ic,#ceAddRow .ic,#ceSave .ic,#ceDup .ic,#ceDelete .ic,a.sheetLink .ic{flex:none}
 details.quick{background:var(--fill);border-radius:14px}
 .copyFrom select,.copyFrom button{border:0!important;background:var(--fill)!important;border-radius:12px}
 .login{box-shadow:none}
@@ -315,6 +317,31 @@ details.quick{background:var(--fill);border-radius:14px}
 .quotaBox{border:0;background:#fff7e0;border-radius:16px}
 .empty{color:var(--mu)}
 .card.login{margin-top:20px;padding:0}
+.etarow{display:flex;align-items:center;gap:6px;background:var(--fill);border-radius:12px;padding:4px;margin:-2px 0 9px}
+button.etaline{flex:1;min-width:0;display:flex;align-items:center;gap:6px;border:0;background:none;color:var(--tx);padding:5px 6px;font:inherit;font-size:13.5px;font-weight:500;text-align:right;cursor:pointer}
+button.etaline .ic{color:var(--mu)}
+button.etaline span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+button.nearBtn{flex:none;display:inline-flex;align-items:center;gap:4px;border:0;background:#fff;color:#c2410c;border-radius:9px;padding:7px 10px;font:inherit;font-size:13px;font-weight:600;box-shadow:0 1px 3px #0001;cursor:pointer}
+.pkChips{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+button.pkChip{border:1.5px solid var(--ln);background:#fff;border-radius:14px;padding:10px 0;font:inherit;cursor:pointer;line-height:1.2}
+button.pkChip b{display:block;font-size:17px;color:var(--tx)}button.pkChip small{display:block;font-size:11.5px;color:var(--mu)}
+button.pkChip.on{border-color:var(--ac);background:#fff1eb}button.pkChip.on b,button.pkChip.on small{color:#c2410c}
+.lateChips.c3{grid-template-columns:repeat(3,1fr)}
+button.lateQ .ic,.etarow .nearTag .ic{vertical-align:-3px;margin-left:4px}
+.lateBox{background:#fff1eb;border-radius:14px;padding:8px;margin:-2px 0 9px}
+button.lateQ{display:block;width:100%;border:0;background:none;color:#c2410c;font:inherit;font-weight:700;font-size:14px;text-align:right;padding:2px 4px 8px;cursor:pointer}
+.lateChips{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+button.lateChip{border:1.5px solid #ffd2bf;background:#fff;color:#c2410c;border-radius:11px;padding:7px 0;font:inherit;font-weight:700;font-size:14px;line-height:1.15;cursor:pointer}
+button.lateChip small{display:block;font-size:11px;font-weight:500;color:#9a3412}
+button.lateChip:disabled{opacity:.5}
+.etarow .nearTag{flex:none;color:#15803d;font-size:12.5px;padding:0 8px}
+.etaHint{color:var(--mu);font-size:13.5px;margin:6px 0 14px}
+label.etaBox{display:flex;align-items:center;gap:10px;background:var(--fill);border-radius:16px;padding:10px 14px;margin-bottom:14px}
+label.etaBox .ic{color:var(--ac);width:22px;height:22px}
+label.etaBox span{flex:1;font-size:15px;font-weight:500}
+input.etaIn{border:0;background:#fff;border-radius:12px;padding:8px 12px;font:inherit;font-size:24px;font-weight:700;color:var(--tx);box-shadow:0 1px 4px #0001;min-width:120px;text-align:center}
+button.etaGo{width:100%;border:0;border-radius:16px;padding:15px;background:var(--ac);color:#fff;font:inherit;font-size:16.5px;font-weight:600;cursor:pointer}
+button.etaSkip{display:block;margin:12px auto 0;border:0;background:none;color:var(--mu);font:inherit;font-size:14px;text-decoration:underline;cursor:pointer}
 .fromSel{display:block;background:var(--ac-soft);border-radius:14px;padding:8px 12px 9px;margin:4px 0 14px;font-size:12px;color:#c2410c}
 .fromSel span{display:block}
 .fromSel select{display:block;width:100%;border:0;background:none;font:inherit;font-size:16px;font-weight:600;color:var(--tx);padding:2px 0 0;outline:0}
@@ -351,10 +378,17 @@ html{touch-action:manipulation}
 button,label,.chips label,.rc,.dest,.bnav,.qrow,.al{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 body.typing .bnav{display:none}
 body.typing{padding-bottom:24px}
+/* שפה אחידה: אפור = מידע · כתום רך = לתשומת לב · ירוק = הצליח · אדום = בעיה */
+.py.wait,button.py.wait{background:var(--ac-soft);color:#c2410c;box-shadow:none}
+.waitPay{background:var(--ac-soft);color:#c2410c}
+.sheetLink{color:var(--tx);font-size:14px;font-weight:500;padding:12px}.sheetLink .ic{color:var(--mu)}
+.quotaBox{background:var(--ac-soft);color:#9a3412}
+.pd{background:var(--ac-soft);color:#c2410c}
+.nt .ic{color:var(--mu)}
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-file-text" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4" /><path d="M10 9H8" /><path d="M16 13H8" /><path d="M16 17H8" /></symbol><symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></symbol><symbol id="i-inbox" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12" /><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /></symbol><symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14" /><path d="M12 5v14" /></symbol><symbol id="i-refresh-cw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /><path d="M8 16H3v5" /></symbol><symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></symbol><symbol id="i-navigation" viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11" /></symbol><symbol id="i-ellipsis" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" /></symbol><symbol id="i-thumbs-up" viewBox="0 0 24 24"><path d="M7 10v12" /><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z" /></symbol><symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" /><path d="M15 18H9" /><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" /><circle cx="17" cy="18" r="2" /><circle cx="7" cy="18" r="2" /></symbol><symbol id="i-package-check" viewBox="0 0 24 24"><path d="m16 16 2 2 4-4" /><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14" /><path d="m7.5 4.27 9 5.15" /><polyline points="3.29 7 12 12 20.71 7" /><line x1="12" x2="12" y1="22" y2="12" /></symbol><symbol id="i-banknote" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01M18 12h.01" /></symbol><symbol id="i-circle-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="m15 9-6 6" /><path d="m9 9 6 6" /></symbol><symbol id="i-undo-2" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5" /><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11" /></symbol><symbol id="i-trash-2" viewBox="0 0 24 24"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" /></symbol><symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></symbol><symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></symbol><symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></symbol><symbol id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></symbol><symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /><circle cx="12" cy="10" r="3" /></symbol><symbol id="i-message-circle" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></symbol><symbol id="i-message-square-text" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /><path d="M13 8H7" /><path d="M17 12H7" /></symbol><symbol id="i-send" viewBox="0 0 24 24"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" /><path d="m21.854 2.147-10.94 10.939" /></symbol><symbol id="i-store" viewBox="0 0 24 24"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" /><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" /><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" /><path d="M2 7h20" /><path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7" /></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol><symbol id="i-package" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" /><path d="M12 22V12" /><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7" /><path d="m7.5 4.27 9 5.15" /></symbol></svg>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-file-text" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4" /><path d="M10 9H8" /><path d="M16 13H8" /><path d="M16 17H8" /></symbol><symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></symbol><symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></symbol><symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /><circle cx="12" cy="10" r="3" /></symbol><symbol id="i-inbox" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12" /><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /></symbol><symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14" /><path d="M12 5v14" /></symbol><symbol id="i-refresh-cw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /><path d="M8 16H3v5" /></symbol><symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></symbol><symbol id="i-navigation" viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11" /></symbol><symbol id="i-ellipsis" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" /></symbol><symbol id="i-thumbs-up" viewBox="0 0 24 24"><path d="M7 10v12" /><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z" /></symbol><symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" /><path d="M15 18H9" /><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" /><circle cx="17" cy="18" r="2" /><circle cx="7" cy="18" r="2" /></symbol><symbol id="i-package-check" viewBox="0 0 24 24"><path d="m16 16 2 2 4-4" /><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14" /><path d="m7.5 4.27 9 5.15" /><polyline points="3.29 7 12 12 20.71 7" /><line x1="12" x2="12" y1="22" y2="12" /></symbol><symbol id="i-banknote" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01M18 12h.01" /></symbol><symbol id="i-circle-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="m15 9-6 6" /><path d="m9 9 6 6" /></symbol><symbol id="i-undo-2" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5" /><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11" /></symbol><symbol id="i-trash-2" viewBox="0 0 24 24"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" /></symbol><symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></symbol><symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></symbol><symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></symbol><symbol id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></symbol><symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /><circle cx="12" cy="10" r="3" /></symbol><symbol id="i-message-circle" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></symbol><symbol id="i-message-square-text" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /><path d="M13 8H7" /><path d="M17 12H7" /></symbol><symbol id="i-send" viewBox="0 0 24 24"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" /><path d="m21.854 2.147-10.94 10.939" /></symbol><symbol id="i-store" viewBox="0 0 24 24"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" /><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" /><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" /><path d="M2 7h20" /><path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7" /></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol><symbol id="i-package" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" /><path d="M12 22V12" /><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7" /><path d="m7.5 4.27 9 5.15" /></symbol></svg>
 <header>
   <div class="ht"><small>ארי משלוחים</small><h1 id="viewTitle">הזמנות</h1></div>
   <button type="button" class="ib" id="refresh" aria-label="רענון"><svg class="ic s"><use href="#i-refresh-cw"/></svg></button>
@@ -369,7 +403,7 @@ body.typing{padding-bottom:24px}
   </section>
 
   <div id="app" style="display:none">
-    <div class="alertBox" id="connAlert" style="display:none"><b>🔴 אין חיבור לטבלה בגוגל</b><br>הזמנות חדשות יגיעו אליך <b>בווצאפ</b> עד שזה יסתדר.<br><span class="small">כדאי לבדוק: האינטרנט · הקוד בגוגל (פריסה / הרשאה)</span></div>
+    <div class="alertBox" id="connAlert" style="display:none"><b>אין חיבור לטבלה בגוגל</b><br>הזמנות חדשות יגיעו אליך <b>בווצאפ</b> עד שזה יסתדר.<br><span class="small">כדאי לבדוק: האינטרנט · הקוד בגוגל (פריסה / הרשאה)</span></div>
     <div class="quotaBox" id="quotaWarn" style="display:none"></div>
     <section class="card avail" id="availBox">
       <div class="availRow">
@@ -407,7 +441,7 @@ body.typing{padding-bottom:24px}
     <h2 style="margin-top:0;display:none">הוספת הזמנה ידנית</h2>
     <p class="meta">מדביקים את הודעת ההזמנה מווצאפ כמו שהיא – הפרטים יתמלאו לבד. אפשר גם למלא ידנית.</p>
     <textarea id="paste" placeholder="הדבק כאן את הודעת הווצאפ…"></textarea>
-    <button type="button" class="secondary" id="parseBtn">📋 מלא פרטים מההודעה</button>
+    <button type="button" class="secondary" id="parseBtn"><svg class="ic s"><use href="#i-message-square-text"/></svg><span>מלא פרטים מההודעה</span></button>
     <div class="err" id="parseMsg"></div>
     <div class="grid">
       <label>מס' הזמנה<input id="f_no" placeholder="למשל 1111-134735"></label>
@@ -426,19 +460,19 @@ body.typing{padding-bottom:24px}
       <label class="wide">הערות<input id="f_notes"></label>
     </div>
     <div class="err" id="addErr"></div>
-    <button type="button" class="saveBtn" id="addSave">💾 שמירה בטבלה</button>
+    <button type="button" class="saveBtn" id="addSave"><svg class="ic s"><use href="#i-check"/></svg><span>שמירה בטבלה</span></button>
     <button type="button" class="secondary" id="addCancel">ביטול</button>
   </section>
   <!-- ===== לקוחות ומחירונים ===== -->
   <section id="custView" style="display:none">
     <div class="note" id="custNote"></div>
     <button type="button" class="addBtn" id="custNew"><svg class="ic s"><use href="#i-plus"/></svg><span>לקוח חדש</span></button>
-    <a class="sheetLink" id="sheetLink" target="_blank" rel="noopener" style="display:none">📊 עריכת המחירים בטבלה בגוגל (לשונית "מחירונים")</a>
+    <a class="sheetLink" id="sheetLink" target="_blank" rel="noopener" style="display:none"><svg class="ic s"><use href="#i-file-text"/></svg><span>עריכת מחירים בטבלה בגוגל</span></a>
     <div id="custList"></div>
     <section class="card" id="seedBox" style="display:none">
       <h2 style="margin-top:0">עוד אין לקוחות בטבלה</h2>
       <p class="meta">אפשר לייבא את מה שכבר מוגדר באתר (פרחי אודי ודורית ולקוחות מזדמנים) ולערוך מכאן.</p>
-      <button type="button" class="saveBtn" id="seedBtn">📥 ייבוא הלקוחות הקיימים</button>
+      <button type="button" class="saveBtn" id="seedBtn"><svg class="ic s"><use href="#i-users"/></svg><span>ייבוא הלקוחות הקיימים</span></button>
     </section>
   </section>
 
@@ -464,13 +498,13 @@ body.typing{padding-bottom:24px}
       <label>תוספת דחוף (₪)<input id="ce_urgentDef" inputmode="numeric" placeholder="0"></label>
     </div>
 
-    <h3 class="sub">📍 מחירון <span class="opt" id="ceCount"></span></h3>
+    <h3 class="sub">מחירון <span class="opt" id="ceCount"></span></h3>
     <p class="meta">גוררים את ☰ כדי לקבוע את הסדר – זה הסדר שהלקוח רואה ברשימת היעדים.</p>
     <p class="meta" id="ceAgreed">בלי יעדים במחירון = "מחיר לפי הסכם" (לא מוצג מחיר ללקוח).</p>
     <div id="ceRows"></div>
-    <button type="button" class="secondary" id="ceAddRow">➕ הוספת יעד</button>
+    <button type="button" class="secondary" id="ceAddRow"><svg class="ic s"><use href="#i-plus"/></svg><span>הוספת יעד</span></button>
     <details class="quick">
-      <summary>⚡ הוספה מהירה של הרבה יעדים</summary>
+      <summary>הוספה מהירה של הרבה יעדים</summary>
       <p class="meta">שורה לכל יעד: שם ואז מחיר. למשל:<br>נשר 40<br>טירת כרמל 45<br>יעד שכבר קיים – המחיר שלו יתעדכן.</p>
       <textarea id="ceQuick" placeholder="נשר 40&#10;טירת כרמל 45"></textarea>
       <button type="button" class="secondary" id="ceQuickBtn">הוסף / עדכן</button>
@@ -481,10 +515,10 @@ body.typing{padding-bottom:24px}
     </div>
 
     <div class="err" id="ceErr"></div>
-    <button type="button" class="saveBtn" id="ceSave">💾 שמירה</button>
+    <button type="button" class="saveBtn" id="ceSave"><svg class="ic s"><use href="#i-check"/></svg><span>שמירה</span></button>
     <button type="button" class="secondary" id="ceCancel">ביטול</button>
-    <button type="button" class="secondary" id="ceDup">📄 שכפול ללקוח חדש (אותן הגדרות ומחירון)</button>
-    <button type="button" class="danger" id="ceDelete">🗑 מחיקת הלקוח</button>
+    <button type="button" class="secondary" id="ceDup"><svg class="ic s"><use href="#i-copy"/></svg><span>שכפול ללקוח חדש (אותן הגדרות ומחירון)</span></button>
+    <button type="button" class="danger" id="ceDelete"><svg class="ic s"><use href="#i-trash-2"/></svg><span>מחיקת הלקוח</span></button>
   </section>
 </main>
 
@@ -588,7 +622,7 @@ function setLed(ok, quota) {
   $("connAlert").style.display = ok ? "none" : "block";
   const low = ok && typeof quota === "number" && quota < 15;
   $("quotaWarn").style.display = low ? "block" : "none";
-  if (low) $("quotaWarn").textContent = `⚠️ מיילים כמעט נגמרו להיום – נשארו ${quota}. ההזמנות ממשיכות להישמר בטבלה ובדף הזה.`;
+  if (low) $("quotaWarn").textContent = `מיילים כמעט נגמרו להיום – נשארו ${quota}. ההזמנות ממשיכות להישמר בטבלה ובדף הזה.`;
 }
 
 function orderTime(o) {
@@ -657,7 +691,7 @@ function render() {
       el("span", { className: "paidN", textContent: `לא שולם ₪${amount(unpaid)} (${unpaid.length})` })));
 
   if (!shown.length) {
-    $("list").replaceChildren(el("div", { className: "empty", textContent: q ? `לא נמצאו הזמנות עבור "${q}"` : tab === "open" ? "אין הזמנות פתוחות 🎉" : "אין הזמנות שנסגרו בטווח הזה" }));
+    $("list").replaceChildren(el("div", { className: "empty", textContent: q ? `לא נמצאו הזמנות עבור "${q}"` : tab === "open" ? "אין הזמנות פתוחות" : "אין הזמנות שנסגרו בטווח הזה" }));
     return;
   }
   $("list").replaceChildren(...shown.map(card));
@@ -681,7 +715,29 @@ function card(o) {
         title: o.paid ? "לחיצה = לא שולם" : "לחיצה = שולם", onclick: e => setPaid(o, !o.paid, e.currentTarget) },
         o.paid ? ico("check", "xs") : null, payTxt + (o.paid ? " · שולם" : prepay ? " · ממתין" : " · לא שולם"));
   const nx = NEXT[o.status];
-  const act = nx ? el("button", { type: "button", className: "act " + nx[3], onclick: e => update(o, nx[0], e.currentTarget) }, ico(nx[1], "s"), nx[2]) : null;
+  const act = nx ? el("button", { type: "button", className: "act " + nx[3],
+    onclick: e => nx[0] === "נאסף" ? openEta(o) : nx[0] === "אושרה" ? openPick(o) : update(o, nx[0], e.currentTarget) }, ico(nx[1], "s"), nx[2]) : null;
+  // בדרך: זמן הגעה משוער + "עוד 5 דק'"; כשהשעה מגיעה – עוד 5 / 10 / 15 / 20
+  const et = parseEta(o.eta);
+  const late = o.status === "נאסף" && et.time && etaMin(et.time) <= 0;
+  // אושרה: מתי אאסוף; כשהשעה מגיעה – עוד 10 / 20 / 30
+  const pk = o.status === "אושרה" ? et.time : "";
+  const pickLine = o.status !== "אושרה" ? null : pk && etaMin(pk) <= 0 ? el("div", { className: "lateBox" },
+    el("button", { type: "button", className: "lateQ", onclick: () => openPick(o) }, ico("clock", "s"), `שעת האיסוף ${pk} הגיעה · כמה עוד?`),
+    el("div", { className: "lateChips c3" }, ...[10, 20, 30].map(m => el("button", { type: "button", className: "lateChip",
+      onclick: e => update(o, "אושרה", e.currentTarget, { eta: hmIn(m) }) }, `עוד ${m}`, el("small", { textContent: "דק׳" })))))
+    : el("div", { className: "etarow" }, el("button", { type: "button", className: "etaline", onclick: () => openPick(o) }, ico("package", "s"),
+      el("span", { textContent: pk ? `אאסוף ב-${pk}` + etaLeft(pk) : "בלי שעת איסוף · להוספה" })));
+  const nearBtn = o.status === "נאסף" && !et.near ? el("button", { type: "button", className: "nearBtn",
+    onclick: e => bumpEta(o, 5, e.currentTarget) }, ico("map-pin", "s"), "עוד 5 דק׳") : null;
+  const etaLine = o.status !== "נאסף" ? null : late ? el("div", { className: "lateBox" },
+    el("button", { type: "button", className: "lateQ", onclick: () => openEta(o) }, ico("clock", "s"), `השעה ${et.time} הגיעה · כמה עוד?`),
+    el("div", { className: "lateChips" }, ...[5, 10, 15, 20].map(m => el("button", { type: "button", className: "lateChip",
+      onclick: e => bumpEta(o, m, e.currentTarget) }, `עוד ${m}`, el("small", { textContent: "דק׳" })))))
+    : el("div", { className: "etarow" },
+    el("button", { type: "button", className: "etaline", onclick: () => openEta(o) }, ico("clock", "s"),
+      el("span", { textContent: et.time ? `מגיע ב-${et.time}` + etaLeft(et.time) : "בלי זמן הגעה · להוספה" })),
+    et.near ? el("b", { className: "nearTag" }, ico("map-pin", "s"), "ממש קרוב") : nearBtn);
   if (o.status === "חדשה" && act) act.title = "הלקוח יראה שאישרת";
   const more = aria(el("button", { type: "button", className: "more", onclick: () => openOrder(o) }, ico("ellipsis")), "עוד פעולות");
   const qi = (icon, href, l) => aria(el("a", { className: "qi", href, target: href.startsWith("http") ? "_blank" : "" }, ico(icon, "s")), l);
@@ -698,6 +754,7 @@ function card(o) {
       o.address ? qi("navigation", waze(navAddr(o)), "ניווט בווייז") : null),
     o.notes ? el("div", { className: "nt" }, ico("message-square-text", "xs"), el("span", { textContent: o.notes })) : null,
     prepay && !o.paid && !off ? el("div", { className: "waitPay", textContent: "תשלום מראש – לבדוק שהתקבל לפני יציאה" }) : null,
+    pickLine, etaLine,
     el("div", { className: "r3" }, py, act, more));
 }
 
@@ -714,8 +771,10 @@ function openOrder(o) {
   const A = (i, t, cls, fn) => list.append(el("button", { type: "button", className: "al " + (cls || ""),
     onclick: e => { const b = e.currentTarget; closeOrder(); fn(b); } }, ico(i), el("span", { textContent: t })));
   if (!closed) {
-    if (o.status === "חדשה") A("thumbs-up", "קיבלתי את ההזמנה", "", b => update(o, "אושרה", b));
-    if (o.status !== "נאסף") A("truck", "נאסף", "", b => update(o, "נאסף", b));
+    if (o.status === "חדשה") A("thumbs-up", "קיבלתי את ההזמנה", "", () => setTimeout(() => openPick(o), 350));
+    if (o.status === "אושרה") A("package", "עדכון שעת איסוף", "", () => setTimeout(() => openPick(o), 350));
+    if (o.status !== "נאסף") A("truck", "נאסף", "", () => setTimeout(() => openEta(o), 350));
+    else A("clock", "עדכון זמן הגעה", "", () => setTimeout(() => openEta(o), 350));
     A("package-check", "נמסר", "", b => update(o, "נמסר", b));
   }
   if (!VOID(o.status)) A("banknote", o.paid ? "סמן כלא שולם" : "סמן כשולם", "", b => setPaid(o, !o.paid, b));
@@ -745,12 +804,88 @@ function openOrder(o) {
 $("oDim").addEventListener("click", closeOrder);
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeOrder(); });
 
+/* ---------- זמן הגעה משוער ---------- */
+function parseEta(v) { const m = /^(\d{1,2}:\d{2})?(\|קרוב)?$/.exec(String(v || "").trim()); return { time: m && m[1] || "", near: !!(m && m[2]) }; }
+const hmIn = m => { const d = new Date(Date.now() + m * 60000); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+// "קיבלתי" – מתי אאסוף? עכשיו / 30 / 60 / 90 או שעה אחרת. הלקוח רואה "ארי יאסוף בערך ב…"
+function openPick(o) {
+  const editing = o.status === "אושרה";
+  const cur = editing ? parseEta(o.eta).time : "";
+  const opts = [[0, "עכשיו"], [30, "30"], [60, "60"], [90, "90"]].map(([m, t]) => ({ m, t, v: hmIn(m === 0 ? 3 : m) }));
+  let val = cur || opts[1].v;
+  const go = el("button", { type: "button", className: "etaGo" });
+  const inp = el("input", { type: "time", step: 300, className: "etaIn", value: val });
+  aria(inp, "שעת איסוף");
+  const confirm = v => { closeOrder(); update(o, "אושרה", null, { eta: v }); };
+  // לחיצה על זמן = מאשר מיד (לחיצה אחת). "שעה אחרת" – בוחרים שעה ואז מאשרים
+  const chips = opts.map(x => el("button", { type: "button", className: "pkChip", onclick: () => confirm(x.v) },
+    el("b", { textContent: x.t }), el("small", { textContent: (x.m ? "דק׳ · " : "") + x.v })));
+  function set(v, typed) {
+    val = v; if (!typed) inp.value = v;
+    chips.forEach((c, i) => c.classList.toggle("on", !!cur && opts[i].v === v));
+    go.textContent = (editing ? "עדכון · " : "קיבלתי · ") + "אאסוף בערך ב-" + (v || "…");
+    go.style.display = typed ? "" : "none";
+  }
+  inp.addEventListener("input", () => set(inp.value, true)); inp.addEventListener("change", () => set(inp.value, true));
+  go.onclick = () => { if (val) confirm(val); };
+  const skip = el("button", { type: "button", className: "etaSkip", textContent: editing ? "בלי שעת איסוף" : "קיבלתי בלי זמן",
+    onclick: () => { closeOrder(); update(o, "אושרה", null, { eta: "" }); } });
+  $("oBody").replaceChildren(
+    el("div", { className: "shh" },
+      el("div", {}, el("small", { textContent: `${o.recipient || ""} · ${splitAddr(o.address)[0]}` }), el("h2", { textContent: editing ? "עדכון שעת איסוף" : "קיבלתי · מתי תאסוף?" })),
+      aria(el("button", { type: "button", className: "ib", onclick: closeOrder }, ico("x", "s")), "סגירה")),
+    el("p", { className: "etaHint", textContent: "לחיצה על זמן מאשרת מיד" }),
+    el("div", { className: "pkChips" }, ...chips),
+    el("label", { className: "etaBox" }, ico("clock"), el("span", { textContent: "שעה אחרת" }), inp),
+    go, skip);
+  set(val);
+  document.body.classList.add("sheetOpen");
+}
+function etaMin(t) { const [h, mi] = t.split(":").map(Number), d = new Date(); d.setHours(h, mi, 0, 0); return Math.round((d - new Date()) / 60000); }
+function etaLeft(t) { const min = etaMin(t); return min > 0 ? ` · עוד ${min} דק׳` : " · הזמן עבר – לעדכן?"; }
+// "עוד X דק'" – שעה חדשה = עכשיו + X. עוד 5 = גם "ממש קרוב" אצל הלקוח
+function bumpEta(o, mins, btn) {
+  const d = new Date(Date.now() + mins * 60000), t = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  if (mins > 5) return update(o, "נאסף", btn, { eta: t });
+  if (btn) btn.disabled = true;
+  fetch(SHEET_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "setNear", key, no: o.no, eta: t }) })
+    .then(() => { o.eta = t + "|קרוב"; render(); setTimeout(load, 1500); })
+    .catch(() => { if (btn) btn.disabled = false; alert("העדכון לא נשלח – בדוק חיבור ונסה שוב"); });
+}
+function suggestEta() { const d = new Date(Date.now() + 30 * 60000); d.setMinutes(Math.ceil(d.getMinutes() / 5) * 5, 0, 0); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+function openEta(o) {
+  const editing = o.status === "נאסף";
+  const cur = parseEta(o.eta).time || suggestEta();
+  const inp = el("input", { type: "time", value: cur, step: 300, className: "etaIn" });
+  aria(inp, "שעת הגעה משוערת");
+  const go = el("button", { type: "button", className: "etaGo" });
+  const label = () => { go.textContent = (editing ? "עדכון · " : "נאסף · ") + "מגיע בערך ב-" + (inp.value || "…"); };
+  inp.addEventListener("input", label); inp.addEventListener("change", label); label();
+  go.onclick = () => { if (!inp.value) return; closeOrder(); update(o, "נאסף", null, { eta: inp.value }); };
+  const skip = el("button", { type: "button", className: "etaSkip", textContent: editing ? "בלי זמן הגעה" : "נאסף בלי זמן",
+    onclick: () => { closeOrder(); update(o, "נאסף", null, { eta: "" }); } });
+  $("oBody").replaceChildren(
+    el("div", { className: "shh" },
+      el("div", {}, el("small", { textContent: `${o.recipient || ""} · ${splitAddr(o.address)[0]}` }), el("h2", { textContent: editing ? "עדכון זמן הגעה" : "נאסף · מתי תגיע?" })),
+      aria(el("button", { type: "button", className: "ib", onclick: closeOrder }, ico("x", "s")), "סגירה")),
+    el("p", { className: "etaHint", textContent: "הלקוח יראה \"בדרך · מגיע בערך ב…\"" }),
+    el("label", { className: "etaBox" }, ico("clock"), el("span", { textContent: "שעת הגעה" }), inp),
+    go, skip);
+  document.body.classList.add("sheetOpen");
+}
+function setNear(o, btn) {
+  if (btn) btn.disabled = true;
+  fetch(SHEET_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "setNear", key, no: o.no }) })
+    .then(() => { o.eta = (parseEta(o.eta).time || "") + "|קרוב"; render(); setTimeout(load, 1500); })
+    .catch(() => { if (btn) btn.disabled = false; alert("העדכון לא נשלח – בדוק חיבור ונסה שוב"); });
+}
+
 function deleteOrder(o, btn) {
   if (!confirm(`למחוק את ההזמנה #${o.no} (${o.recipient} – ${o.address})?\nהיא תימחק מהטבלה ומהרשימה של הלקוח. אי אפשר לבטל.`)) return;
-  btn.disabled = true; btn.textContent = "מוחק…";
+  const orig = btn.innerHTML; btn.disabled = true; btn.textContent = "מוחק…";
   fetch(SHEET_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "deleteOrder", key, no: o.no }) })
-    .then(() => { orders = orders.filter(x => x !== o); render(); $("note").textContent = `🗑 הזמנה #${o.no} נמחקה`; setTimeout(load, 1500); })
-    .catch(() => { btn.disabled = false; btn.textContent = "🗑 מחיקת ההזמנה"; alert("המחיקה לא נשלחה – בדוק חיבור ונסה שוב"); });
+    .then(() => { orders = orders.filter(x => x !== o); render(); $("note").textContent = `הזמנה #${o.no} נמחקה`; setTimeout(load, 1500); })
+    .catch(() => { btn.disabled = false; btn.innerHTML = orig; alert("המחיקה לא נשלחה – בדוק חיבור ונסה שוב"); });
 }
 
 function setPaid(o, paid, btn) {
@@ -760,10 +895,14 @@ function setPaid(o, paid, btn) {
     .catch(() => { btn.disabled = false; alert("העדכון לא נשלח – בדוק חיבור ונסה שוב"); });
 }
 
-function update(o, status, btn) {
-  btn.disabled = true;
-  fetch(SHEET_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "setStatus", key, no: o.no, status }) })
-    .then(() => { o.status = status; render(); setTimeout(load, 1500); })
+function update(o, status, btn, extra) {
+  if (btn) btn.disabled = true;
+  fetch(SHEET_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(Object.assign({ action: "setStatus", key, no: o.no, status }, extra || {})) })
+    .then(() => {
+      o.status = status;
+      if (extra && extra.eta !== undefined) o.eta = extra.eta; else if (status !== "נמסר") o.eta = "";
+      render(); setTimeout(load, 1500);
+    })
     .catch(() => { btn.disabled = false; alert("העדכון לא נשלח – בדוק חיבור ונסה שוב"); });
 }
 
@@ -845,7 +984,7 @@ $("parseBtn").onclick = () => {
     f(k).value = k === "time" ? toLocalInput(o[k]) : o[k]; n++;
   });
   $("parseMsg").style.color = n ? "var(--ok)" : "var(--err)";
-  $("parseMsg").textContent = n ? `✅ מולאו ${n} שדות – בדוק שהכול נכון ושמור` : "לא זוהו פרטים בהודעה – אפשר למלא ידנית";
+  $("parseMsg").textContent = n ? `✓ מולאו ${n} שדות – בדוק שהכול נכון ושמור` : "לא זוהו פרטים בהודעה – אפשר למלא ידנית";
 };
 
 $("addSave").onclick = () => {
@@ -864,16 +1003,16 @@ $("addSave").onclick = () => {
     message: $("paste").value.trim() || [`הזמנה ידנית #${no}`, `לקוח: ${v("customer")}`, `מסירה: ${v("recipient")} – ${v("address")} ${v("phone")}`,
       `${v("item")} ${v("when")}`, `מחיר: ${v("price")}`, v("notes")].filter(Boolean).join("\n"),
   };
-  const btn = $("addSave"); btn.disabled = true; btn.textContent = "שומר…"; $("addErr").textContent = "";
+  const btn = $("addSave"), orig = btn.innerHTML; btn.disabled = true; btn.textContent = "שומר…"; $("addErr").textContent = "";
   const post = body => fetch(SHEET_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(body) });
   post(rec)
     .then(() => status !== "חדשה" ? new Promise(r => setTimeout(r, 1500)).then(() => post({ action: "setStatus", key, no, status })) : null)
     .then(() => {
-      closeAdd(); $("note").textContent = `✅ הזמנה #${no} נשמרה – מרענן…`;
+      closeAdd(); $("note").textContent = `✓ הזמנה #${no} נשמרה – מרענן…`;
       setTimeout(load, 1500);
     })
     .catch(() => { $("addErr").textContent = "השמירה נכשלה – בדוק חיבור לאינטרנט ונסה שוב"; })
-    .finally(() => { btn.disabled = false; btn.textContent = "💾 שמירה בטבלה"; });
+    .finally(() => { btn.disabled = false; btn.innerHTML = orig; });
 };
 $("addOpen").onclick = openAdd;
 $("addCancel").onclick = closeAdd;
@@ -925,7 +1064,7 @@ function loadCustomers() {
       if (!d.ok) { $("custNote").textContent = d.error === "סיסמה שגויה" ? "סיסמה שגויה" : "צריך לעדכן את הקוד בגוגל לגרסה החדשה (ראו הוראות)"; customers = []; renderCustomers(); return; }
       customers = d.customers || [];
       cacheSet(CUST_CACHE, { customers });
-      if (d.sheetUrl) { $("sheetLink").href = d.sheetUrl; $("sheetLink").style.display = "block"; }
+      if (d.sheetUrl) { $("sheetLink").href = d.sheetUrl; $("sheetLink").style.display = "flex"; }
       $("custNote").textContent = `${customers.filter(c => c.code !== DEFAULT_CODE).length} לקוחות`;
       renderCustomers();
     })
@@ -1022,7 +1161,7 @@ function priceRange(p) { const v = p.map(x => x.price); return `₪${Math.min(..
 function copyText(t, btn) {
   const done = () => {
     const o = btn.innerHTML; btn.classList.add("copied");
-    if (btn.classList.contains("ib")) btn.replaceChildren(ico("check", "s")); else btn.textContent = "✅ הועתק";
+    if (btn.classList.contains("ib")) btn.replaceChildren(ico("check", "s")); else btn.textContent = "✓ הועתק";
     setTimeout(() => { btn.innerHTML = o; btn.classList.remove("copied"); }, 1500);
   };
   if (navigator.clipboard) navigator.clipboard.writeText(t).then(done, () => prompt("העתק את הלינק:", t));
@@ -1154,7 +1293,7 @@ $("ceQuickBtn").onclick = () => {
   readRows().filter(r => !r.label && !r.price).forEach(r => r.row.remove());
   countRows();
   $("ceErr").style.color = "var(--ok)";
-  $("ceErr").textContent = added || updated ? `✅ נוספו ${added}, עודכנו ${updated} – לא לשכוח לשמור` : "לא זוהו שורות. כותבים: שם ואז מחיר, למשל: נשר 40";
+  $("ceErr").textContent = added || updated ? `✓ נוספו ${added}, עודכנו ${updated} – לא לשכוח לשמור` : "לא זוהו שורות. כותבים: שם ואז מחיר, למשל: נשר 40";
   $("ceQuick").value = "";
 };
 $("ceCopyBtn").onclick = () => {
@@ -1182,7 +1321,7 @@ $("ceSave").onclick = () => {
         hidePayer: $("ce_hidePayer").checked, greeting: $("ce_greeting").checked,
         sizes: $("ce_sizes").value.split(",").map(x => x.trim()).filter(Boolean) };
   customer.prices = rows.map(r => ({ label: r.label, price: Number(r.price), city: r.city || r.label }));
-  const btn = $("ceSave"); btn.disabled = true; btn.textContent = "שומר…";
+  const btn = $("ceSave"), orig = btn.innerHTML; btn.disabled = true; btn.textContent = "שומר…";
   post({ action: "saveCustomer", code: editing.code, customer })
     .then(() => new Promise(r => setTimeout(r, 1200)))
     .then(loadCustomers)
@@ -1190,10 +1329,10 @@ $("ceSave").onclick = () => {
       const saved = customers.find(c => c.code === editing.code);
       if (!saved) { err.textContent = "השמירה לא נקלטה – בדוק שהקוד בגוגל מעודכן, ונסה שוב"; return; }
       showView("customers");
-      $("custNote").textContent = `✅ נשמר: ${isDef ? "לקוחות מזדמנים" : saved.name}` + (editing.isNew ? " – הלינק שלו מוכן למטה" : "");
+      $("custNote").textContent = `✓ נשמר: ${isDef ? "לקוחות מזדמנים" : saved.name}` + (editing.isNew ? " – הלינק שלו מוכן למטה" : "");
     })
     .catch(() => { err.textContent = "השמירה נכשלה – בדוק חיבור לאינטרנט ונסה שוב"; })
-    .finally(() => { btn.disabled = false; btn.textContent = "💾 שמירה"; });
+    .finally(() => { btn.disabled = false; btn.innerHTML = orig; });
 };
 $("ceDup").onclick = () => {
   const c = customers.find(x => x.code === editing.code);
@@ -1217,10 +1356,10 @@ $("ceFrom").onchange = () => {
   $("ceErr").style.color = "#15803d";
 };
 $("seedBtn").onclick = () => {
-  const btn = $("seedBtn"); btn.disabled = true; btn.textContent = "מייבא…";
+  const btn = $("seedBtn"), orig = btn.innerHTML; btn.disabled = true; btn.textContent = "מייבא…";
   SEED.reduce((pr, s) => pr.then(() => post(Object.assign({ action: "saveCustomer" }, s))), Promise.resolve())
     .then(() => new Promise(r => setTimeout(r, 1200))).then(loadCustomers)
-    .finally(() => { btn.disabled = false; btn.textContent = "📥 ייבוא הלקוחות הקיימים"; });
+    .finally(() => { btn.disabled = false; btn.innerHTML = orig; });
 };
 $("navCust").onclick = () => { showView("customers"); loadCustomers(); };
 $("navOrders").onclick = () => { showView("orders"); load(); };
