@@ -369,7 +369,7 @@ li.ho.g .hic,li.ho.g .hst em{color:#15803d}li.ho.g .hic{background:#ecfdf3}
 li.ho.r .hic,li.ho.r .hst em{color:#be123c}li.ho.r .hic{background:#fff1f2}
 li.ho.w .hst em{color:var(--tx)}
 .hbar{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:-4px 61px 12px 51px}
-.hbar i{height:4px;border-radius:4px;background:var(--ln);transition:background .3s}.hbar i.f{background:var(--ac)}
+.hbar i{height:4px;border-radius:4px;background:var(--ln);transition:background .3s}.hbar i.on{background:var(--ac)}
 li.ho.open .hbar{display:none!important}
 .hex{display:none;margin:0 12px 12px;background:#fafafb;border-radius:16px;padding:2px 12px 12px}
 li.ho.open .hex{display:block;animation:hexIn .22s ease}
@@ -425,6 +425,24 @@ body.typing{padding-bottom:24px}
 .pending{background:var(--ac-soft);box-shadow:none}
 .pending h2{color:#9a3412}
 .pending .resend{background:#fff;color:var(--ac);border:0;box-shadow:inset 0 0 0 1.5px #fdba74}
+/* אוברול: שורה שקטה אחת, כותרת ההזמנות שלי עם X, כפתור ההזמנות שלי ברוחב מלא */
+.kept{display:flex;align-items:center;gap:8px;background:var(--fill)!important;color:var(--tx)!important;border:0!important;border-radius:12px;padding:10px 12px;font-size:13.5px;font-weight:500;margin:10px 0 0}
+.kept .ic{flex:none;color:var(--mu)}
+.hhead{display:flex;align-items:center;justify-content:space-between;gap:10px}.hhead h2{margin:0}
+#doneHistory{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px}
+footer{padding-top:14px}
+/* ---------- אזורי לחיצה: לפחות 44 פיקסלים לכל דבר לחיץ (אפל / גוגל) ---------- */
+#pickEdit{position:relative;padding:15px 16px;margin:-15px -16px}
+#rememberRow{min-height:44px;display:flex;align-items:center}
+.ib,button.ib{width:44px;height:44px}
+#whenChips label,#payerChips label{min-height:48px}
+footer a{display:inline-block;padding:15px 6px;margin:-15px -2px}
+.hseg button{min-height:44px}
+button.lnkc{min-height:48px;padding:12px 16px}
+button.hcancel{min-height:44px;padding:10px 12px!important}
+.hh{min-height:64px}
+/* יישור לגריד: כותרות הסעיפים על אותו קו כמו הכרטיסים (16 מהקצה) */
+label.lab,#orderForm .card > h2,#orderForm > section > h2{margin-right:0;margin-left:0;padding-right:0;padding-left:0}
 </style>
 </head>
 <body>
@@ -443,9 +461,8 @@ body.typing{padding-bottom:24px}
   <form id="orderForm" novalidate>
     <div class="count" id="countBanner" style="display:none"></div>
     <div class="kept" id="keptBanner" style="display:none"></div>
-    <h2 class="big">משלוח חדש</h2>
     <section class="card" id="pickupFixed" style="display:none">
-      <h2>איסוף מ</h2>
+      <h2>מאיפה אוספים?</h2>
       <div id="pickupFixedText"></div>
     </section>
 
@@ -468,7 +485,7 @@ body.typing{padding-bottom:24px}
         <h2>שלחת לאחרונה <em>לחיצה ממלאת הכל</em></h2>
         <div class="recs" id="recs"></div>
       </div>
-      <h2>לאן שולחים</h2>
+      <h2>לאן שולחים?</h2>
       <div class="destWrap">
         <button type="button" class="dest" id="destBtn"><span class="dot"><svg class="ic"><use href="#i-map-pin"/></svg></span><span class="dt"><b id="destName">בחרו יעד</b><small id="destSub">לחצו לבחירה מהרשימה</small></span><svg class="ic chev"><use href="#i-chevron-left"/></svg></button>
         <select id="dCity" required tabindex="-1" aria-label="יעד"></select>
@@ -495,9 +512,9 @@ body.typing{padding-bottom:24px}
     </section>
 
     <section class="card">
-      <label class="lab" id="sizeLabel">מה שולחים</label>
+      <label class="lab" id="sizeLabel">מה שולחים?</label>
       <div class="chips" id="sizeChips"></div>
-      <label class="lab">מתי</label>
+      <label class="lab">מתי?</label>
       <div class="chips" id="whenChips"></div>
       <div id="whenTimeBox" style="display:none">
         <div class="f" style="margin-top:10px"><label for="whenTime">מועד מבוקש</label>
@@ -505,7 +522,7 @@ body.typing{padding-bottom:24px}
         <div class="errmsg">נא לבחור מועד עתידי</div></div>
       </div>
       <div id="payBox">
-        <label class="lab">תשלום</label>
+        <label class="lab">איך משלמים?</label>
         <div class="chips" id="payChips"></div>
         <div class="preNote" id="preNote" style="display:none"><svg class="ic s"><use href="#i-wallet"/></svg><span><b>תשלום מראש</b> · פרטי ההעברה יופיעו אחרי השליחה</span></div>
       </div>
@@ -513,10 +530,7 @@ body.typing{padding-bottom:24px}
         <label class="lab">מי משלם?</label>
         <div class="chips" id="payerChips"></div>
       </div>
-      <div id="greetingBox" style="display:none">
-        <div class="f" style="margin-top:16px"><label for="greeting">ברכה לכרטיס <span class="opt">(לא חובה)</span></label>
-        <textarea id="greeting" placeholder="מזל טוב! באהבה, ..."></textarea></div>
-      </div>
+<input type="hidden" id="greeting">
       <button type="button" class="lnk" id="notesLink"><span class="pl"><svg class="ic s"><use href="#i-plus"/></svg></span><span class="lt"><b>הוספת הערה לשליח</b><small>קומה, קוד לבניין, מה בחבילה… (לא חובה)</small></span></button>
       <div id="notesBox" style="display:none">
         <div class="f" style="margin-top:14px"><label for="notes">הערה לשליח <span class="opt">(קומה, קוד לבניין, מה בחבילה…)</span></label>
@@ -557,15 +571,13 @@ body.typing{padding-bottom:24px}
       <div class="payHint" id="payHint"></div>
       <div class="preNote" id="payPre" style="display:none"><svg class="ic s"><use href="#i-clock"/></svg><b>המשלוח יוצא לדרך אחרי שהתשלום מתקבל.</b></div>
     </div>
-    <div class="two">
-      <button type="button" class="secondary" id="doneHistory"><svg class="ic s"><use href="#i-clipboard-list"/></svg><span>ההזמנות שלי</span></button>
-      <button type="button" class="waOpt" id="doneWa">גם בווצאפ</button>
-    </div>
+    <button type="button" class="secondary" id="doneHistory"><svg class="ic s"><use href="#i-clipboard-list"/></svg><span>ההזמנות שלי</span></button>
+    <button type="button" class="waOpt" id="doneWa" style="display:none"></button>
     <div class="card" id="todayBox" style="display:none">
       <h2 id="todayTitle"></h2>
       <ul class="hist" id="todayList"></ul>
     </div>
-    <button type="button" class="lnkc" id="doneFinish">סיימתי</button>
+    <button type="button" class="lnkc" id="doneFinish" style="display:none">סיימתי</button>
     <div class="sbarBg"></div>
     <button type="button" class="primary" id="doneMore"><svg class="ic"><use href="#i-plus"/></svg><span>משלוח נוסף</span></button>
   </section>
@@ -584,7 +596,7 @@ body.typing{padding-bottom:24px}
   </section>
 
   <section class="card" id="historyCard" style="display:none">
-    <h2>ההזמנות שלי</h2>
+    <div class="hhead"><h2>ההזמנות שלי</h2><button type="button" class="ib" id="histBack" aria-label="חזרה להזמנה"><svg class="ic s"><use href="#i-x"/></svg></button></div>
     <div class="hseg" id="histPeriod">
       <button type="button" data-p="today">היום</button><button type="button" data-p="month" class="on">החודש</button><button type="button" data-p="last">חודש קודם</button><button type="button" data-p="90">90 יום</button>
     </div>
@@ -600,16 +612,14 @@ body.typing{padding-bottom:24px}
       <button type="button" id="histMail"><svg class="ic s"><use href="#i-mail"/></svg><span>במייל</span></button>
       <button type="button" id="histPrint"><svg class="ic s"><use href="#i-printer"/></svg><span>הדפסה / PDF</span></button>
     </div>
-    <button type="button" class="secondary" id="historyRefresh"><svg class="ic s"><use href="#i-refresh-cw"/></svg><span>רענון סטטוס</span></button>
-    <button type="button" class="secondary" id="historyClose">חזרה להזמנה</button>
+    <button type="button" class="secondary" id="historyRefresh" style="display:none"></button>
+    <button type="button" class="secondary" id="historyClose" style="display:none">חזרה להזמנה</button>
   </section>
 
 </main>
 
 <footer>
-  ארי משלוחים · <a href="tel:0504848398">050-4848398</a> · <a href="terms.html">תקנון וביטולים</a>
-  <div class="biz">השירות מופעל על ידי עדי כהן ייעוץ שיווקי · העצמאות 28, קרית אתא</div>
-  <div class="priv">הפרטים שממלאים משמשים רק לביצוע המשלוח ולתיעוד, ולא מועברים לאף אחד אחר.</div>
+  ארי משלוחים · <a href="tel:0504848398">050-4848398</a> · <a href="terms.html">תקנון, פרטיות וביטולים</a>
 </footer>
 
 <div id="printArea" aria-hidden="true"></div>
@@ -871,8 +881,6 @@ if (CUSTOMER) {
     if (!$("hLogo").querySelector("img")) { const sp = document.createElement("span"); sp.className = "emo"; sp.textContent = em[1]; $("hLogo").replaceChildren(sp); }
   }
   document.title = (CUSTOMER.title || CUSTOMER.name) + " – ארי משלוחים";
-  if (CUSTOMER.sizes) $("sizeLabel").textContent = "מה שולחים?";
-  if (CUSTOMER.greeting) $("greetingBox").style.display = "block";
   if (CUSTOMER.floorApt) $("floorBox").style.display = "";
   // שם המקבל לא חובה (מוגדר בדף הניהול) – לא חוסם את ההזמנה
   if (CUSTOMER.nameOptional) { $("dName").required = false; document.querySelector('label[for="dName"]').innerHTML = 'שם המקבל <span class="opt">(לא חובה)</span>'; }
@@ -1107,8 +1115,6 @@ $("orderForm").addEventListener("submit", e => {
     AGREED ? `💵 מחיר: לפי הסכם`
       : price !== null ? `💵 מחיר: ₪${price}` : `💵 מחיר: לתיאום (${label})`,
   ];
-  const greeting = $("greeting").value.trim();
-  if (CUSTOMER && CUSTOMER.greeting && greeting) lines.push(`💌 ברכה: ${greeting}`);
   // קומה ודירה – נכנסים לתחילת ההערות לשליח (מופיעים לארי בכרטיס ובהודעה)
   const floorTxt = [$("dFloor").value.trim() && "קומה " + $("dFloor").value.trim(), $("dApt").value.trim() && "דירה " + $("dApt").value.trim()].filter(Boolean).join(" · ");
   const notes = [floorTxt, $("notes").value.trim()].filter(Boolean).join(" · ");
@@ -1336,12 +1342,12 @@ $("doneMore").addEventListener("click", () => {
       const r = document.querySelector(`input[name=${n}][value="${v}"]`); if (r) r.checked = true;
     });
     $("whenTimeBox").style.display = val("when") === WHEN[2] ? "block" : "none";
-    $("keptBanner").textContent = `כמו במשלוח הקודם: ${lastKept.size} · ${String(lastKept.when).replace(/\s*⚡/, "")}`;
+    $("keptBanner").innerHTML = ICO("history", "s"); $("keptBanner").append(`כמו בפעם הקודמת: ${lastKept.size} · ${String(lastKept.when).replace(/\s*⚡/, "")}`);
     $("keptBanner").style.display = "block";
   }
   const today = todayOrders();
   $("countBanner").textContent = `משלוח ${today.length + 1} היום · ₪${money(today)} עד עכשיו`;
-  $("countBanner").style.display = "block";
+  $("countBanner").style.display = "none";            // הספירה מופיעה ב"ההזמנות שלי" – לא צריך באנר נוסף
   showPrice();
   showOnly("orderForm");
   $("dName").focus();
@@ -1588,7 +1594,9 @@ function paintRow(li, x) {
   // שורת הסטטוס
   const hs = li.querySelector(".hst"); hs.replaceChildren();
   // שעת המסירה האמיתית (נרשמת כשארי לוחץ "נמסר") – לא שעת ההזמנה
-  const doneAt = parseSteps(histSteps[x.no])["נמסר"] || "";
+  // "16:55*" = ארי קבע ידנית (מוצג תמיד) · "-" = בלי שעה · לקוח עם "בלי שעת מסירה" – רק אם ארי קבע ידנית
+  const rawDone = parseSteps(histSteps[x.no])["נמסר"] || "", forced = /\*$/.test(rawDone), tDone = rawDone.replace("*", "");
+  const doneAt = tDone && tDone !== "-" && (forced || !(CUSTOMER && CUSTOMER.hideDoneTime)) ? tDone : "";
   let head = S ? S.t : "", more = "";
   if (st === "חדשה") more = "ממתינה לאישור";
   else if (st === "אושרה") { if (e.time) { head = "ארי בדרך לאיסוף"; more = `בערך ב-${e.time}`; } }
@@ -1600,7 +1608,7 @@ function paintRow(li, x) {
   // פס התקדמות דק – רק להזמנות שעוד בדרך
   const bar = li.querySelector(".hbar");
   bar.style.display = S && S.n && S.n < 4 ? "" : "none";
-  [...bar.children].forEach((b, i) => b.classList.toggle("f", !!S && i < S.n));
+  [...bar.children].forEach((b, i) => b.classList.toggle("on", !!S && i < S.n));   // לא "f" – זה שם של שדות הטופס
   // פתוח: כל השלבים + שעה + פרטים
   const ex = li.querySelector(".hex"); ex.replaceChildren();
   if (st === "נמסר") {                         // נמסרה: בלי סרגל – רק הוכחה שנמסר
@@ -1656,6 +1664,7 @@ $("historyBtn").addEventListener("click", () => {
   showOnly("historyCard");
 });
 $("historyRefresh").addEventListener("click", renderHistory);
+$("histBack").addEventListener("click", () => $("historyClose").click());
 $("historyClose").addEventListener("click", () => {
   showOnly("orderForm");
 });
