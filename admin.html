@@ -493,6 +493,8 @@ body.typing{padding-bottom:24px}
       <label class="chk"><input type="checkbox" id="ce_fixed"> פרטי איסוף קבועים (הלקוח לא ממלא אותם)</label>
       <label class="chk"><input type="checkbox" id="ce_hidePayer"> בלי "מי משלם?"</label>
       <label class="chk"><input type="checkbox" id="ce_greeting"> שדה "ברכה לכרטיס"</label>
+      <label class="chk"><input type="checkbox" id="ce_nameOpt"> שם המקבל לא חובה</label>
+      <label class="chk"><input type="checkbox" id="ce_floor"> שדות "קומה" ו"דירה"</label>
     </div>
     <div id="ceDefFields" class="grid">
       <label>תוספת דחוף (₪)<input id="ce_urgentDef" inputmode="numeric" placeholder="0"></label>
@@ -1208,6 +1210,7 @@ function openEditor(c, dup) {
   $("ce_sizes").value = (c.sizes || []).join(", ");
   $("ce_fixed").checked = isNew && !dup ? true : !!c.fixedPickup;
   $("ce_hidePayer").checked = !!c.hidePayer; $("ce_greeting").checked = !!c.greeting;
+  $("ce_nameOpt").checked = !!c.nameOptional; $("ce_floor").checked = !!c.floorApt;
   $("ceRows").replaceChildren();
   (c.prices || []).forEach(p => addRow(p));
   if (!(c.prices || []).length && isNew) addRow();
@@ -1322,6 +1325,7 @@ $("ceSave").onclick = () => {
     : { name: $("ce_name").value, addr: $("ce_addr").value, phone: $("ce_phone").value, title: $("ce_title").value,
         pay: $("ce_pay").value, urgentExtra: $("ce_urgent").value || 0, fixedPickup: $("ce_fixed").checked,
         hidePayer: $("ce_hidePayer").checked, greeting: $("ce_greeting").checked,
+        nameOptional: $("ce_nameOpt").checked, floorApt: $("ce_floor").checked,
         sizes: $("ce_sizes").value.split(",").map(x => x.trim()).filter(Boolean) };
   customer.prices = rows.map(r => ({ label: r.label, price: Number(r.price), city: r.city || r.label }));
   const btn = $("ceSave"), orig = btn.innerHTML; btn.disabled = true; btn.textContent = "שומר…";
