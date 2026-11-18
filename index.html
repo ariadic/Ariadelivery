@@ -369,7 +369,7 @@ li.ho.g .hic,li.ho.g .hst em{color:#15803d}li.ho.g .hic{background:#ecfdf3}
 li.ho.r .hic,li.ho.r .hst em{color:#be123c}li.ho.r .hic{background:#fff1f2}
 li.ho.w .hst em{color:var(--tx)}
 .hbar{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:-4px 61px 12px 51px}
-.hbar i{height:4px;border-radius:4px;background:var(--ln);transition:background .3s}.hbar i.f{background:var(--ac)}
+.hbar i{height:4px;border-radius:4px;background:var(--ln);transition:background .3s}.hbar i.on{background:var(--ac)}
 li.ho.open .hbar{display:none!important}
 .hex{display:none;margin:0 12px 12px;background:#fafafb;border-radius:16px;padding:2px 12px 12px}
 li.ho.open .hex{display:block;animation:hexIn .22s ease}
@@ -1602,7 +1602,7 @@ function paintRow(li, x) {
   // פס התקדמות דק – רק להזמנות שעוד בדרך
   const bar = li.querySelector(".hbar");
   bar.style.display = S && S.n && S.n < 4 ? "" : "none";
-  [...bar.children].forEach((b, i) => b.classList.toggle("f", !!S && i < S.n));
+  [...bar.children].forEach((b, i) => b.classList.toggle("on", !!S && i < S.n));   // לא "f" – זה שם של שדות הטופס
   // פתוח: כל השלבים + שעה + פרטים
   const ex = li.querySelector(".hex"); ex.replaceChildren();
   if (st === "נמסר") {                         // נמסרה: בלי סרגל – רק הוכחה שנמסר
