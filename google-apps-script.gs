@@ -12,7 +12,7 @@
 const NOTIFY_EMAIL = "";
 
 // גרסת הקוד – מופיעה בבדיקת הכתובת, כדי לדעת שהפריסה באמת עודכנה
-const CODE_VERSION = "2026-11-16b";
+const CODE_VERSION = "2026-11-18a";
 
 // התראות לאייפון דרך אפליקציית Pushover (הכי אמין – עם צלצול חירום ו"קיבלתי" ישר מההתראה).
 // מדביקים כאן את שני המפתחות מ-pushover.net. לא לשמור אותם באתר (הקוד באתר גלוי לכולם).
@@ -205,7 +205,8 @@ const DEFAULT_LABEL = "מזדמנים";
 const DEFAULT_ALIASES = ["מזדמנים", "כללי", "לקוחות מזדמנים"];   // "כללי" – השם הקודם, עדיין נקרא
 const DEFAULT_NAME = "לקוחות מזדמנים";
 const CUST_HEADERS = ["קוד", "שם העסק", "כתובת איסוף", "טלפון", "כותרת בדף", "איסוף קבוע", "אמצעי תשלום קבוע",
-  "בלי \"מי משלם\"", "ברכה לכרטיס", "תוספת דחוף", "מה שולחים (מופרד בפסיקים)", "עודכן"];
+  "בלי \"מי משלם\"", "ברכה לכרטיס", "תוספת דחוף", "מה שולחים (מופרד בפסיקים)", "עודכן",
+  "שם מקבל לא חובה", "קומה ודירה"];
 const PRICE_HEADERS = ["קוד לקוח", "לקוח", "יעד", "מחיר", "כתובת לווייז (לא חובה)"];
 
 function getTab(name, headers) {
@@ -227,6 +228,9 @@ function getTab(name, headers) {
 function getCustSheet() {
   const sh = getTab(CUST_SHEET, CUST_HEADERS);
   migrateJsonCustomers(sh);
+  // עמודות שנוספו אחר כך (שם מקבל לא חובה, קומה ודירה) – משלימים את הכותרת
+  const top = sh.getRange(1, 1, 1, CUST_HEADERS.length).getDisplayValues()[0];
+  top.forEach((v, i) => { if (v === "") sh.getRange(1, i + 1).setValue(CUST_HEADERS[i]).setFontWeight("bold"); });
   return sh;
 }
 
@@ -262,6 +266,7 @@ function readCustomers() {
       name: code === DEFAULT_CODE ? DEFAULT_NAME : r[1], addr: r[2], phone: r[3], title: r[4], fixedPickup: yes(r[5]),
       pay: r[6], hidePayer: yes(r[7]), greeting: yes(r[8]), urgentExtra: r[9],
       sizes: String(r[10] || "").split(",").map(s => s.trim()).filter(String), prices: [],
+      nameOptional: yes(r[12]), floorApt: yes(r[13]),
     });
     map[code].code = code;
   });
@@ -283,7 +288,7 @@ function sanitizeCustomer(c) {
   return {
     name: str(c.name, 80), addr: str(c.addr, 150), phone: str(c.phone, 20), title: str(c.title, 80),
     fixedPickup: !!c.fixedPickup, pay: str(c.pay, 30), hidePayer: !!c.hidePayer, greeting: !!c.greeting,
-    urgentExtra: num(c.urgentExtra, 1000),
+    urgentExtra: num(c.urgentExtra, 1000), nameOptional: !!c.nameOptional, floorApt: !!c.floorApt,
     sizes: (Array.isArray(c.sizes) ? c.sizes : []).map(s => str(s, 30)).filter(String).slice(0, 10),
     prices: (Array.isArray(c.prices) ? c.prices : []).map(p => ({
       label: str(p.label, 60), city: str(p.city, 80) || str(p.label, 60), price: num(p.price, 10000),
@@ -323,7 +328,7 @@ function saveCustomerData(code, c) {
   const name = isDef ? DEFAULT_NAME : d.name;
   const yn = b => b ? "כן" : "לא";
   const row = [fromCode(code), name, d.addr, "'" + d.phone, d.title, yn(d.fixedPickup), d.pay, yn(d.hidePayer),
-    yn(d.greeting), d.urgentExtra, d.sizes.join(", "), new Date()];
+    yn(d.greeting), d.urgentExtra, d.sizes.join(", "), new Date(), yn(d.nameOptional), yn(d.floorApt)];
   if (d.phone === "") row[3] = "";
   const sh = getTab(CUST_SHEET, CUST_HEADERS);
   const r = findCustRow(sh, code);

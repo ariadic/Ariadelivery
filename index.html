@@ -483,6 +483,12 @@ body.typing{padding-bottom:24px}
       <input id="dPhone" type="tel" inputmode="tel" required>
       <div class="errmsg">טלפון לא תקין</div></div>
       </div>
+      <div class="row2" id="floorBox" style="display:none">
+      <div class="f"><label for="dFloor">קומה <span class="opt">(לא חובה)</span></label>
+      <input id="dFloor" inputmode="numeric" maxlength="10" autocomplete="off"></div>
+      <div class="f"><label for="dApt">דירה <span class="opt">(לא חובה)</span></label>
+      <input id="dApt" inputmode="numeric" maxlength="10" autocomplete="off"></div>
+      </div>
     </section>
 
     <section class="card">
@@ -864,6 +870,9 @@ if (CUSTOMER) {
   document.title = (CUSTOMER.title || CUSTOMER.name) + " – ארי משלוחים";
   if (CUSTOMER.sizes) $("sizeLabel").textContent = "מה שולחים?";
   if (CUSTOMER.greeting) $("greetingBox").style.display = "block";
+  if (CUSTOMER.floorApt) $("floorBox").style.display = "";
+  // שם המקבל לא חובה (מוגדר בדף הניהול) – לא חוסם את ההזמנה
+  if (CUSTOMER.nameOptional) { $("dName").required = false; document.querySelector('label[for="dName"]').innerHTML = 'שם המקבל <span class="opt">(לא חובה)</span>'; }
   if (CUSTOMER.fixedPickup) {
     $("pickupCard").style.display = "none";
     $("rememberRow").style.display = "none";
@@ -1033,7 +1042,9 @@ function validate() {
   let ok = true;
   // איסוף קבוע (מוגדר בדף הניהול) – השדות מוסתרים מהלקוח, לכן לא בודקים אותם
   const fixedPick = CUSTOMER && CUSTOMER.fixedPickup;
+  const nameOpt = CUSTOMER && CUSTOMER.nameOptional;
   (fixedPick ? ["dName", "dAddr", "dCity"] : ["pName", "pAddr", "dName", "dAddr", "dCity"])
+    .filter(id => !(nameOpt && id === "dName"))
     .forEach(id => { ok = check(id, $(id).value.trim() !== "") && ok; });
   if (!fixedPick) ok = check("pPhone", phoneOk($("pPhone").value)) && ok;
   ok = check("dPhone", phoneOk($("dPhone").value)) && ok;
@@ -1082,7 +1093,7 @@ $("orderForm").addEventListener("submit", e => {
     `📞 ${$("pPhone").value.trim()}`,
     `🗺 ${waze($("pAddr").value.trim())}`,
     ``,
-    `📍 *מסירה:* ${$("dName").value.trim()}`,
+    `📍 *מסירה:* ${$("dName").value.trim() || "—"}`,
     destLine,
     `📞 ${$("dPhone").value.trim()}`,
     `🗺 ${waze(fullDest)}`,
@@ -1095,7 +1106,9 @@ $("orderForm").addEventListener("submit", e => {
   ];
   const greeting = $("greeting").value.trim();
   if (CUSTOMER && CUSTOMER.greeting && greeting) lines.push(`💌 ברכה: ${greeting}`);
-  const notes = $("notes").value.trim();
+  // קומה ודירה – נכנסים לתחילת ההערות לשליח (מופיעים לארי בכרטיס ובהודעה)
+  const floorTxt = [$("dFloor").value.trim() && "קומה " + $("dFloor").value.trim(), $("dApt").value.trim() && "דירה " + $("dApt").value.trim()].filter(Boolean).join(" · ");
+  const notes = [floorTxt, $("notes").value.trim()].filter(Boolean).join(" · ");
   if (notes) lines.push(`📝 ${notes}`);
 
   try {
@@ -1121,7 +1134,7 @@ $("orderForm").addEventListener("submit", e => {
   };
 
   saveHistory(record);                     // נשמר במכשיר – אם השליחה תיכשל, הגיבוי ישלח שוב
-  saveRecipient({ name: record.recipient, label, street, phone: record.recipientPhone });
+  saveRecipient({ name: record.recipient, label, street, phone: record.recipientPhone, floor: $("dFloor").value.trim(), apt: $("dApt").value.trim() });
   lastKept = { size: val("size"), when: val("when") };
   if (!CONFIG.sheetUrl) {                  // בלי מערכת – ווצאפ כמו פעם
     addPending({ no: orderNo, summary: `${record.recipient} – ${label}`, link: waLink });
@@ -1641,7 +1654,7 @@ $("historyClose").addEventListener("click", () => {
 /* ---------- מקבלים חוזרים: השלמה אוטומטית ---------- */
 const recipKey = r => `${r.name} – ${r.street}, ${r.label}`;
 function saveRecipient(r) {
-  if (!r.name || !r.street) return;
+  if (!r.street) return;                  // גם בלי שם (כשהשם לא חובה)
   const all = (load(RECIP_KEY) || []).filter(x => recipKey(x) !== recipKey(r));
   all.unshift(r);
   save(RECIP_KEY, all.slice(0, 200));
@@ -1656,7 +1669,7 @@ function renderRecipients() {
   $("recs").replaceChildren(...all.slice(0, 8).map(r => {
     const b = document.createElement("button"); b.type = "button"; b.className = "rc";
     const t = document.createElement("span"), n = document.createElement("b"), d = document.createElement("small");
-    n.textContent = r.name;
+    n.textContent = r.name || r.street;
     d.textContent = String(r.label || "").split(" – ").pop();
     t.append(n, d);
     b.innerHTML = ICO("history", "s"); b.append(t);
@@ -1667,6 +1680,7 @@ function renderRecipients() {
 }
 function useRecipient(r) {
   $("dName").value = r.name; $("dAddr").value = r.street; $("dPhone").value = r.phone || "";
+  $("dFloor").value = r.floor || ""; $("dApt").value = r.apt || "";
   if ([...$("dCity").options].some(o => o.value === r.label)) $("dCity").value = r.label;
   showPrice();
   ["dName", "dAddr", "dPhone", "dCity"].forEach(id => $(id).classList.remove("bad"));
@@ -1681,7 +1695,7 @@ $("dName").addEventListener("input", () => {
 });
 
 function resetForm() {
-  ["dName", "dAddr", "dPhone", "notes", "greeting", "whenTime"].forEach(id => $(id).value = "");
+  ["dName", "dAddr", "dPhone", "dFloor", "dApt", "notes", "greeting", "whenTime"].forEach(id => $(id).value = "");
   $("dCity").value = ""; showPrice();
   $("notesBox").style.display = "none"; $("notesLink").style.display = "";
 }
@@ -1767,6 +1781,24 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden) show
   let t = 0;
   document.addEventListener("focusin", e => { if (typing(e.target) && !e.target.closest(".sheet")) { clearTimeout(t); document.body.classList.add("typing"); } });
   document.addEventListener("focusout", () => { clearTimeout(t); t = setTimeout(() => { if (!typing(document.activeElement)) document.body.classList.remove("typing"); }, 120); });
+})();
+
+// iOS (בעיקר כשהדף שמור כאפליקציה במסך הבית): אחרי חזרה מווייז / מאפליקציה אחרת, או אחרי שהמקלדת נסגרת,
+// ספארי לפעמים "שוכח" איפה תחתית המסך – והפס התחתון נתקע באמצע. מכריחים אותו לחשב מחדש.
+(function () {
+  const fix = () => {
+    window.scrollTo(window.scrollX, window.scrollY);
+    document.querySelectorAll("#orderForm > button[type=submit], #doneMore, .sbarBg").forEach(b => {
+      b.style.transform = "translateZ(0)"; void b.offsetHeight;
+      requestAnimationFrame(() => { b.style.transform = ""; });
+    });
+  };
+  const soon = () => { fix(); setTimeout(fix, 300); setTimeout(fix, 900); };
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) soon(); });
+  window.addEventListener("pageshow", soon);
+  window.addEventListener("orientationchange", soon);
+  document.addEventListener("focusout", () => setTimeout(fix, 150));
+  if (window.visualViewport) window.visualViewport.addEventListener("resize", () => setTimeout(fix, 60));
 })();
 </script>
 </body>
