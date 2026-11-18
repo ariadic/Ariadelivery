@@ -1588,7 +1588,9 @@ function paintRow(li, x) {
   // שורת הסטטוס
   const hs = li.querySelector(".hst"); hs.replaceChildren();
   // שעת המסירה האמיתית (נרשמת כשארי לוחץ "נמסר") – לא שעת ההזמנה
-  const doneAt = parseSteps(histSteps[x.no])["נמסר"] || "";
+  // "16:55*" = ארי קבע ידנית (מוצג תמיד) · "-" = בלי שעה · לקוח עם "בלי שעת מסירה" – רק אם ארי קבע ידנית
+  const rawDone = parseSteps(histSteps[x.no])["נמסר"] || "", forced = /\*$/.test(rawDone), tDone = rawDone.replace("*", "");
+  const doneAt = tDone && tDone !== "-" && (forced || !(CUSTOMER && CUSTOMER.hideDoneTime)) ? tDone : "";
   let head = S ? S.t : "", more = "";
   if (st === "חדשה") more = "ממתינה לאישור";
   else if (st === "אושרה") { if (e.time) { head = "ארי בדרך לאיסוף"; more = `בערך ב-${e.time}`; } }

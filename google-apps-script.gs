@@ -12,7 +12,7 @@
 const NOTIFY_EMAIL = "";
 
 // גרסת הקוד – מופיעה בבדיקת הכתובת, כדי לדעת שהפריסה באמת עודכנה
-const CODE_VERSION = "2026-11-18a";
+const CODE_VERSION = "2026-11-18b";
 
 // התראות לאייפון דרך אפליקציית Pushover (הכי אמין – עם צלצול חירום ו"קיבלתי" ישר מההתראה).
 // מדביקים כאן את שני המפתחות מ-pushover.net. לא לשמור אותם באתר (הקוד באתר גלוי לכולם).
@@ -48,6 +48,7 @@ function doPost(e) {
     if (o && o.action === "setStatus") return setStatus(o);
     if (o && o.action === "cancelOrder") return cancelOrder(o);
     if (o && o.action === "setNear") return setNear(o);
+    if (o && o.action === "setDoneTime") return setDoneTime(o);
     if (o && o.action === "setAvailability") return setAvailability(o);
     if (o && o.action === "setPaid") return setPaid(o);
     if (o && o.action === "deleteOrder") return deleteOrder(o);
@@ -173,6 +174,21 @@ function stampStep(sheet, row, status) {
   } catch (e) {}
 }
 
+// שעת המסירה – ארי מתקן ידנית: "16:55" = להציג את השעה הזו, "-" = רק "נמסרה" בלי שעה.
+// נשמר בזמני הסטטוס כ"נמסר 16:55*" (כוכבית = נקבע ידנית, מוצג גם ללקוח שמסתירים לו שעות) או "נמסר -"
+function setDoneTime(o) {
+  if (!checkPassword(o.key)) return json({ ok: false, error: "סיסמה שגויה" });
+  const t = String(o.time || "");
+  if (t !== "-" && !/^\d{1,2}:\d{2}$/.test(t)) return json({ ok: false, error: "שעה לא תקינה" });
+  const sheet = getSheet();
+  const row = findRow(sheet, o.no);
+  if (!row) return json({ ok: false, error: "הזמנה לא נמצאה" });
+  const keep = String(sheet.getRange(row, COL.steps).getDisplayValue() || "").split("|").filter(p => p && p.split(" ")[0] !== "נמסר");
+  keep.push("נמסר " + (t === "-" ? "-" : t + "*"));
+  sheet.getRange(row, COL.steps).setValue(keep.join("|"));
+  return json({ ok: true });
+}
+
 // "עוד 5 דק'" – מסמן שארי ממש קרוב (ואם נשלחה שעה – מעדכן גם אותה)
 function setNear(o) {
   if (!checkPassword(o.key)) return json({ ok: false, error: "סיסמה שגויה" });
@@ -206,7 +222,7 @@ const DEFAULT_ALIASES = ["מזדמנים", "כללי", "לקוחות מזדמנ�
 const DEFAULT_NAME = "לקוחות מזדמנים";
 const CUST_HEADERS = ["קוד", "שם העסק", "כתובת איסוף", "טלפון", "כותרת בדף", "איסוף קבוע", "אמצעי תשלום קבוע",
   "בלי \"מי משלם\"", "ברכה לכרטיס", "תוספת דחוף", "מה שולחים (מופרד בפסיקים)", "עודכן",
-  "שם מקבל לא חובה", "קומה ודירה"];
+  "שם מקבל לא חובה", "קומה ודירה", "בלי שעת מסירה"];
 const PRICE_HEADERS = ["קוד לקוח", "לקוח", "יעד", "מחיר", "כתובת לווייז (לא חובה)"];
 
 function getTab(name, headers) {
@@ -266,7 +282,7 @@ function readCustomers() {
       name: code === DEFAULT_CODE ? DEFAULT_NAME : r[1], addr: r[2], phone: r[3], title: r[4], fixedPickup: yes(r[5]),
       pay: r[6], hidePayer: yes(r[7]), greeting: yes(r[8]), urgentExtra: r[9],
       sizes: String(r[10] || "").split(",").map(s => s.trim()).filter(String), prices: [],
-      nameOptional: yes(r[12]), floorApt: yes(r[13]),
+      nameOptional: yes(r[12]), floorApt: yes(r[13]), hideDoneTime: yes(r[14]),
     });
     map[code].code = code;
   });
@@ -289,6 +305,7 @@ function sanitizeCustomer(c) {
     name: str(c.name, 80), addr: str(c.addr, 150), phone: str(c.phone, 20), title: str(c.title, 80),
     fixedPickup: !!c.fixedPickup, pay: str(c.pay, 30), hidePayer: !!c.hidePayer, greeting: !!c.greeting,
     urgentExtra: num(c.urgentExtra, 1000), nameOptional: !!c.nameOptional, floorApt: !!c.floorApt,
+    hideDoneTime: !!c.hideDoneTime,
     sizes: (Array.isArray(c.sizes) ? c.sizes : []).map(s => str(s, 30)).filter(String).slice(0, 10),
     prices: (Array.isArray(c.prices) ? c.prices : []).map(p => ({
       label: str(p.label, 60), city: str(p.city, 80) || str(p.label, 60), price: num(p.price, 10000),
@@ -328,7 +345,7 @@ function saveCustomerData(code, c) {
   const name = isDef ? DEFAULT_NAME : d.name;
   const yn = b => b ? "כן" : "לא";
   const row = [fromCode(code), name, d.addr, "'" + d.phone, d.title, yn(d.fixedPickup), d.pay, yn(d.hidePayer),
-    yn(d.greeting), d.urgentExtra, d.sizes.join(", "), new Date(), yn(d.nameOptional), yn(d.floorApt)];
+    yn(d.greeting), d.urgentExtra, d.sizes.join(", "), new Date(), yn(d.nameOptional), yn(d.floorApt), yn(d.hideDoneTime)];
   if (d.phone === "") row[3] = "";
   const sh = getTab(CUST_SHEET, CUST_HEADERS);
   const r = findCustRow(sh, code);
@@ -466,6 +483,7 @@ function doGetInner(e) {
     const orders = rows.map(r => ({
       date: r[0], time: r[1], no: r[2], customer: r[3], recipient: r[4], dest: r[5], address: r[6],
       phone: r[7], item: r[8], when: r[9], pay: r[10], price: r[11], notes: r[12], eta: r[COL.eta - 1] || "",
+      steps: r[COL.steps - 1] || "",
       pickup: r[13], pickupPhone: r[14], status: r[15], paid: r[COL.paid - 1] === "כן",
     })).filter(o => CLOSED.indexOf(o.status) === -1 || parseDate(o.date, o.time) > cutoff);
     return json(Object.assign({ ok: true, orders: orders.reverse(), mailQuota: mailQuota() }, getAvailability()));

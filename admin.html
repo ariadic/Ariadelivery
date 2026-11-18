@@ -495,6 +495,7 @@ body.typing{padding-bottom:24px}
       <label class="chk"><input type="checkbox" id="ce_greeting"> שדה "ברכה לכרטיס"</label>
       <label class="chk"><input type="checkbox" id="ce_nameOpt"> שם המקבל לא חובה</label>
       <label class="chk"><input type="checkbox" id="ce_floor"> שדות "קומה" ו"דירה"</label>
+      <label class="chk"><input type="checkbox" id="ce_hideDone"> בלי שעת מסירה (הלקוח רואה רק "נמסרה")</label>
     </div>
     <div id="ceDefFields" class="grid">
       <label>תוספת דחוף (₪)<input id="ce_urgentDef" inputmode="numeric" placeholder="0"></label>
@@ -781,6 +782,7 @@ function openOrder(o) {
     else A("clock", "עדכון זמן הגעה", "", () => setTimeout(() => openEta(o), 350));
     A("package-check", "נמסר", "", b => update(o, "נמסר", b));
   }
+  if (o.status === "נמסר") { const d = doneOf(o); A("clock", d.hide ? "שעת מסירה: לא מוצגת · לשינוי" : d.time ? `שעת מסירה: ${d.time} · לתיקון` : "שעת מסירה · לתיקון", "", () => setTimeout(() => openDone(o), 350)); }
   if (!VOID(o.status)) A("banknote", o.paid ? "סמן כלא שולם" : "סמן כשולם", "", b => setPaid(o, !o.paid, b));
   if (o.status === "חדשה") A("circle-x", "לא פנוי – להחזיר ללקוח", "warn", b => {
     if (confirm(`לסמן שאתה לא פנוי להזמנה של ${o.recipient}? הלקוח יראה שצריך משלוח אחר.`)) update(o, "לא פנוי", b); });
@@ -874,6 +876,36 @@ function openEta(o) {
       aria(el("button", { type: "button", className: "ib", onclick: closeOrder }, ico("x", "s")), "סגירה")),
     el("p", { className: "etaHint", textContent: "הלקוח יראה \"בדרך · מגיע בערך ב…\"" }),
     el("label", { className: "etaBox" }, ico("clock"), el("span", { textContent: "שעת הגעה" }), inp),
+    go, skip);
+  document.body.classList.add("sheetOpen");
+}
+// שעת המסירה: "נמסר 16:55" (אוטומטי) / "נמסר 16:55*" (תוקן ידנית) / "נמסר -" (רק "נמסרה")
+function doneOf(o) {
+  const m = /(?:^|\|)נמסר ([^|]*)/.exec(o.steps || ""), v = m ? m[1] : "";
+  return { hide: v === "-", time: v === "-" ? "" : v.replace("*", "") };
+}
+function openDone(o) {
+  const d = doneOf(o);
+  const inp = el("input", { type: "time", className: "etaIn", value: d.time || `${pad(new Date().getHours())}:${pad(new Date().getMinutes())}` });
+  aria(inp, "שעת מסירה");
+  const go = el("button", { type: "button", className: "etaGo" });
+  const label = () => { go.textContent = "שמירה · נמסרה ב-" + (inp.value || "…"); };
+  ["input", "change", "blur"].forEach(ev => inp.addEventListener(ev, label)); label();
+  const save = t => {
+    closeOrder();
+    fetch(SHEET_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "setDoneTime", key, no: o.no, time: t }) })
+      .then(() => { o.steps = String(o.steps || "").split("|").filter(p => p && p.split(" ")[0] !== "נמסר").concat("נמסר " + (t === "-" ? "-" : t + "*")).join("|");
+        $("note").textContent = t === "-" ? `#${o.no}: הלקוח יראה רק "נמסרה"` : `#${o.no}: הלקוח יראה "נמסרה ב-${t}"`; setTimeout(load, 1500); })
+      .catch(() => alert("העדכון לא נשלח – בדוק חיבור ונסה שוב"));
+  };
+  go.onclick = () => { const v = inp.value; if (v) save(v); };
+  const skip = el("button", { type: "button", className: "etaSkip", textContent: "בלי שעה – הלקוח יראה רק \"נמסרה\"", onclick: () => save("-") });
+  $("oBody").replaceChildren(
+    el("div", { className: "shh" },
+      el("div", {}, el("small", { textContent: `${o.recipient || ""} · ${splitAddr(o.address)[0]}` }), el("h2", { textContent: "שעת המסירה" })),
+      aria(el("button", { type: "button", className: "ib", onclick: closeOrder }, ico("x", "s")), "סגירה")),
+    el("p", { className: "etaHint", textContent: d.hide ? "כרגע הלקוח רואה רק \"נמסרה\", בלי שעה" : d.time ? `כרגע הלקוח רואה "נמסרה ב-${d.time}"` : "השעה שתוצג ללקוח" }),
+    el("label", { className: "etaBox" }, ico("clock"), el("span", { textContent: "נמסרה ב-" }), inp),
     go, skip);
   document.body.classList.add("sheetOpen");
 }
@@ -1210,7 +1242,7 @@ function openEditor(c, dup) {
   $("ce_sizes").value = (c.sizes || []).join(", ");
   $("ce_fixed").checked = isNew && !dup ? true : !!c.fixedPickup;
   $("ce_hidePayer").checked = !!c.hidePayer; $("ce_greeting").checked = !!c.greeting;
-  $("ce_nameOpt").checked = !!c.nameOptional; $("ce_floor").checked = !!c.floorApt;
+  $("ce_nameOpt").checked = !!c.nameOptional; $("ce_floor").checked = !!c.floorApt; $("ce_hideDone").checked = !!c.hideDoneTime;
   $("ceRows").replaceChildren();
   (c.prices || []).forEach(p => addRow(p));
   if (!(c.prices || []).length && isNew) addRow();
@@ -1325,7 +1357,7 @@ $("ceSave").onclick = () => {
     : { name: $("ce_name").value, addr: $("ce_addr").value, phone: $("ce_phone").value, title: $("ce_title").value,
         pay: $("ce_pay").value, urgentExtra: $("ce_urgent").value || 0, fixedPickup: $("ce_fixed").checked,
         hidePayer: $("ce_hidePayer").checked, greeting: $("ce_greeting").checked,
-        nameOptional: $("ce_nameOpt").checked, floorApt: $("ce_floor").checked,
+        nameOptional: $("ce_nameOpt").checked, floorApt: $("ce_floor").checked, hideDoneTime: $("ce_hideDone").checked,
         sizes: $("ce_sizes").value.split(",").map(x => x.trim()).filter(Boolean) };
   customer.prices = rows.map(r => ({ label: r.label, price: Number(r.price), city: r.city || r.label }));
   const btn = $("ceSave"), orig = btn.innerHTML; btn.disabled = true; btn.textContent = "שומר…";
