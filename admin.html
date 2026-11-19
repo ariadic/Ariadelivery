@@ -1027,7 +1027,12 @@ function openPick(o) {
   set(val);
   document.body.classList.add("sheetOpen");
 }
-function etaMin(t) { const [h, mi] = t.split(":").map(Number), d = new Date(); d.setHours(h, mi, 0, 0); return Math.round((d - new Date()) / 60000); }
+function etaMin(t) {            // דקות עד השעה; שעה "אחרי חצות" (23:20 → 00:20) = מחר, לא באיחור
+  const [h, mi] = t.split(":").map(Number), d = new Date(); d.setHours(h, mi, 0, 0);
+  let m = Math.round((d - new Date()) / 60000);
+  if (m < -720) m += 1440; else if (m > 720) m -= 1440;
+  return m;
+}
 function etaLeft(t) { const min = etaMin(t); return min > 0 ? ` · עוד ${min} דק׳` : " · הזמן עבר – לעדכן?"; }
 // "עוד X דק'" – שעה חדשה = עכשיו + X. עוד 5 = גם "ממש קרוב" אצל הלקוח
 function bumpEta(o, mins, btn) {
