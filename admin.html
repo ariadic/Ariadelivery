@@ -531,6 +531,8 @@ button.pwr.u.on{background:var(--ac);box-shadow:0 0 0 5px #ff5a1f2e,0 4px 12px #
 /* פונט אחד בכל המסכים */
 button,input,select,textarea,.led{font-family:Rubik,Heebo,system-ui,sans-serif!important}
 button.lnkSkip{display:block;margin:10px auto 0;background:none;border:0;color:var(--mu);font:inherit;font-size:13px;text-decoration:underline;padding:10px;min-height:44px;cursor:pointer}
+.cashPill{display:inline-flex;align-items:center;gap:4px;margin-top:6px;min-height:32px;padding:0 11px;border-radius:99px;border:0;background:var(--fill);color:#6b6b73;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.cashPill.on{background:#e8f8ee;color:#15803d}.cashPill .ic{width:15px;height:15px}
 </style>
 </head>
 <body>
@@ -1416,11 +1418,21 @@ function custCard(c) {
   if (isDef) av.append(ico("users")); else av.textContent = em ? em[1] : (c.name || "?").trim().charAt(0);
   const btn = (i, l, fn) => aria(el("button", { type: "button", className: "ib sm", onclick: e => { e.stopPropagation(); fn(e.currentTarget); } }, ico(i, "s")), l);
   const meta = n ? `${n} יעדים · ${priceRange(c.prices)}` : (isDef ? "אין מחירון – \"המחיר ייקבע בשיחה\"" : "מחיר לפי הסכם");
+  // מזומן – הדלקה / כיבוי בלחיצה אחת מהרשימה (נשמר מיד)
+  const cashOn = /מזומן/.test(c.pay || "");
+  const cash = el("button", { type: "button", className: "cashPill" + (cashOn ? " on" : ""), title: "מזומן – לחיצה מדליקה / מכבה",
+    onclick: e => { e.stopPropagation();
+      const on = !/מזומן/.test(c.pay || ""), rest = String(c.pay || "").replace(/מזומן/g, "").trim();
+      c.pay = [on ? "מזומן" : "", rest].filter(Boolean).join(" ");
+      cash.classList.toggle("on", on); cash.lastChild.textContent = on ? "מזומן ✓" : "בלי מזומן";
+      const customer = Object.assign({}, c); delete customer.code;
+      post({ action: "saveCustomer", code: c.code, customer }).catch(() => { alert("השמירה לא נשלחה – בדוק חיבור"); }); } },
+    ico("banknote", "xs"), el("span", { textContent: cashOn ? "מזומן ✓" : "בלי מזומן" }));
   return el("section", { className: "custCard", onclick: () => openEditor(c) },
     av,
     el("div", { className: "ct" },
       el("div", { className: "cust", textContent: isDef ? "לקוחות מזדמנים" : c.name }),
-      el("div", { className: "meta", textContent: (isDef ? "הדף הכללי · " : c.code + " · ") + meta })),
+      el("div", { className: "meta", textContent: (isDef ? "הדף הכללי · " : c.code + " · ") + meta }), cash),
     isDef ? null : btn("file-text", "דוח חודשי", () => openReport(c)),
     btn("link", "העתק לינק", b => copyText(link, b)),
     isDef ? null : btn("send", "שלח הודעת הצטרפות בווצאפ",
