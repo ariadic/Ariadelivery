@@ -506,6 +506,21 @@ header .ht small{font-size:13px}
 .dtag .ic{width:13px;height:13px}
 .dtag.u{background:#fff1eb;color:#c2410c}.dtag.s{background:#e8f0ff;color:#1d4ed8}
 .dtag.late{background:#ffe4e6;color:#be123c}
+/* מצב עבודה: שני כפתורים במקום מתג – מגיב מיד */
+.stRow{display:flex;align-items:center;gap:12px;min-height:60px;padding:8px 14px}
+.stRow + .stRow{border-top:1px solid #0000000d}
+.stRow .at{flex:1;min-width:0}
+.stRow .availTitle{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:700}
+.stRow .adot{width:9px;height:9px}
+.stRow .uic{width:16px;height:16px;color:var(--ac)}.stRow.off .uic{color:#a1a1aa}
+.stRow .meta{font-size:13px;color:var(--mu);margin-top:2px}
+.seg2{flex:none;display:grid;grid-template-columns:1fr 1fr;background:#0000000d;border-radius:12px;padding:3px;gap:2px}
+.seg2 button{min-width:74px;min-height:42px;border:0;border-radius:10px;background:none;color:#555;font:inherit;font-size:15px;font-weight:600;padding:0 10px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s,color .15s}
+.seg2 button:active{transform:scale(.96)}
+#availOn.on{background:var(--okc);color:#fff;box-shadow:0 2px 6px #1fbf5a55}
+#availOff.on{background:#e11d48;color:#fff;box-shadow:0 2px 6px #e11d4855}
+#urgOn.on{background:var(--ac);color:#fff;box-shadow:0 2px 6px #ff5a1f55}
+#urgOff.on{background:#fff;color:var(--tx);box-shadow:0 1px 4px #0002}
 </style>
 </head>
 <body>
@@ -527,14 +542,14 @@ header .ht small{font-size:13px}
     <div class="alertBox" id="connAlert" style="display:none"><b>אין חיבור לטבלה בגוגל</b><br>הזמנות חדשות יגיעו אליך <b>בווצאפ</b> עד שזה יסתדר.<br><span class="small">כדאי לבדוק: האינטרנט · הקוד בגוגל (פריסה / הרשאה)</span></div>
     <div class="quotaBox" id="quotaWarn" style="display:none"></div>
     <section class="card avail" id="availBox">
-      <div class="availRow">
-        <span class="adot"></span>
-        <div class="at"><div class="availTitle" id="availTitle"></div><div class="meta" id="availSub"></div><span class="led" id="led" style="display:none"></span></div>
-        <button type="button" id="availToggle" role="switch"></button>
+      <div class="stRow">
+        <div class="at"><div class="availTitle"><span class="adot"></span>הזמנות</div><div class="meta" id="availSub"></div><span class="led" id="led" style="display:none"></span></div>
+        <div class="seg2" id="availSeg" role="group" aria-label="קבלת הזמנות"><button type="button" data-v="1" id="availOn">זמין</button><button type="button" data-v="0" id="availOff">לא פנוי</button></div>
       </div>
-      <div class="urgRow" id="urgRow"><span class="uic"><svg class="ic s"><use href="#i-zap"/></svg></span>
-        <div class="at"><div class="availTitle" id="urgTitle">מקבל דחופים</div><div class="meta" id="urgSub"></div></div>
-        <button type="button" id="urgToggle" role="switch" aria-label="מקבל דחופים"></button></div>
+      <div class="stRow" id="urgRow">
+        <div class="at"><div class="availTitle"><svg class="ic s uic"><use href="#i-zap"/></svg>דחופים</div><div class="meta" id="urgSub"></div></div>
+        <div class="seg2" id="urgSeg" role="group" aria-label="קבלת דחופים"><button type="button" data-v="1" id="urgOn">מקבל</button><button type="button" data-v="0" id="urgOff">לא מקבל</button></div>
+      </div>
       <div id="availMsgBox" style="display:none">
         <div class="amRow"><input id="availMsg" maxlength="120" placeholder="הודעה ללקוחות (לא חובה), למשל: חוזר ב-16:00">
         <button type="button" id="availMsgSave">שמירה</button></div>
@@ -720,7 +735,7 @@ const hhmm = t => { const n = new Date(t); return `${pad(n.getHours())}:${pad(n.
 function applyList(d, savedAt) {
   orders = d.orders || [];
   fillCustomers();
-  if (typeof d.available === "boolean") avail = { available: d.available, message: d.message || "", urgent: d.urgent !== false };
+  if (typeof d.available === "boolean" && Date.now() > availHoldUntil) avail = { available: d.available, message: d.message || "", urgent: d.urgent !== false };
   morning = d.morning || { keys: false, live: false };
   renderAvail();
   $("loginBox").style.display = "none"; $("bnav").style.display = ""; $("refresh").style.display = "";
@@ -1194,36 +1209,31 @@ $("refresh").onclick = () => view === "customers" ? loadCustomers() : load();
 
 /* ---------- זמינות כללית ---------- */
 function renderAvail() {
-  const on = avail.available;
+  const on = avail.available, urg = avail.urgent !== false;
   $("availBox").classList.toggle("off", !on);
-  $("availTitle").textContent = on ? "זמין לקבל הזמנות" : "לא פנוי למשלוחים";
-  $("availToggle").setAttribute("aria-checked", on ? "true" : "false");
-  const urg = avail.urgent !== false;
+  $("availOn").classList.toggle("on", on); $("availOff").classList.toggle("on", !on);
+  $("availOn").setAttribute("aria-pressed", on); $("availOff").setAttribute("aria-pressed", !on);
   $("urgRow").classList.toggle("off", !urg);
-  $("urgTitle").textContent = urg ? "מקבל דחופים" : "לא מקבל דחופים כרגע";
+  $("urgOn").classList.toggle("on", urg); $("urgOff").classList.toggle("on", !urg);
+  $("urgOn").setAttribute("aria-pressed", urg); $("urgOff").setAttribute("aria-pressed", !urg);
   $("urgSub").textContent = urg ? "תוך שעה מאישור ההזמנה" : "הלקוחות רואים \"דחוף · לא זמין כרגע\"";
-  $("urgToggle").setAttribute("aria-checked", urg ? "true" : "false");
-  $("availSub").textContent = on ? "" : "הלקוחות רואים הודעה שאתה לא פנוי";
-  $("availSub").style.display = on ? "none" : "";
+  $("availSub").textContent = on ? "הלקוחות יכולים להזמין" : "הלקוחות רואים הודעה שאתה לא פנוי";
   const m = avail.message || "";
   $("availPrev").replaceChildren("הלקוחות רואים: ", el("b", { textContent: `"ארי לא פנוי כרגע${m ? " – " + m : ""}"` }));
-  $("availToggle").textContent = on ? "סמן לא פנוי" : "סמן פנוי";
   $("availMsgBox").style.display = on ? "none" : "flex";
   if (document.activeElement !== $("availMsg")) $("availMsg").value = avail.message || "";
 }
+// שינוי מיידי במסך (בלי לחכות לגוגל); אם השליחה נכשלה – חוזרים למצב הקודם
+let availHoldUntil = 0;
 function saveAvail(available, message, urgent) {
   if (urgent === undefined) urgent = avail.urgent !== false;
-  $("availToggle").disabled = true;
+  const prev = avail;
+  avail = { available, message, urgent }; availHoldUntil = Date.now() + 15000; renderAvail();
   fetch(SHEET_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "setAvailability", key, available, message, urgent }) })
-    .then(() => { avail = { available, message, urgent }; renderAvail(); setTimeout(load, 1500); })
-    .catch(() => alert("העדכון לא נשלח – בדוק חיבור ונסה שוב"))
-    .finally(() => { $("availToggle").disabled = false; });
+    .catch(() => { avail = prev; availHoldUntil = 0; renderAvail(); alert("העדכון לא נשלח – בדוק חיבור ונסה שוב"); });
 }
-$("availToggle").onclick = e => { e.stopPropagation(); saveAvail(!avail.available, avail.available ? $("availMsg").value.trim() : ""); };
-$("urgToggle").onclick = e => { e.stopPropagation(); saveAvail(avail.available, avail.message || "", avail.urgent === false); };
-$("urgRow").addEventListener("click", () => $("urgToggle").click());
-// כל השורה לחיצה – לא רק המתג הקטן
-document.querySelector(".availRow").addEventListener("click", () => $("availToggle").click());
+$("availSeg").onclick = e => { const b = e.target.closest("button"); if (!b) return; const v = b.dataset.v === "1"; if (v !== avail.available) saveAvail(v, v ? "" : $("availMsg").value.trim()); };
+$("urgSeg").onclick = e => { const b = e.target.closest("button"); if (!b) return; const v = b.dataset.v === "1"; if (v !== (avail.urgent !== false)) saveAvail(avail.available, avail.message || "", v); };
 // הודעות מוכנות ללקוחות כשלא פנוי
 ["חוזר בעוד שעה", "סגור להיום", "חוזר מחר בבוקר"].forEach(t => $("availQuick").append(
   el("button", { type: "button", textContent: t, onclick: () => { $("availMsg").value = t; saveAvail(false, t); } })));
