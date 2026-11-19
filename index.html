@@ -508,6 +508,14 @@ ol.bitSteps b{color:var(--tx)}
 a.bitGo{min-height:60px;padding:8px 16px}
 a.bitGo .bgt{display:flex;flex-direction:column;align-items:center;line-height:1.25}
 a.bitGo .bgt small{font-size:13px;font-weight:500;opacity:.8}
+/* ביט: כמו הטופס בביט */
+.payCard.bitMode .payTop{display:none}
+.bitAmt{text-align:center;padding:4px 0 12px}.bitAmt span{display:block;font-size:14px;color:var(--mu)}.bitAmt b{display:block;font-size:40px;font-weight:800;line-height:1.15}
+.bitRow{display:flex;justify-content:space-between;align-items:center;min-height:48px;border-top:1px solid #f0f0f2;font-size:15px}.bitRow span{color:var(--mu)}
+.payCard.bitMode #noteRow .lb{font-size:15px}
+.payCard.bitMode #noteRow .t{display:flex;flex-direction:row;justify-content:space-between;align-items:center;flex:1;gap:10px}
+.payCard.bitMode #noteRow{gap:10px}
+.payCard.bitMode a.bitGo{margin-top:12px;min-height:54px}
 </style>
 </head>
 <body>
@@ -640,10 +648,11 @@ a.bitGo .bgt small{font-size:13px;font-weight:500;opacity:.8}
     </div>
     <div class="payCard" id="payCard" style="display:none">
       <div class="payTop"><svg class="ic s"><use href="#i-wallet"/></svg><b id="payTitle"></b><span class="payAmt" id="payAmt"></span></div>
-      <ol class="bitSteps" id="bitSteps" style="display:none"></ol>
-      <a class="bitGo" id="bitGo" target="_blank" rel="noopener" style="display:none"><b>bit</b><span class="bgt"><span id="bitGoT">לתשלום בביט</span><small>מספר ההזמנה יועתק – רק להדביק בהערה</small></span></a>
+      <div class="bitAmt" id="bitAmt" style="display:none"><span>סכום להעברה בביט</span><b id="bitAmtV"></b></div>
+      <div class="bitRow" id="bitTo" style="display:none"><span>למי</span><b>ארי משלוחים</b></div>
       <div class="cp" id="phoneRow"><div class="t"><span class="lb">למי מעבירים (ארי משלוחים · Aria delivery)</span><span class="vl" id="payPhone"></span></div><button type="button" class="cpb" id="cpPhone">העתק</button></div>
-      <div class="cp"><div class="t"><span class="lb">מה לכתוב בהערה</span><span class="vl" id="payNo"></span></div><button type="button" class="cpb" id="cpNo">העתק</button></div>
+      <div class="cp" id="noteRow"><div class="t"><span class="lb" id="noteLb">מה לכתוב בהערה</span><span class="vl" id="payNo"></span></div><button type="button" class="cpb" id="cpNo">העתק</button></div>
+      <a class="bitGo" id="bitGo" target="_blank" rel="noopener" style="display:none"><b>bit</b><span>מעבר לביט</span></a>
       <div class="payHint" id="payHint"></div>
       <div class="preNote" id="payPre" style="display:none"><svg class="ic s"><use href="#i-clock"/></svg><b>המשלוח יוצא לדרך אחרי שהתשלום מתקבל.</b></div>
     </div>
@@ -1516,19 +1525,16 @@ function showPayCard(record) {
   $("payNo").textContent = record.no;
   $("payPre").style.display = /מראש/.test(record.pay) ? "flex" : "none";
   const bitGo = method === "ביט" && CONFIG.bitLink;
-  $("phoneRow").style.display = bitGo ? "none" : "";          // ביט: כפתור אחד שמוביל ישר לארי – בלי מספר להעתקה
-  $("bitGoT").textContent = amount ? `לתשלום ${amount} בביט` : "לתשלום בביט";
-  $("bitGo").style.display = bitGo ? "flex" : "none";
+  // ביט: נראה כמו הטופס בביט – סכום ← למי ← הערה, ואז "מעבר לביט" (מעתיק את מספר ההזמנה)
+  card.classList.toggle("bitMode", !!bitGo);
+  ["bitAmt", "bitTo", "bitGo"].forEach(id => $(id).style.display = bitGo ? "" : "none");
+  $("bitAmtV").textContent = amount || "לפי מה שסוכם";
+  $("noteLb").textContent = bitGo ? "הערה" : "מה לכתוב בהערה";
+  $("phoneRow").style.display = bitGo ? "none" : "";
   if (bitGo) {
     $("bitGo").href = CONFIG.bitLink;
-    // לחיצה על ביט מעתיקה קודם את מספר ההזמנה – בביט רק מדביקים בהערה
     $("bitGo").onclick = () => { copyText(record.no).then(ok => { if (ok) { const b = $("cpNo"); b.innerHTML = ICO("check") + "הועתק"; b.classList.add("done"); } }); };
   }
-  $("bitSteps").style.display = "none";
-  $("bitSteps").innerHTML = bitGo ? [
-    `לוחצים על הכפתור – <b>מספר ההזמנה מועתק</b> וביט נפתח`,
-    `בביט מקלידים <b>${amount || "את הסכום שסוכם"}</b>`,
-    `בהערה <b>מדביקים את מספר ההזמנה</b> – כך ארי יודע שהתשלום הזה שלך`].map(t => `<li><span>${t}</span></li>`).join("") : "";
   $("payHint").style.display = bitGo ? "none" : "";
   $("payHint").textContent = bitGo ? ""
     : `פותחים את ${method} ← מדביקים את המספר ← ${amount ? "סכום " + amount : "הסכום שסוכם עם ארי"} ← מדביקים את מספר ההזמנה בהערה`;
