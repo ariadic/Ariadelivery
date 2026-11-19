@@ -862,7 +862,7 @@ function morningReport() {
   ];
   MailApp.sendEmail({
     to: NOTIFY_EMAIL || Session.getEffectiveUser().getEmail(),
-    subject: "☀️ בוקר טוב – ארי משלוחים: המערכת תקינה",
+    subject: "☀️ בוקר טוב – Aria delivery: המערכת תקינה",
     body: lines.join("\n"),
   });
 }
@@ -1015,7 +1015,7 @@ function ackPage(r) {
     '<p style="font-size:20px;line-height:1.5">' + msg + '</p>' +
     // target=_top: דף הניהול נפתח כדף רגיל ולא בתוך המסגרת של גוגל (שם שדות כמו בחירת שעה לא עובדים טוב)
     '<a href="' + ADMIN_URL + '" target="_top" style="display:inline-block;margin-top:12px;background:#ff5a1f;color:#fff;text-decoration:none;padding:14px 22px;border-radius:14px;font-weight:600">פתיחת דף הניהול</a></body></html>';
-  return HtmlService.createHtmlOutput(html).setTitle("ארי משלוחים").addMetaTag("viewport", "width=device-width, initial-scale=1");
+  return HtmlService.createHtmlOutput(html).setTitle("Aria delivery · ארי משלוחים").addMetaTag("viewport", "width=device-width, initial-scale=1");
 }
 
 // להרצה מהעורך: שולח התראת בדיקה לאייפון
