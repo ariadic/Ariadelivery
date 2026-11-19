@@ -1149,7 +1149,7 @@ function openPaid(o) {
   let method = methods.find(m => (o.pay || "").includes(m)) || "מזומן";
   const chips = methods.map(m => el("button", { type: "button", className: "pkChip" + (m === method ? " on" : ""), onclick: () => {
     method = m; chips.forEach(c => c.classList.toggle("on", c.textContent === m)); } }, el("b", { textContent: m })));
-  let saved = ""; try { saved = (JSON.parse(localStorage.getItem("ari.emails") || "{}"))[o.customer] || ""; } catch (e) {}
+  let saved = o.email || ""; try { saved = saved || (JSON.parse(localStorage.getItem("ari.emails") || "{}"))[o.customer] || ""; } catch (e) {}   // קודם המייל שהלקוח מילא בהזמנה
   const email = el("input", { type: "email", className: "pdEmail", placeholder: "מייל של הלקוח (לא חובה)", value: saved, autocomplete: "off" });
   const msg = el("div", { className: "pdMsg" });
   const go = el("button", { type: "button", className: "etaGo", textContent: (live ? "שולם · להוציא קבלה ₪" : "שולם · קבלה לבדיקה ₪") + amount });

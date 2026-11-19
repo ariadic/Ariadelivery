@@ -12,7 +12,7 @@
 const NOTIFY_EMAIL = "";
 
 // גרסת הקוד – מופיעה בבדיקת הכתובת, כדי לדעת שהפריסה באמת עודכנה
-const CODE_VERSION = "2026-11-20a";
+const CODE_VERSION = "2026-11-20b";
 
 // התראות לאייפון דרך אפליקציית Pushover (הכי אמין – עם צלצול חירום ו"קיבלתי" ישר מההתראה).
 // מדביקים כאן את שני המפתחות מ-pushover.net. לא לשמור אותם באתר (הקוד באתר גלוי לכולם).
@@ -32,10 +32,11 @@ const CLOSED_DAYS = 90;
 const HEADERS = [
   "תאריך", "שעה", "מס' הזמנה", "לקוח", "מקבל", "יעד", "כתובת מסירה",
   "טלפון מקבל", "מה", "מתי", "תשלום", "מחיר", "הערות", "כתובת איסוף", "טלפון איסוף", "סטטוס", "קוד לקוח", "שולם",
-  "זמן הגעה", "זמני סטטוס", "קבלה",
+  "זמן הגעה", "זמני סטטוס", "קבלה", "מייל",
 ];
 const COL = { date: 1, time: 2, no: 3, customer: 4, recipient: 5, dest: 6, address: 7, phone: 8,
-  item: 9, when: 10, pay: 11, price: 12, notes: 13, pickup: 14, pickupPhone: 15, status: 16, code: 17, paid: 18, eta: 19, steps: 20, receipt: 21 };
+  item: 9, when: 10, pay: 11, price: 12, notes: 13, pickup: 14, pickupPhone: 15, status: 16, code: 17, paid: 18, eta: 19, steps: 20, receipt: 21, email: 22 };
+const okEmail = e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(e || "").trim()) ? String(e).trim().slice(0, 120) : "";
 
 /* ---------- קבלת הזמנה חדשה / עדכון סטטוס ---------- */
 function doPost(e) {
@@ -87,6 +88,7 @@ function doPost(e) {
       typeof o.price === "number" ? o.price : clean(o.price), clean(o.notes),
       clean(o.pickup), "'" + clean(o.pickupPhone), online ? PENDING_PAY : STATUSES[0], clean(o.code), "לא",
     ]);
+    if (okEmail(o.email)) sheet.getRange(sheet.getLastRow(), COL.email).setValue(okEmail(o.email));   // מייל לקבלה (לא חובה)
     if (online) {
       try {
         const url = createPayForm(o);
@@ -357,7 +359,7 @@ function makeReceipt(o) {
   if (!price) return json({ ok: false, error: "אין מחיר בהזמנה – אי אפשר להוציא קבלה" });
   const pm = PAY_TYPES[o.method] || PAY_TYPES["מזומן"];
   const today = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd");
-  const email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(o.email || "").trim()) ? String(o.email).trim() : "";
+  const email = okEmail(o.email) || okEmail(g(COL.email));   // מהחלון "שולם", ואם אין – מהמייל שהלקוח מילא בהזמנה
   const payment = Object.assign({ date: today, price: price, currency: "ILS" }, pm);
   const doc = {
     description: "משלוח #" + o.no, type: 400, date: today, lang: "he", currency: "ILS", vatType: 0,
@@ -665,7 +667,7 @@ function doGetInner(e) {
     const orders = rows.map(r => ({
       date: r[0], time: r[1], no: r[2], customer: r[3], recipient: r[4], dest: r[5], address: r[6],
       phone: r[7], item: r[8], when: r[9], pay: r[10], price: r[11], notes: r[12], eta: r[COL.eta - 1] || "",
-      steps: r[COL.steps - 1] || "", receipt: r[COL.receipt - 1] || "",
+      steps: r[COL.steps - 1] || "", receipt: r[COL.receipt - 1] || "", email: r[COL.email - 1] || "",
       pickup: r[13], pickupPhone: r[14], status: r[15], paid: r[COL.paid - 1] === "כן",
     })).filter(o => o.status !== PENDING_PAY && (CLOSED.indexOf(o.status) === -1 || parseDate(o.date, o.time) > cutoff));
     return json(Object.assign({ ok: true, orders: orders.reverse(), mailQuota: mailQuota(), morning: morningStatus() }, getAvailability()));
@@ -843,6 +845,7 @@ function anonymizeOld() {
       if (!t || t >= cut.getTime() || d[COL.recipient - 1] === "—") return;
       who[i] = ["—", who[i][1], who[i][1] || "—", ""];                     // הכתובת המלאה מתחלפת ביעד בלבד
       notes[i] = [""];
+      sh.getRange(i + 2, COL.email).setValue("");                          // גם המייל נמחק
       changed = true; count++;
     });
     if (changed) {

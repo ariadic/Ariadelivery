@@ -525,6 +525,7 @@ a.bitGo .bgt small{font-size:13px;font-weight:500;opacity:.8}
 /* פונט אחד בכל המסכים: Rubik – גם בכפתורים ובשדות */
 button,input,select,textarea{font-family:Rubik,Heebo,system-ui,sans-serif}
 header .lg,header .ht{cursor:pointer;-webkit-tap-highlight-color:transparent}
+#emailBox{margin-top:12px}#pEmail{text-align:right}#pEmail:placeholder-shown{direction:rtl}
 </style>
 </head>
 <body>
@@ -617,6 +618,9 @@ header .lg,header .ht{cursor:pointer;-webkit-tap-highlight-color:transparent}
         <label class="lab">איך משלמים?</label>
         <div class="chips" id="payChips"></div>
         <div class="whenHint payHintL" id="payChoiceHint" style="display:none"></div>
+        <div class="f" id="emailBox"><label for="pEmail">מייל לקבלה <span class="opt">(לא חובה)</span></label>
+        <input id="pEmail" type="email" inputmode="email" autocomplete="email" maxlength="120" dir="ltr">
+        <div class="errmsg">מייל לא תקין</div></div>
         <div class="preNote" id="preNote" style="display:none"><svg class="ic s"><use href="#i-wallet"/></svg><span><b>תשלום מראש</b> · פרטי ההעברה יופיעו אחרי השליחה</span></div>
       </div>
 <input type="hidden" id="greeting">
@@ -1002,6 +1006,7 @@ try {
   }
   if (saved && saved.pay) { const r = document.querySelector(`input[name=pay][value="${saved.pay}"]`); if (r) r.checked = true; }
   if (saved && CUSTOMER && saved.code === CUSTOMER_CODE && saved.pPhone) $("pPhone").value = saved.pPhone;
+  if (saved && saved.email) $("pEmail").value = saved.email;
 } catch (e) {}
 
 // לקוח מזדמן חוזר (הפרטים שמורים במכשיר): שורה אחת למעלה במקום שלושה שדות – פחות גלילה
@@ -1256,6 +1261,7 @@ function validate() {
     .forEach(id => { ok = check(id, $(id).value.trim() !== "") && ok; });
   if (!fixedPick) ok = check("pPhone", phoneOk($("pPhone").value)) && ok;
   ok = check("dPhone", phoneOk($("dPhone").value)) && ok;
+  const em = $("pEmail").value.trim(); ok = check("pEmail", !em || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) && ok;
   // פרטי האיסוף מוסתרים (שורה למעלה) אבל משהו בהם חסר – פותחים אותם
   if (!fixedPick && $("pickupCard").style.display === "none" && ["pName", "pAddr", "pPhone"].some(id => $(id).classList.contains("bad"))) showPickup();
   if (val("when") === WHEN[2]) {
@@ -1325,9 +1331,9 @@ $("orderForm").addEventListener("submit", e => {
   try {
     if ($("remember").checked) {
       localStorage.setItem(pickKey(), JSON.stringify(CUSTOMER
-        ? { code: CUSTOMER_CODE, pPhone: $("pPhone").value.trim(), pay: val("pay") }
+        ? { code: CUSTOMER_CODE, pPhone: $("pPhone").value.trim(), pay: val("pay"), email: $("pEmail").value.trim() }
         : { pName: $("pName").value.trim(), pAddr: $("pAddr").value.trim(),
-            pPhone: $("pPhone").value.trim(), pay: val("pay") }));
+            pPhone: $("pPhone").value.trim(), pay: val("pay"), email: $("pEmail").value.trim() }));
     } else localStorage.removeItem(pickKey());
   } catch (e) {}
 
@@ -1341,7 +1347,7 @@ $("orderForm").addEventListener("submit", e => {
     item: itemVal(), when,
     pay: isOnline() ? PAY_ONLINE : isPre() ? val("pay") + " (מראש)" : val("pay"),
     price: AGREED ? "לפי הסכם" : price !== null ? price : "לתיאום",
-    notes, message: text, code: CUSTOMER ? CUSTOMER_CODE : "",
+    notes, message: text, code: CUSTOMER ? CUSTOMER_CODE : "", email: $("pEmail").value.trim(),
   };
   if (isOnline()) { record.payOnline = true; record.returnUrl = location.origin + location.pathname; }
 
