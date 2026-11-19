@@ -464,6 +464,19 @@ label.lab,#orderForm .card > h2,#orderForm > section > h2{margin-right:0;margin-
 .qty{display:flex;align-items:center;gap:14px;background:var(--fill);border-radius:16px;padding:6px;width:max-content}
 .qty button{width:48px;height:48px;margin:0;border:0;border-radius:12px;background:#fff;color:var(--tx);font:600 24px/1 inherit;box-shadow:0 1px 3px #0001;cursor:pointer;padding:0}
 .qty button:disabled{opacity:.35}.qty b{min-width:28px;text-align:center;font-size:22px}.qty span{color:var(--mu);font-size:14px;padding-left:10px}
+/* תשלום באתר + לוגואים */
+#payChips.payOnline label{min-height:64px}
+.pbd{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.pb{direction:ltr;display:inline-flex;align-items:center;gap:3px;height:24px;padding:0 8px;border-radius:6px;font-size:12px;font-weight:600;line-height:1}
+.pb .bl{width:13px;height:13px}.pb.gp .bl{width:12px;height:12px;margin-right:1px}
+.pb.ap{background:#000;color:#fff}.pb.gp{background:#fff;color:#3c4043;box-shadow:inset 0 0 0 1px #dadce0}
+.pb.bt{background:#13b3e6;color:#fff;font-weight:800}.pb.cc{direction:rtl;background:#fff;color:#555;box-shadow:inset 0 0 0 1px #dadce0;font-weight:500}
+#payErr{margin-top:10px}
+#payChips.payOnline{display:block}
+#payChips.payOnline label{display:flex;flex-direction:column;align-items:flex-start;text-align:right;gap:0;padding:12px 14px;min-height:0;border-radius:16px;background:var(--ac-soft);box-shadow:inset 0 0 0 2px var(--ac)}
+#payChips.payOnline label .rad{display:none}#payChips.payOnline label .wt b{color:var(--tx);font-size:15px}
+#orderForm > button.payBtn[type=submit]{background:#111;box-shadow:0 8px 24px #0003}
+#orderForm > button.payBtn[type=submit] .ic{width:22px;height:22px;fill:none!important;stroke:currentColor}
 </style>
 </head>
 <body>
@@ -749,6 +762,7 @@ const CONFIG = {
       sizes: c.sizes && c.sizes.length ? c.sizes : undefined, pay: c.pay || undefined });
     if (code && cfg.customer) CONFIG.customers[code] = fix(cfg.customer);
     CONFIG.occasionalCash = !!(cfg.defaults && /מזומן/.test(cfg.defaults.pay || ""));
+    CONFIG.occasionalOnline = !!(cfg.defaults && /אונליין/.test(cfg.defaults.pay || ""));   // תשלום באתר דרך מורנינג
     CONFIG.defaultNoUrgent = !!(cfg.defaults && cfg.defaults.noUrgent);   // נקבע בדף הניהול: לקוחות מזדמנים · תשלום
     if (cfg.defaults && cfg.defaults.prices && cfg.defaults.prices.length) {
       CONFIG.defaultPrices = cfg.defaults.prices;
@@ -883,13 +897,18 @@ function setUrgentAvailable(on) {           // "מקבל דחופים" כבוי 
 }
 // לקוחות מזדמנים (הדף בלי לינק אישי): ביט / פייבוקס מראש. אם ארי פתח בדף הניהול – גם מזומן
 const CASH_OK = !CUSTOMER && !!CONFIG.occasionalCash;
-const isPre = () => !CUSTOMER && !/מזומן/.test(val("pay"));
-chips("payChips", "pay", CUSTOMER ? PAY : CASH_OK ? ["ביט", "פייבוקס", "מזומן"] : ["ביט", "פייבוקס"]);
+const ONLINE = !CUSTOMER && !!CONFIG.occasionalOnline;      // לקוח מזדמן משלם באתר (אשראי · אפל פיי · גוגל פיי · ביט)
+const PAY_ONLINE = "תשלום באתר";
+const isPre = () => !CUSTOMER && !ONLINE && !/מזומן/.test(val("pay"));
+const PAY_BADGES = `<span class="pbd"><span class="pb ap"><svg viewBox="0 0 24 24" class="bl" fill="currentColor"><path d="M16.4 12.6c0-2.4 2-3.6 2.1-3.6-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.7.9-.8 0-1.9-.9-3.2-.8-1.6 0-3.1 1-4 2.4-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8 1.5 0 1.9.8 3.2.8 1.3 0 2.2-1.2 3-2.4.9-1.4 1.3-2.7 1.3-2.8 0 0-2.5-1-2.5-4zM14 5.4c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1.1.1 2.1-.6 2.8-1.4z"/></svg>Pay</span><span class="pb gp"><svg viewBox="0 0 48 48" class="bl"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.6 13.2l7.9 6.2C12.4 13.7 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.5 2.9-2.2 5.4-4.7 7.1l7.6 5.9c4.4-4.1 6.9-10.1 6.9-17.5z"/><path fill="#FBBC05" d="M10.5 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.2C.9 16.6 0 20.2 0 24s.9 7.4 2.6 10.8l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.3 0-11.6-4.2-13.5-10l-7.9 6.2C6.6 42.6 14.6 48 24 48z"/></svg>Pay</span><span class="pb bt">bit</span><span class="pb cc">כרטיס אשראי</span></span>`;
+if (ONLINE) chips("payChips", "pay", [PAY_ONLINE], () => `<span class="rad"></span><span class="wt"><b>תשלום באתר</b>${PAY_BADGES}</span>`);
+else chips("payChips", "pay", CUSTOMER ? PAY : CASH_OK ? ["ביט", "פייבוקס", "מזומן"] : ["ביט", "פייבוקס"]);
+if (ONLINE) { $("payChips").classList.add("payOnline"); $("payerBox").style.display = "none"; }
 chips("payerChips", "payer", PAYER);
 function updPay() {
   if (CUSTOMER) return;
   $("preNote").style.display = isPre() ? "flex" : "none";
-  $("payerBox").style.display = isPre() ? "none" : "";          // מזומן: מי משלם – השולח או המקבל
+  $("payerBox").style.display = isPre() || ONLINE ? "none" : "";   // מזומן: מי משלם – השולח או המקבל · באתר: תמיד השולח
 }
 $("payChips").addEventListener("change", updPay);
 updPay();
@@ -1117,6 +1136,21 @@ function checkAvailability() {
     .catch(() => {});
 }
 checkAvailability();
+// חזרה מדף התשלום של מורנינג: ?paid=מס' → מסך ההזמנה · ?payfail=מס' → חזרה לטופס עם הפרטים
+setTimeout(function payReturn() {           // אחרי שכל הדף נטען (ההיסטוריה וכו')
+  const qs = new URLSearchParams(location.search), paidNo = qs.get("paid"), failNo = qs.get("payfail");
+  if (!paidNo && !failNo) return;
+  const rec = (load(HISTORY_KEY) || []).find(r => r.no === (paidNo || failNo));
+  qs.delete("paid"); qs.delete("payfail");
+  try { history.replaceState(null, "", location.pathname + (qs.toString() ? "?" + qs : "")); } catch (e) {}
+  if (!rec) return;
+  if (paidNo) { showDone(rec, ""); paintTrack("ממתין לתשלום"); setTimeout(pollTrack, 2500); return; }
+  $("dName").value = rec.recipient || ""; $("dPhone").value = rec.recipientPhone || "";
+  if ([...$("dCity").options].some(o => o.value === rec.dest)) $("dCity").value = rec.dest;
+  $("dAddr").value = String(rec.address || "").split(", ")[0];
+  showPrice(); updDest();
+  payProblem("התשלום לא הושלם – אפשר לנסות שוב");
+}, 0);
 document.addEventListener("visibilitychange", () => { if (!document.hidden) checkAvailability(); });
 
 /* ---------- בדיקות ---------- */
@@ -1124,6 +1158,7 @@ const phoneOk = s => /^0\d{8,9}$/.test(s.replace(/\D/g, "").replace(/^972/, "0")
 function check(id, ok) { $(id).classList.toggle("bad", !ok); return ok; }
 function validate() {
   let ok = true;
+  if (typeof ONLINE !== "undefined" && ONLINE && $("dCity").value === OTHER_CITY) { payProblem("ליעד שלא ברשימה המחיר נקבע בשיחה, ולכן אי אפשר לשלם באתר"); return false; }
   // איסוף קבוע (מוגדר בדף הניהול) – השדות מוסתרים מהלקוח, לכן לא בודקים אותם
   const fixedPick = CUSTOMER && CUSTOMER.fixedPickup;
   const nameOpt = CUSTOMER && CUSTOMER.nameOptional;
@@ -1210,10 +1245,11 @@ $("orderForm").addEventListener("submit", e => {
     pickup: $("pAddr").value.trim(), pickupPhone: $("pPhone").value.trim(),
     recipient: $("dName").value.trim(), dest: label, address: destLine, recipientPhone: $("dPhone").value.trim(),
     item: itemVal(), when,
-    pay: isPre() ? val("pay") + " (מראש)" : (CUSTOMER && CUSTOMER.pay) || val("pay"),
+    pay: ONLINE ? PAY_ONLINE : isPre() ? val("pay") + " (מראש)" : (CUSTOMER && CUSTOMER.pay) || val("pay"),
     price: AGREED ? "לפי הסכם" : price !== null ? price : "לתיאום",
     notes, message: text, code: CUSTOMER ? CUSTOMER_CODE : "",
   };
+  if (ONLINE) { record.payOnline = true; record.returnUrl = location.origin + location.pathname; }
 
   saveHistory(record);                     // נשמר במכשיר – אם השליחה תיכשל, הגיבוי ישלח שוב
   saveRecipient({ name: record.recipient, label, street, phone: record.recipientPhone, floor: $("dFloor").value.trim(), apt: $("dApt").value.trim() });
@@ -1228,10 +1264,18 @@ $("orderForm").addEventListener("submit", e => {
 });
 
 /* ---------- שליחה חכמה: מחכים לאישור מהמערכת, ואם אין – ווצאפ ---------- */
-const WA_SVG = document.querySelector("#orderForm > button[type=submit] svg").outerHTML;
-const SUBMIT_TEXT = "שליחה לארי";
+const WA_SVG = typeof ONLINE !== "undefined" && ONLINE ? '<svg class="ic"><use href="#i-wallet"/></svg>' : document.querySelector("#orderForm > button[type=submit] svg").outerHTML;
+const SUBMIT_TEXT = typeof ONLINE !== "undefined" && ONLINE ? "לתשלום" : "שליחה לארי";
+function payProblem(msg) {
+  const n = $("payErr") || Object.assign(document.createElement("div"), { id: "payErr", className: "notice off" });
+  n.textContent = msg + " · אפשר גם להתקשר לארי: " + CONFIG.payPhone; n.style.display = "block";
+  $("payChips").after(n); n.scrollIntoView({ behavior: "smooth", block: "center" });
+}
 const submitBtn = document.querySelector("#orderForm > button[type=submit]");
 if (CONFIG.sheetUrl) submitBtn.querySelector("span").textContent = SUBMIT_TEXT;
+if (typeof ONLINE !== "undefined" && ONLINE) {        // תשלום באתר: כפתור שחור עם ארנק, לא ווצאפ
+  submitBtn.classList.add("payBtn"); submitBtn.querySelector("svg").outerHTML = WA_SVG;
+}
 let lastKept = null, fbTimer = null, fbShownAt = 0;
 
 function sendOrder(record, waLink, label) {
@@ -1242,12 +1286,20 @@ function sendOrder(record, waLink, label) {
   fetch(CONFIG.sheetUrl, { method: "POST", body: JSON.stringify(record), signal: ctrl.signal })
     .then(r => r.json())
     .then(d => {
+      if (d && d.payError) { payProblem(d.error); return; }
       if (!d || !d.ok) throw new Error("not saved");
+      if (d.payUrl) {                                   // תשלום באתר: עוברים לדף התשלום של מורנינג
+        if (d.no && d.no !== record.no) { renameNo(record.no, d.no); record.no = d.no; }
+        if (d.ct) setCt(record.no, d.ct);
+        submitBtn.innerHTML = '<span class="spin"></span><span>עוברים לתשלום…</span>';
+        location.href = d.payUrl;
+        return;
+      }
       if (d.no && d.no !== record.no) { renameNo(record.no, d.no); record.no = d.no; }   // המערכת נתנה מספר אחר (התנגשות באותה שנייה)
       if (d.ct) { record.ct = d.ct; setCt(record.no, d.ct); }      // קוד ביטול – נשמר רק בטלפון הזה
       showDone(record, waLink);
     })
-    .catch(() => showFallback(record, waLink, label))
+    .catch(() => record.payOnline ? payProblem("אין חיבור כרגע – נסו שוב בעוד רגע") : showFallback(record, waLink, label))
     .finally(() => {
       clearTimeout(timer);
       submitBtn.disabled = false;
@@ -1289,7 +1341,7 @@ function paintEta(st, eta) {
   }
 }
 // הכותרת הגדולה משתנה לפי השלב
-const DONE_H = { "חדשה": "ההזמנה אצל ארי", "אושרה": "ארי אישר את ההזמנה", "נאסף": "המשלוח בדרך", "נמסר": "המשלוח נמסר",
+const DONE_H = { "ממתין לתשלום": "מאשרים את התשלום…", "חדשה": "ההזמנה אצל ארי", "אושרה": "ארי אישר את ההזמנה", "נאסף": "המשלוח בדרך", "נמסר": "המשלוח נמסר",
   "לא פנוי": "ארי לא פנוי הפעם", "בוטלה": "ההזמנה בוטלה" };
 // "עד 14:00" / "עד 19/11 14:00" מתוך "מתי" של ההזמנה
 const dueOf = w => { const m = /^עד (?:(\d{2})\/(\d{2}) )?(\d{1,2}:\d{2})$/.exec(String(w || "")); return m ? { day: m[1] ? `${m[1]}/${m[2]}` : "", time: m[3] } : null; };
@@ -1635,6 +1687,7 @@ function cancelMyOrder(no, ct, onDone) {
 /* ---------- סטטוס משלוח (מהטבלה בגוגל) ---------- */
 /* ---------- שורת הזמנה ב"ההזמנות שלי": שורה אחת + פס התקדמות, ובלחיצה – כל השלבים עם השעות ---------- */
 const HST = {
+  "ממתין לתשלום": { t: "ממתין לתשלום", c: "w", i: "wallet", n: 1 },
   "חדשה":    { t: "נשלחה לארי", c: "w", i: "send", n: 1 },
   "אושרה":   { t: "ארי אישר", c: "a", i: "thumbs-up", n: 2 },
   "נאסף":    { t: "בדרך למקבל", c: "a", i: "truck", n: 3 },
