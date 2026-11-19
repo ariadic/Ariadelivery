@@ -633,12 +633,11 @@ button.pwr.u.on{background:var(--ac);box-shadow:0 0 0 5px #ff5a1f2e,0 4px 12px #
         <label class="wide">כתובת איסוף<input id="ce_addr" maxlength="150" placeholder="רחוב, מספר, עיר"></label>
         <label>טלפון<input id="ce_phone" inputmode="tel" maxlength="20"></label>
         <label>כותרת בדף <span class="opt">(לא חובה)</span><input id="ce_title" maxlength="80" placeholder="🌸 שם החנות"></label>
-        <label>אמצעי תשלום
-          <select id="ce_pay"><option value="">הלקוח בוחר</option><option>מזומן</option><option>ביט</option><option>פייבוקס</option><option>אשראי</option><option>העברה בנקאית מראש</option></select></label>
         <label>תוספת דחוף (₪)<input id="ce_urgent" inputmode="numeric" placeholder="0"></label>
         <label class="wide">מה שולחים <span class="opt">(מופרד בפסיקים, ריק = מעטפה/חבילה)</span><input id="ce_sizes" placeholder="זר, עציץ, סידור / סל"></label>
       </div>
       <details class="ceSet" id="ceSet"><summary><svg class="ic gi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg><span><b>הגדרות הדף של הלקוח</b><small id="ceSetSum"></small></span><svg class="ic cv" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></summary>
+      <label class="chk"><input type="checkbox" id="ce_cash"> מזומן (רק ללקוח שאני סומך עליו)</label>
       <label class="chk"><input type="checkbox" id="ce_fixed"> פרטי איסוף קבועים (הלקוח לא ממלא אותם)</label>
       <label class="chk"><input type="checkbox" id="ce_hidePayer"> בלי "מי משלם?"</label>
       <input type="checkbox" id="ce_greeting" hidden>
@@ -652,8 +651,8 @@ button.pwr.u.on{background:var(--ac);box-shadow:0 0 0 5px #ff5a1f2e,0 4px 12px #
     <div id="ceDefFields" class="grid">
       <label>תוספת דחוף (₪)<input id="ce_urgentDef" inputmode="numeric" placeholder="0"></label>
       <label class="chk wide"><input type="checkbox" id="ce_urgOnDef"> אפשרות "דחוף" ללקוחות מזדמנים</label>
-      <label>אמצעי תשלום (לכל הלקוחות)
-        <select id="ce_payDef"><option value="אונליין">מזומן · ביט · פייבוקס · אשראי</option><option value="">מזומן · ביט · פייבוקס (בלי אשראי)</option></select></label>
+      <label class="chk wide"><input type="checkbox" id="ce_cashDef"> מזומן ללקוחות מזדמנים</label>
+      <p class="meta wide">כל הלקוחות משלמים בביט, פייבוקס או כרטיס אשראי. מזומן – רק למי שמסמנים.</p>
     </div>
 
     <h3 class="sub">מחירון <span class="opt" id="ceCount"></span></h3>
@@ -1515,9 +1514,9 @@ function openEditor(c, dup) {
   $("ceDelete").style.display = isNew || isDef ? "none" : "";
   $("ceAgreed").textContent = isDef ? "בלי יעדים במחירון = \"המחיר ייקבע בשיחה\"." : "בלי יעדים במחירון = \"מחיר לפי הסכם\" (לא מוצג מחיר ללקוח).";
   $("ce_name").value = c.name || ""; $("ce_addr").value = c.addr || ""; $("ce_phone").value = c.phone || "";
-  $("ce_title").value = c.title || ""; $("ce_pay").value = c.pay || ""; $("ce_urgent").value = c.urgentExtra || "";
+  $("ce_title").value = c.title || ""; $("ce_cash").checked = /מזומן/.test(c.pay || ""); $("ce_urgent").value = c.urgentExtra || "";
   $("ce_urgentDef").value = c.urgentExtra || "";
-  $("ce_payDef").value = isDef && /אונליין/.test(c.pay || "") ? "אונליין" : "";
+  $("ce_cashDef").checked = isDef && /מזומן/.test(c.pay || "");
   $("ce_sizes").value = (c.sizes || []).join(", ");
   $("ce_fixed").checked = isNew && !dup ? true : !!c.fixedPickup;
   $("ce_hidePayer").checked = !!c.hidePayer; $("ce_greeting").checked = !!c.greeting;
@@ -1636,9 +1635,9 @@ $("ceSave").onclick = () => {
   const isDef = editing.isDef;
   if (!isDef && !$("ce_name").value.trim()) { $("ce_name").classList.add("bad"); err.textContent = "חסר שם העסק"; return; }
   const customer = isDef
-    ? { urgentExtra: $("ce_urgentDef").value || 0, pay: $("ce_payDef").value, noUrgent: !$("ce_urgOnDef").checked }
+    ? { urgentExtra: $("ce_urgentDef").value || 0, pay: $("ce_cashDef").checked ? "מזומן" : "", noUrgent: !$("ce_urgOnDef").checked }
     : { name: $("ce_name").value, addr: $("ce_addr").value, phone: $("ce_phone").value, title: $("ce_title").value,
-        pay: $("ce_pay").value, urgentExtra: $("ce_urgent").value || 0, fixedPickup: $("ce_fixed").checked,
+        pay: $("ce_cash").checked ? "מזומן" : "", urgentExtra: $("ce_urgent").value || 0, fixedPickup: $("ce_fixed").checked,
         hidePayer: $("ce_hidePayer").checked, greeting: false,
         nameOptional: $("ce_nameOpt").checked, floorApt: $("ce_floor").checked, hideDoneTime: $("ce_hideDone").checked,
         noUrgent: !$("ce_urgOn").checked, qty: $("ce_qty").checked,
@@ -1672,7 +1671,7 @@ $("ceDelete").onclick = () => {
 };
 $("custNew").onclick = () => openEditor(null);
 // מה דלוק – בשורת הכותרת של "הגדרות הדף", כדי לראות בלי לפתוח
-const SET_NAMES = [["ce_fixed", "איסוף קבוע"], ["ce_hidePayer", "בלי מי משלם"], ["ce_nameOpt", "שם מקבל לא חובה"], ["ce_floor", "קומה ודירה"], ["ce_hideDone", "בלי שעת מסירה"], ["ce_urgOn", "דחוף"], ["ce_qty", "כמות פריטים"]];
+const SET_NAMES = [["ce_cash", "מזומן"], ["ce_fixed", "איסוף קבוע"], ["ce_hidePayer", "בלי מי משלם"], ["ce_nameOpt", "שם מקבל לא חובה"], ["ce_floor", "קומה ודירה"], ["ce_hideDone", "בלי שעת מסירה"], ["ce_urgOn", "דחוף"], ["ce_qty", "כמות פריטים"]];
 function setSum() { const on = SET_NAMES.filter(([id]) => $(id).checked).map(x => x[1]); $("ceSetSum").textContent = on.length ? "פועל: " + on.join(" · ") : "הכול כבוי"; }
 SET_NAMES.forEach(([id]) => $(id).addEventListener("change", setSum));
 $("ceFrom").onchange = () => {

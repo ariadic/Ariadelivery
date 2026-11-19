@@ -879,8 +879,6 @@ const CONFIG = {
 function start() {
 const SIZES  = ["מעטפה", "חבילה קטנה", "חבילה גדולה"];
 const WHEN   = ["היום", "דחוף ⚡", "מתוזמן"];
-// "העברה בנקאית מראש" לא מוצגת ללקוחות – אפשר להגדיר אותה כתשלום קבוע ללקוח שביקש (בדף הניהול)
-const PAY    = ["מזומן (סכום מדויק)", "ביט", "פייבוקס"];
 const PAYER  = ["השולח", "המקבל"];
 const OTHER_CITY = "עיר אחרת";
 const STORE_KEY = "ariDelivery.pickup";
@@ -958,9 +956,10 @@ function setUrgentAvailable(on) {           // "מקבל דחופים" כבוי 
 // לקוחות מזדמנים (הדף בלי לינק אישי): ביט / פייבוקס מראש. אם ארי פתח בדף הניהול – גם מזומן
 // אמצעי תשלום – לכל הלקוחות: מזומן · ביט · פייבוקס · אשראי (אשראי = דף התשלום המאובטח של מורנינג, כשהוא מופעל בניהול)
 const CC = "אשראי";
-const CC_OK = !!CONFIG.occasionalOnline;
+const CC_OK = true;                                        // אשראי – לכל הלקוחות
+const CASH_OK = CUSTOMER ? /מזומן/.test(CUSTOMER.pay || "") : !!CONFIG.occasionalCash;   // מזומן – רק ללקוח שארי סימן
 const PAY_ONLINE = "תשלום באתר";
-const isOnline = () => CC_OK && (CUSTOMER && CUSTOMER.pay ? CUSTOMER.pay === CC : val("pay") === CC);
+const isOnline = () => CC_OK && val("pay") === CC;
 const isPre = () => !CUSTOMER && !isOnline() && /ביט|פייבוקס/.test(val("pay"));
 const PAY_METHODS = ["cc"];   // מה מוצג ללקוח – כרגע רק אשראי. כשגרו יאשרו: ["ap","gp","bt","cc"]
 const PAY_TILES = {
@@ -971,7 +970,7 @@ const PAY_TILES = {
 };
 const PAY_BADGES = `<span class="pbd${PAY_METHODS.length === 1 ? " one" : ""}">` + PAY_METHODS.map(k => PAY_TILES[k]).join("") + `</span>`;
 const PAY_ICON = { "מזומן": ICO("banknote"), "ביט": '<b class="pbit">bit</b>', "פייבוקס": '<b class="ppb">P</b>', [CC]: ICO("credit-card") };
-const PAY_ALL = ["מזומן", "ביט", "פייבוקס", ...(CC_OK ? [CC] : [])];
+const PAY_ALL = [...(CASH_OK ? ["מזומן"] : []), "ביט", "פייבוקס", ...(CC_OK ? [CC] : [])];
 chips("payChips", "pay", PAY_ALL, t => PAY_ICON[t] + `<span>${t}</span>`);
 $("payChips").classList.add("payGrid");
 $("payChips").style.setProperty("--n", PAY_ALL.length);
@@ -981,7 +980,7 @@ function updPay() {
   const on = isOnline();
   submitBtn.classList.toggle("payBtn", on);                     // אשראי: כפתור "לתשלום" עם ארנק · אחרת: "שליחה לארי" עם ווצאפ
   if (!submitBtn.disabled) { const ic = submitBtn.querySelector("svg"); if (ic) ic.outerHTML = subSvg(); const sp = submitBtn.querySelector("span:not(.pr)"); if (sp && CONFIG.sheetUrl) sp.textContent = subText(); }
-  const h = $("payHint"); if (h) { const t = PAY_HINT[val("pay")]; h.textContent = t || ""; h.style.display = t && !(CUSTOMER && CUSTOMER.pay) ? "" : "none"; }
+  const h = $("payHint"); if (h) { const t = PAY_HINT[val("pay")]; h.textContent = t || ""; h.style.display = t ? "" : "none"; }
   $("preNote").style.display = "none";
   if (CUSTOMER) { $("payerBox").style.display = on || CUSTOMER.hidePayer ? "none" : ""; return; }
   $("payerBox").style.display = isPre() || on ? "none" : "";   // מזומן: מי משלם – השולח או המקבל · מראש / אשראי: תמיד השולח
@@ -1052,7 +1051,6 @@ if (CUSTOMER) {
     ch.onclick = showPickup;
     document.querySelector("header p").append(ch);
   }
-  if (CUSTOMER.pay) $("payBox").style.display = "none";
   if (CUSTOMER.hidePayer) $("payerBox").style.display = "none";
   if (AGREED) $("priceBox").textContent = "מחיר לפי הסכם";
 }
@@ -1312,7 +1310,7 @@ $("orderForm").addEventListener("submit", e => {
     ``,
     `📏 ${itemVal()} | ⏱ ${when}`,
     isPre() ? `💰 ${val("pay")} – תשלום מראש (לבדוק שהתקבל לפני יציאה)`
-      : `💰 ${(CUSTOMER && CUSTOMER.pay) || val("pay")}${CUSTOMER && CUSTOMER.hidePayer ? "" : " – משלם " + val("payer")}`,
+      : `💰 ${val("pay")}${CUSTOMER && CUSTOMER.hidePayer ? "" : " – משלם " + val("payer")}`,
     AGREED ? `💵 מחיר: לפי הסכם`
       : price !== null ? `💵 מחיר: ₪${price}` : `💵 מחיר: לתיאום (${label})`,
   ];
@@ -1338,7 +1336,7 @@ $("orderForm").addEventListener("submit", e => {
     pickup: $("pAddr").value.trim(), pickupPhone: $("pPhone").value.trim(),
     recipient: $("dName").value.trim(), dest: label, address: destLine, recipientPhone: $("dPhone").value.trim(),
     item: itemVal(), when,
-    pay: isOnline() ? PAY_ONLINE : isPre() ? val("pay") + " (מראש)" : (CUSTOMER && CUSTOMER.pay) || val("pay"),
+    pay: isOnline() ? PAY_ONLINE : isPre() ? val("pay") + " (מראש)" : val("pay"),
     price: AGREED ? "לפי הסכם" : price !== null ? price : "לתיאום",
     notes, message: text, code: CUSTOMER ? CUSTOMER_CODE : "",
   };
