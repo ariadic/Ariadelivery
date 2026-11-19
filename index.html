@@ -540,10 +540,21 @@ header .lg,header .ht{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .houseBtn .hi{font-size:20px;line-height:1}
 .fl3.priv{grid-template-columns:1fr}.fl3.priv .f{display:none}
 .fl3.priv .houseBtn{flex-direction:row;gap:8px;min-height:52px;background:var(--ac-soft);color:var(--ac);box-shadow:inset 0 0 0 2px var(--ac)}
+/* שדות עם אייקון – קליל ואחיד */
+.f.wi{position:relative;padding-right:44px}
+.f.wi > .fi{position:absolute;right:14px;top:50%;transform:translateY(-50%);width:19px;height:19px;color:#9a9aa3;pointer-events:none}
+.f.wi:focus-within > .fi{color:var(--ac)}
+.f.sel select{width:100%;border:0;background:none;font:inherit;font-size:17px;font-weight:600;color:var(--tx);padding:2px 0 0;-webkit-appearance:none;appearance:none;outline:none}
+.f.sel{padding-left:40px}.f.sel .chevd{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:#888;pointer-events:none}
+.f textarea{width:100%;border:0;background:none;font:inherit;font-size:16px;resize:none;outline:none;padding:2px 0 0;min-height:44px}
+#pDet.one,#dDet.one{grid-template-columns:1fr}
+#orderForm .card > h2.sh,h2.sh{display:flex!important;flex-direction:row;align-items:center;gap:10px;font-size:19px}
+h2.sh .shi{width:34px;height:34px;border-radius:50%;background:var(--ac-soft);color:var(--ac);display:grid;place-items:center;flex:none}h2.sh .shi .ic{width:18px;height:18px}
+.sub3{font-size:13px;font-weight:700;color:var(--mu);margin:16px 2px 8px}
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M12 7v5l4 2" /></symbol><symbol id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></symbol><symbol id="i-printer" viewBox="0 0 24 24"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" /><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6" /><rect x="6" y="14" width="12" height="8" rx="1" /></symbol><symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></symbol><symbol id="i-flower-2" viewBox="0 0 24 24"><path d="M12 5a3 3 0 1 1 3 3m-3-3a3 3 0 1 0-3 3m3-3v1M9 8a3 3 0 1 0 3 3M9 8h1m5 0a3 3 0 1 1-3 3m3-3h-1m-2 3v-1" /><circle cx="12" cy="8" r="2" /><path d="M12 10v12" /><path d="M12 22c4.2 0 7-1.667 7-5-4.2 0-7 1.667-7 5Z" /><path d="M12 22c-4.2 0-7-1.667-7-5 4.2 0 7 1.667 7 5Z" /></symbol><symbol id="i-sprout" viewBox="0 0 24 24"><path d="M7 20h10" /><path d="M10 20c5.5-2.5.8-6.4 3-10" /><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z" /><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z" /></symbol><symbol id="i-shopping-basket" viewBox="0 0 24 24"><path d="m15 11-1 9" /><path d="m19 11-4-7" /><path d="M2 11h20" /><path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4" /><path d="M4.5 15.5h15" /><path d="m5 11 4-7" /><path d="m9 11 1 9" /></symbol><symbol id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></symbol><symbol id="i-package" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" /><path d="M12 22V12" /><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7" /><path d="m7.5 4.27 9 5.15" /></symbol><symbol id="i-gift" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="4" rx="1" /><path d="M12 8v13" /><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7" /><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5" /></symbol><symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" /><path d="M15 18H9" /><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" /><circle cx="17" cy="18" r="2" /><circle cx="7" cy="18" r="2" /></symbol><symbol id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></symbol><symbol id="i-calendar-clock" viewBox="0 0 24 24"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5" /><path d="M16 2v4" /><path d="M8 2v4" /><path d="M3 10h5" /><path d="M17.5 17.5 16 16.3V14" /><circle cx="16" cy="16" r="6" /></symbol><symbol id="i-clipboard-list" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><path d="M12 11h4" /><path d="M12 16h4" /><path d="M8 11h.01" /><path d="M8 16h.01" /></symbol><symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /><circle cx="12" cy="10" r="3" /></symbol><symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol><symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></symbol><symbol id="i-message-square-text" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /><path d="M13 8H7" /><path d="M17 12H7" /></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14" /><path d="M12 5v14" /></symbol><symbol id="i-send" viewBox="0 0 24 24"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" /><path d="m21.854 2.147-10.94 10.939" /></symbol><symbol id="i-thumbs-up" viewBox="0 0 24 24"><path d="M7 10v12" /><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z" /></symbol><symbol id="i-package-check" viewBox="0 0 24 24"><path d="m16 16 2 2 4-4" /><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14" /><path d="m7.5 4.27 9 5.15" /><polyline points="3.29 7 12 12 20.71 7" /><line x1="12" x2="12" y1="22" y2="12" /></symbol><symbol id="i-wallet" viewBox="0 0 24 24"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" /><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" /></symbol><symbol id="i-credit-card" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2" /><path d="M2 10h20" /></symbol><symbol id="i-building-2" viewBox="0 0 24 24"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" /><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" /><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" /><path d="M10 6h4" /><path d="M10 10h4" /><path d="M10 14h4" /><path d="M10 18h4" /></symbol><symbol id="i-house" viewBox="0 0 24 24"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" /><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></symbol><symbol id="i-banknote" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01M18 12h.01" /></symbol><symbol id="i-car" viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" /><circle cx="7" cy="17" r="2" /><path d="M9 17h6" /><circle cx="17" cy="17" r="2" /></symbol><symbol id="i-circle-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="m15 9-6 6" /><path d="m9 9 6 6" /></symbol><symbol id="i-refresh-cw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /><path d="M8 16H3v5" /></symbol></svg>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M12 7v5l4 2" /></symbol><symbol id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></symbol><symbol id="i-printer" viewBox="0 0 24 24"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" /><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6" /><rect x="6" y="14" width="12" height="8" rx="1" /></symbol><symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></symbol><symbol id="i-flower-2" viewBox="0 0 24 24"><path d="M12 5a3 3 0 1 1 3 3m-3-3a3 3 0 1 0-3 3m3-3v1M9 8a3 3 0 1 0 3 3M9 8h1m5 0a3 3 0 1 1-3 3m3-3h-1m-2 3v-1" /><circle cx="12" cy="8" r="2" /><path d="M12 10v12" /><path d="M12 22c4.2 0 7-1.667 7-5-4.2 0-7 1.667-7 5Z" /><path d="M12 22c-4.2 0-7-1.667-7-5 4.2 0 7 1.667 7 5Z" /></symbol><symbol id="i-sprout" viewBox="0 0 24 24"><path d="M7 20h10" /><path d="M10 20c5.5-2.5.8-6.4 3-10" /><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z" /><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z" /></symbol><symbol id="i-shopping-basket" viewBox="0 0 24 24"><path d="m15 11-1 9" /><path d="m19 11-4-7" /><path d="M2 11h20" /><path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4" /><path d="M4.5 15.5h15" /><path d="m5 11 4-7" /><path d="m9 11 1 9" /></symbol><symbol id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></symbol><symbol id="i-package" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" /><path d="M12 22V12" /><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7" /><path d="m7.5 4.27 9 5.15" /></symbol><symbol id="i-gift" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="4" rx="1" /><path d="M12 8v13" /><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7" /><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5" /></symbol><symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" /><path d="M15 18H9" /><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" /><circle cx="17" cy="18" r="2" /><circle cx="7" cy="18" r="2" /></symbol><symbol id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></symbol><symbol id="i-calendar-clock" viewBox="0 0 24 24"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5" /><path d="M16 2v4" /><path d="M8 2v4" /><path d="M3 10h5" /><path d="M17.5 17.5 16 16.3V14" /><circle cx="16" cy="16" r="6" /></symbol><symbol id="i-clipboard-list" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><path d="M12 11h4" /><path d="M12 16h4" /><path d="M8 11h.01" /><path d="M8 16h.01" /></symbol><symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /><circle cx="12" cy="10" r="3" /></symbol><symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol><symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></symbol><symbol id="i-message-square-text" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /><path d="M13 8H7" /><path d="M17 12H7" /></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14" /><path d="M12 5v14" /></symbol><symbol id="i-send" viewBox="0 0 24 24"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" /><path d="m21.854 2.147-10.94 10.939" /></symbol><symbol id="i-thumbs-up" viewBox="0 0 24 24"><path d="M7 10v12" /><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z" /></symbol><symbol id="i-package-check" viewBox="0 0 24 24"><path d="m16 16 2 2 4-4" /><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14" /><path d="m7.5 4.27 9 5.15" /><polyline points="3.29 7 12 12 20.71 7" /><line x1="12" x2="12" y1="22" y2="12" /></symbol><symbol id="i-wallet" viewBox="0 0 24 24"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" /><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" /></symbol><symbol id="i-credit-card" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2" /><path d="M2 10h20" /></symbol><symbol id="i-building-2" viewBox="0 0 24 24"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" /><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" /><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" /><path d="M10 6h4" /><path d="M10 10h4" /><path d="M10 14h4" /><path d="M10 18h4" /></symbol><symbol id="i-house" viewBox="0 0 24 24"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" /><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></symbol><symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></symbol><symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></symbol><symbol id="i-map" viewBox="0 0 24 24"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z" /><path d="M15 5.764v15" /><path d="M9 3.236v15" /></symbol><symbol id="i-door-open" viewBox="0 0 24 24"><path d="M13 4h3a2 2 0 0 1 2 2v14" /><path d="M2 20h3" /><path d="M13 20h9" /><path d="M10 12v.01" /><path d="M13 4.562v16.157a1 1 0 0 1-1.242.97L5 20V5.562a2 2 0 0 1 1.515-1.94l4-1A2 2 0 0 1 13 4.561Z" /></symbol><symbol id="i-door-closed" viewBox="0 0 24 24"><path d="M18 20V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v14" /><path d="M2 20h20" /><path d="M14 12v.01" /></symbol><symbol id="i-key-round" viewBox="0 0 24 24"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z" /><circle cx="16.5" cy="7.5" r=".5" /></symbol><symbol id="i-layers" viewBox="0 0 24 24"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" /><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" /><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" /></symbol><symbol id="i-briefcase" viewBox="0 0 24 24"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /><rect width="20" height="14" x="2" y="6" rx="2" /></symbol><symbol id="i-bed" viewBox="0 0 24 24"><path d="M2 4v16" /><path d="M2 8h18a2 2 0 0 1 2 2v10" /><path d="M2 17h20" /><path d="M6 8v9" /></symbol><symbol id="i-ellipsis" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" /></symbol><symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></symbol><symbol id="i-flag" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /><path d="M4 22v-7" /></symbol><symbol id="i-banknote" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01M18 12h.01" /></symbol><symbol id="i-car" viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" /><circle cx="7" cy="17" r="2" /><path d="M9 17h6" /><circle cx="17" cy="17" r="2" /></symbol><symbol id="i-circle-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="m15 9-6 6" /><path d="m9 9 6 6" /></symbol><symbol id="i-refresh-cw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /><path d="M8 16H3v5" /></symbol></svg>
 <header>
   <div class="lg" id="hLogo"><img src="logo.png" alt="" onerror="this.remove()"><svg class="ic"><use href="#i-car"/></svg></div>
   <div class="ht" id="hTitle"><h1 class="brand"><bdi dir="ltr">Aria delivery</bdi></h1><p>ארי משלוחים · הזמנת משלוח</p></div>
@@ -564,36 +575,41 @@ header .lg,header .ht{cursor:pointer;-webkit-tap-highlight-color:transparent}
     </section>
 
     <section class="card" id="pickupCard">
-      <h2>איסוף</h2>
-      <div class="f"><label for="pName">שם / שם העסק</label>
-      <input id="pName" autocomplete="organization" required>
-      <div class="errmsg">נא למלא שם</div></div>
-      <div class="f"><label for="pPhone">טלפון</label>
-      <input id="pPhone" type="tel" inputmode="tel" autocomplete="tel" required>
-      <div class="errmsg">מספר טלפון לא תקין</div></div>
-      <div class="f"><label for="pCity">עיר</label>
-      <input id="pCity" list="cityList" autocomplete="address-level2" required>
-      <div class="errmsg">נא למלא עיר</div></div>
+      <h2 class="sh"><span class="shi"><svg class="ic"><use href="#i-package"/></svg></span>מקום האיסוף</h2>
+      <div class="f wi" id="pCityF"><svg class="ic fi"><use href="#i-map"/></svg><label for="pCity">עיר</label>
+      <input id="pCity" list="cityList" autocomplete="address-level2" required><div class="errmsg">נא למלא עיר</div></div>
       <datalist id="cityList"></datalist>
       <div class="row31">
-      <div class="f"><label for="pStreet">רחוב</label>
-      <input id="pStreet" autocomplete="address-line1" required>
-      <div class="errmsg">נא למלא רחוב</div></div>
-      <div class="f"><label for="pNum">מספר</label>
-      <input id="pNum" inputmode="text" maxlength="8" autocomplete="off" required>
-      <div class="errmsg">חובה</div></div>
+      <div class="f wi" id="pStreetF"><svg class="ic fi"><use href="#i-map-pin"/></svg><label for="pStreet">רחוב</label>
+      <input id="pStreet" autocomplete="address-line1" required><div class="errmsg">נא למלא רחוב</div></div>
+      <div class="f" id="pNumF"><label for="pNum">מספר בניין</label>
+      <input id="pNum" inputmode="text" maxlength="8" autocomplete="off" required><div class="errmsg">חובה</div></div>
       </div>
       <input type="hidden" id="pAddr">
-      <div class="bType" id="pType" role="group" aria-label="סוג המקום">
-      <button type="button" data-v="b" class="on"><svg class="ic s"><use href="#i-building-2"/></svg>בניין</button>
-      <button type="button" data-v="h"><svg class="ic s"><use href="#i-house"/></svg>בית פרטי</button>
-      </div>
-      <div class="row2 flRow" id="pFl">
-      <div class="f"><label for="pFloor">קומה</label>
+      <div class="f wi sel" id="pTypeF"><svg class="ic fi"><use href="#i-house" id="pTypeIc"/></svg><label for="pType">סוג המקום</label>
+      <select id="pType"><option value="apt">דירה / בית</option><option value="office">משרד</option><option value="hotel">מלון</option><option value="other">אחר</option></select>
+      <svg class="ic chevd"><use href="#i-chevron-down"/></svg></div>
+      <div class="row2" id="pDet">
+      <div class="f wi" id="pPlaceF"><svg class="ic fi"><use href="#i-briefcase"/></svg><label for="pPlace">שם החברה</label>
+      <input id="pPlace" maxlength="60" autocomplete="off"></div>
+      <div class="f wi" id="pFloorF"><svg class="ic fi"><use href="#i-layers"/></svg><label for="pFloor">קומה</label>
       <input id="pFloor" inputmode="numeric" maxlength="10" autocomplete="off"></div>
-      <div class="f"><label for="pApt">דירה</label>
-      <input id="pApt" inputmode="numeric" maxlength="10" autocomplete="off"></div>
+      <div class="f wi" id="pAptF"><svg class="ic fi"><use href="#i-door-closed"/></svg><label for="pApt">דירה</label>
+      <input id="pApt" inputmode="text" maxlength="10" autocomplete="off"></div>
       </div>
+      <div class="row2">
+      <div class="f wi" id="pEntF"><svg class="ic fi"><use href="#i-door-open"/></svg><label for="pEnt">כניסה</label>
+      <input id="pEnt" maxlength="20" autocomplete="off"></div>
+      <div class="f wi" id="pCodeF"><svg class="ic fi"><use href="#i-key-round"/></svg><label for="pCode">קוד כניסה</label>
+      <input id="pCode" maxlength="20" autocomplete="off"></div>
+      </div>
+      <div class="f wi" id="pNoteF"><svg class="ic fi"><use href="#i-message-square-text"/></svg><label for="pNote">הוראות לשליח</label>
+      <textarea id="pNote" rows="2" maxlength="300"></textarea></div>
+      <h3 class="sub3">השולח</h3>
+      <div class="f wi" id="pNameF"><svg class="ic fi"><use href="#i-user"/></svg><label for="pName">שם השולח</label>
+      <input id="pName" autocomplete="organization" required><div class="errmsg">נא למלא שם</div></div>
+      <div class="f wi" id="pPhoneF"><svg class="ic fi"><use href="#i-phone"/></svg><label for="pPhone">טלפון</label>
+      <input id="pPhone" type="tel" inputmode="tel" autocomplete="tel" required><div class="errmsg">מספר טלפון לא תקין</div></div>
       <label class="check" id="rememberRow"><input type="checkbox" id="remember" checked> לזכור את פרטי האיסוף שלי לפעם הבאה</label>
     </section>
 
@@ -602,38 +618,45 @@ header .lg,header .ht{cursor:pointer;-webkit-tap-highlight-color:transparent}
         <h2>שלחת לאחרונה <em>לחיצה ממלאת הכל</em></h2>
         <div class="recs" id="recs"></div>
       </div>
-      <h2>מסירה</h2>
+      <h2 class="sh"><span class="shi"><svg class="ic"><use href="#i-flag"/></svg></span>מקום המסירה</h2>
       <div class="destWrap">
         <button type="button" class="dest" id="destBtn"><span class="dot"><svg class="ic"><use href="#i-map-pin"/></svg></span><span class="dt"><b id="destName">בחרו יעד</b><small id="destSub">לחצו לבחירה מהרשימה</small></span><svg class="ic chev"><use href="#i-chevron-left"/></svg></button>
         <select id="dCity" required tabindex="-1" aria-label="יעד"></select>
         <div class="errmsg">נא לבחור יעד</div>
       </div>
-      <div class="f"><label for="dName">שם המקבל</label>
+      <div class="row31">
+      <div class="f wi" id="dStreetF"><svg class="ic fi"><use href="#i-map-pin"/></svg><label for="dStreet">רחוב</label>
+      <input id="dStreet" autocomplete="off" required><div class="errmsg">נא למלא רחוב</div></div>
+      <div class="f" id="dNumF"><label for="dNum">מספר בניין</label>
+      <input id="dNum" inputmode="text" maxlength="8" autocomplete="off" required><div class="errmsg">חובה</div></div>
+      </div>
+      <input type="hidden" id="dAddr">
+      <div class="f wi sel" id="dTypeF"><svg class="ic fi"><use href="#i-house" id="dTypeIc"/></svg><label for="dType">סוג המקום</label>
+      <select id="dType"><option value="apt">דירה / בית</option><option value="office">משרד</option><option value="hotel">מלון</option><option value="other">אחר</option></select>
+      <svg class="ic chevd"><use href="#i-chevron-down"/></svg></div>
+      <div class="row2" id="dDet">
+      <div class="f wi" id="dPlaceF"><svg class="ic fi"><use href="#i-briefcase"/></svg><label for="dPlace">שם החברה</label>
+      <input id="dPlace" maxlength="60" autocomplete="off"></div>
+      <div class="f wi" id="dFloorF"><svg class="ic fi"><use href="#i-layers"/></svg><label for="dFloor">קומה</label>
+      <input id="dFloor" inputmode="numeric" maxlength="10" autocomplete="off"></div>
+      <div class="f wi" id="dAptF"><svg class="ic fi"><use href="#i-door-closed"/></svg><label for="dApt">דירה</label>
+      <input id="dApt" inputmode="text" maxlength="10" autocomplete="off"></div>
+      </div>
+      <div class="row2">
+      <div class="f wi" id="dEntF"><svg class="ic fi"><use href="#i-door-open"/></svg><label for="dEnt">כניסה</label>
+      <input id="dEnt" maxlength="20" autocomplete="off"></div>
+      <div class="f wi" id="dCodeF"><svg class="ic fi"><use href="#i-key-round"/></svg><label for="dCode">קוד כניסה</label>
+      <input id="dCode" maxlength="20" autocomplete="off"></div>
+      </div>
+      <div class="f wi" id="dNoteF"><svg class="ic fi"><use href="#i-message-square-text"/></svg><label for="dNote">הוראות לשליח</label>
+      <textarea id="dNote" rows="2" maxlength="300"></textarea></div>
+      <h3 class="sub3">המקבל</h3>
+      <div class="f wi" id="dNameF"><svg class="ic fi"><use href="#i-user"/></svg><label for="dName">שם המקבל</label>
       <input id="dName" list="recipients" autocomplete="off" required>
       <datalist id="recipients"></datalist>
       <div class="errmsg">נא למלא שם מקבל</div></div>
-      <div class="f"><label for="dPhone">טלפון המקבל</label>
-      <input id="dPhone" type="tel" inputmode="tel" required>
-      <div class="errmsg">טלפון לא תקין</div></div>
-      <div class="row31">
-      <div class="f"><label for="dStreet">רחוב</label>
-      <input id="dStreet" autocomplete="off" required>
-      <div class="errmsg">נא למלא רחוב</div></div>
-      <div class="f"><label for="dNum">מספר</label>
-      <input id="dNum" inputmode="text" maxlength="8" autocomplete="off" required>
-      <div class="errmsg">חובה</div></div>
-      </div>
-      <input type="hidden" id="dAddr">
-      <div class="bType" id="dType" role="group" aria-label="סוג המקום">
-      <button type="button" data-v="b" class="on"><svg class="ic s"><use href="#i-building-2"/></svg>בניין</button>
-      <button type="button" data-v="h"><svg class="ic s"><use href="#i-house"/></svg>בית פרטי</button>
-      </div>
-      <div class="row2 flRow" id="floorBox">
-      <div class="f"><label for="dFloor">קומה</label>
-      <input id="dFloor" inputmode="numeric" maxlength="10" autocomplete="off"></div>
-      <div class="f"><label for="dApt">דירה</label>
-      <input id="dApt" inputmode="numeric" maxlength="10" autocomplete="off"></div>
-      </div>
+      <div class="f wi" id="dPhoneF"><svg class="ic fi"><use href="#i-phone"/></svg><label for="dPhone">טלפון המקבל</label>
+      <input id="dPhone" type="tel" inputmode="tel" required><div class="errmsg">טלפון לא תקין</div></div>
     </section>
 
     <section class="card">
@@ -663,7 +686,7 @@ header .lg,header .ht{cursor:pointer;-webkit-tap-highlight-color:transparent}
         <div class="preNote" id="preNote" style="display:none"><svg class="ic s"><use href="#i-wallet"/></svg><span><b>תשלום מראש</b> · פרטי ההעברה יופיעו אחרי השליחה</span></div>
       </div>
 <input type="hidden" id="greeting">
-      <button type="button" class="lnk" id="notesLink"><span class="pl"><svg class="ic s"><use href="#i-plus"/></svg></span><span class="lt"><b>הוספת הערה לשליח</b><small>קוד לבניין, מה בחבילה… (לא חובה)</small></span></button>
+      <button type="button" class="lnk" id="notesLink" style="display:none!important"><span class="pl"><svg class="ic s"><use href="#i-plus"/></svg></span><span class="lt"><b>הוספת הערה לשליח</b><small>קוד לבניין, מה בחבילה… (לא חובה)</small></span></button>
       <div id="notesBox" style="display:none">
         <div class="f" style="margin-top:14px"><label for="notes">הערה לשליח <span class="opt">(קומה, קוד לבניין, מה בחבילה…)</span></label>
         <textarea id="notes"></textarea></div>
@@ -1041,15 +1064,37 @@ $("cityList").replaceChildren(...[...new Set(DESTS.map(d => String(d.city || d.l
 
 // כתובת בשדות נפרדים (רחוב · מספר · עיר) – נשמרת כמו קודם כטקסט אחד: "הרצל 12, קרית אתא"
 const numOf = n => String(n).trim();
-// בניין / בית פרטי: מתג אחד. בית פרטי = בלי קומה ודירה (נשמר 0/0 → "בית פרטי" בהודעה לארי)
-function setHouse(k, on) {
-  const box = $(k === "p" ? "pFl" : "floorBox"), f = $(k + "Floor"), a = $(k + "Apt");
-  $(k + "Type").querySelectorAll("button").forEach(b => { const v = (b.dataset.v === "h") === on; b.classList.toggle("on", v); b.setAttribute("aria-pressed", v); });
-  box.style.display = on ? "none" : "";
-  if (on) { f.value = "0"; a.value = "0"; } else if (f.value === "0" && a.value === "0") { f.value = ""; a.value = ""; }
+// סוג המקום: דירה / בית · משרד · מלון · אחר – השדות משתנים לפי הסוג
+const PLACE_TYPES = {
+  apt:    { ic: "house",      f: { Floor: "קומה", Apt: "דירה" } },
+  office: { ic: "building-2", f: { Place: "שם החברה", Floor: "קומה" } },
+  hotel:  { ic: "bed",        f: { Place: "שם המלון", Apt: "מס׳ חדר" } },
+  other:  { ic: "ellipsis",   f: { Place: "פירוט קצר (למשל: חנות, מחסן, בית ספר)" } },
+};
+function applyType(k) {
+  const t = PLACE_TYPES[$(k + "Type").value] || PLACE_TYPES.apt;
+  $(k + "TypeIc").setAttribute("href", "#i-" + t.ic);
+  ["Place", "Floor", "Apt"].forEach(x => {
+    const box = $(k + x + "F"), on = !!t.f[x];
+    box.style.display = on ? "" : "none";
+    if (on) box.querySelector("label").textContent = t.f[x];
+  });
+  $(k + "Det").classList.toggle("one", Object.keys(t.f).length === 1);
 }
-["p", "d"].forEach(k => $(k + "Type").addEventListener("click", e => { const b = e.target.closest("button"); if (b) setHouse(k, b.dataset.v === "h"); }));
-const syncHouse = () => ["p", "d"].forEach(k => setHouse(k, $(k + "Floor").value === "0" && $(k + "Apt").value === "0"));
+["p", "d"].forEach(k => { $(k + "Type").addEventListener("change", () => applyType(k)); applyType(k); });
+const syncHouse = () => ["p", "d"].forEach(applyType);
+// פרטי המקום כטקסט לארי: "דירה · קומה 3 · דירה 12 · כניסה א · קוד 1234#"
+function placeOf(k, quiet) {
+  const v = id => $(k + id).value.trim(), type = $(k + "Type").value;
+  const parts = [];
+  if (type === "apt") parts.push(v("Floor") || v("Apt") ? ["קומה " + v("Floor"), "דירה " + v("Apt")].filter(x => !/ $/.test(x)).join(" · ") : (quiet ? "" : "בית פרטי"));
+  if (type === "office") parts.push("משרד" + (v("Place") ? " " + v("Place") : ""), v("Floor") && "קומה " + v("Floor"));
+  if (type === "hotel") parts.push("מלון" + (v("Place") ? " " + v("Place") : ""), v("Apt") && "חדר " + v("Apt"));
+  if (type === "other") parts.push(v("Place") || "אחר");
+  parts.push(v("Ent") && "כניסה " + v("Ent"), v("Code") && "קוד " + v("Code"));
+  return parts.filter(Boolean).join(" · ");
+}
+const PLACE_IDS = ["Type", "Place", "Floor", "Apt", "Ent", "Code", "Note"];
 function syncAddr() {
   $("pAddr").value = [[$("pStreet").value.trim(), numOf($("pNum").value)].filter(Boolean).join(" "), $("pCity").value.trim()].filter(Boolean).join(", ");
   $("dAddr").value = [$("dStreet").value.trim(), numOf($("dNum").value)].filter(Boolean).join(" ");
@@ -1058,18 +1103,11 @@ const splitStreet = t => { const m = /^(.*?)\s+(\d+[א-ת]?(?:\/\d+)?)$/.exec(St
 function setP(full) { const [st, ...c] = String(full || "").split(","); const [a, b] = splitStreet(st); $("pStreet").value = a; $("pNum").value = b; $("pCity").value = c.join(",").trim(); syncAddr(); }
 function setD(street) { const [a, b] = splitStreet(street); $("dStreet").value = a; $("dNum").value = b; syncAddr(); }
 ["pStreet", "pNum", "pCity", "dStreet", "dNum"].forEach(id => $(id).addEventListener("input", syncAddr));
-// קומה ודירה → טקסט: 0 ו-0 = "בית פרטי" · ריק = אזהרה לארי (או כלום, בתצוגה ללקוח)
-function floorOf(f, a, quiet) {
-  const fl = String(f || "").trim(), ap = String(a || "").trim();
-  if (!fl && !ap) return quiet ? "" : "⚠️ קומה ודירה לא צוינו";
-  if (/^0+$/.test(fl || "0") && /^0+$/.test(ap || "0")) return "בית פרטי";
-  return [fl && "קומה " + fl, ap && "דירה " + ap].filter(Boolean).join(" · ");
-}
 /* ---------- זכור אותי ---------- */
 try {
   const saved = JSON.parse(localStorage.getItem(pickKey()) || "null");
   if (saved && !CUSTOMER && !saved.code) {
-    ["pName", "pPhone", "pFloor", "pApt"].forEach(k => { if (saved[k]) $(k).value = saved[k]; });
+    ["pName", "pPhone", ...PLACE_IDS.map(x => "p" + x)].forEach(k => { if (saved[k]) $(k).value = saved[k]; });
     if (saved.pAddr) setP(saved.pAddr);
     syncHouse();
   }
@@ -1083,7 +1121,7 @@ if (!CUSTOMER && $("pName").value.trim() && $("pAddr").value.trim() &&
     /^0\d{8,9}$/.test($("pPhone").value.replace(/\D/g, "").replace(/^972/, "0"))) {
   $("pickupCard").style.display = "none";
   const hp = document.querySelector("header p"), sp = document.createElement("span");
-  sp.className = "pt"; sp.textContent = "איסוף: " + [$("pAddr").value.trim(), floorOf($("pFloor").value, $("pApt").value, true)].filter(Boolean).join(" · ");
+  sp.className = "pt"; sp.textContent = "איסוף: " + [$("pAddr").value.trim(), placeOf("p", true)].filter(Boolean).join(" · ");
   const ch = document.createElement("button");
   ch.type = "button"; ch.className = "hchg"; ch.id = "pickEdit"; ch.textContent = "שינוי";
   ch.onclick = () => showPickup();
@@ -1369,7 +1407,8 @@ $("orderForm").addEventListener("submit", e => {
     when = `מתוזמן – ${pad(t.getDate())}/${pad(t.getMonth() + 1)} ${pad(t.getHours())}:${pad(t.getMinutes())}${$("whenTo").value ? "–" + $("whenTo").value : ""}`;
   }
 
-  const pickFloor = CUSTOMER && CUSTOMER.fixedPickup ? "" : floorOf($("pFloor").value, $("pApt").value);
+  const fixedP = CUSTOMER && CUSTOMER.fixedPickup;
+  const pickFloor = fixedP ? "" : placeOf("p"), pickNote = fixedP ? "" : $("pNote").value.trim();
   const lines = [
     `🚙 *הזמנה חדשה – Aria delivery · ארי משלוחים*`,
     ...(CUSTOMER ? [`${AGREED ? "🤝 *לקוח הסכם" : "⭐ *לקוח"}: ${CUSTOMER.name}*`] : []),
@@ -1379,6 +1418,7 @@ $("orderForm").addEventListener("submit", e => {
     `📦 *איסוף:* ${$("pName").value.trim()}`,
     `${$("pAddr").value.trim()}`,
     ...(pickFloor ? [pickFloor] : []),
+    ...(pickNote ? [`📝 ${pickNote}`] : []),
     `📞 ${$("pPhone").value.trim()}`,
     `🗺 ${waze($("pAddr").value.trim())}`,
     ``,
@@ -1394,15 +1434,15 @@ $("orderForm").addEventListener("submit", e => {
       : price !== null ? `💵 מחיר: ₪${price}` : `💵 מחיר: לתיאום (${label})`,
   ];
   // קומה ודירה – נכנסים לתחילת ההערות לשליח (מופיעים לארי בכרטיס ובהודעה)
-  const floorTxt = floorOf($("dFloor").value, $("dApt").value);
-  const notes = [floorTxt, $("notes").value.trim()].filter(Boolean).join(" · ");
+  const floorTxt = placeOf("d");
+  const notes = [floorTxt, $("dNote").value.trim(), $("notes").value.trim(), pickNote && "באיסוף: " + pickNote].filter(Boolean).join(" · ");
   if (notes) lines.push(`📝 ${notes}`);
 
   try {
     if ($("remember").checked) {
       localStorage.setItem(pickKey(), JSON.stringify(CUSTOMER
         ? { code: CUSTOMER_CODE, pPhone: $("pPhone").value.trim(), pay: val("pay"), email: $("pEmail").value.trim() }
-        : { pName: $("pName").value.trim(), pAddr: $("pAddr").value.trim(), pFloor: $("pFloor").value.trim(), pApt: $("pApt").value.trim(),
+        : { pName: $("pName").value.trim(), pAddr: $("pAddr").value.trim(), ...Object.fromEntries(PLACE_IDS.map(x => ["p" + x, $("p" + x).value.trim()])),
             pPhone: $("pPhone").value.trim(), pay: val("pay"), email: $("pEmail").value.trim() }));
     } else localStorage.removeItem(pickKey());
   } catch (e) {}
@@ -1422,7 +1462,8 @@ $("orderForm").addEventListener("submit", e => {
   if (isOnline()) { record.payOnline = true; record.returnUrl = location.origin + location.pathname; }
 
   saveHistory(record);                     // נשמר במכשיר – אם השליחה תיכשל, הגיבוי ישלח שוב
-  saveRecipient({ name: record.recipient, label, street, phone: record.recipientPhone, floor: $("dFloor").value.trim(), apt: $("dApt").value.trim() });
+  saveRecipient({ name: record.recipient, label, street, phone: record.recipientPhone, type: $("dType").value, place: $("dPlace").value.trim(), floor: $("dFloor").value.trim(), apt: $("dApt").value.trim(),
+    ent: $("dEnt").value.trim(), code: $("dCode").value.trim(), note: $("dNote").value.trim() });
   lastKept = { size: QTY ? "" : val("size"), when: val("when") };
   if (!CONFIG.sheetUrl) {                  // בלי מערכת – ווצאפ כמו פעם
     addPending({ no: orderNo, summary: `${record.recipient} – ${label}`, link: waLink });
@@ -1492,7 +1533,7 @@ const STEP_NEW = "חדשה";
 const STEP = { "חדשה": 1, "אושרה": 2, "נאסף": 3, "נמסר": 4 };
 // זמן הגעה משוער מארי ("16:30" / "16:30|קרוב")
 const parseEta = v => { const m = /^(\d{1,2}:\d{2})?(\|קרוב)?$/.exec(String(v || "").trim()); return { time: m && m[1] || "", near: !!(m && m[2]) }; };
-const etaMins = t => { const [h, mi] = t.split(":").map(Number), d = new Date(); d.setHours(h, mi, 0, 0); return Math.round((d - new Date()) / 60000); };
+const etaMins = t => { const [h, mi] = t.split(":").map(Number), d = new Date(); d.setHours(h, mi, 0, 0); let m = Math.round((d - new Date()) / 60000); if (m < -720) m += 1440; else if (m > 720) m -= 1440; return m; };   // אחרי חצות = מחר
 let etaSeen = { no: null, st: "", t: "", at: 0 };   // לזהות שארי שינה את השעה → "עודכן" לכמה דקות
 function paintEta(st, eta) {
   const e = parseEta(eta), pick = st === "אושרה", on = (st === "נאסף" || pick) && !!e.time;
@@ -2032,7 +2073,7 @@ function renderRecipients() {
 }
 function useRecipient(r) {
   $("dName").value = r.name; setD(r.street); $("dPhone").value = r.phone || "";
-  $("dFloor").value = r.floor || ""; $("dApt").value = r.apt || ""; syncHouse();
+  PLACE_IDS.forEach(x => { $("d" + x).value = x === "Type" ? (r.type || "apt") : (r[x.toLowerCase()] || ""); }); syncHouse();
   if ([...$("dCity").options].some(o => o.value === r.label)) $("dCity").value = r.label;
   showPrice();
   ["dName", "dStreet", "dNum", "dPhone", "dCity"].forEach(id => $(id).classList.remove("bad"));
@@ -2047,7 +2088,8 @@ $("dName").addEventListener("input", () => {
 });
 
 function resetForm() {
-  ["dName", "dAddr", "dStreet", "dNum", "dPhone", "dFloor", "dApt", "notes", "greeting", "whenTime", "wtTime", "wtTo", "whenTo"].forEach(id => $(id).value = "");
+  $("dType").value = "apt";
+  ["dName", "dAddr", "dStreet", "dNum", "dPhone", "dPlace", "dFloor", "dApt", "dEnt", "dCode", "dNote", "notes", "greeting", "whenTime", "wtTime", "wtTo", "whenTo"].forEach(id => $(id).value = "");
   syncHouse();
   $("dCity").value = ""; showPrice(); if ($("whenSched")) $("whenSched").textContent = ""; setWtRange(false);
   $("notesBox").style.display = "none"; $("notesLink").style.display = "";
