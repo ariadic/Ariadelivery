@@ -505,6 +505,9 @@ ol.bitSteps{list-style:none;counter-reset:st;margin:12px 0 0;padding:0;display:f
 ol.bitSteps li{counter-increment:st;display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4;color:#333}
 ol.bitSteps li::before{content:counter(st);flex:none;width:24px;height:24px;border-radius:50%;background:#78eaf4;color:#15333b;font-size:13px;font-weight:700;display:grid;place-items:center;margin-top:-1px}
 ol.bitSteps b{color:var(--tx)}
+a.bitGo{min-height:60px;padding:8px 16px}
+a.bitGo .bgt{display:flex;flex-direction:column;align-items:center;line-height:1.25}
+a.bitGo .bgt small{font-size:13px;font-weight:500;opacity:.8}
 </style>
 </head>
 <body>
@@ -638,7 +641,7 @@ ol.bitSteps b{color:var(--tx)}
     <div class="payCard" id="payCard" style="display:none">
       <div class="payTop"><svg class="ic s"><use href="#i-wallet"/></svg><b id="payTitle"></b><span class="payAmt" id="payAmt"></span></div>
       <ol class="bitSteps" id="bitSteps" style="display:none"></ol>
-      <a class="bitGo" id="bitGo" target="_blank" rel="noopener" style="display:none"><b>bit</b><span id="bitGoT">לתשלום בביט</span></a>
+      <a class="bitGo" id="bitGo" target="_blank" rel="noopener" style="display:none"><b>bit</b><span class="bgt"><span id="bitGoT">לתשלום בביט</span><small>מספר ההזמנה יועתק – רק להדביק בהערה</small></span></a>
       <div class="cp" id="phoneRow"><div class="t"><span class="lb">למי מעבירים (ארי משלוחים · Aria delivery)</span><span class="vl" id="payPhone"></span></div><button type="button" class="cpb" id="cpPhone">העתק</button></div>
       <div class="cp"><div class="t"><span class="lb">מה לכתוב בהערה</span><span class="vl" id="payNo"></span></div><button type="button" class="cpb" id="cpNo">העתק</button></div>
       <div class="payHint" id="payHint"></div>
@@ -1521,7 +1524,7 @@ function showPayCard(record) {
     // לחיצה על ביט מעתיקה קודם את מספר ההזמנה – בביט רק מדביקים בהערה
     $("bitGo").onclick = () => { copyText(record.no).then(ok => { if (ok) { const b = $("cpNo"); b.innerHTML = ICO("check") + "הועתק"; b.classList.add("done"); } }); };
   }
-  $("bitSteps").style.display = bitGo ? "" : "none";
+  $("bitSteps").style.display = "none";
   $("bitSteps").innerHTML = bitGo ? [
     `לוחצים על הכפתור – <b>מספר ההזמנה מועתק</b> וביט נפתח`,
     `בביט מקלידים <b>${amount || "את הסכום שסוכם"}</b>`,
