@@ -516,6 +516,9 @@ a.bitGo .bgt small{font-size:13px;font-weight:500;opacity:.8}
 .payCard.bitMode #noteRow .t{display:flex;flex-direction:row;justify-content:space-between;align-items:center;flex:1;gap:10px}
 .payCard.bitMode #noteRow{gap:10px}
 .payCard.bitMode a.bitGo{margin-top:12px;min-height:54px}
+.payCard.bitMode{padding:14px}
+.payCard.bitMode a.bitGo{margin:0}
+.bitCap{font-size:13px;color:var(--mu);text-align:center;margin-top:8px}
 </style>
 </head>
 <body>
@@ -652,7 +655,8 @@ a.bitGo .bgt small{font-size:13px;font-weight:500;opacity:.8}
       <div class="bitRow" id="bitTo" style="display:none"><span>למי</span><b>ארי משלוחים</b></div>
       <div class="cp" id="phoneRow"><div class="t"><span class="lb">למי מעבירים (ארי משלוחים · Aria delivery)</span><span class="vl" id="payPhone"></span></div><button type="button" class="cpb" id="cpPhone">העתק</button></div>
       <div class="cp" id="noteRow"><div class="t"><span class="lb" id="noteLb">מה לכתוב בהערה</span><span class="vl" id="payNo"></span></div><button type="button" class="cpb" id="cpNo">העתק</button></div>
-      <a class="bitGo" id="bitGo" target="_blank" rel="noopener" style="display:none"><b>bit</b><span>מעבר לביט</span></a>
+      <a class="bitGo" id="bitGo" target="_blank" rel="noopener" style="display:none"><b>bit</b><span id="bitGoT">תשלום בביט</span></a>
+      <div class="bitCap" id="bitCap" style="display:none"></div>
       <div class="payHint" id="payHint"></div>
       <div class="preNote" id="payPre" style="display:none"><svg class="ic s"><use href="#i-clock"/></svg><b>המשלוח יוצא לדרך אחרי שהתשלום מתקבל.</b></div>
     </div>
@@ -1525,15 +1529,17 @@ function showPayCard(record) {
   $("payNo").textContent = record.no;
   $("payPre").style.display = /מראש/.test(record.pay) ? "flex" : "none";
   const bitGo = method === "ביט" && CONFIG.bitLink;
-  // ביט: נראה כמו הטופס בביט – סכום ← למי ← הערה, ואז "מעבר לביט" (מעתיק את מספר ההזמנה)
+  // ביט: כפתור אחד + שורה קטנה. בלחיצה מספר ההזמנה מועתק – בביט רק מדביקים בסיבת ההעברה
   card.classList.toggle("bitMode", !!bitGo);
-  ["bitAmt", "bitTo", "bitGo"].forEach(id => $(id).style.display = bitGo ? "" : "none");
-  $("bitAmtV").textContent = amount || "לפי מה שסוכם";
-  $("noteLb").textContent = bitGo ? "הערה" : "מה לכתוב בהערה";
+  ["bitAmt", "bitTo"].forEach(id => $(id).style.display = "none");
+  ["bitGo", "bitCap"].forEach(id => $(id).style.display = bitGo ? "" : "none");
+  $("noteRow").style.display = bitGo ? "none" : "";
   $("phoneRow").style.display = bitGo ? "none" : "";
   if (bitGo) {
     $("bitGo").href = CONFIG.bitLink;
-    $("bitGo").onclick = () => { copyText(record.no).then(ok => { if (ok) { const b = $("cpNo"); b.innerHTML = ICO("check") + "הועתק"; b.classList.add("done"); } }); };
+    $("bitGoT").textContent = amount ? `תשלום ${amount} בביט` : "תשלום בביט";
+    $("bitCap").textContent = "מספר ההזמנה יועתק – הדביקו בסיבת ההעברה";
+    $("bitGo").onclick = () => { copyText(record.no).then(ok => { if (ok) $("bitCap").textContent = "✓ מספר ההזמנה הועתק – הדביקו בסיבת ההעברה"; }); };
   }
   $("payHint").style.display = bitGo ? "none" : "";
   $("payHint").textContent = bitGo ? ""
