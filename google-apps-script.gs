@@ -12,7 +12,7 @@
 const NOTIFY_EMAIL = "";
 
 // גרסת הקוד – מופיעה בבדיקת הכתובת, כדי לדעת שהפריסה באמת עודכנה
-const CODE_VERSION = "2026-11-19d";
+const CODE_VERSION = "2026-11-19e";
 
 // התראות לאייפון דרך אפליקציית Pushover (הכי אמין – עם צלצול חירום ו"קיבלתי" ישר מההתראה).
 // מדביקים כאן את שני המפתחות מ-pushover.net. לא לשמור אותם באתר (הקוד באתר גלוי לכולם).
@@ -230,6 +230,19 @@ function testPayment() {
     Logger.log("✅ דף התשלום נוצר. לפתוח בטלפון (אפשר לשלם ₪1 לבדיקה):\n" + url);
   } catch (e) { Logger.log("❌ " + e.message); }
 }
+// אבחון חיבור למורנינג: להריץ מהעורך (▶ morningDiag). מדפיס את התשובה של מורנינג – בלי להדפיס את המפתחות עצמם
+function morningDiag() {
+  const p = PropertiesService.getScriptProperties();
+  const id = String(p.getProperty("MORNING_ID") || ""), sec = String(p.getProperty("MORNING_SECRET") || "");
+  const odd = t => /^\s|\s$/.test(t) ? "יש רווח בהתחלה/בסוף" : /^["']|["']$/.test(t) ? "יש מרכאות" : /\n/.test(t) ? "יש ירידת שורה" : "תקין";
+  Logger.log("MORNING_ID: " + id.length + " תווים · " + odd(id) + (/^[0-9a-f-]{36}$/i.test(id.trim()) ? " · פורמט נראה נכון" : " · ⚠️ פורמט לא רגיל"));
+  Logger.log("MORNING_SECRET: " + sec.length + " תווים · " + odd(sec));
+  CacheService.getScriptCache().remove("MORNING_TOKEN");
+  const r = UrlFetchApp.fetch(MORNING_API + "/account/token", { method: "post", contentType: "application/json", muteHttpExceptions: true,
+    payload: JSON.stringify({ id: id.trim(), secret: sec.trim() }) });
+  const body = r.getContentText();
+  Logger.log("תשובת מורנינג: קוד " + r.getResponseCode() + " · " + (/token/.test(body) ? "✅ התקבל אישור (token) – החיבור עובד" : body.slice(0, 300)));
+}
 function morningStatus() {
   const p = PropertiesService.getScriptProperties();
   return { keys: !!(p.getProperty("MORNING_ID") && p.getProperty("MORNING_SECRET")), live: p.getProperty("MORNING_LIVE") === "1" };
@@ -243,7 +256,7 @@ function morningToken() {
   const r = UrlFetchApp.fetch(MORNING_API + "/account/token", { method: "post", contentType: "application/json", muteHttpExceptions: true,
     payload: JSON.stringify({ id: String(p.getProperty("MORNING_ID") || "").trim(), secret: String(p.getProperty("MORNING_SECRET") || "").trim() }) });
   const d = JSON.parse(r.getContentText() || "{}");
-  if (r.getResponseCode() !== 200 || !d.token) throw new Error("ההתחברות למורנינג נכשלה – לבדוק את MORNING_ID / MORNING_SECRET" + (d.errorMessage ? " (" + d.errorMessage + ")" : ""));
+  if (r.getResponseCode() !== 200 || !d.token) throw new Error("ההתחברות למורנינג נכשלה (קוד " + r.getResponseCode() + ") – לבדוק את MORNING_ID / MORNING_SECRET" + (d.errorMessage ? " · " + d.errorMessage : ""));
   cache.put("MORNING_TOKEN", d.token, 50 * 60);
   return d.token;
 }
