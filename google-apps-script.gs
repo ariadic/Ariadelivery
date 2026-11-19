@@ -12,7 +12,7 @@
 const NOTIFY_EMAIL = "";
 
 // גרסת הקוד – מופיעה בבדיקת הכתובת, כדי לדעת שהפריסה באמת עודכנה
-const CODE_VERSION = "2026-11-20b";
+const CODE_VERSION = "2026-11-20c";
 
 // התראות לאייפון דרך אפליקציית Pushover (הכי אמין – עם צלצול חירום ו"קיבלתי" ישר מההתראה).
 // מדביקים כאן את שני המפתחות מ-pushover.net. לא לשמור אותם באתר (הקוד באתר גלוי לכולם).
@@ -363,7 +363,8 @@ function makeReceipt(o) {
   const payment = Object.assign({ date: today, price: price, currency: "ILS" }, pm);
   const doc = {
     description: "משלוח #" + o.no, type: 400, date: today, lang: "he", currency: "ILS", vatType: 0,
-    client: Object.assign({ name: g(COL.customer).replace(/^לקוח מזדמן – /, "") || "לקוח" }, email ? { emails: [email] } : {}),
+    client: Object.assign({ name: String(o.name || "").trim().slice(0, 80) || g(COL.customer).replace(/^לקוח מזדמן – /, "") || "לקוח" },
+      email ? { emails: [email] } : {}, /^\d{9}$/.test(String(o.taxId || "")) ? { taxId: String(o.taxId) } : {}),   // עוסק פטור: קבלה בלבד
     income: [{ description: "משלוח " + g(COL.dest) + " · " + g(COL.recipient) + " · #" + o.no, quantity: 1, price: price, currency: "ILS", vatType: 0 }],
     payment: [payment],
   };
