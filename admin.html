@@ -441,6 +441,24 @@ label.chk{padding-right:12px;padding-left:4px}
 #sheetLink,#ceDelete,#ceCopyBtn,#ceCopySel,.grid select{min-height:44px}
 .prow .drag{width:44px!important}
 .setH{margin-right:12px}
+/* "מקבל דחופים" + פסי "דחוף" / "עד שעה" בכרטיס */
+.urgRow{display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;border-top:1px solid #0000000d;background:var(--fill);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.urgRow .uic{width:10px;display:grid;place-items:center;color:var(--ac)}.urgRow.off .uic{color:#a1a1aa}
+.urgRow .at{flex:1;min-width:0}.urgRow .meta{font-size:12px}
+#urgToggle{position:relative;flex:none;width:52px;height:31px;border-radius:99px;padding:0;border:0;background:var(--okc);font-size:0;cursor:pointer}
+#urgToggle::after{content:"";position:absolute;top:3px;left:3px;width:25px;height:25px;border-radius:50%;background:#fff;box-shadow:0 2px 4px #0003;transition:left .2s}
+.urgRow.off #urgToggle{background:#d4d4d8}.urgRow.off #urgToggle::after{left:24px}
+.avail{overflow:hidden}
+.due{display:flex;align-items:center;gap:8px;border-radius:12px;padding:10px 12px;margin:-2px 0 9px;font-size:14px}
+.due b{font-weight:700}.due small{margin-right:auto;font-size:12.5px;opacity:.85;white-space:nowrap}
+.due.u{background:var(--ac-soft);color:#c2410c}.due.d{background:#111;color:#fff}.due.d.late{background:#e11d48}
+/* שולם + קבלה */
+.rcp{display:flex;align-items:center;gap:8px;background:var(--fill);border-radius:12px;padding:0 12px;min-height:44px;margin:-2px 0 9px;font-size:13.5px}
+.rcp span{flex:1;font-weight:600}.rcp a{color:var(--ac);font-weight:700;text-decoration:none;padding:12px 4px}
+.pdEmail{width:100%;box-sizing:border-box;min-height:48px;border:0;border-radius:14px;background:var(--fill);padding:0 14px;font:inherit;font-size:15px;margin-bottom:10px;direction:ltr;text-align:right}
+.pdTest{background:var(--ac-soft);color:#9a3412;border-radius:12px;padding:10px 12px;font-size:13px;margin:0 0 6px}
+.pdMsg{color:#be123c;font-size:13.5px;min-height:4px;margin-bottom:6px}
+a.pdOpen{display:block;text-align:center;text-decoration:none}
 </style>
 </head>
 <body>
@@ -467,6 +485,9 @@ label.chk{padding-right:12px;padding-left:4px}
         <div class="at"><div class="availTitle" id="availTitle"></div><div class="meta" id="availSub"></div><span class="led" id="led" style="display:none"></span></div>
         <button type="button" id="availToggle" role="switch"></button>
       </div>
+      <div class="urgRow" id="urgRow"><span class="uic"><svg class="ic s"><use href="#i-zap"/></svg></span>
+        <div class="at"><div class="availTitle" id="urgTitle">מקבל דחופים</div><div class="meta" id="urgSub"></div></div>
+        <button type="button" id="urgToggle" role="switch" aria-label="מקבל דחופים"></button></div>
       <div id="availMsgBox" style="display:none">
         <div class="amRow"><input id="availMsg" maxlength="120" placeholder="הודעה ללקוחות (לא חובה), למשל: חוזר ב-16:00">
         <button type="button" id="availMsgSave">שמירה</button></div>
@@ -555,11 +576,14 @@ label.chk{padding-right:12px;padding-left:4px}
       <label class="chk"><input type="checkbox" id="ce_nameOpt"> שם המקבל לא חובה</label>
       <label class="chk"><input type="checkbox" id="ce_floor"> שדות "קומה" ו"דירה"</label>
       <label class="chk"><input type="checkbox" id="ce_hideDone"> בלי שעת מסירה (הלקוח רואה רק "נמסרה")</label>
+      <label class="chk"><input type="checkbox" id="ce_urgOn"> אפשרות "דחוף" (מגיע עד שעה מהאיסוף)</label>
+      <label class="chk"><input type="checkbox" id="ce_qty"> כמות פריטים במקום "מה שולחים"</label>
     </div>
     <div id="ceDefFields" class="grid">
       <label>תוספת דחוף (₪)<input id="ce_urgentDef" inputmode="numeric" placeholder="0"></label>
+      <label class="chk wide"><input type="checkbox" id="ce_urgOnDef"> אפשרות "דחוף" ללקוחות מזדמנים</label>
       <label>תשלום
-        <select id="ce_payDef"><option value="">מראש בלבד · ביט / פייבוקס</option><option value="מזומן">גם מזומן</option></select></label>
+        <select id="ce_payDef"><option value="אונליין">תשלום באתר · אשראי / אפל פיי / גוגל פיי / ביט</option><option value="">ביט / פייבוקס בהעברה אליי</option><option value="מזומן">ביט / פייבוקס + מזומן</option></select></label>
     </div>
 
     <h3 class="sub">מחירון <span class="opt" id="ceCount"></span></h3>
@@ -602,6 +626,7 @@ const BADGES = { "חדשה": ["חדשה", "new"], "נאסף": ["נאסף", "pick
 const CLOSED = ["נמסר", "לא פנוי", "בוטלה"];
 const VOID = s => s === "לא פנוי" || s === "בוטלה";        // לא בוצעו – לא נספרים בכסף
 let avail = { available: true, message: "" };
+let morning = { keys: false, live: false };
 
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2, "0");
@@ -647,7 +672,8 @@ const hhmm = t => { const n = new Date(t); return `${pad(n.getHours())}:${pad(n.
 function applyList(d, savedAt) {
   orders = d.orders || [];
   fillCustomers();
-  if (typeof d.available === "boolean") avail = { available: d.available, message: d.message || "" };
+  if (typeof d.available === "boolean") avail = { available: d.available, message: d.message || "", urgent: d.urgent !== false };
+  morning = d.morning || { keys: false, live: false };
   renderAvail();
   $("loginBox").style.display = "none"; $("bnav").style.display = ""; $("refresh").style.display = "";
   if (view === "orders") $("viewTitle").textContent = "הזמנות";
@@ -766,7 +792,7 @@ function render() {
   }
   if (tab !== "open" || q) { $("list").replaceChildren(...shown.map(card)); return; }
   // פתוחות: קודם מה שצריך לטפל בו עכשיו (חדשות + שעה שעברה), אחר כך בדרך, ואז שאושרו
-  const late = o => { const t = parseEta(o.eta).time; return (o.status === "אושרה" || o.status === "נאסף") && t && etaMin(t) <= 0; };
+  const late = o => { const t = parseEta(o.eta).time, dl = deadlineOf(o); return (o.status === "אושרה" || o.status === "נאסף") && ((t && etaMin(t) <= 0) || (dl && dl.d < Date.now())); };
   const groups = [["צריך לטפל עכשיו", o => o.status === "חדשה" || late(o)], ["בדרך", o => o.status === "נאסף"], ["אושרו · לאיסוף", o => o.status === "אושרה"], ["", () => true]];
   const used = new Set(), out = [];
   groups.forEach(([title, f]) => {
@@ -794,7 +820,8 @@ function card(o) {
   // "שולם" בלחיצה אחת: לחיצה על התגית מחליפה שולם / לא שולם
   const py = off ? el("span", { className: "py", textContent: payTxt })
     : el("button", { type: "button", className: "py " + (o.paid ? "paid" : prepay ? "wait" : "unp"),
-        title: o.paid ? "לחיצה = לא שולם" : "לחיצה = שולם", onclick: e => setPaid(o, !o.paid, e.currentTarget) },
+        title: o.paid ? "לחיצה = לא שולם" : "לחיצה = שולם",
+        onclick: e => !o.paid && morning.keys ? openPaid(o) : setPaid(o, !o.paid, e.currentTarget) },
         o.paid ? ico("check", "xs") : null, payTxt + (o.paid ? " · שולם" : prepay ? " · ממתין" : " · לא שולם"));
   const nx = NEXT[o.status];
   const act = nx ? el("button", { type: "button", className: "act " + nx[3],
@@ -826,7 +853,7 @@ function card(o) {
   return el("section", { className: "card oc" + (off ? " dim1" : "") },
     el("div", { className: "r1" },
       el("span", { className: "cust", textContent: o.customer || "לקוח" }),
-      /דחוף/.test(o.when || "") ? el("span", { className: "urg" }, ico("zap", "xs"), "דחוף") : null,
+      null,
       el("span", { className: "badge " + bc, textContent: bt }),
       el("span", { className: "tm", textContent: today ? o.time : `${(o.date || "").slice(0, 5)} ${o.time || ""}` })),
     el("div", { className: "r2" },
@@ -836,7 +863,7 @@ function card(o) {
       o.address ? qi("navigation", waze(navAddr(o)), "ניווט בווייז") : null),
     o.notes ? el("div", { className: "nt" }, ico("message-square-text", "xs"), el("span", { textContent: o.notes })) : null,
     prepay && !o.paid && !off ? el("div", { className: "waitPay", textContent: "תשלום מראש – לבדוק שהתקבל לפני יציאה" }) : null,
-    pickLine, etaLine,
+    dueStrip(o), pickLine, etaLine, rcptRow(o),
     el("div", { className: "r3" }, py, act, more));
 }
 
@@ -935,10 +962,38 @@ function bumpEta(o, mins, btn) {
     .then(() => { o.eta = t + "|קרוב"; render(); setTimeout(load, 1500); })
     .catch(() => { if (btn) btn.disabled = false; alert("העדכון לא נשלח – בדוק חיבור ונסה שוב"); });
 }
+/* ---------- "מתי": דחוף (עד שעה מהאיסוף) / "עד 14:00" ---------- */
+const isUrgent = o => /דחוף/.test(o.when || "");
+function deadlineOf(o) {            // "עד 14:00" / "עד 19/11 14:00" / (ישן) "מתוזמן – 19/11 14:00"
+  const m = /(?:^עד|מתוזמן –) (?:(\d{2})\/(\d{2}) )?(\d{1,2}):(\d{2})/.exec(o.when || "");
+  if (!m) return null;
+  const base = orderTime(o) || new Date(), d = new Date(base);
+  if (m[1]) d.setMonth(+m[2] - 1, +m[1]);
+  d.setHours(+m[3], +m[4], 0, 0);
+  return { d, label: `${m[1] ? m[1] + "/" + m[2] + " " : ""}${pad(+m[3])}:${m[4]}` };
+}
+function pickedAt(o) { const m = /(?:^|\|)נאסף (\d{1,2}):(\d{2})/.exec(o.steps || ""); if (!m) return null; const d = orderTime(o) || new Date(); d.setHours(+m[1], +m[2], 0, 0); return d; }
+const leftTxt = ms => { const m = Math.round(ms / 60000); return m < 0 ? "באיחור" : m < 60 ? `עוד ${m} דק׳` : m < 360 ? `עוד ${Math.floor(m / 60)}:${pad(m % 60)} שעות` : ""; };
+function dueStrip(o) {
+  if (CLOSED.indexOf(o.status) !== -1) return null;
+  if (isUrgent(o)) {
+    const p = o.status === "נאסף" && pickedAt(o);
+    if (p) { const by = new Date(p.getTime() + 3600000);
+      return el("div", { className: "due u" }, ico("zap", "s"), el("b", { textContent: `דחוף · חייב להגיע עד ${pad(by.getHours())}:${pad(by.getMinutes())}` }), el("small", { textContent: leftTxt(by - Date.now()) })); }
+    return el("div", { className: "due u" }, ico("zap", "s"), el("b", { textContent: "דחוף · עד שעה מהאיסוף" }));
+  }
+  const dl = deadlineOf(o);
+  if (!dl) return null;
+  return el("div", { className: "due d" + (dl.d < Date.now() ? " late" : "") }, ico("calendar-clock", "s"), el("b", { textContent: `צריך להגיע עד ${dl.label}` }), el("small", { textContent: leftTxt(dl.d - Date.now()) }));
+}
 function suggestEta() { const d = new Date(Date.now() + 30 * 60000); d.setMinutes(Math.ceil(d.getMinutes() / 5) * 5, 0, 0); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; }
 function openEta(o) {
   const editing = o.status === "נאסף";
-  const cur = parseEta(o.eta).time || suggestEta();
+  let sug = suggestEta();
+  if (isUrgent(o) && !editing) { const d = new Date(Date.now() + 60 * 60000); d.setMinutes(Math.floor(d.getMinutes() / 5) * 5, 0, 0); sug = `${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+  const dl = deadlineOf(o);
+  if (dl && dl.d.toDateString() === new Date().toDateString() && `${pad(dl.d.getHours())}:${pad(dl.d.getMinutes())}` < sug) sug = `${pad(dl.d.getHours())}:${pad(dl.d.getMinutes())}`;
+  const cur = parseEta(o.eta).time || sug;
   const inp = el("input", { type: "time", value: cur, step: 300, className: "etaIn" });
   aria(inp, "שעת הגעה משוערת");
   const go = el("button", { type: "button", className: "etaGo" });
@@ -1001,6 +1056,63 @@ function deleteOrder(o, btn) {
     .catch(() => { btn.disabled = false; btn.innerHTML = orig; alert("המחיקה לא נשלחה – בדוק חיבור ונסה שוב"); });
 }
 
+/* ---------- שולם + קבלה במורנינג ---------- */
+function rcptRow(o) {
+  if (!o.receipt) return null;
+  const [num, url] = String(o.receipt).split("|");
+  return el("div", { className: "rcp" }, ico("file-text", "s"), el("span", { textContent: `קבלה ${num}` }),
+    url ? el("a", { href: url, target: "_blank", rel: "noopener", textContent: "פתיחה" }) : null);
+}
+function openPaid(o) {
+  const live = morning.live, amount = isNaN(o.price) || o.price === "" ? 0 : Number(o.price);
+  const methods = ["מזומן", "ביט", "פייבוקס", "העברה"];
+  let method = methods.find(m => (o.pay || "").includes(m)) || "מזומן";
+  const chips = methods.map(m => el("button", { type: "button", className: "pkChip" + (m === method ? " on" : ""), onclick: () => {
+    method = m; chips.forEach(c => c.classList.toggle("on", c.textContent === m)); } }, el("b", { textContent: m })));
+  let saved = ""; try { saved = (JSON.parse(localStorage.getItem("ari.emails") || "{}"))[o.customer] || ""; } catch (e) {}
+  const email = el("input", { type: "email", className: "pdEmail", placeholder: "מייל של הלקוח (לא חובה)", value: saved, autocomplete: "off" });
+  const msg = el("div", { className: "pdMsg" });
+  const go = el("button", { type: "button", className: "etaGo", textContent: (live ? "שולם · להוציא קבלה ₪" : "שולם · קבלה לבדיקה ₪") + amount });
+  const skip = el("button", { type: "button", className: "etaSkip", textContent: "שולם בלי קבלה", onclick: () => { closeOrder(); setPaid(o, true, go); } });
+  go.onclick = () => {
+    if (!amount) { msg.textContent = "אין מחיר בהזמנה – אפשר רק \"שולם בלי קבלה\""; return; }
+    try { const all = JSON.parse(localStorage.getItem("ari.emails") || "{}"); if (email.value.trim()) all[o.customer] = email.value.trim(); localStorage.setItem("ari.emails", JSON.stringify(all)); } catch (e) {}
+    go.disabled = true; go.textContent = "מוציא קבלה…"; msg.textContent = "";
+    fetch(SHEET_URL, { method: "POST", body: JSON.stringify({ action: "receipt", key, no: o.no, method, email: email.value.trim() }) })
+      .then(r => r.json())
+      .then(d => {
+        if (!d || !d.ok) throw new Error((d && d.error) || "לא התקבלה תשובה");
+        if (d.preview) {                         // מצב בדיקה: מסמנים שולם, ומראים את הקבלה לדוגמה
+          setPaid(o, true, go);
+          const bin = atob(d.file || ""), arr = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+          const href = URL.createObjectURL(new Blob([arr], { type: "application/pdf" }));
+          showRcptDone(o, "הקבלה לבדיקה מוכנה", "זו רק תצוגה מקדימה – בלי מספר, בלי דיווח ובלי שליחה ללקוח. ההזמנה סומנה כשולמה.", href, "");
+        } else {
+          o.paid = true; o.receipt = `${d.number}|${d.url || ""}`; render(); setTimeout(load, 1500);
+          showRcptDone(o, `קבלה ${d.number} יצאה`, d.emailed ? "נשלחה ללקוח במייל" : "לא נשלח מייל – אפשר לשלוח בווצאפ", d.url, d.url);
+        }
+      })
+      .catch(err => { go.disabled = false; go.textContent = (live ? "שולם · להוציא קבלה ₪" : "שולם · קבלה לבדיקה ₪") + amount; msg.textContent = err.message; });
+  };
+  $("oBody").replaceChildren(
+    el("div", { className: "shh" },
+      el("div", {}, el("small", { textContent: `${o.recipient || ""} · ${splitAddr(o.address)[0]} · ₪${amount}` }), el("h2", { textContent: "שולם · להוציא קבלה?" })),
+      aria(el("button", { type: "button", className: "ib", onclick: closeOrder }, ico("x", "s")), "סגירה")),
+    live ? null : el("p", { className: "pdTest", textContent: "מצב בדיקה: תוצג קבלה לדוגמה בלבד. לא יוצאת קבלה אמיתית." }),
+    el("p", { className: "etaHint", textContent: "איך שילמו?" }), el("div", { className: "pkChips" }, ...chips),
+    el("p", { className: "etaHint", textContent: "לשלוח את הקבלה ל־" }), email, msg, go, skip);
+  document.body.classList.add("sheetOpen");
+}
+function showRcptDone(o, title, sub, href, shareUrl) {
+  const wa = shareUrl && o.phone ? el("a", { className: "etaSkip", target: "_blank",
+    href: "https://wa.me/972" + String(o.phone).replace(/\D/g, "").replace(/^0/, "") + "?text=" + encodeURIComponent("הקבלה על המשלוח: " + shareUrl), textContent: "שליחת הקבלה בווצאפ" }) : null;
+  $("oBody").replaceChildren(
+    el("div", { className: "shh" }, el("div", {}, el("small", { textContent: `${o.recipient || ""} · #${o.no}` }), el("h2", { textContent: "✓ " + title })),
+      aria(el("button", { type: "button", className: "ib", onclick: closeOrder }, ico("x", "s")), "סגירה")),
+    el("p", { className: "etaHint", textContent: sub }),
+    href ? el("a", { className: "etaGo pdOpen", href, target: "_blank", rel: "noopener", textContent: "פתיחת הקבלה" }) : null, wa);
+}
 function setPaid(o, paid, btn) {
   btn.disabled = true;
   fetch(SHEET_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "setPaid", key, no: o.no, paid }) })
@@ -1030,6 +1142,11 @@ function renderAvail() {
   $("availBox").classList.toggle("off", !on);
   $("availTitle").textContent = on ? "זמין לקבל הזמנות" : "לא פנוי למשלוחים";
   $("availToggle").setAttribute("aria-checked", on ? "true" : "false");
+  const urg = avail.urgent !== false;
+  $("urgRow").classList.toggle("off", !urg);
+  $("urgTitle").textContent = urg ? "מקבל דחופים" : "לא מקבל דחופים כרגע";
+  $("urgSub").textContent = urg ? "מגיע עד שעה מהאיסוף" : "הלקוחות רואים \"דחוף · לא זמין כרגע\"";
+  $("urgToggle").setAttribute("aria-checked", urg ? "true" : "false");
   $("availSub").textContent = on ? "" : "הלקוחות רואים הודעה שאתה לא פנוי";
   $("availSub").style.display = on ? "none" : "";
   const m = avail.message || "";
@@ -1038,14 +1155,17 @@ function renderAvail() {
   $("availMsgBox").style.display = on ? "none" : "flex";
   if (document.activeElement !== $("availMsg")) $("availMsg").value = avail.message || "";
 }
-function saveAvail(available, message) {
+function saveAvail(available, message, urgent) {
+  if (urgent === undefined) urgent = avail.urgent !== false;
   $("availToggle").disabled = true;
-  fetch(SHEET_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "setAvailability", key, available, message }) })
-    .then(() => { avail = { available, message }; renderAvail(); setTimeout(load, 1500); })
+  fetch(SHEET_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "setAvailability", key, available, message, urgent }) })
+    .then(() => { avail = { available, message, urgent }; renderAvail(); setTimeout(load, 1500); })
     .catch(() => alert("העדכון לא נשלח – בדוק חיבור ונסה שוב"))
     .finally(() => { $("availToggle").disabled = false; });
 }
 $("availToggle").onclick = e => { e.stopPropagation(); saveAvail(!avail.available, avail.available ? $("availMsg").value.trim() : ""); };
+$("urgToggle").onclick = e => { e.stopPropagation(); saveAvail(avail.available, avail.message || "", avail.urgent === false); };
+$("urgRow").addEventListener("click", () => $("urgToggle").click());
 // כל השורה לחיצה – לא רק המתג הקטן
 document.querySelector(".availRow").addEventListener("click", () => $("availToggle").click());
 // הודעות מוכנות ללקוחות כשלא פנוי
@@ -1253,13 +1373,13 @@ function openReport(c, ym) {
   const tile = (n, t, cls) => el("div", {}, el("b", { className: cls || "", textContent: n }), el("small", { textContent: t }));
   const short = a => String(a || "").split(", ").pop().split(" – ").pop();
   const text = () => {
-    const lines = list.slice(0, 40).map(o => `${(o.date || "").slice(0, 5)} · ${o.recipient} – ${short(o.address)} · ₪${priceNum(o)}${o.paid ? " ✓" : ""}`);
+    const lines = list.slice(0, 40).map(o => `${(o.date || "").slice(0, 5)} · ${o.recipient} – ${o.address || ""} · ₪${priceNum(o)}${o.paid ? " ✓" : ""}`);
     return `שלום ${c.name} 👋\nסיכום משלוחים – ${ymName(ym)}\n\n📦 ${list.length} משלוחים · סה״כ ₪${total}\n✅ שולם: ₪${total - due}\n⏳ נשאר לתשלום: ₪${due}\n\n*פירוט:*\n` +
       lines.join("\n") + (list.length > 40 ? `\n…ועוד ${list.length - 40}` : "") + "\n\n(✓ = שולם)\nתודה! ארי משלוחים 🚙";
   };
   const rows = list.length ? list.map(o => el("div", { className: "rl" },
       el("span", { className: "d", textContent: (o.date || "").slice(0, 5) }),
-      el("span", { className: "w", textContent: `${o.recipient} · ${short(o.address)}` }),
+      el("span", { className: "w", textContent: `${o.recipient} · ${o.address || ""}` }),
       el("b", { textContent: "₪" + priceNum(o) }),
       el("span", { className: "pd" + (o.paid ? " y" : ""), textContent: o.paid ? "שולם" : "פתוח" })))
     : [el("div", { className: "rl mm", textContent: "אין משלוחים בחודש הזה" })];
@@ -1323,11 +1443,12 @@ function openEditor(c, dup) {
   $("ce_name").value = c.name || ""; $("ce_addr").value = c.addr || ""; $("ce_phone").value = c.phone || "";
   $("ce_title").value = c.title || ""; $("ce_pay").value = c.pay || ""; $("ce_urgent").value = c.urgentExtra || "";
   $("ce_urgentDef").value = c.urgentExtra || "";
-  $("ce_payDef").value = isDef && /מזומן/.test(c.pay || "") ? "מזומן" : "";
+  $("ce_payDef").value = isDef && /אונליין/.test(c.pay || "") ? "אונליין" : isDef && /מזומן/.test(c.pay || "") ? "מזומן" : "";
   $("ce_sizes").value = (c.sizes || []).join(", ");
   $("ce_fixed").checked = isNew && !dup ? true : !!c.fixedPickup;
   $("ce_hidePayer").checked = !!c.hidePayer; $("ce_greeting").checked = !!c.greeting;
   $("ce_nameOpt").checked = !!c.nameOptional; $("ce_floor").checked = !!c.floorApt; $("ce_hideDone").checked = !!c.hideDoneTime;
+  $("ce_urgOn").checked = !c.noUrgent; $("ce_urgOnDef").checked = !c.noUrgent; $("ce_qty").checked = !!c.qty;
   $("ceRows").replaceChildren();
   (c.prices || []).forEach(p => addRow(p));
   if (!(c.prices || []).length && isNew) addRow();
@@ -1440,11 +1561,12 @@ $("ceSave").onclick = () => {
   const isDef = editing.isDef;
   if (!isDef && !$("ce_name").value.trim()) { $("ce_name").classList.add("bad"); err.textContent = "חסר שם העסק"; return; }
   const customer = isDef
-    ? { urgentExtra: $("ce_urgentDef").value || 0, pay: $("ce_payDef").value }
+    ? { urgentExtra: $("ce_urgentDef").value || 0, pay: $("ce_payDef").value, noUrgent: !$("ce_urgOnDef").checked }
     : { name: $("ce_name").value, addr: $("ce_addr").value, phone: $("ce_phone").value, title: $("ce_title").value,
         pay: $("ce_pay").value, urgentExtra: $("ce_urgent").value || 0, fixedPickup: $("ce_fixed").checked,
         hidePayer: $("ce_hidePayer").checked, greeting: false,
         nameOptional: $("ce_nameOpt").checked, floorApt: $("ce_floor").checked, hideDoneTime: $("ce_hideDone").checked,
+        noUrgent: !$("ce_urgOn").checked, qty: $("ce_qty").checked,
         sizes: $("ce_sizes").value.split(",").map(x => x.trim()).filter(Boolean) };
   customer.prices = rows.map(r => ({ label: r.label, price: Number(r.price), city: r.city || r.label }));
   const btn = $("ceSave"), orig = btn.innerHTML; btn.disabled = true; btn.textContent = "שומר…";

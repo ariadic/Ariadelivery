@@ -12,7 +12,7 @@
 const NOTIFY_EMAIL = "";
 
 // גרסת הקוד – מופיעה בבדיקת הכתובת, כדי לדעת שהפריסה באמת עודכנה
-const CODE_VERSION = "2026-11-18b";
+const CODE_VERSION = "2026-11-19c";
 
 // התראות לאייפון דרך אפליקציית Pushover (הכי אמין – עם צלצול חירום ו"קיבלתי" ישר מההתראה).
 // מדביקים כאן את שני המפתחות מ-pushover.net. לא לשמור אותם באתר (הקוד באתר גלוי לכולם).
@@ -32,10 +32,10 @@ const CLOSED_DAYS = 90;
 const HEADERS = [
   "תאריך", "שעה", "מס' הזמנה", "לקוח", "מקבל", "יעד", "כתובת מסירה",
   "טלפון מקבל", "מה", "מתי", "תשלום", "מחיר", "הערות", "כתובת איסוף", "טלפון איסוף", "סטטוס", "קוד לקוח", "שולם",
-  "זמן הגעה", "זמני סטטוס",
+  "זמן הגעה", "זמני סטטוס", "קבלה",
 ];
 const COL = { date: 1, time: 2, no: 3, customer: 4, recipient: 5, dest: 6, address: 7, phone: 8,
-  item: 9, when: 10, pay: 11, price: 12, notes: 13, pickup: 14, pickupPhone: 15, status: 16, code: 17, paid: 18, eta: 19, steps: 20 };
+  item: 9, when: 10, pay: 11, price: 12, notes: 13, pickup: 14, pickupPhone: 15, status: 16, code: 17, paid: 18, eta: 19, steps: 20, receipt: 21 };
 
 /* ---------- קבלת הזמנה חדשה / עדכון סטטוס ---------- */
 function doPost(e) {
@@ -44,6 +44,7 @@ function doPost(e) {
   try {
     const q = (e && e.parameter) || {};
     if (q.action === "ack") return json(ackOrder(q));               // אישור התראת חירום ב-Pushover
+    if (q.action === "mpaid") return json(onlinePaid(q, e.postData && e.postData.contents));   // מורנינג: התשלום עבר
     const o = JSON.parse(e.postData.contents);
     if (o && o.action === "setStatus") return setStatus(o);
     if (o && o.action === "cancelOrder") return cancelOrder(o);
@@ -51,6 +52,7 @@ function doPost(e) {
     if (o && o.action === "setDoneTime") return setDoneTime(o);
     if (o && o.action === "setAvailability") return setAvailability(o);
     if (o && o.action === "setPaid") return setPaid(o);
+    if (o && o.action === "receipt") return makeReceipt(o);
     if (o && o.action === "deleteOrder") return deleteOrder(o);
     if (o && o.action === "saveCustomer") return saveCustomer(o);
     if (o && o.action === "deleteCustomer") return deleteCustomer(o);
@@ -63,6 +65,10 @@ function doPost(e) {
     if (hit) {
       const r = sheet.getRange(hit, 1, 1, HEADERS.length).getDisplayValues()[0];
       const same = r[COL.phone - 1] === clean(o.recipientPhone) && r[COL.recipient - 1] === clean(o.recipient);
+      if (same && o.payOnline && r[COL.status - 1] === PENDING_PAY) {    // ניסיון תשלום נוסף לאותה הזמנה
+        try { return json({ ok: true, no: o.no, ct: cancelToken(o.no), payUrl: createPayForm(o) }); }
+        catch (payErr) { return json({ ok: false, payError: true, error: "התשלום באתר לא זמין כרגע: " + payErr.message }); }
+      }
       if (same) return json({ ok: true, duplicate: true, no: o.no, ct: cancelToken(o.no) });
       const base = o.no;
       for (let k = 0; hit && k < 26; k++) { o.no = base + "abcdefghijklmnopqrstuvwxyz"[k]; hit = findRow(sheet, o.no); }
@@ -71,6 +77,7 @@ function doPost(e) {
     if (isDeleted(o.no)) return json({ ok: true, deleted: true });       // הזמנה שנמחקה – לא להחזיר אותה
     if (tooMany()) return json({ ok: false, error: "יותר מדי הזמנות בזמן קצר" });   // הגנה מהצפה – הלקוח עובר לווצאפ
 
+    const online = !!o.payOnline;                 // לקוח מזדמן שמשלם באתר: נשמר "ממתין לתשלום", בלי התראה לארי
     const t = o.time ? new Date(o.time) : new Date();
     const tz = Session.getScriptTimeZone();
     sheet.appendRow([
@@ -78,8 +85,18 @@ function doPost(e) {
       "'" + o.no, clean(o.customer), clean(o.recipient), clean(o.dest), clean(o.address),
       "'" + clean(o.recipientPhone), clean(o.item), clean(o.when), clean(o.pay),
       typeof o.price === "number" ? o.price : clean(o.price), clean(o.notes),
-      clean(o.pickup), "'" + clean(o.pickupPhone), STATUSES[0], clean(o.code), "לא",
+      clean(o.pickup), "'" + clean(o.pickupPhone), online ? PENDING_PAY : STATUSES[0], clean(o.code), "לא",
     ]);
+    if (online) {
+      try {
+        const url = createPayForm(o);
+        PropertiesService.getScriptProperties().setProperty("PEND_" + o.no, JSON.stringify(o).slice(0, 8500));
+        return json({ ok: true, no: o.no, ct: cancelToken(o.no), payUrl: url });
+      } catch (payErr) {
+        const r = findRow(sheet, o.no); if (r) sheet.deleteRow(r);
+        return json({ ok: false, payError: true, error: "התשלום באתר לא זמין כרגע: " + payErr.message });
+      }
+    }
     addStatusDropdown(sheet, sheet.getLastRow());
 
     // התראה לאייפון (ntfy) – תקלה בהתראה לא מבטלת את ההזמנה
@@ -200,6 +217,134 @@ function setNear(o) {
   return json({ ok: true });
 }
 
+/* ---------- קבלות במורנינג (חשבונית ירוקה) ----------
+   המפתחות נשמרים במאפייני הסקריפט (לא בקוד): MORNING_ID, MORNING_SECRET.
+   מצב בדיקה (ברירת מחדל): רק תצוגה מקדימה של הקבלה – בלי מספר, בלי דיווח, בלי שליחה ללקוח.
+   מעבר לקבלות אמיתיות: מריצים פעם אחת את morningGoLive מהעורך (וחזרה: morningTestMode). */
+const MORNING_API = "https://api.greeninvoice.co.il/api/v1";
+function morningStatus() {
+  const p = PropertiesService.getScriptProperties();
+  return { keys: !!(p.getProperty("MORNING_ID") && p.getProperty("MORNING_SECRET")), live: p.getProperty("MORNING_LIVE") === "1" };
+}
+function morningGoLive() { PropertiesService.getScriptProperties().setProperty("MORNING_LIVE", "1"); Logger.log("✅ מעכשיו יוצאות קבלות אמיתיות במורנינג"); }
+function morningTestMode() { PropertiesService.getScriptProperties().deleteProperty("MORNING_LIVE"); Logger.log("ℹ️ חזרה למצב בדיקה – רק תצוגה מקדימה"); }
+function morningToken() {
+  const cache = CacheService.getScriptCache(), hit = cache.get("MORNING_TOKEN");
+  if (hit) return hit;
+  const p = PropertiesService.getScriptProperties();
+  const r = UrlFetchApp.fetch(MORNING_API + "/account/token", { method: "post", contentType: "application/json", muteHttpExceptions: true,
+    payload: JSON.stringify({ id: String(p.getProperty("MORNING_ID") || "").trim(), secret: String(p.getProperty("MORNING_SECRET") || "").trim() }) });
+  const d = JSON.parse(r.getContentText() || "{}");
+  if (r.getResponseCode() !== 200 || !d.token) throw new Error("ההתחברות למורנינג נכשלה – לבדוק את MORNING_ID / MORNING_SECRET" + (d.errorMessage ? " (" + d.errorMessage + ")" : ""));
+  cache.put("MORNING_TOKEN", d.token, 50 * 60);
+  return d.token;
+}
+function morningCall(path, body) {
+  const r = UrlFetchApp.fetch(MORNING_API + path, { method: "post", contentType: "application/json", muteHttpExceptions: true,
+    headers: { Authorization: "Bearer " + morningToken() }, payload: JSON.stringify(body) });
+  const d = JSON.parse(r.getContentText() || "{}");
+  if (r.getResponseCode() >= 300) throw new Error("מורנינג: " + (d.errorMessage || ("שגיאה " + r.getResponseCode())));
+  return d;
+}
+// אמצעי תשלום לקבלה: 1 מזומן · 4 העברה בנקאית · 10 אפליקציית תשלום (ביט / פייבוקס)
+const PAY_TYPES = { "מזומן": { type: 1 }, "העברה": { type: 4 }, "ביט": { type: 10, appType: 1 }, "פייבוקס": { type: 10, appType: 3 } };
+/* ---------- תשלום באתר (לקוחות מזדמנים) – דף התשלום של מורנינג ----------
+   1. ההזמנה נשמרת "ממתין לתשלום" (לא מופיעה לארי, בלי התראה)
+   2. הלקוח עובר לדף התשלום של מורנינג; הקבלה יוצאת שם אוטומטית
+   3. מורנינג מודיעה לנו (notifyUrl) → ההזמנה הופכת "חדשה · שולם" ורק אז ארי מקבל התראה */
+const PENDING_PAY = "ממתין לתשלום";
+function payToken(no) {
+  const sig = Utilities.computeHmacSha256Signature("paid:" + String(no), ackSecret());
+  return Utilities.base64EncodeWebSafe(sig).replace(/=+$/, "").slice(0, 24);
+}
+function createPayForm(o) {
+  if (!morningStatus().keys) throw new Error("מורנינג לא מחובר");
+  const price = typeof o.price === "number" ? o.price : Number(o.price);
+  if (!price) throw new Error("אין מחיר");
+  const back = String(o.returnUrl || "").replace(/[?#].*$/, "");
+  if (!/^https:\/\//.test(back)) throw new Error("כתובת חזרה לא תקינה");
+  const self = ScriptApp.getService().getUrl();
+  const name = clean(o.customer).replace(/^לקוח מזדמן – /, "") || "לקוח";
+  const d = morningCall("/payments/form", {
+    description: "משלוח #" + o.no, type: 400, lang: "he", currency: "ILS", vatType: 0, amount: price, maxPayments: 1,
+    client: { name: name, phone: clean(o.pickupPhone), add: false },
+    income: [{ description: "משלוח " + clean(o.dest) + " · #" + o.no, quantity: 1, price: price, currency: "ILS", vatType: 0 }],
+    successUrl: back + "?paid=" + encodeURIComponent(o.no),
+    failureUrl: back + "?payfail=" + encodeURIComponent(o.no),
+    notifyUrl: self + "?action=mpaid&no=" + encodeURIComponent(o.no) + "&t=" + payToken(o.no),
+    custom: String(o.no),
+  });
+  if (!d.url) throw new Error("לא התקבל דף תשלום" + (d.errorMessage ? " (" + d.errorMessage + ")" : ""));
+  return d.url;
+}
+function onlinePaid(q, body) {
+  const no = str(q.no, 30);
+  if (!no || String(q.t || "") !== payToken(no)) return { ok: false, error: "קישור לא תקין" };
+  const sheet = getSheet();
+  const row = findRow(sheet, no);
+  if (!row) return { ok: false, error: "ההזמנה לא נמצאה" };
+  if (sheet.getRange(row, COL.status).getDisplayValue() !== PENDING_PAY) return { ok: true, already: true };
+  sheet.getRange(row, COL.status).setValue(STATUSES[0]);
+  addStatusDropdown(sheet, row);
+  sheet.getRange(row, COL.paid).setValue("כן");
+  sheet.getRange(row, COL.pay).setValue("שולם באתר ✓");
+  // הקבלה שמורנינג הוציאה (אם הגיעה בהודעה)
+  try {
+    const p = JSON.parse(body || "{}"), doc = p.document || (p.data && p.data.document) || {};
+    const num = doc.number || p.documentNumber || "", url = (doc.url && (doc.url.he || doc.url.origin)) || doc.url || "";
+    if (num) sheet.getRange(row, COL.receipt).setValue(num + "|" + (typeof url === "string" ? url : ""));
+  } catch (e) {}
+  // עכשיו – ורק עכשיו – ארי מקבל את ההזמנה
+  const props = PropertiesService.getScriptProperties();
+  let o = {};
+  try { o = JSON.parse(props.getProperty("PEND_" + no) || "{}"); } catch (e) {}
+  props.deleteProperty("PEND_" + no);
+  o.no = no; o.pay = "שולם באתר ✓";
+  try { notifyPhone(o); } catch (e) {}
+  try {
+    MailApp.sendEmail({ to: NOTIFY_EMAIL || Session.getEffectiveUser().getEmail(),
+      subject: "🚙 הזמנה חדשה · שולם באתר #" + no + " – " + clean(o.customer) + " ← " + clean(o.dest),
+      body: String(o.message || "").replace(/\*/g, "") });
+  } catch (e) {}
+  return { ok: true };
+}
+
+function makeReceipt(o) {
+  if (!checkPassword(o.key)) return json({ ok: false, error: "סיסמה שגויה" });
+  const ms = morningStatus();
+  if (!ms.keys) return json({ ok: false, error: "מורנינג לא מחובר – חסרים MORNING_ID / MORNING_SECRET במאפייני הסקריפט" });
+  const sheet = getSheet();
+  const row = findRow(sheet, o.no);
+  if (!row) return json({ ok: false, error: "הזמנה לא נמצאה" });
+  const g = c => sheet.getRange(row, c).getDisplayValue();
+  if (ms.live && g(COL.receipt)) return json({ ok: false, error: "כבר יצאה קבלה להזמנה הזו: " + g(COL.receipt).split("|")[0] });
+  const price = Number(String(g(COL.price)).replace(/[^\d.]/g, ""));
+  if (!price) return json({ ok: false, error: "אין מחיר בהזמנה – אי אפשר להוציא קבלה" });
+  const pm = PAY_TYPES[o.method] || PAY_TYPES["מזומן"];
+  const today = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd");
+  const email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(o.email || "").trim()) ? String(o.email).trim() : "";
+  const payment = Object.assign({ date: today, price: price, currency: "ILS" }, pm);
+  const doc = {
+    description: "משלוח #" + o.no, type: 400, date: today, lang: "he", currency: "ILS", vatType: 0,
+    client: Object.assign({ name: g(COL.customer).replace(/^לקוח מזדמן – /, "") || "לקוח" }, email ? { emails: [email] } : {}),
+    income: [{ description: "משלוח " + g(COL.dest) + " · " + g(COL.recipient) + " · #" + o.no, quantity: 1, price: price, currency: "ILS", vatType: 0 }],
+    payment: [payment],
+  };
+  try {
+    if (!ms.live) {                                        // מצב בדיקה – קובץ לתצוגה בלבד
+      const pv = morningCall("/documents/preview", doc);
+      return json({ ok: true, preview: true, file: pv.file || "" });
+    }
+    const d = morningCall("/documents", doc);
+    const url = (d.url && (d.url.he || d.url.origin)) || "";
+    sheet.getRange(row, COL.receipt).setValue((d.number || "") + "|" + url);
+    sheet.getRange(row, COL.paid).setValue("כן");
+    return json({ ok: true, number: d.number, url: url, emailed: !!email });
+  } catch (e) {
+    return json({ ok: false, error: e.message });
+  }
+}
+
 function setPaid(o) {
   if (!checkPassword(o.key)) return json({ ok: false, error: "סיסמה שגויה" });
   const sheet = getSheet();
@@ -222,7 +367,7 @@ const DEFAULT_ALIASES = ["מזדמנים", "כללי", "לקוחות מזדמנ�
 const DEFAULT_NAME = "לקוחות מזדמנים";
 const CUST_HEADERS = ["קוד", "שם העסק", "כתובת איסוף", "טלפון", "כותרת בדף", "איסוף קבוע", "אמצעי תשלום קבוע",
   "בלי \"מי משלם\"", "ברכה לכרטיס", "תוספת דחוף", "מה שולחים (מופרד בפסיקים)", "עודכן",
-  "שם מקבל לא חובה", "קומה ודירה", "בלי שעת מסירה"];
+  "שם מקבל לא חובה", "קומה ודירה", "בלי שעת מסירה", "בלי דחוף", "כמות פריטים"];
 const PRICE_HEADERS = ["קוד לקוח", "לקוח", "יעד", "מחיר", "כתובת לווייז (לא חובה)"];
 
 function getTab(name, headers) {
@@ -282,7 +427,7 @@ function readCustomers() {
       name: code === DEFAULT_CODE ? DEFAULT_NAME : r[1], addr: r[2], phone: r[3], title: r[4], fixedPickup: yes(r[5]),
       pay: r[6], hidePayer: yes(r[7]), greeting: yes(r[8]), urgentExtra: r[9],
       sizes: String(r[10] || "").split(",").map(s => s.trim()).filter(String), prices: [],
-      nameOptional: yes(r[12]), floorApt: yes(r[13]), hideDoneTime: yes(r[14]),
+      nameOptional: yes(r[12]), floorApt: yes(r[13]), hideDoneTime: yes(r[14]), noUrgent: yes(r[15]), qty: yes(r[16]),
     });
     map[code].code = code;
   });
@@ -305,7 +450,7 @@ function sanitizeCustomer(c) {
     name: str(c.name, 80), addr: str(c.addr, 150), phone: str(c.phone, 20), title: str(c.title, 80),
     fixedPickup: !!c.fixedPickup, pay: str(c.pay, 30), hidePayer: !!c.hidePayer, greeting: !!c.greeting,
     urgentExtra: num(c.urgentExtra, 1000), nameOptional: !!c.nameOptional, floorApt: !!c.floorApt,
-    hideDoneTime: !!c.hideDoneTime,
+    hideDoneTime: !!c.hideDoneTime, noUrgent: !!c.noUrgent, qty: !!c.qty,
     sizes: (Array.isArray(c.sizes) ? c.sizes : []).map(s => str(s, 30)).filter(String).slice(0, 10),
     prices: (Array.isArray(c.prices) ? c.prices : []).map(p => ({
       label: str(p.label, 60), city: str(p.city, 80) || str(p.label, 60), price: num(p.price, 10000),
@@ -345,7 +490,7 @@ function saveCustomerData(code, c) {
   const name = isDef ? DEFAULT_NAME : d.name;
   const yn = b => b ? "כן" : "לא";
   const row = [fromCode(code), name, d.addr, "'" + d.phone, d.title, yn(d.fixedPickup), d.pay, yn(d.hidePayer),
-    yn(d.greeting), d.urgentExtra, d.sizes.join(", "), new Date(), yn(d.nameOptional), yn(d.floorApt), yn(d.hideDoneTime)];
+    yn(d.greeting), d.urgentExtra, d.sizes.join(", "), new Date(), yn(d.nameOptional), yn(d.floorApt), yn(d.hideDoneTime), yn(d.noUrgent), yn(d.qty)];
   if (d.phone === "") row[3] = "";
   const sh = getTab(CUST_SHEET, CUST_HEADERS);
   const r = findCustRow(sh, code);
@@ -390,13 +535,15 @@ function deleteOrder(o) {
 /* ---------- זמינות כללית (פנוי / לא פנוי) ---------- */
 function getAvailability() {
   const props = PropertiesService.getScriptProperties();
-  return { available: props.getProperty("AVAILABLE") !== "0", message: props.getProperty("AVAIL_MSG") || "" };
+  return { available: props.getProperty("AVAILABLE") !== "0", message: props.getProperty("AVAIL_MSG") || "",
+    urgent: props.getProperty("URGENT") !== "0" };
 }
 function setAvailability(o) {
   if (!checkPassword(o.key)) return json({ ok: false, error: "סיסמה שגויה" });
   const props = PropertiesService.getScriptProperties();
   props.setProperty("AVAILABLE", o.available ? "1" : "0");
   props.setProperty("AVAIL_MSG", clean(o.message).slice(0, 200));
+  if (typeof o.urgent === "boolean") props.setProperty("URGENT", o.urgent ? "1" : "0");
   return json(Object.assign({ ok: true }, getAvailability()));
 }
 
@@ -483,10 +630,10 @@ function doGetInner(e) {
     const orders = rows.map(r => ({
       date: r[0], time: r[1], no: r[2], customer: r[3], recipient: r[4], dest: r[5], address: r[6],
       phone: r[7], item: r[8], when: r[9], pay: r[10], price: r[11], notes: r[12], eta: r[COL.eta - 1] || "",
-      steps: r[COL.steps - 1] || "",
+      steps: r[COL.steps - 1] || "", receipt: r[COL.receipt - 1] || "",
       pickup: r[13], pickupPhone: r[14], status: r[15], paid: r[COL.paid - 1] === "כן",
-    })).filter(o => CLOSED.indexOf(o.status) === -1 || parseDate(o.date, o.time) > cutoff);
-    return json(Object.assign({ ok: true, orders: orders.reverse(), mailQuota: mailQuota() }, getAvailability()));
+    })).filter(o => o.status !== PENDING_PAY && (CLOSED.indexOf(o.status) === -1 || parseDate(o.date, o.time) > cutoff));
+    return json(Object.assign({ ok: true, orders: orders.reverse(), mailQuota: mailQuota(), morning: morningStatus() }, getAvailability()));
   }
 
   return json({ ok: true, service: "ari-delivery", version: CODE_VERSION });
@@ -518,7 +665,7 @@ function getSheet() {
     sheet.setRightToLeft(true);
   } else {
     // טבלה מגרסה קודמת – משלימים כותרות של עמודות חדשות
-    [COL.code, COL.paid, COL.eta, COL.steps].forEach(c => {
+    [COL.code, COL.paid, COL.eta, COL.steps, COL.receipt].forEach(c => {
       if (sheet.getRange(1, c).getDisplayValue() === "") sheet.getRange(1, c).setValue(HEADERS[c - 1]).setFontWeight("bold");
     });
   }
@@ -725,6 +872,11 @@ function morningReport() {
 function checkSystem() {
   const say = s => Logger.log(s);
   say("גרסת קוד: " + CODE_VERSION);
+  try {
+    const ms = morningStatus();
+    if (!ms.keys) say("ℹ️ מורנינג: לא מחובר (אין MORNING_ID / MORNING_SECRET במאפייני הסקריפט)");
+    else { morningToken(); say("✅ מורנינג מחובר · " + (ms.live ? "קבלות אמיתיות" : "מצב בדיקה – תצוגה מקדימה בלבד, לא יוצאות קבלות אמיתיות")); }
+  } catch (e) { say("❌ מורנינג: " + e.message); }
   try {
     const tr = ScriptApp.getProjectTriggers().map(t => t.getHandlerFunction());
     say((tr.indexOf("morningReport") !== -1 ? "✅" : "⚠️") + " מייל בוקר" + (tr.indexOf("morningReport") !== -1 ? " פעיל" : " לא פעיל – להריץ installMorningReport"));
