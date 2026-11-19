@@ -612,7 +612,7 @@ header .ht small{font-size:13px}
         <label>טלפון<input id="ce_phone" inputmode="tel" maxlength="20"></label>
         <label>כותרת בדף <span class="opt">(לא חובה)</span><input id="ce_title" maxlength="80" placeholder="🌸 שם החנות"></label>
         <label>אמצעי תשלום
-          <select id="ce_pay"><option value="">הלקוח בוחר</option><option>מזומן</option><option>ביט</option><option>פייבוקס</option><option>העברה בנקאית מראש</option></select></label>
+          <select id="ce_pay"><option value="">הלקוח בוחר</option><option>מזומן</option><option>ביט</option><option>פייבוקס</option><option>אשראי</option><option>העברה בנקאית מראש</option></select></label>
         <label>תוספת דחוף (₪)<input id="ce_urgent" inputmode="numeric" placeholder="0"></label>
         <label class="wide">מה שולחים <span class="opt">(מופרד בפסיקים, ריק = מעטפה/חבילה)</span><input id="ce_sizes" placeholder="זר, עציץ, סידור / סל"></label>
       </div>
@@ -630,8 +630,8 @@ header .ht small{font-size:13px}
     <div id="ceDefFields" class="grid">
       <label>תוספת דחוף (₪)<input id="ce_urgentDef" inputmode="numeric" placeholder="0"></label>
       <label class="chk wide"><input type="checkbox" id="ce_urgOnDef"> אפשרות "דחוף" ללקוחות מזדמנים</label>
-      <label>תשלום
-        <select id="ce_payDef"><option value="אונליין">תשלום באתר · כרטיס אשראי</option><option value="">ביט / פייבוקס בהעברה אליי</option><option value="מזומן">ביט / פייבוקס + מזומן</option></select></label>
+      <label>אמצעי תשלום (לכל הלקוחות)
+        <select id="ce_payDef"><option value="אונליין">מזומן · ביט · פייבוקס · אשראי</option><option value="">מזומן · ביט · פייבוקס (בלי אשראי)</option></select></label>
     </div>
 
     <h3 class="sub">מחירון <span class="opt" id="ceCount"></span></h3>
@@ -1499,7 +1499,7 @@ function openEditor(c, dup) {
   $("ce_name").value = c.name || ""; $("ce_addr").value = c.addr || ""; $("ce_phone").value = c.phone || "";
   $("ce_title").value = c.title || ""; $("ce_pay").value = c.pay || ""; $("ce_urgent").value = c.urgentExtra || "";
   $("ce_urgentDef").value = c.urgentExtra || "";
-  $("ce_payDef").value = isDef && /אונליין/.test(c.pay || "") ? "אונליין" : isDef && /מזומן/.test(c.pay || "") ? "מזומן" : "";
+  $("ce_payDef").value = isDef && /אונליין/.test(c.pay || "") ? "אונליין" : "";
   $("ce_sizes").value = (c.sizes || []).join(", ");
   $("ce_fixed").checked = isNew && !dup ? true : !!c.fixedPickup;
   $("ce_hidePayer").checked = !!c.hidePayer; $("ce_greeting").checked = !!c.greeting;
