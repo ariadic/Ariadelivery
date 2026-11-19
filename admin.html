@@ -403,6 +403,15 @@ body.typing{padding-bottom:24px}
 .grpH{font-size:12.5px;font-weight:700;color:var(--mu);margin:14px 4px 8px}
 .grpH:first-child{margin-top:4px}
 .setH{font-size:12.5px;font-weight:700;color:var(--mu);margin:14px 2px 4px}
+/* הגדרות הדף של הלקוח – תפריט נפתח */
+.ceSet{border-radius:16px;box-shadow:0 0 0 1px var(--ln,#ececef);overflow:hidden;margin:14px 0 4px}
+.ceSet summary{list-style:none;display:flex;align-items:center;gap:12px;min-height:56px;padding:10px 14px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ceSet summary::-webkit-details-marker{display:none}
+.ceSet summary span{flex:1;min-width:0}.ceSet summary b{display:block;font-size:16px}
+.ceSet summary small{display:block;font-size:13px;color:var(--ac,#ff5a1f);font-weight:500;margin-top:2px}
+.ceSet summary .ic{flex:none;width:22px;height:22px;fill:none;stroke:#888;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+.ceSet[open] summary{background:var(--fill,#f4f4f5)}.ceSet[open] summary .cv{transform:rotate(180deg)}
+.ceSet label.chk{border-bottom:0;border-top:1px solid #f0f0f2}
 label.chk{position:relative;justify-content:space-between;min-height:48px;padding:0 2px;border-bottom:1px solid #f0f0f2;margin:0!important;cursor:pointer}
 label.chk input{order:2;-webkit-appearance:none;appearance:none;flex:none;width:44px;height:26px;border-radius:26px;background:#e4e4e7;position:relative;margin:0 8px 0 0;cursor:pointer;transition:background .2s;border:0}
 label.chk input::after{content:"";position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0003;transition:right .2s}
@@ -569,7 +578,7 @@ a.pdOpen{display:block;text-align:center;text-decoration:none}
         <label>תוספת דחוף (₪)<input id="ce_urgent" inputmode="numeric" placeholder="0"></label>
         <label class="wide">מה שולחים <span class="opt">(מופרד בפסיקים, ריק = מעטפה/חבילה)</span><input id="ce_sizes" placeholder="זר, עציץ, סידור / סל"></label>
       </div>
-      <div class="setH">מה הלקוח רואה בדף</div>
+      <details class="ceSet" id="ceSet"><summary><svg class="ic gi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg><span><b>הגדרות הדף של הלקוח</b><small id="ceSetSum"></small></span><svg class="ic cv" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></summary>
       <label class="chk"><input type="checkbox" id="ce_fixed"> פרטי איסוף קבועים (הלקוח לא ממלא אותם)</label>
       <label class="chk"><input type="checkbox" id="ce_hidePayer"> בלי "מי משלם?"</label>
       <input type="checkbox" id="ce_greeting" hidden>
@@ -578,6 +587,7 @@ a.pdOpen{display:block;text-align:center;text-decoration:none}
       <label class="chk"><input type="checkbox" id="ce_hideDone"> בלי שעת מסירה (הלקוח רואה רק "נמסרה")</label>
       <label class="chk"><input type="checkbox" id="ce_urgOn"> אפשרות "דחוף" (תוך שעה מאישור ההזמנה)</label>
       <label class="chk"><input type="checkbox" id="ce_qty"> כמות פריטים במקום "מה שולחים"</label>
+      </details>
     </div>
     <div id="ceDefFields" class="grid">
       <label>תוספת דחוף (₪)<input id="ce_urgentDef" inputmode="numeric" placeholder="0"></label>
@@ -1453,7 +1463,8 @@ function openEditor(c, dup) {
   $("ce_fixed").checked = isNew && !dup ? true : !!c.fixedPickup;
   $("ce_hidePayer").checked = !!c.hidePayer; $("ce_greeting").checked = !!c.greeting;
   $("ce_nameOpt").checked = !!c.nameOptional; $("ce_floor").checked = !!c.floorApt; $("ce_hideDone").checked = !!c.hideDoneTime;
-  $("ce_urgOn").checked = isNew && !dup ? false : !c.noUrgent;   // לקוח חדש: בלי דחוף, מדליקים רק למי שצריך $("ce_urgOnDef").checked = !c.noUrgent; $("ce_qty").checked = !!c.qty;
+  $("ce_urgOn").checked = isNew && !dup ? false : !c.noUrgent;
+  $("ceSet").open = false; setSum();   // לקוח חדש: בלי דחוף, מדליקים רק למי שצריך $("ce_urgOnDef").checked = !c.noUrgent; $("ce_qty").checked = !!c.qty;
   $("ceRows").replaceChildren();
   (c.prices || []).forEach(p => addRow(p));
   if (!(c.prices || []).length && isNew) addRow();
@@ -1601,6 +1612,10 @@ $("ceDelete").onclick = () => {
   post({ action: "deleteCustomer", code: c.code }).then(() => setTimeout(() => { loadCustomers(); showView("customers"); }, 1200));
 };
 $("custNew").onclick = () => openEditor(null);
+// מה דלוק – בשורת הכותרת של "הגדרות הדף", כדי לראות בלי לפתוח
+const SET_NAMES = [["ce_fixed", "איסוף קבוע"], ["ce_hidePayer", "בלי מי משלם"], ["ce_nameOpt", "שם מקבל לא חובה"], ["ce_floor", "קומה ודירה"], ["ce_hideDone", "בלי שעת מסירה"], ["ce_urgOn", "דחוף"], ["ce_qty", "כמות פריטים"]];
+function setSum() { const on = SET_NAMES.filter(([id]) => $(id).checked).map(x => x[1]); $("ceSetSum").textContent = on.length ? "פועל: " + on.join(" · ") : "הכול כבוי"; }
+SET_NAMES.forEach(([id]) => $(id).addEventListener("change", setSum));
 $("ceFrom").onchange = () => {
   const c = customers.find(x => x.code === $("ceFrom").value);
   if (!c) { openEditor(null); return; }
