@@ -521,6 +521,13 @@ header .ht small{font-size:13px}
 #availOff.on{background:#e11d48;color:#fff;box-shadow:0 2px 6px #e11d4855}
 #urgOn.on{background:var(--ac);color:#fff;box-shadow:0 2px 6px #ff5a1f55}
 #urgOff.on{background:#fff;color:var(--tx);box-shadow:0 1px 4px #0002}
+/* כפתור הדלקה ⏻ */
+.stRow{cursor:pointer;-webkit-tap-highlight-color:transparent;padding-left:18px}
+button.pwr{flex:none;width:52px;height:52px;border-radius:50%;border:0;padding:0;display:grid;place-items:center;background:#fff;color:#a1a1aa;box-shadow:inset 0 0 0 2px #d4d4d8;cursor:pointer;transition:background .15s,box-shadow .15s,transform .1s}
+button.pwr .ic{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+button.pwr.on{background:var(--okc);color:#fff;box-shadow:0 0 0 5px #1fbf5a2e,0 4px 12px #1fbf5a66}
+button.pwr.u.on{background:var(--ac);box-shadow:0 0 0 5px #ff5a1f2e,0 4px 12px #ff5a1f66}
+.stRow:active button.pwr{transform:scale(.92)}
 </style>
 </head>
 <body>
@@ -542,13 +549,13 @@ header .ht small{font-size:13px}
     <div class="alertBox" id="connAlert" style="display:none"><b>אין חיבור לטבלה בגוגל</b><br>הזמנות חדשות יגיעו אליך <b>בווצאפ</b> עד שזה יסתדר.<br><span class="small">כדאי לבדוק: האינטרנט · הקוד בגוגל (פריסה / הרשאה)</span></div>
     <div class="quotaBox" id="quotaWarn" style="display:none"></div>
     <section class="card avail" id="availBox">
-      <div class="stRow">
-        <div class="at"><div class="availTitle"><span class="adot"></span>הזמנות</div><div class="meta" id="availSub"></div><span class="led" id="led" style="display:none"></span></div>
-        <div class="seg2" id="availSeg" role="group" aria-label="קבלת הזמנות"><button type="button" data-v="1" id="availOn">זמין</button><button type="button" data-v="0" id="availOff">לא פנוי</button></div>
+      <div class="stRow" id="availRow">
+        <div class="at"><div class="availTitle" id="availTitle"></div><div class="meta" id="availSub"></div><span class="led" id="led" style="display:none"></span></div>
+        <button type="button" class="pwr" id="availPw" aria-label="זמין לקבל הזמנות"><svg class="ic" viewBox="0 0 24 24"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></svg></button>
       </div>
       <div class="stRow" id="urgRow">
-        <div class="at"><div class="availTitle"><svg class="ic s uic"><use href="#i-zap"/></svg>דחופים</div><div class="meta" id="urgSub"></div></div>
-        <div class="seg2" id="urgSeg" role="group" aria-label="קבלת דחופים"><button type="button" data-v="1" id="urgOn">מקבל</button><button type="button" data-v="0" id="urgOff">לא מקבל</button></div>
+        <div class="at"><div class="availTitle"><svg class="ic s uic"><use href="#i-zap"/></svg><span id="urgTitle"></span></div><div class="meta" id="urgSub"></div></div>
+        <button type="button" class="pwr u" id="urgPw" aria-label="מקבל דחופים"><svg class="ic" viewBox="0 0 24 24"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></svg></button>
       </div>
       <div id="availMsgBox" style="display:none">
         <div class="amRow"><input id="availMsg" maxlength="120" placeholder="הודעה ללקוחות (לא חובה), למשל: חוזר ב-16:00">
@@ -1211,11 +1218,11 @@ $("refresh").onclick = () => view === "customers" ? loadCustomers() : load();
 function renderAvail() {
   const on = avail.available, urg = avail.urgent !== false;
   $("availBox").classList.toggle("off", !on);
-  $("availOn").classList.toggle("on", on); $("availOff").classList.toggle("on", !on);
-  $("availOn").setAttribute("aria-pressed", on); $("availOff").setAttribute("aria-pressed", !on);
+  $("availPw").classList.toggle("on", on); $("availPw").setAttribute("aria-pressed", on);
+  $("availTitle").textContent = on ? "הזמנות · זמין" : "הזמנות · לא פנוי";
   $("urgRow").classList.toggle("off", !urg);
-  $("urgOn").classList.toggle("on", urg); $("urgOff").classList.toggle("on", !urg);
-  $("urgOn").setAttribute("aria-pressed", urg); $("urgOff").setAttribute("aria-pressed", !urg);
+  $("urgPw").classList.toggle("on", urg); $("urgPw").setAttribute("aria-pressed", urg);
+  $("urgTitle").textContent = urg ? "דחופים · מקבל" : "דחופים · לא מקבל";
   $("urgSub").textContent = urg ? "תוך שעה מאישור ההזמנה" : "הלקוחות רואים \"דחוף · לא זמין כרגע\"";
   $("availSub").textContent = on ? "הלקוחות יכולים להזמין" : "הלקוחות רואים הודעה שאתה לא פנוי";
   const m = avail.message || "";
@@ -1232,8 +1239,9 @@ function saveAvail(available, message, urgent) {
   fetch(SHEET_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "setAvailability", key, available, message, urgent }) })
     .catch(() => { avail = prev; availHoldUntil = 0; renderAvail(); alert("העדכון לא נשלח – בדוק חיבור ונסה שוב"); });
 }
-$("availSeg").onclick = e => { const b = e.target.closest("button"); if (!b) return; const v = b.dataset.v === "1"; if (v !== avail.available) saveAvail(v, v ? "" : $("availMsg").value.trim()); };
-$("urgSeg").onclick = e => { const b = e.target.closest("button"); if (!b) return; const v = b.dataset.v === "1"; if (v !== (avail.urgent !== false)) saveAvail(avail.available, avail.message || "", v); };
+// ⏻ – לחיצה על העיגול או על כל השורה מדליקה / מכבה
+$("availRow").onclick = () => { const v = !avail.available; saveAvail(v, v ? "" : $("availMsg").value.trim()); };
+$("urgRow").onclick = () => saveAvail(avail.available, avail.message || "", avail.urgent === false);
 // הודעות מוכנות ללקוחות כשלא פנוי
 ["חוזר בעוד שעה", "סגור להיום", "חוזר מחר בבוקר"].forEach(t => $("availQuick").append(
   el("button", { type: "button", textContent: t, onclick: () => { $("availMsg").value = t; saveAvail(false, t); } })));
