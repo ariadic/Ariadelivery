@@ -12,7 +12,7 @@
 const NOTIFY_EMAIL = "";
 
 // גרסת הקוד – מופיעה בבדיקת הכתובת, כדי לדעת שהפריסה באמת עודכנה
-const CODE_VERSION = "2026-11-19f";
+const CODE_VERSION = "2026-11-20a";
 
 // התראות לאייפון דרך אפליקציית Pushover (הכי אמין – עם צלצול חירום ו"קיבלתי" ישר מההתראה).
 // מדביקים כאן את שני המפתחות מ-pushover.net. לא לשמור אותם באתר (הקוד באתר גלוי לכולם).
@@ -238,12 +238,10 @@ function morningDiag() {
   Logger.log("MORNING_ID: " + id.length + " תווים · " + odd(id) + (/^[0-9a-f-]{36}$/i.test(id.trim()) ? " · פורמט נראה נכון" : " · ⚠️ פורמט לא רגיל"));
   Logger.log("MORNING_SECRET: " + sec.length + " תווים · " + odd(sec));
   CacheService.getScriptCache().remove("MORNING_TOKEN");
-  [["החשבון האמיתי", MORNING_API], ["חשבון ניסיון (sandbox)", "https://sandbox.d.greeninvoice.co.il/api/v1"]].forEach(([name, base]) => {
+  [["שרת הזהות החדש (2026)", MORNING_IDP], ["הכתובת הישנה", MORNING_API + "/account/token"]].forEach(([name, url]) => {
     try {
-      const r = UrlFetchApp.fetch(base + "/account/token", { method: "post", contentType: "application/json", muteHttpExceptions: true,
-        payload: JSON.stringify({ id: id.trim(), secret: sec.trim() }) });
-      const body = r.getContentText();
-      Logger.log(name + ": קוד " + r.getResponseCode() + " · " + (/"token"/.test(body) ? "✅ המפתחות שייכים לכאן – החיבור עובד" : (body.slice(0, 200) || "(בלי פירוט)")));
+      const t = morningTokenFetch(url, id.trim(), sec.trim());
+      Logger.log(name + ": קוד " + t.code + " · " + (t.token ? "✅ התקבל אישור – החיבור עובד" : (t.msg || "(בלי פירוט)")));
     } catch (e) { Logger.log(name + ": " + e.message); }
   });
 }
@@ -253,16 +251,27 @@ function morningStatus() {
 }
 function morningGoLive() { PropertiesService.getScriptProperties().setProperty("MORNING_LIVE", "1"); Logger.log("✅ מעכשיו יוצאות קבלות אמיתיות במורנינג"); }
 function morningTestMode() { PropertiesService.getScriptProperties().deleteProperty("MORNING_LIVE"); Logger.log("ℹ️ חזרה למצב בדיקה – רק תצוגה מקדימה"); }
+// מאז עדכון התשתית של מורנינג (2026) הטוקן מתקבל משרת הזהות החדש; הכתובת הישנה /account/token מחזירה 404
+const MORNING_IDP = "https://api.morning.co/idp/v1/oauth/token";
+function morningTokenFetch(url, id, secret) {
+  const r = UrlFetchApp.fetch(url, { method: "post", contentType: "application/json", muteHttpExceptions: true, headers: { Accept: "application/json" },
+    payload: JSON.stringify({ grant_type: "client_credentials", client_id: id, client_secret: secret, id: id, secret: secret }) });
+  let d = {}; try { d = JSON.parse(r.getContentText() || "{}"); } catch (e) {}
+  const token = d.accessToken || d.access_token || d.token || "";
+  const exp = Number(d.expiresAt || d.expires), ttl = Number(d.expires_in);
+  const secs = ttl > 0 ? ttl : exp > 0 ? exp - Date.now() / 1000 : 3000;
+  return { code: r.getResponseCode(), token: token, secs: secs, msg: d.errorMessage || d.error_description || d.message || d.error || "" };
+}
 function morningToken() {
   const cache = CacheService.getScriptCache(), hit = cache.get("MORNING_TOKEN");
   if (hit) return hit;
   const p = PropertiesService.getScriptProperties();
-  const r = UrlFetchApp.fetch(MORNING_API + "/account/token", { method: "post", contentType: "application/json", muteHttpExceptions: true,
-    payload: JSON.stringify({ id: String(p.getProperty("MORNING_ID") || "").trim(), secret: String(p.getProperty("MORNING_SECRET") || "").trim() }) });
-  const d = JSON.parse(r.getContentText() || "{}");
-  if (r.getResponseCode() !== 200 || !d.token) throw new Error("ההתחברות למורנינג נכשלה (קוד " + r.getResponseCode() + ") – לבדוק את MORNING_ID / MORNING_SECRET" + (d.errorMessage ? " · " + d.errorMessage : ""));
-  cache.put("MORNING_TOKEN", d.token, 50 * 60);
-  return d.token;
+  const id = String(p.getProperty("MORNING_ID") || "").trim(), secret = String(p.getProperty("MORNING_SECRET") || "").trim();
+  let t = morningTokenFetch(MORNING_IDP, id, secret);
+  if (!t.token) { const old = morningTokenFetch(MORNING_API + "/account/token", id, secret); if (old.token) t = old; }   // גיבוי: הכתובת הישנה
+  if (!t.token) throw new Error("ההתחברות למורנינג נכשלה (קוד " + t.code + ") – לבדוק את MORNING_ID / MORNING_SECRET" + (t.msg ? " · " + t.msg : ""));
+  cache.put("MORNING_TOKEN", t.token, Math.max(60, Math.min(21600, Math.floor(t.secs - 60))));
+  return t.token;
 }
 function morningCall(path, body) {
   const r = UrlFetchApp.fetch(MORNING_API + path, { method: "post", contentType: "application/json", muteHttpExceptions: true,
