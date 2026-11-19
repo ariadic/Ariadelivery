@@ -1158,7 +1158,7 @@ function openPaid(o) {
   rName.style.direction = "rtl"; rName.style.textAlign = "right";
   const rTax = el("input", { className: "pdEmail", placeholder: "ח.פ / ע.מ – לעסקים (לא חובה)", value: rc.tax || "", inputmode: "numeric", autocomplete: "off" });
   const msg = el("div", { className: "pdMsg" });
-  const go = el("button", { type: "button", className: "etaGo", textContent: (live ? "שולם · להוציא קבלה ₪" : "שולם · קבלה לבדיקה ₪") + amount });
+  const go = el("button", { type: "button", className: "etaGo", textContent: (live ? "שולם ₪" : "שולם (בדיקה) ₪") + amount });
   const skip = el("button", { type: "button", className: "lnkSkip", textContent: "הקבלה כבר יצאה במקום אחר – לסמן שולם בלי להפיק", onclick: () => { closeOrder(); setPaid(o, true, go); } });
   go.onclick = () => {
     if (!amount) { msg.textContent = "אין מחיר בהזמנה – צריך מחיר כדי להפיק קבלה"; return; }
@@ -1166,7 +1166,7 @@ function openPaid(o) {
     if (tax && tax.length !== 9) { msg.textContent = "ח.פ / ע.מ צריך להיות 9 ספרות"; return; }
     try { const all = JSON.parse(localStorage.getItem("ari.rcpt") || "{}"); all[o.customer] = { name: rName.value.trim(), tax }; localStorage.setItem("ari.rcpt", JSON.stringify(all)); } catch (e) {}
     try { const all = JSON.parse(localStorage.getItem("ari.emails") || "{}"); if (email.value.trim()) all[o.customer] = email.value.trim(); localStorage.setItem("ari.emails", JSON.stringify(all)); } catch (e) {}
-    go.disabled = true; go.textContent = "מוציא קבלה…"; msg.textContent = "";
+    go.disabled = true; go.textContent = "שומר…"; msg.textContent = "";
     fetch(SHEET_URL, { method: "POST", body: JSON.stringify({ action: "receipt", key, no: o.no, method, email: email.value.trim(), name: rName.value.trim(), taxId: rTax.value.replace(/\D/g, "") }) })
       .then(r => r.json())
       .then(d => {
@@ -1182,11 +1182,11 @@ function openPaid(o) {
           showRcptDone(o, `קבלה ${d.number} יצאה`, d.emailed ? "נשלחה ללקוח במייל" : "לא נשלח מייל – אפשר לשלוח בווצאפ", d.url, d.url);
         }
       })
-      .catch(err => { go.disabled = false; go.textContent = (live ? "שולם · להוציא קבלה ₪" : "שולם · קבלה לבדיקה ₪") + amount; msg.textContent = err.message; });
+      .catch(err => { go.disabled = false; go.textContent = (live ? "שולם ₪" : "שולם (בדיקה) ₪") + amount; msg.textContent = err.message; });
   };
   $("oBody").replaceChildren(
     el("div", { className: "shh" },
-      el("div", {}, el("small", { textContent: `${o.recipient || ""} · ${splitAddr(o.address)[0]} · ₪${amount}` }), el("h2", { textContent: "שולם · להוציא קבלה?" })),
+      el("div", {}, el("small", { textContent: `${o.recipient || ""} · ${splitAddr(o.address)[0]} · ₪${amount}` }), el("h2", { textContent: "תשלום" })),
       aria(el("button", { type: "button", className: "ib", onclick: closeOrder }, ico("x", "s")), "סגירה")),
     live ? "" : el("p", { className: "pdTest", textContent: "מצב בדיקה: תוצג קבלה לדוגמה בלבד. לא יוצאת קבלה אמיתית." }),
     el("p", { className: "etaHint", textContent: "איך שילמו?" }), el("div", { className: "pkChips" }, ...chips),
