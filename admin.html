@@ -530,6 +530,7 @@ button.pwr.u.on{background:var(--ac);box-shadow:0 0 0 5px #ff5a1f2e,0 4px 12px #
 .stRow:active button.pwr{transform:scale(.92)}
 /* פונט אחד בכל המסכים */
 button,input,select,textarea,.led{font-family:Rubik,Heebo,system-ui,sans-serif!important}
+button.lnkSkip{display:block;margin:10px auto 0;background:none;border:0;color:var(--mu);font:inherit;font-size:13px;text-decoration:underline;padding:10px;min-height:44px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -1145,20 +1146,28 @@ function rcptRow(o) {
 }
 function openPaid(o) {
   const live = morning.live, amount = isNaN(o.price) || o.price === "" ? 0 : Number(o.price);
-  const methods = ["מזומן", "ביט", "פייבוקס", "העברה"];
+  const methods = ["מזומן", "ביט", "פייבוקס"];
   let method = methods.find(m => (o.pay || "").includes(m)) || "מזומן";
   const chips = methods.map(m => el("button", { type: "button", className: "pkChip" + (m === method ? " on" : ""), onclick: () => {
     method = m; chips.forEach(c => c.classList.toggle("on", c.textContent === m)); } }, el("b", { textContent: m })));
   let saved = o.email || ""; try { saved = saved || (JSON.parse(localStorage.getItem("ari.emails") || "{}"))[o.customer] || ""; } catch (e) {}   // קודם המייל שהלקוח מילא בהזמנה
   const email = el("input", { type: "email", className: "pdEmail", placeholder: "מייל של הלקוח (לא חובה)", value: saved, autocomplete: "off" });
+  // שם על הקבלה + ח.פ / ע.מ (לעסקים) – נזכר לכל לקוח
+  let rc = {}; try { rc = (JSON.parse(localStorage.getItem("ari.rcpt") || "{}"))[o.customer] || {}; } catch (e) {}
+  const rName = el("input", { className: "pdEmail", placeholder: "שם על הקבלה", value: rc.name || String(o.customer || "").replace(/^לקוח מזדמן – /, ""), autocomplete: "off" });
+  rName.style.direction = "rtl"; rName.style.textAlign = "right";
+  const rTax = el("input", { className: "pdEmail", placeholder: "ח.פ / ע.מ – לעסקים (לא חובה)", value: rc.tax || "", inputmode: "numeric", autocomplete: "off" });
   const msg = el("div", { className: "pdMsg" });
-  const go = el("button", { type: "button", className: "etaGo", textContent: (live ? "שולם · להוציא קבלה ₪" : "שולם · קבלה לבדיקה ₪") + amount });
-  const skip = el("button", { type: "button", className: "etaSkip", textContent: "שולם בלי קבלה", onclick: () => { closeOrder(); setPaid(o, true, go); } });
+  const go = el("button", { type: "button", className: "etaGo", textContent: (live ? "שולם ₪" : "שולם (בדיקה) ₪") + amount });
+  const skip = el("button", { type: "button", className: "lnkSkip", textContent: "הקבלה כבר יצאה במקום אחר – לסמן שולם בלי להפיק", onclick: () => { closeOrder(); setPaid(o, true, go); } });
   go.onclick = () => {
-    if (!amount) { msg.textContent = "אין מחיר בהזמנה – אפשר רק \"שולם בלי קבלה\""; return; }
+    if (!amount) { msg.textContent = "אין מחיר בהזמנה – צריך מחיר כדי להפיק קבלה"; return; }
+    const tax = rTax.value.replace(/\D/g, "");
+    if (tax && tax.length !== 9) { msg.textContent = "ח.פ / ע.מ צריך להיות 9 ספרות"; return; }
+    try { const all = JSON.parse(localStorage.getItem("ari.rcpt") || "{}"); all[o.customer] = { name: rName.value.trim(), tax }; localStorage.setItem("ari.rcpt", JSON.stringify(all)); } catch (e) {}
     try { const all = JSON.parse(localStorage.getItem("ari.emails") || "{}"); if (email.value.trim()) all[o.customer] = email.value.trim(); localStorage.setItem("ari.emails", JSON.stringify(all)); } catch (e) {}
-    go.disabled = true; go.textContent = "מוציא קבלה…"; msg.textContent = "";
-    fetch(SHEET_URL, { method: "POST", body: JSON.stringify({ action: "receipt", key, no: o.no, method, email: email.value.trim() }) })
+    go.disabled = true; go.textContent = "שומר…"; msg.textContent = "";
+    fetch(SHEET_URL, { method: "POST", body: JSON.stringify({ action: "receipt", key, no: o.no, method, email: email.value.trim(), name: rName.value.trim(), taxId: rTax.value.replace(/\D/g, "") }) })
       .then(r => r.json())
       .then(d => {
         if (!d || !d.ok) throw new Error((d && d.error) || "לא התקבלה תשובה");
@@ -1173,14 +1182,15 @@ function openPaid(o) {
           showRcptDone(o, `קבלה ${d.number} יצאה`, d.emailed ? "נשלחה ללקוח במייל" : "לא נשלח מייל – אפשר לשלוח בווצאפ", d.url, d.url);
         }
       })
-      .catch(err => { go.disabled = false; go.textContent = (live ? "שולם · להוציא קבלה ₪" : "שולם · קבלה לבדיקה ₪") + amount; msg.textContent = err.message; });
+      .catch(err => { go.disabled = false; go.textContent = (live ? "שולם ₪" : "שולם (בדיקה) ₪") + amount; msg.textContent = err.message; });
   };
   $("oBody").replaceChildren(
     el("div", { className: "shh" },
-      el("div", {}, el("small", { textContent: `${o.recipient || ""} · ${splitAddr(o.address)[0]} · ₪${amount}` }), el("h2", { textContent: "שולם · להוציא קבלה?" })),
+      el("div", {}, el("small", { textContent: `${o.recipient || ""} · ${splitAddr(o.address)[0]} · ₪${amount}` }), el("h2", { textContent: "תשלום" })),
       aria(el("button", { type: "button", className: "ib", onclick: closeOrder }, ico("x", "s")), "סגירה")),
-    live ? null : el("p", { className: "pdTest", textContent: "מצב בדיקה: תוצג קבלה לדוגמה בלבד. לא יוצאת קבלה אמיתית." }),
+    live ? "" : el("p", { className: "pdTest", textContent: "מצב בדיקה: תוצג קבלה לדוגמה בלבד. לא יוצאת קבלה אמיתית." }),
     el("p", { className: "etaHint", textContent: "איך שילמו?" }), el("div", { className: "pkChips" }, ...chips),
+    el("p", { className: "etaHint", textContent: "הקבלה על שם" }), rName, rTax,
     el("p", { className: "etaHint", textContent: "לשלוח את הקבלה ל־" }), email, msg, go, skip);
   document.body.classList.add("sheetOpen");
 }
