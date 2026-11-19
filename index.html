@@ -820,6 +820,7 @@ const CONFIG = {
     if (code && cfg.customer) CONFIG.customers[code] = fix(cfg.customer);
     CONFIG.occasionalCash = !!(cfg.defaults && /מזומן/.test(cfg.defaults.pay || ""));
     CONFIG.occasionalOnline = !!(cfg.defaults && /אונליין/.test(cfg.defaults.pay || ""));   // תשלום באתר דרך מורנינג
+    CONFIG.ccOn = !!(cfg.defaults && /אשראי/.test(cfg.defaults.pay || ""));                // מתג "כרטיס אשראי" בניהול
     CONFIG.defaultNoUrgent = !!(cfg.defaults && cfg.defaults.noUrgent);   // נקבע בדף הניהול: לקוחות מזדמנים · תשלום
     if (cfg.defaults && cfg.defaults.prices && cfg.defaults.prices.length) {
       CONFIG.defaultPrices = cfg.defaults.prices;
@@ -961,7 +962,7 @@ function setUrgentAvailable(on) {           // "מקבל דחופים" כבוי 
 // לקוחות מזדמנים (הדף בלי לינק אישי): ביט / פייבוקס מראש. אם ארי פתח בדף הניהול – גם מזומן
 // אמצעי תשלום – לכל הלקוחות: מזומן · ביט · פייבוקס · אשראי (אשראי = דף התשלום המאובטח של מורנינג, כשהוא מופעל בניהול)
 const CC = "אשראי";
-const CC_OK = true;                                        // אשראי – לכל הלקוחות
+const CC_OK = !!CONFIG.ccOn;                               // אשראי – לכל הלקוחות, כשארי מדליק בניהול (אחרי שמסוף הסליקה פעיל)
 const CASH_OK = CUSTOMER ? /מזומן/.test(CUSTOMER.pay || "") : !!CONFIG.occasionalCash;   // מזומן – רק ללקוח שארי סימן
 const PAY_ONLINE = "תשלום באתר";
 const isOnline = () => CC_OK && val("pay") === CC;
