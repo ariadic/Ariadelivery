@@ -139,17 +139,17 @@ html{-webkit-tap-highlight-color:transparent}
 .preNote b{color:#7c2d12}
 /* כרטיס תשלום בביט / פייבוקס */
 .payCard{border:1.5px solid #c7d2fe;background:#eef2ff;border-radius:18px;padding:14px;margin-bottom:12px;text-align:right}
-.payCard.pb{border-color:#a5f3fc;background:#ecfeff}
+.payCard.pbx{border-color:#a5f3fc;background:#ecfeff}
 .payTop{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .payTop b{font-size:16px;font-weight:800}
-.payAmt{font-size:24px;font-weight:800;color:#3730a3}.payCard.pb .payAmt{color:#0e7490}
+.payAmt{font-size:24px;font-weight:800;color:#3730a3}.payCard.pbx .payAmt{color:#0e7490}
 .cp{display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid #e0e7ff;border-radius:14px;padding:8px 8px 8px 12px;margin-top:9px}
-.payCard.pb .cp{border-color:#cffafe}
+.payCard.pbx .cp{border-color:#cffafe}
 .cp .t{flex:1;min-width:0}
 .cp .lb{display:block;font-size:12px;color:#6b7280}
 .cp .vl{display:block;font-size:18px;font-weight:800;direction:ltr;text-align:right;letter-spacing:.3px}
 button.cpb{flex:none;width:auto;margin:0;border:0;border-radius:11px;padding:10px 13px;background:#4f46e5;color:#fff;font-size:14px;font-weight:700;box-shadow:none}
-.payCard.pb button.cpb{background:#0891b2}
+.payCard.pbx button.cpb{background:#0891b2}
 button.cpb.done{background:#16a34a!important}
 .payHint{font-size:13px;color:#4b5563;line-height:1.6;margin-top:9px}
 button.waOpt,button.waBtn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:14px;padding:12px;margin-top:10px;font-weight:600;font-size:15px}
@@ -274,15 +274,15 @@ button.primary#doneMore .ic{width:22px;height:22px}
 @keyframes pulse{50%{box-shadow:0 0 0 3px var(--ac),0 0 0 12px #ff5a1f0d}}
 .trkNo{background:#fff1f2;color:#be123c;border-radius:12px;padding:10px;font-size:14px;font-weight:600;margin:10px 0 4px}
 /* תשלום בביט / פייבוקס */
-.payCard,.payCard.pb{background:#fff;border:0;box-shadow:0 0 0 1px var(--ln),0 6px 20px #0000000a;border-radius:18px;padding:14px 14px 10px;margin:16px 0 12px}
+.payCard,.payCard.pbx{background:#fff;border:0;box-shadow:0 0 0 1px var(--ln),0 6px 20px #0000000a;border-radius:18px;padding:14px 14px 10px;margin:16px 0 12px}
 .payTop{align-items:center;justify-content:flex-start}
 .payTop .ic{color:var(--ac)}
 .payTop b{font-size:15.5px;font-weight:600;flex:1}
-.payAmt,.payCard.pb .payAmt{font-size:20px;font-weight:700;color:var(--tx)}
-.cp,.payCard.pb .cp{background:none;border:0;border-top:1px solid #f0f0f2;border-radius:0;padding:10px 0 4px;margin-top:8px}
+.payAmt,.payCard.pbx .payAmt{font-size:20px;font-weight:700;color:var(--tx)}
+.cp,.payCard.pbx .cp{background:none;border:0;border-top:1px solid #f0f0f2;border-radius:0;padding:10px 0 4px;margin-top:8px}
 .cp .lb{font-size:11.5px;color:var(--mu)}
 .cp .vl{font-size:18px;font-weight:700}
-button.cpb,.payCard.pb button.cpb{display:inline-flex;align-items:center;gap:5px;background:var(--ac-soft);color:var(--ac);border-radius:999px;padding:8px 13px;font-size:13.5px;font-weight:600}
+button.cpb,.payCard.pbx button.cpb{display:inline-flex;align-items:center;gap:5px;background:var(--ac-soft);color:var(--ac);border-radius:999px;padding:8px 13px;font-size:13.5px;font-weight:600}
 button.cpb.done{background:#e8f8ee!important;color:#15803d}
 button.cpb .ic{width:16px;height:16px}
 .payHint{font-size:12.5px;color:var(--mu)}
@@ -519,13 +519,19 @@ a.bitGo .bgt small{font-size:13px;font-weight:500;opacity:.8}
 .payCard.bitMode{padding:14px}
 .payCard.bitMode a.bitGo{margin:0}
 .bitCap{font-size:13px;color:var(--mu);text-align:center;margin-top:8px}
+#floorBox input::placeholder{color:#b9b9c2;font-weight:400;font-size:15px}
+.trk .st.sNow b{color:#8a8a93}.trk .st.sNow small{display:block;color:var(--ac);font-weight:600;font-size:11.5px;margin-top:1px}
+.floorTip{font-size:12.5px;color:var(--mu);margin:-4px 2px 4px}
+/* פונט אחד בכל המסכים: Rubik – גם בכפתורים ובשדות */
+button,input,select,textarea{font-family:Rubik,Heebo,system-ui,sans-serif}
+header .lg,header .ht{cursor:pointer;-webkit-tap-highlight-color:transparent}
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M12 7v5l4 2" /></symbol><symbol id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></symbol><symbol id="i-printer" viewBox="0 0 24 24"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" /><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6" /><rect x="6" y="14" width="12" height="8" rx="1" /></symbol><symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></symbol><symbol id="i-flower-2" viewBox="0 0 24 24"><path d="M12 5a3 3 0 1 1 3 3m-3-3a3 3 0 1 0-3 3m3-3v1M9 8a3 3 0 1 0 3 3M9 8h1m5 0a3 3 0 1 1-3 3m3-3h-1m-2 3v-1" /><circle cx="12" cy="8" r="2" /><path d="M12 10v12" /><path d="M12 22c4.2 0 7-1.667 7-5-4.2 0-7 1.667-7 5Z" /><path d="M12 22c-4.2 0-7-1.667-7-5 4.2 0 7 1.667 7 5Z" /></symbol><symbol id="i-sprout" viewBox="0 0 24 24"><path d="M7 20h10" /><path d="M10 20c5.5-2.5.8-6.4 3-10" /><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z" /><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z" /></symbol><symbol id="i-shopping-basket" viewBox="0 0 24 24"><path d="m15 11-1 9" /><path d="m19 11-4-7" /><path d="M2 11h20" /><path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4" /><path d="M4.5 15.5h15" /><path d="m5 11 4-7" /><path d="m9 11 1 9" /></symbol><symbol id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></symbol><symbol id="i-package" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" /><path d="M12 22V12" /><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7" /><path d="m7.5 4.27 9 5.15" /></symbol><symbol id="i-gift" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="4" rx="1" /><path d="M12 8v13" /><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7" /><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5" /></symbol><symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" /><path d="M15 18H9" /><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" /><circle cx="17" cy="18" r="2" /><circle cx="7" cy="18" r="2" /></symbol><symbol id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></symbol><symbol id="i-calendar-clock" viewBox="0 0 24 24"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5" /><path d="M16 2v4" /><path d="M8 2v4" /><path d="M3 10h5" /><path d="M17.5 17.5 16 16.3V14" /><circle cx="16" cy="16" r="6" /></symbol><symbol id="i-clipboard-list" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><path d="M12 11h4" /><path d="M12 16h4" /><path d="M8 11h.01" /><path d="M8 16h.01" /></symbol><symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /><circle cx="12" cy="10" r="3" /></symbol><symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol><symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></symbol><symbol id="i-message-square-text" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /><path d="M13 8H7" /><path d="M17 12H7" /></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14" /><path d="M12 5v14" /></symbol><symbol id="i-send" viewBox="0 0 24 24"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" /><path d="m21.854 2.147-10.94 10.939" /></symbol><symbol id="i-thumbs-up" viewBox="0 0 24 24"><path d="M7 10v12" /><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z" /></symbol><symbol id="i-package-check" viewBox="0 0 24 24"><path d="m16 16 2 2 4-4" /><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14" /><path d="m7.5 4.27 9 5.15" /><polyline points="3.29 7 12 12 20.71 7" /><line x1="12" x2="12" y1="22" y2="12" /></symbol><symbol id="i-wallet" viewBox="0 0 24 24"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" /><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" /></symbol><symbol id="i-credit-card" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2" /><path d="M2 10h20" /></symbol><symbol id="i-banknote" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01M18 12h.01" /></symbol><symbol id="i-car" viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" /><circle cx="7" cy="17" r="2" /><path d="M9 17h6" /><circle cx="17" cy="17" r="2" /></symbol><symbol id="i-circle-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="m15 9-6 6" /><path d="m9 9 6 6" /></symbol><symbol id="i-refresh-cw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /><path d="M8 16H3v5" /></symbol></svg>
 <header>
   <div class="lg" id="hLogo"><img src="logo.png" alt="" onerror="this.remove()"><svg class="ic"><use href="#i-car"/></svg></div>
-  <div class="ht"><h1 class="brand"><bdi dir="ltr">Aria delivery</bdi></h1><p>ארי משלוחים · הזמנת משלוח</p></div>
+  <div class="ht" id="hTitle"><h1 class="brand"><bdi dir="ltr">Aria delivery</bdi></h1><p>ארי משלוחים · הזמנת משלוח</p></div>
   <button type="button" class="ib" id="hHist" aria-label="ההזמנות שלי"><svg class="ic"><use href="#i-clipboard-list"/></svg></button>
 </header>
 
@@ -579,12 +585,15 @@ a.bitGo .bgt small{font-size:13px;font-weight:500;opacity:.8}
       <input id="dPhone" type="tel" inputmode="tel" required>
       <div class="errmsg">טלפון לא תקין</div></div>
       </div>
-      <div class="row2" id="floorBox" style="display:none">
-      <div class="f"><label for="dFloor">קומה <span class="opt">(לא חובה)</span></label>
-      <input id="dFloor" inputmode="numeric" maxlength="10" autocomplete="off"></div>
-      <div class="f"><label for="dApt">דירה <span class="opt">(לא חובה)</span></label>
-      <input id="dApt" inputmode="numeric" maxlength="10" autocomplete="off"></div>
+      <div class="row2" id="floorBox">
+      <div class="f"><label for="dFloor">קומה</label>
+      <input id="dFloor" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="בית פרטי – 0">
+</div>
+      <div class="f"><label for="dApt">דירה</label>
+      <input id="dApt" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="בית פרטי – 0">
+</div>
       </div>
+      <div class="floorTip">לא יודעים קומה או דירה? אפשר להשאיר ריק</div>
     </section>
 
     <section class="card">
@@ -607,15 +616,11 @@ a.bitGo .bgt small{font-size:13px;font-weight:500;opacity:.8}
       <div id="payBox">
         <label class="lab">איך משלמים?</label>
         <div class="chips" id="payChips"></div>
-        <div class="whenHint payHintL" id="payHint" style="display:none"></div>
+        <div class="whenHint payHintL" id="payChoiceHint" style="display:none"></div>
         <div class="preNote" id="preNote" style="display:none"><svg class="ic s"><use href="#i-wallet"/></svg><span><b>תשלום מראש</b> · פרטי ההעברה יופיעו אחרי השליחה</span></div>
       </div>
-      <div id="payerBox">
-        <label class="lab">מי משלם?</label>
-        <div class="chips" id="payerChips"></div>
-      </div>
 <input type="hidden" id="greeting">
-      <button type="button" class="lnk" id="notesLink"><span class="pl"><svg class="ic s"><use href="#i-plus"/></svg></span><span class="lt"><b>הוספת הערה לשליח</b><small>קומה, קוד לבניין, מה בחבילה… (לא חובה)</small></span></button>
+      <button type="button" class="lnk" id="notesLink"><span class="pl"><svg class="ic s"><use href="#i-plus"/></svg></span><span class="lt"><b>הוספת הערה לשליח</b><small>קוד לבניין, מה בחבילה… (לא חובה)</small></span></button>
       <div id="notesBox" style="display:none">
         <div class="f" style="margin-top:14px"><label for="notes">הערה לשליח <span class="opt">(קומה, קוד לבניין, מה בחבילה…)</span></label>
         <textarea id="notes"></textarea></div>
@@ -815,6 +820,7 @@ const CONFIG = {
     if (code && cfg.customer) CONFIG.customers[code] = fix(cfg.customer);
     CONFIG.occasionalCash = !!(cfg.defaults && /מזומן/.test(cfg.defaults.pay || ""));
     CONFIG.occasionalOnline = !!(cfg.defaults && /אונליין/.test(cfg.defaults.pay || ""));   // תשלום באתר דרך מורנינג
+    CONFIG.ccOn = !!(cfg.defaults && /אשראי/.test(cfg.defaults.pay || ""));                // מתג "כרטיס אשראי" בניהול
     CONFIG.defaultNoUrgent = !!(cfg.defaults && cfg.defaults.noUrgent);   // נקבע בדף הניהול: לקוחות מזדמנים · תשלום
     if (cfg.defaults && cfg.defaults.prices && cfg.defaults.prices.length) {
       CONFIG.defaultPrices = cfg.defaults.prices;
@@ -956,7 +962,7 @@ function setUrgentAvailable(on) {           // "מקבל דחופים" כבוי 
 // לקוחות מזדמנים (הדף בלי לינק אישי): ביט / פייבוקס מראש. אם ארי פתח בדף הניהול – גם מזומן
 // אמצעי תשלום – לכל הלקוחות: מזומן · ביט · פייבוקס · אשראי (אשראי = דף התשלום המאובטח של מורנינג, כשהוא מופעל בניהול)
 const CC = "אשראי";
-const CC_OK = true;                                        // אשראי – לכל הלקוחות
+const CC_OK = !!CONFIG.ccOn;                               // אשראי – לכל הלקוחות, כשארי מדליק בניהול (אחרי שמסוף הסליקה פעיל)
 const CASH_OK = CUSTOMER ? /מזומן/.test(CUSTOMER.pay || "") : !!CONFIG.occasionalCash;   // מזומן – רק ללקוח שארי סימן
 const PAY_ONLINE = "תשלום באתר";
 const isOnline = () => CC_OK && val("pay") === CC;
@@ -975,15 +981,12 @@ chips("payChips", "pay", PAY_ALL, t => PAY_ICON[t] + `<span>${t}</span>`);
 $("payChips").classList.add("payGrid");
 $("payChips").style.setProperty("--n", PAY_ALL.length);
 const PAY_HINT = { "מזומן": "משלמים לארי במזומן, בסכום מדויק", "ביט": "תשלום מראש · כפתור ביט ופרטים אחרי השליחה", "פייבוקס": "תשלום מראש · הפרטים יופיעו אחרי השליחה", [CC]: "תשלום מאובטח בכרטיס אשראי · ההזמנה נשלחת לארי אחרי התשלום" };
-chips("payerChips", "payer", PAYER);
 function updPay() {
   const on = isOnline();
   submitBtn.classList.toggle("payBtn", on);                     // אשראי: כפתור "לתשלום" עם ארנק · אחרת: "שליחה לארי" עם ווצאפ
   if (!submitBtn.disabled) { const ic = submitBtn.querySelector("svg"); if (ic) ic.outerHTML = subSvg(); const sp = submitBtn.querySelector("span:not(.pr)"); if (sp && CONFIG.sheetUrl) sp.textContent = subText(); }
-  const h = $("payHint"); if (h) { const t = PAY_HINT[val("pay")]; h.textContent = t || ""; h.style.display = t ? "" : "none"; }
+  const h = $("payChoiceHint"); if (h) { const t = PAY_HINT[val("pay")]; h.textContent = t || ""; h.style.display = t ? "" : "none"; }
   $("preNote").style.display = "none";
-  if (CUSTOMER) { $("payerBox").style.display = on || CUSTOMER.hidePayer ? "none" : ""; return; }
-  $("payerBox").style.display = isPre() || on ? "none" : "";   // מזומן: מי משלם – השולח או המקבל · מראש / אשראי: תמיד השולח
 }
 $("payChips").addEventListener("change", updPay);
 
@@ -1027,7 +1030,6 @@ if (CUSTOMER) {
     if (!$("hLogo").querySelector("img")) { const sp = document.createElement("span"); sp.className = "emo"; sp.textContent = em[1]; $("hLogo").replaceChildren(sp); }
   }
   document.title = (CUSTOMER.title || CUSTOMER.name) + " – Aria delivery";
-  if (CUSTOMER.floorApt) $("floorBox").style.display = "";
   // שם המקבל לא חובה (מוגדר בדף הניהול) – לא חוסם את ההזמנה
   if (CUSTOMER.nameOptional) { $("dName").required = false; document.querySelector('label[for="dName"]').innerHTML = 'שם המקבל <span class="opt">(לא חובה)</span>'; }
   if (CUSTOMER.fixedPickup) {
@@ -1051,7 +1053,6 @@ if (CUSTOMER) {
     ch.onclick = showPickup;
     document.querySelector("header p").append(ch);
   }
-  if (CUSTOMER.hidePayer) $("payerBox").style.display = "none";
   if (AGREED) $("priceBox").textContent = "מחיר לפי הסכם";
 }
 
@@ -1310,12 +1311,14 @@ $("orderForm").addEventListener("submit", e => {
     ``,
     `📏 ${itemVal()} | ⏱ ${when}`,
     isPre() ? `💰 ${val("pay")} – תשלום מראש (לבדוק שהתקבל לפני יציאה)`
-      : `💰 ${val("pay")}${CUSTOMER && CUSTOMER.hidePayer ? "" : " – משלם " + val("payer")}`,
+      : `💰 ${val("pay")}`,
     AGREED ? `💵 מחיר: לפי הסכם`
       : price !== null ? `💵 מחיר: ₪${price}` : `💵 מחיר: לתיאום (${label})`,
   ];
   // קומה ודירה – נכנסים לתחילת ההערות לשליח (מופיעים לארי בכרטיס ובהודעה)
-  const floorTxt = [$("dFloor").value.trim() && "קומה " + $("dFloor").value.trim(), $("dApt").value.trim() && "דירה " + $("dApt").value.trim()].filter(Boolean).join(" · ");
+  const fl = $("dFloor").value.trim(), ap = $("dApt").value.trim();
+  const floorTxt = !fl && !ap ? "⚠️ קומה ודירה לא צוינו"
+    : /^0+$/.test(fl || "0") && /^0+$/.test(ap || "0") ? "בית פרטי" : [fl && "קומה " + fl, ap && "דירה " + ap].filter(Boolean).join(" · ");
   const notes = [floorTxt, $("notes").value.trim()].filter(Boolean).join(" · ");
   if (notes) lines.push(`📝 ${notes}`);
 
@@ -1461,6 +1464,7 @@ function paintTrack(st, eta, steps) {
   $("doneCancel").style.display = st === STEP_NEW && trackCt ? "" : "none";
   document.querySelectorAll("#trk .st").forEach((el, i) => {
     el.className = "st" + (off ? (i === 0 ? " sOk" : "") : i < n ? " sOk" : i === n ? " sNow" : "");
+    if (!off && i === n && sm[i]) sm[i].textContent = ["", "ממתין לאישור", "בדרך לאיסוף", "בדרך למקבל"][i] || "";   // השלב הבא: "ממתין…" – שלא ייראה כאילו כבר קרה
   });
   $("trkFill").style.width = (Math.min(n, 3) / 3 * 100) + "%";
   $("trk").classList.toggle("off", off);
@@ -1519,7 +1523,7 @@ function showPayCard(record) {
   const method = /פייבוקס/.test(record.pay) ? "פייבוקס" : /ביט/.test(record.pay) ? "ביט" : "";
   card.style.display = method ? "block" : "none";
   if (!method) return;
-  card.className = "payCard" + (method === "פייבוקס" ? " pb" : "");
+  card.className = "payCard" + (method === "פייבוקס" ? " pbx" : "");
   const amount = typeof record.price === "number" ? "₪" + record.price : "";
   $("payTitle").textContent = `תשלום ב${method}`;
   $("payAmt").textContent = amount;
@@ -1917,6 +1921,11 @@ $("histBack").addEventListener("click", () => $("historyClose").click());
 $("historyClose").addEventListener("click", () => {
   showOnly("orderForm");
 });
+// לחיצה על הלוגו / השם למעלה = חזרה למסך הראשי (טופס ההזמנה)
+["hLogo", "hTitle"].forEach(id => $(id) && $(id).addEventListener("click", () => {
+  if ($("orderForm").style.display !== "none") { window.scrollTo({ top: 0, behavior: "smooth" }); return; }
+  if ($("doneBox").style.display === "block") $("doneMore").click(); else showOnly("orderForm");
+}));
 
 /* ---------- מקבלים חוזרים: השלמה אוטומטית ---------- */
 const recipKey = r => `${r.name} – ${r.street}, ${r.label}`;
