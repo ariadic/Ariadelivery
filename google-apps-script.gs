@@ -12,7 +12,7 @@
 const NOTIFY_EMAIL = "";
 
 // גרסת הקוד – מופיעה בבדיקת הכתובת, כדי לדעת שהפריסה באמת עודכנה
-const CODE_VERSION = "2026-11-19c";
+const CODE_VERSION = "2026-11-19d";
 
 // התראות לאייפון דרך אפליקציית Pushover (הכי אמין – עם צלצול חירום ו"קיבלתי" ישר מההתראה).
 // מדביקים כאן את שני המפתחות מ-pushover.net. לא לשמור אותם באתר (הקוד באתר גלוי לכולם).
@@ -222,6 +222,14 @@ function setNear(o) {
    מצב בדיקה (ברירת מחדל): רק תצוגה מקדימה של הקבלה – בלי מספר, בלי דיווח, בלי שליחה ללקוח.
    מעבר לקבלות אמיתיות: מריצים פעם אחת את morningGoLive מהעורך (וחזרה: morningTestMode). */
 const MORNING_API = "https://api.greeninvoice.co.il/api/v1";
+// בדיקת תשלום באשראי: להריץ מהעורך (▶ testPayment) – יוצר דף תשלום של ₪1 ומדפיס את הקישור או את השגיאה המדויקת
+function testPayment() {
+  try {
+    const url = createPayForm({ no: "TEST-" + Date.now(), price: 1, customer: "בדיקה", pickupPhone: "0500000000", dest: "בדיקה",
+      returnUrl: "https://ariadic.github.io/Ariadelivery/" });
+    Logger.log("✅ דף התשלום נוצר. לפתוח בטלפון (אפשר לשלם ₪1 לבדיקה):\n" + url);
+  } catch (e) { Logger.log("❌ " + e.message); }
+}
 function morningStatus() {
   const p = PropertiesService.getScriptProperties();
   return { keys: !!(p.getProperty("MORNING_ID") && p.getProperty("MORNING_SECRET")), live: p.getProperty("MORNING_LIVE") === "1" };
@@ -243,7 +251,8 @@ function morningCall(path, body) {
   const r = UrlFetchApp.fetch(MORNING_API + path, { method: "post", contentType: "application/json", muteHttpExceptions: true,
     headers: { Authorization: "Bearer " + morningToken() }, payload: JSON.stringify(body) });
   const d = JSON.parse(r.getContentText() || "{}");
-  if (r.getResponseCode() >= 300) throw new Error("מורנינג: " + (d.errorMessage || ("שגיאה " + r.getResponseCode())));
+  if (r.getResponseCode() >= 300) { Logger.log("מורנינג " + path + " → " + r.getResponseCode() + ": " + r.getContentText().slice(0, 500));
+    throw new Error("מורנינג: " + (d.errorMessage || ("שגיאה " + r.getResponseCode()))); }
   return d;
 }
 // אמצעי תשלום לקבלה: 1 מזומן · 4 העברה בנקאית · 10 אפליקציית תשלום (ביט / פייבוקס)

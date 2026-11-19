@@ -633,8 +633,8 @@ a.bitGo:active{transform:scale(.98)}
     </div>
     <div class="payCard" id="payCard" style="display:none">
       <div class="payTop"><svg class="ic s"><use href="#i-wallet"/></svg><b id="payTitle"></b><span class="payAmt" id="payAmt"></span></div>
-      <a class="bitGo" id="bitGo" target="_blank" rel="noopener" style="display:none"><b>bit</b><span>לתשלום בביט</span></a>
-      <div class="cp"><div class="t"><span class="lb">למי מעבירים (ארי משלוחים · Aria delivery)</span><span class="vl" id="payPhone"></span></div><button type="button" class="cpb" id="cpPhone">העתק</button></div>
+      <a class="bitGo" id="bitGo" target="_blank" rel="noopener" style="display:none"><b>bit</b><span id="bitGoT">לתשלום בביט</span></a>
+      <div class="cp" id="phoneRow"><div class="t"><span class="lb">למי מעבירים (ארי משלוחים · Aria delivery)</span><span class="vl" id="payPhone"></span></div><button type="button" class="cpb" id="cpPhone">העתק</button></div>
       <div class="cp"><div class="t"><span class="lb">מה לכתוב בהערה</span><span class="vl" id="payNo"></span></div><button type="button" class="cpb" id="cpNo">העתק</button></div>
       <div class="payHint" id="payHint"></div>
       <div class="preNote" id="payPre" style="display:none"><svg class="ic s"><use href="#i-clock"/></svg><b>המשלוח יוצא לדרך אחרי שהתשלום מתקבל.</b></div>
@@ -1353,7 +1353,8 @@ function sendOrder(record, waLink, label) {
   submitBtn.disabled = true;
   submitBtn.innerHTML = '<span class="spin"></span><span>שולח לארי…</span>';
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 10000);
+  const timer = setTimeout(() => ctrl.abort(), record.payOnline ? 30000 : 10000);   // דף תשלום: גוגל + מורנינג לוקחים יותר זמן
+  if (record.payOnline) submitBtn.innerHTML = '<span class="spin"></span><span>מכין את דף התשלום…</span>';
   fetch(CONFIG.sheetUrl, { method: "POST", body: JSON.stringify(record), signal: ctrl.signal })
     .then(r => r.json())
     .then(d => {
@@ -1366,6 +1367,7 @@ function sendOrder(record, waLink, label) {
         location.href = d.payUrl;
         return;
       }
+      if (record.payOnline) { payProblem("דף התשלום לא נפתח – הקוד בגוגל לא מעודכן"); return; }   // גוגל ישן: לא מחזיר דף תשלום
       if (d.no && d.no !== record.no) { renameNo(record.no, d.no); record.no = d.no; }   // המערכת נתנה מספר אחר (התנגשות באותה שנייה)
       if (d.ct) { record.ct = d.ct; setCt(record.no, d.ct); }      // קוד ביטול – נשמר רק בטלפון הזה
       showDone(record, waLink);
@@ -1506,10 +1508,12 @@ function showPayCard(record) {
   $("payNo").textContent = record.no;
   $("payPre").style.display = /מראש/.test(record.pay) ? "flex" : "none";
   const bitGo = method === "ביט" && CONFIG.bitLink;
+  $("phoneRow").style.display = bitGo ? "none" : "";          // ביט: כפתור אחד שמוביל ישר לארי – בלי מספר להעתקה
+  $("bitGoT").textContent = amount ? `לתשלום ${amount} בביט` : "לתשלום בביט";
   $("bitGo").style.display = bitGo ? "flex" : "none";
   if (bitGo) $("bitGo").href = CONFIG.bitLink;
   $("payHint").textContent = bitGo
-    ? `לוחצים "לתשלום בביט" ← ${amount ? "סכום " + amount : "הסכום שסוכם עם ארי"} ← מדביקים את מספר ההזמנה בהערה`
+    ? `בביט מקלידים ${amount || "את הסכום שסוכם"}, ובהערה מדביקים את מספר ההזמנה`
     : `פותחים את ${method} ← מדביקים את המספר ← ${amount ? "סכום " + amount : "הסכום שסוכם עם ארי"} ← מדביקים את מספר ההזמנה בהערה`;
   [["cpPhone", CONFIG.payPhone.replace(/\D/g, "")], ["cpNo", record.no]].forEach(([id, val]) => {
     const b = $(id); b.innerHTML = ICO("copy") + "העתק"; b.classList.remove("done");
