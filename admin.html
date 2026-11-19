@@ -583,7 +583,7 @@ a.pdOpen{display:block;text-align:center;text-decoration:none}
       <label>תוספת דחוף (₪)<input id="ce_urgentDef" inputmode="numeric" placeholder="0"></label>
       <label class="chk wide"><input type="checkbox" id="ce_urgOnDef"> אפשרות "דחוף" ללקוחות מזדמנים</label>
       <label>תשלום
-        <select id="ce_payDef"><option value="אונליין">תשלום באתר · אשראי / אפל פיי / גוגל פיי / ביט</option><option value="">ביט / פייבוקס בהעברה אליי</option><option value="מזומן">ביט / פייבוקס + מזומן</option></select></label>
+        <select id="ce_payDef"><option value="אונליין">תשלום באתר · כרטיס אשראי</option><option value="">ביט / פייבוקס בהעברה אליי</option><option value="מזומן">ביט / פייבוקס + מזומן</option></select></label>
     </div>
 
     <h3 class="sub">מחירון <span class="opt" id="ceCount"></span></h3>
@@ -1453,7 +1453,7 @@ function openEditor(c, dup) {
   $("ce_fixed").checked = isNew && !dup ? true : !!c.fixedPickup;
   $("ce_hidePayer").checked = !!c.hidePayer; $("ce_greeting").checked = !!c.greeting;
   $("ce_nameOpt").checked = !!c.nameOptional; $("ce_floor").checked = !!c.floorApt; $("ce_hideDone").checked = !!c.hideDoneTime;
-  $("ce_urgOn").checked = !c.noUrgent; $("ce_urgOnDef").checked = !c.noUrgent; $("ce_qty").checked = !!c.qty;
+  $("ce_urgOn").checked = isNew && !dup ? false : !c.noUrgent;   // לקוח חדש: בלי דחוף, מדליקים רק למי שצריך $("ce_urgOnDef").checked = !c.noUrgent; $("ce_qty").checked = !!c.qty;
   $("ceRows").replaceChildren();
   (c.prices || []).forEach(p => addRow(p));
   if (!(c.prices || []).length && isNew) addRow();
