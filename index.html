@@ -466,16 +466,17 @@ label.lab,#orderForm .card > h2,#orderForm > section > h2{margin-right:0;margin-
 .qty button:disabled{opacity:.35}.qty b{min-width:28px;text-align:center;font-size:22px}.qty span{color:var(--mu);font-size:14px;padding-left:10px}
 /* תשלום באתר + לוגואים */
 #payChips.payOnline label{min-height:64px}
-.pbd{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
-.pb{direction:ltr;display:inline-flex;align-items:center;gap:3px;height:24px;padding:0 8px;border-radius:6px;font-size:12px;font-weight:600;line-height:1}
-.pb .bl{width:13px;height:13px}.pb.gp .bl{width:12px;height:12px;margin-right:1px}
-.pb.ap{background:#000;color:#fff}.pb.gp{background:#fff;color:#3c4043;box-shadow:inset 0 0 0 1px #dadce0}
-.pb.bt{background:#13b3e6;color:#fff;font-weight:800}.pb.cc{direction:rtl;background:#fff;color:#555;box-shadow:inset 0 0 0 1px #dadce0;font-weight:500}
+.pbd{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;width:100%}
+.pb{direction:ltr;display:flex;align-items:center;justify-content:center;gap:5px;height:52px;border-radius:12px;font-size:19px;font-weight:600;line-height:1;background:#fff;color:#3c4043;box-shadow:0 0 0 1px var(--ln)}
+.pb .bl{width:22px;height:22px}.pb.ap .bl{margin-top:-3px}
+.pb.ap{background:#000;color:#fff;box-shadow:none}
+.pb.bt{background:#00b3e3;color:#fff;font-weight:800;font-size:23px;letter-spacing:-.5px;box-shadow:none}
+.pb.cc{direction:rtl;color:var(--tx);font-size:17px}.pb.cc .bl{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8}
 #payErr{margin-top:10px}
 #payChips.payOnline{display:block}
-#payChips.payOnline label{display:flex;flex-direction:column;align-items:flex-start;text-align:right;gap:0;padding:12px 14px;min-height:0;border-radius:16px;background:var(--ac-soft);box-shadow:inset 0 0 0 2px var(--ac)}
-#payChips.payOnline label .rad{display:none}#payChips.payOnline label .wt b{color:var(--tx);font-size:15px}
-#orderForm > button.payBtn[type=submit]{background:#111;box-shadow:0 8px 24px #0003}
+#payChips.payOnline label{display:flex;flex-direction:column;align-items:stretch;text-align:right;gap:0;padding:14px;min-height:0;border-radius:16px;background:var(--ac-soft);box-shadow:inset 0 0 0 2px var(--ac)}
+#payChips.payOnline label .rad{display:none}#payChips.payOnline label .wt{width:100%}#payChips.payOnline label .wt b{color:var(--tx);font-size:16px}
+#orderForm > button.payBtn[type=submit]{background:var(--ac);box-shadow:0 8px 22px #ff5a1f55}
 #orderForm > button.payBtn[type=submit] .ic{width:22px;height:22px;fill:none!important;stroke:currentColor}
 </style>
 </head>
@@ -900,7 +901,7 @@ const CASH_OK = !CUSTOMER && !!CONFIG.occasionalCash;
 const ONLINE = !CUSTOMER && !!CONFIG.occasionalOnline;      // לקוח מזדמן משלם באתר (אשראי · אפל פיי · גוגל פיי · ביט)
 const PAY_ONLINE = "תשלום באתר";
 const isPre = () => !CUSTOMER && !ONLINE && !/מזומן/.test(val("pay"));
-const PAY_BADGES = `<span class="pbd"><span class="pb ap"><svg viewBox="0 0 24 24" class="bl" fill="currentColor"><path d="M16.4 12.6c0-2.4 2-3.6 2.1-3.6-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.7.9-.8 0-1.9-.9-3.2-.8-1.6 0-3.1 1-4 2.4-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8 1.5 0 1.9.8 3.2.8 1.3 0 2.2-1.2 3-2.4.9-1.4 1.3-2.7 1.3-2.8 0 0-2.5-1-2.5-4zM14 5.4c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1.1.1 2.1-.6 2.8-1.4z"/></svg>Pay</span><span class="pb gp"><svg viewBox="0 0 48 48" class="bl"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.6 13.2l7.9 6.2C12.4 13.7 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.5 2.9-2.2 5.4-4.7 7.1l7.6 5.9c4.4-4.1 6.9-10.1 6.9-17.5z"/><path fill="#FBBC05" d="M10.5 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.2C.9 16.6 0 20.2 0 24s.9 7.4 2.6 10.8l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.3 0-11.6-4.2-13.5-10l-7.9 6.2C6.6 42.6 14.6 48 24 48z"/></svg>Pay</span><span class="pb bt">bit</span><span class="pb cc">כרטיס אשראי</span></span>`;
+const PAY_BADGES = `<span class="pbd"><span class="pb ap"><svg viewBox="0 0 24 24" class="bl" fill="currentColor"><path d="M16.4 12.6c0-2.4 2-3.6 2.1-3.6-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.7.9-.8 0-1.9-.9-3.2-.8-1.6 0-3.1 1-4 2.4-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8 1.5 0 1.9.8 3.2.8 1.3 0 2.2-1.2 3-2.4.9-1.4 1.3-2.7 1.3-2.8 0 0-2.5-1-2.5-4zM14 5.4c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1.1.1 2.1-.6 2.8-1.4z"/></svg>Pay</span><span class="pb gp"><svg viewBox="0 0 48 48" class="bl"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.6 13.2l7.9 6.2C12.4 13.7 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.5 2.9-2.2 5.4-4.7 7.1l7.6 5.9c4.4-4.1 6.9-10.1 6.9-17.5z"/><path fill="#FBBC05" d="M10.5 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.2C.9 16.6 0 20.2 0 24s.9 7.4 2.6 10.8l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.3 0-11.6-4.2-13.5-10l-7.9 6.2C6.6 42.6 14.6 48 24 48z"/></svg>Pay</span><span class="pb bt">bit</span><span class="pb cc"><svg viewBox="0 0 24 24" class="bl" stroke-linecap="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/></svg>אשראי</span></span>`;
 if (ONLINE) chips("payChips", "pay", [PAY_ONLINE], () => `<span class="rad"></span><span class="wt"><b>תשלום באתר</b>${PAY_BADGES}</span>`);
 else chips("payChips", "pay", CUSTOMER ? PAY : CASH_OK ? ["ביט", "פייבוקס", "מזומן"] : ["ביט", "פייבוקס"]);
 if (ONLINE) { $("payChips").classList.add("payOnline"); $("payerBox").style.display = "none"; }
@@ -1264,7 +1265,8 @@ $("orderForm").addEventListener("submit", e => {
 });
 
 /* ---------- שליחה חכמה: מחכים לאישור מהמערכת, ואם אין – ווצאפ ---------- */
-const WA_SVG = typeof ONLINE !== "undefined" && ONLINE ? '<svg class="ic"><use href="#i-wallet"/></svg>' : document.querySelector("#orderForm > button[type=submit] svg").outerHTML;
+const WA_ICON = document.querySelector("#orderForm > button[type=submit] svg").outerHTML;   // סמל ווצאפ – לכפתורי ווצאפ
+const WA_SVG = typeof ONLINE !== "undefined" && ONLINE ? '<svg class="ic"><use href="#i-wallet"/></svg>' : WA_ICON;
 const SUBMIT_TEXT = typeof ONLINE !== "undefined" && ONLINE ? "לתשלום" : "שליחה לארי";
 function payProblem(msg) {
   const n = $("payErr") || Object.assign(document.createElement("div"), { id: "payErr", className: "notice off" });
@@ -1398,7 +1400,7 @@ function showDone(record, waLink) {
   l2.textContent = `${record.item} · ${record.when} · ${typeof record.price === "number" ? "₪" + record.price : record.price} · ${record.pay}`;
   sum.append(l1, l2);
   showPayCard(record);
-  $("doneWa").innerHTML = WA_SVG + "<span>גם בווצאפ</span>";
+  $("doneWa").innerHTML = WA_ICON + "<span>גם בווצאפ</span>";
   $("doneWa").onclick = () => { window.location.href = waLink; };
   const today = todayOrders();
   $("todayBox").style.display = today.length > 1 ? "block" : "none";
@@ -1456,7 +1458,7 @@ function showFallback(record, waLink, label) {
   addPending({ no: record.no, summary: `${record.recipient} – ${label}`, link: waLink });
   resetForm();
   showOnly("fallbackBox");
-  $("fbOpen").innerHTML = WA_SVG + "<span>פתח ווצאפ עכשיו</span>";
+  $("fbOpen").innerHTML = WA_ICON + "<span>פתח ווצאפ עכשיו</span>";
   $("fbOpen").onclick = () => { clearTimeout(fbTimer); window.location.href = waLink; };
   const bar = $("fbBar"); bar.style.transition = "none"; bar.style.width = "0";
   requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.transition = "width 2s linear"; bar.style.width = "100%"; }));
@@ -1609,7 +1611,7 @@ function renderStats() {
   const total = rows.reduce((t, x) => t + priceOf(x), 0), paid = rows.filter(x => x.paid === true).reduce((t, x) => t + priceOf(x), 0);
   const stat = (n, txt, cls) => { const d = document.createElement("div"); const b = document.createElement("b"); b.textContent = n; if (cls) b.className = cls; d.append(b, txt); return d; };
   $("historyStats").replaceChildren(stat(rows.length, "משלוחים"), stat("₪" + total, "סה״כ"), stat("₪" + paid, "שולם", "g"));
-  $("histWa").innerHTML = WA_SVG + "<span>לעצמי בווצאפ</span>";
+  $("histWa").innerHTML = WA_ICON + "<span>לעצמי בווצאפ</span>";
   ["histWa", "histMail", "histPrint"].forEach(id => { $(id).disabled = !rows.length; });
 }
 document.querySelectorAll("#histPeriod button").forEach(b => b.addEventListener("click", () => {
