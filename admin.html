@@ -452,6 +452,13 @@ label.chk{padding-right:12px;padding-left:4px}
 .due{display:flex;align-items:center;gap:8px;border-radius:12px;padding:10px 12px;margin:-2px 0 9px;font-size:14px}
 .due b{font-weight:700}.due small{margin-right:auto;font-size:12.5px;opacity:.85;white-space:nowrap}
 .due.u{background:var(--ac-soft);color:#c2410c}.due.d{background:#111;color:#fff}.due.d.late{background:#e11d48}
+/* שולם + קבלה */
+.rcp{display:flex;align-items:center;gap:8px;background:var(--fill);border-radius:12px;padding:0 12px;min-height:44px;margin:-2px 0 9px;font-size:13.5px}
+.rcp span{flex:1;font-weight:600}.rcp a{color:var(--ac);font-weight:700;text-decoration:none;padding:12px 4px}
+.pdEmail{width:100%;box-sizing:border-box;min-height:48px;border:0;border-radius:14px;background:var(--fill);padding:0 14px;font:inherit;font-size:15px;margin-bottom:10px;direction:ltr;text-align:right}
+.pdTest{background:var(--ac-soft);color:#9a3412;border-radius:12px;padding:10px 12px;font-size:13px;margin:0 0 6px}
+.pdMsg{color:#be123c;font-size:13.5px;min-height:4px;margin-bottom:6px}
+a.pdOpen{display:block;text-align:center;text-decoration:none}
 </style>
 </head>
 <body>
@@ -619,6 +626,7 @@ const BADGES = { "חדשה": ["חדשה", "new"], "נאסף": ["נאסף", "pick
 const CLOSED = ["נמסר", "לא פנוי", "בוטלה"];
 const VOID = s => s === "לא פנוי" || s === "בוטלה";        // לא בוצעו – לא נספרים בכסף
 let avail = { available: true, message: "" };
+let morning = { keys: false, live: false };
 
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2, "0");
@@ -664,7 +672,8 @@ const hhmm = t => { const n = new Date(t); return `${pad(n.getHours())}:${pad(n.
 function applyList(d, savedAt) {
   orders = d.orders || [];
   fillCustomers();
-  if (typeof d.available === "boolean") avail = { available: d.available, message: d.message || "" };
+  if (typeof d.available === "boolean") avail = { available: d.available, message: d.message || "", urgent: d.urgent !== false };
+  morning = d.morning || { keys: false, live: false };
   renderAvail();
   $("loginBox").style.display = "none"; $("bnav").style.display = ""; $("refresh").style.display = "";
   if (view === "orders") $("viewTitle").textContent = "הזמנות";
@@ -811,7 +820,8 @@ function card(o) {
   // "שולם" בלחיצה אחת: לחיצה על התגית מחליפה שולם / לא שולם
   const py = off ? el("span", { className: "py", textContent: payTxt })
     : el("button", { type: "button", className: "py " + (o.paid ? "paid" : prepay ? "wait" : "unp"),
-        title: o.paid ? "לחיצה = לא שולם" : "לחיצה = שולם", onclick: e => setPaid(o, !o.paid, e.currentTarget) },
+        title: o.paid ? "לחיצה = לא שולם" : "לחיצה = שולם",
+        onclick: e => !o.paid && morning.keys ? openPaid(o) : setPaid(o, !o.paid, e.currentTarget) },
         o.paid ? ico("check", "xs") : null, payTxt + (o.paid ? " · שולם" : prepay ? " · ממתין" : " · לא שולם"));
   const nx = NEXT[o.status];
   const act = nx ? el("button", { type: "button", className: "act " + nx[3],
@@ -853,7 +863,7 @@ function card(o) {
       o.address ? qi("navigation", waze(navAddr(o)), "ניווט בווייז") : null),
     o.notes ? el("div", { className: "nt" }, ico("message-square-text", "xs"), el("span", { textContent: o.notes })) : null,
     prepay && !o.paid && !off ? el("div", { className: "waitPay", textContent: "תשלום מראש – לבדוק שהתקבל לפני יציאה" }) : null,
-    dueStrip(o), pickLine, etaLine,
+    dueStrip(o), pickLine, etaLine, rcptRow(o),
     el("div", { className: "r3" }, py, act, more));
 }
 
@@ -1046,6 +1056,63 @@ function deleteOrder(o, btn) {
     .catch(() => { btn.disabled = false; btn.innerHTML = orig; alert("המחיקה לא נשלחה – בדוק חיבור ונסה שוב"); });
 }
 
+/* ---------- שולם + קבלה במורנינג ---------- */
+function rcptRow(o) {
+  if (!o.receipt) return null;
+  const [num, url] = String(o.receipt).split("|");
+  return el("div", { className: "rcp" }, ico("file-text", "s"), el("span", { textContent: `קבלה ${num}` }),
+    url ? el("a", { href: url, target: "_blank", rel: "noopener", textContent: "פתיחה" }) : null);
+}
+function openPaid(o) {
+  const live = morning.live, amount = isNaN(o.price) || o.price === "" ? 0 : Number(o.price);
+  const methods = ["מזומן", "ביט", "פייבוקס", "העברה"];
+  let method = methods.find(m => (o.pay || "").includes(m)) || "מזומן";
+  const chips = methods.map(m => el("button", { type: "button", className: "pkChip" + (m === method ? " on" : ""), onclick: () => {
+    method = m; chips.forEach(c => c.classList.toggle("on", c.textContent === m)); } }, el("b", { textContent: m })));
+  let saved = ""; try { saved = (JSON.parse(localStorage.getItem("ari.emails") || "{}"))[o.customer] || ""; } catch (e) {}
+  const email = el("input", { type: "email", className: "pdEmail", placeholder: "מייל של הלקוח (לא חובה)", value: saved, autocomplete: "off" });
+  const msg = el("div", { className: "pdMsg" });
+  const go = el("button", { type: "button", className: "etaGo", textContent: (live ? "שולם · להוציא קבלה ₪" : "שולם · קבלה לבדיקה ₪") + amount });
+  const skip = el("button", { type: "button", className: "etaSkip", textContent: "שולם בלי קבלה", onclick: () => { closeOrder(); setPaid(o, true, go); } });
+  go.onclick = () => {
+    if (!amount) { msg.textContent = "אין מחיר בהזמנה – אפשר רק \"שולם בלי קבלה\""; return; }
+    try { const all = JSON.parse(localStorage.getItem("ari.emails") || "{}"); if (email.value.trim()) all[o.customer] = email.value.trim(); localStorage.setItem("ari.emails", JSON.stringify(all)); } catch (e) {}
+    go.disabled = true; go.textContent = "מוציא קבלה…"; msg.textContent = "";
+    fetch(SHEET_URL, { method: "POST", body: JSON.stringify({ action: "receipt", key, no: o.no, method, email: email.value.trim() }) })
+      .then(r => r.json())
+      .then(d => {
+        if (!d || !d.ok) throw new Error((d && d.error) || "לא התקבלה תשובה");
+        if (d.preview) {                         // מצב בדיקה: מסמנים שולם, ומראים את הקבלה לדוגמה
+          setPaid(o, true, go);
+          const bin = atob(d.file || ""), arr = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+          const href = URL.createObjectURL(new Blob([arr], { type: "application/pdf" }));
+          showRcptDone(o, "הקבלה לבדיקה מוכנה", "זו רק תצוגה מקדימה – בלי מספר, בלי דיווח ובלי שליחה ללקוח. ההזמנה סומנה כשולמה.", href, "");
+        } else {
+          o.paid = true; o.receipt = `${d.number}|${d.url || ""}`; render(); setTimeout(load, 1500);
+          showRcptDone(o, `קבלה ${d.number} יצאה`, d.emailed ? "נשלחה ללקוח במייל" : "לא נשלח מייל – אפשר לשלוח בווצאפ", d.url, d.url);
+        }
+      })
+      .catch(err => { go.disabled = false; go.textContent = (live ? "שולם · להוציא קבלה ₪" : "שולם · קבלה לבדיקה ₪") + amount; msg.textContent = err.message; });
+  };
+  $("oBody").replaceChildren(
+    el("div", { className: "shh" },
+      el("div", {}, el("small", { textContent: `${o.recipient || ""} · ${splitAddr(o.address)[0]} · ₪${amount}` }), el("h2", { textContent: "שולם · להוציא קבלה?" })),
+      aria(el("button", { type: "button", className: "ib", onclick: closeOrder }, ico("x", "s")), "סגירה")),
+    live ? null : el("p", { className: "pdTest", textContent: "מצב בדיקה: תוצג קבלה לדוגמה בלבד. לא יוצאת קבלה אמיתית." }),
+    el("p", { className: "etaHint", textContent: "איך שילמו?" }), el("div", { className: "pkChips" }, ...chips),
+    el("p", { className: "etaHint", textContent: "לשלוח את הקבלה ל־" }), email, msg, go, skip);
+  document.body.classList.add("sheetOpen");
+}
+function showRcptDone(o, title, sub, href, shareUrl) {
+  const wa = shareUrl && o.phone ? el("a", { className: "etaSkip", target: "_blank",
+    href: "https://wa.me/972" + String(o.phone).replace(/\D/g, "").replace(/^0/, "") + "?text=" + encodeURIComponent("הקבלה על המשלוח: " + shareUrl), textContent: "שליחת הקבלה בווצאפ" }) : null;
+  $("oBody").replaceChildren(
+    el("div", { className: "shh" }, el("div", {}, el("small", { textContent: `${o.recipient || ""} · #${o.no}` }), el("h2", { textContent: "✓ " + title })),
+      aria(el("button", { type: "button", className: "ib", onclick: closeOrder }, ico("x", "s")), "סגירה")),
+    el("p", { className: "etaHint", textContent: sub }),
+    href ? el("a", { className: "etaGo pdOpen", href, target: "_blank", rel: "noopener", textContent: "פתיחת הקבלה" }) : null, wa);
+}
 function setPaid(o, paid, btn) {
   btn.disabled = true;
   fetch(SHEET_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "setPaid", key, no: o.no, paid }) })
