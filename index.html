@@ -519,13 +519,22 @@ a.bitGo .bgt small{font-size:13px;font-weight:500;opacity:.8}
 .payCard.bitMode{padding:14px}
 .payCard.bitMode a.bitGo{margin:0}
 .bitCap{font-size:13px;color:var(--mu);text-align:center;margin-top:8px}
-#floorBox input::placeholder{color:#b9b9c2;font-weight:400;font-size:15px}
+#floorBox input::placeholder,#pFloor::placeholder,#pApt::placeholder{color:#b9b9c2;font-weight:400;font-size:15px}
 .trk .st.sNow b{color:#8a8a93}.trk .st.sNow small{display:block;color:var(--ac);font-weight:600;font-size:11.5px;margin-top:1px}
 .floorTip{font-size:12.5px;color:var(--mu);margin:-4px 2px 4px}
 /* פונט אחד בכל המסכים: Rubik – גם בכפתורים ובשדות */
 button,input,select,textarea{font-family:Rubik,Heebo,system-ui,sans-serif}
 header .lg,header .ht{cursor:pointer;-webkit-tap-highlight-color:transparent}
 #emailBox{margin-top:12px}#pEmail{text-align:right}#pEmail:placeholder-shown{direction:rtl}
+.row31{display:grid;grid-template-columns:2fr 1fr;gap:10px}
+.row31 .f{min-width:0}
+/* קומה · דירה · בית פרטי */
+.fl3{display:grid;grid-template-columns:1fr 1fr auto;gap:10px}
+.fl3 .f{min-width:0}
+.houseBtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:84px;margin:0 0 10px;border:0;border-radius:14px;background:var(--fill);color:#444;font:inherit;font-size:13.5px;font-weight:600;padding:6px 8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.houseBtn .hi{font-size:20px;line-height:1}
+.fl3.priv{grid-template-columns:1fr}.fl3.priv .f{display:none}
+.fl3.priv .houseBtn{flex-direction:row;gap:8px;min-height:52px;background:var(--ac-soft);color:var(--ac);box-shadow:inset 0 0 0 2px var(--ac)}
 </style>
 </head>
 <body>
@@ -554,9 +563,26 @@ header .lg,header .ht{cursor:pointer;-webkit-tap-highlight-color:transparent}
       <div class="f"><label for="pName">שם / שם העסק</label>
       <input id="pName" autocomplete="organization" required>
       <div class="errmsg">נא למלא שם</div></div>
-      <div class="f"><label for="pAddr">כתובת איסוף (רחוב, מספר, עיר)</label>
-      <input id="pAddr" autocomplete="street-address" required>
-      <div class="errmsg">נא למלא כתובת איסוף</div></div>
+      <div class="row31">
+      <div class="f"><label for="pStreet">רחוב</label>
+      <input id="pStreet" autocomplete="address-line1" required>
+      <div class="errmsg">נא למלא רחוב</div></div>
+      <div class="f"><label for="pNum">מספר</label>
+      <input id="pNum" inputmode="text" maxlength="8" autocomplete="off" required>
+      <div class="errmsg">חובה</div></div>
+      </div>
+      <div class="f"><label for="pCity">עיר</label>
+      <input id="pCity" list="cityList" autocomplete="address-level2" required>
+      <div class="errmsg">נא למלא עיר</div></div>
+      <datalist id="cityList"></datalist>
+      <input type="hidden" id="pAddr">
+      <div class="fl3" id="pFl">
+      <div class="f"><label for="pFloor">קומה</label>
+      <input id="pFloor" inputmode="numeric" maxlength="10" autocomplete="off"></div>
+      <div class="f"><label for="pApt">דירה</label>
+      <input id="pApt" inputmode="numeric" maxlength="10" autocomplete="off"></div>
+      <button type="button" class="houseBtn" data-k="p" aria-pressed="false"><span class="hi">🏠</span><span class="ht">בית פרטי</span></button>
+      </div>
       <div class="f"><label for="pPhone">טלפון</label>
       <input id="pPhone" type="tel" inputmode="tel" autocomplete="tel" required>
       <div class="errmsg">מספר טלפון לא תקין</div></div>
@@ -578,23 +604,25 @@ header .lg,header .ht{cursor:pointer;-webkit-tap-highlight-color:transparent}
       <input id="dName" list="recipients" autocomplete="off" required>
       <datalist id="recipients"></datalist>
       <div class="errmsg">נא למלא שם מקבל</div></div>
-      <div class="row2">
-      <div class="f"><label for="dAddr">רחוב ומספר</label>
-      <input id="dAddr" required>
-      <div class="errmsg">נא למלא כתובת</div></div>
+      <div class="row31">
+      <div class="f"><label for="dStreet">רחוב</label>
+      <input id="dStreet" autocomplete="off" required>
+      <div class="errmsg">נא למלא רחוב</div></div>
+      <div class="f"><label for="dNum">מספר</label>
+      <input id="dNum" inputmode="text" maxlength="8" autocomplete="off" required>
+      <div class="errmsg">חובה</div></div>
+      </div>
+      <input type="hidden" id="dAddr">
       <div class="f"><label for="dPhone">טלפון המקבל</label>
       <input id="dPhone" type="tel" inputmode="tel" required>
       <div class="errmsg">טלפון לא תקין</div></div>
-      </div>
-      <div class="row2" id="floorBox">
+      <div class="fl3" id="floorBox">
       <div class="f"><label for="dFloor">קומה</label>
-      <input id="dFloor" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="בית פרטי – 0">
-</div>
+      <input id="dFloor" inputmode="numeric" maxlength="10" autocomplete="off"></div>
       <div class="f"><label for="dApt">דירה</label>
-      <input id="dApt" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="בית פרטי – 0">
-</div>
+      <input id="dApt" inputmode="numeric" maxlength="10" autocomplete="off"></div>
+      <button type="button" class="houseBtn" data-k="d" aria-pressed="false"><span class="hi">🏠</span><span class="ht">בית פרטי</span></button>
       </div>
-      <div class="floorTip">לא יודעים קומה או דירה? אפשר להשאיר ריק</div>
     </section>
 
     <section class="card">
@@ -873,7 +901,7 @@ const CONFIG = {
       }
       // התשובה הגיעה אחרי שהדף כבר נפתח עם מחירון ישן – טוענים מחדש פעם אחת עם המחירון העדכני
       if (sig(cfg) === usedKey) { try { sessionStorage.removeItem(RELOADED); } catch (e) {} return; }
-      const typed = ["dName", "dAddr", "dPhone"].some(id => { const el = document.getElementById(id); return el && el.value.trim(); });
+      const typed = ["dName", "dStreet", "dPhone"].some(id => { const el = document.getElementById(id); return el && el.value.trim(); });
       let already = false; try { already = !!sessionStorage.getItem(RELOADED); } catch (e) {}
       if (!typed && !already) {
         try { sessionStorage.setItem(RELOADED, "1"); } catch (e) {}
@@ -997,12 +1025,42 @@ $("payChips").addEventListener("change", updPay);
 const opt = t => { const o = document.createElement("option"); o.value = o.textContent = t; return o; };
 $("dCity").replaceChildren(Object.assign(opt("בחרו יעד…"), { value: "" }),
   ...DESTS.map(d => opt(d.label)), opt(OTHER_CITY));
+// עיר האיסוף – השלמה אוטומטית מהערים שבמחירון
+$("cityList").replaceChildren(...[...new Set(DESTS.map(d => String(d.city || d.label).split(",").pop().trim()).filter(Boolean))].map(c => Object.assign(document.createElement("option"), { value: c })));
 
+// כתובת בשדות נפרדים (רחוב · מספר · עיר) – נשמרת כמו קודם כטקסט אחד: "הרצל 12, קרית אתא"
+const numOf = n => String(n).trim();
+// "בית פרטי": כפתור ליד קומה ודירה – מסתיר אותם ושומר 0/0 (= "בית פרטי" בהודעה לארי)
+function setHouse(k, on) {
+  const row = $(k === "p" ? "pFl" : "floorBox"), f = $(k + "Floor"), a = $(k + "Apt"), b = row.querySelector(".houseBtn");
+  row.classList.toggle("priv", on); b.setAttribute("aria-pressed", on);
+  b.querySelector(".ht").textContent = on ? "בית פרטי ✓" : "בית פרטי";
+  if (on) { f.value = "0"; a.value = "0"; } else if (f.value === "0" && a.value === "0") { f.value = ""; a.value = ""; }
+}
+document.querySelectorAll(".houseBtn").forEach(b => b.addEventListener("click", () => setHouse(b.dataset.k, !b.closest(".fl3").classList.contains("priv"))));
+const syncHouse = () => ["p", "d"].forEach(k => setHouse(k, $(k + "Floor").value === "0" && $(k + "Apt").value === "0"));
+function syncAddr() {
+  $("pAddr").value = [[$("pStreet").value.trim(), numOf($("pNum").value)].filter(Boolean).join(" "), $("pCity").value.trim()].filter(Boolean).join(", ");
+  $("dAddr").value = [$("dStreet").value.trim(), numOf($("dNum").value)].filter(Boolean).join(" ");
+}
+const splitStreet = t => { const m = /^(.*?)\s+(\d+[א-ת]?(?:\/\d+)?)$/.exec(String(t || "").trim()); return m ? [m[1], m[2]] : [String(t || "").trim(), ""]; };
+function setP(full) { const [st, ...c] = String(full || "").split(","); const [a, b] = splitStreet(st); $("pStreet").value = a; $("pNum").value = b; $("pCity").value = c.join(",").trim(); syncAddr(); }
+function setD(street) { const [a, b] = splitStreet(street); $("dStreet").value = a; $("dNum").value = b; syncAddr(); }
+["pStreet", "pNum", "pCity", "dStreet", "dNum"].forEach(id => $(id).addEventListener("input", syncAddr));
+// קומה ודירה → טקסט: 0 ו-0 = "בית פרטי" · ריק = אזהרה לארי (או כלום, בתצוגה ללקוח)
+function floorOf(f, a, quiet) {
+  const fl = String(f || "").trim(), ap = String(a || "").trim();
+  if (!fl && !ap) return quiet ? "" : "⚠️ קומה ודירה לא צוינו";
+  if (/^0+$/.test(fl || "0") && /^0+$/.test(ap || "0")) return "בית פרטי";
+  return [fl && "קומה " + fl, ap && "דירה " + ap].filter(Boolean).join(" · ");
+}
 /* ---------- זכור אותי ---------- */
 try {
   const saved = JSON.parse(localStorage.getItem(pickKey()) || "null");
   if (saved && !CUSTOMER && !saved.code) {
-    ["pName", "pAddr", "pPhone"].forEach(k => { if (saved[k]) $(k).value = saved[k]; });
+    ["pName", "pPhone", "pFloor", "pApt"].forEach(k => { if (saved[k]) $(k).value = saved[k]; });
+    if (saved.pAddr) setP(saved.pAddr);
+    syncHouse();
   }
   if (saved && saved.pay) { const r = document.querySelector(`input[name=pay][value="${saved.pay}"]`); if (r) r.checked = true; }
   if (saved && CUSTOMER && saved.code === CUSTOMER_CODE && saved.pPhone) $("pPhone").value = saved.pPhone;
@@ -1014,7 +1072,7 @@ if (!CUSTOMER && $("pName").value.trim() && $("pAddr").value.trim() &&
     /^0\d{8,9}$/.test($("pPhone").value.replace(/\D/g, "").replace(/^972/, "0"))) {
   $("pickupCard").style.display = "none";
   const hp = document.querySelector("header p"), sp = document.createElement("span");
-  sp.className = "pt"; sp.textContent = "איסוף: " + $("pAddr").value.trim();
+  sp.className = "pt"; sp.textContent = "איסוף: " + [$("pAddr").value.trim(), floorOf($("pFloor").value, $("pApt").value, true)].filter(Boolean).join(" · ");
   const ch = document.createElement("button");
   ch.type = "button"; ch.className = "hchg"; ch.id = "pickEdit"; ch.textContent = "שינוי";
   ch.onclick = () => showPickup();
@@ -1023,7 +1081,7 @@ if (!CUSTOMER && $("pName").value.trim() && $("pAddr").value.trim() &&
 
 if (CUSTOMER) {
   $("pName").value = CUSTOMER.name || "";
-  $("pAddr").value = CUSTOMER.addr || "";
+  setP(CUSTOMER.addr || "");
   if (CUSTOMER.phone) $("pPhone").value = CUSTOMER.phone;
   document.querySelector("header h1").textContent = CUSTOMER.title || CUSTOMER.name || "Aria delivery";
   document.querySelector("header p").textContent = CUSTOMER.title
@@ -1240,7 +1298,7 @@ setTimeout(function payReturn() {           // אחרי שכל הדף נטען (
   if (paidNo) { showDone(rec, ""); paintTrack("ממתין לתשלום"); setTimeout(pollTrack, 2500); return; }
   $("dName").value = rec.recipient || ""; $("dPhone").value = rec.recipientPhone || "";
   if ([...$("dCity").options].some(o => o.value === rec.dest)) $("dCity").value = rec.dest;
-  $("dAddr").value = String(rec.address || "").split(", ")[0];
+  setD(String(rec.address || "").split(", ")[0]);
   const cc = document.querySelector(`input[name=pay][value="${CC}"]`); if (cc) { cc.checked = true; updPay(); }   // חוזרים לאשראי
   showPrice(); updDest();
   payProblem("התשלום לא הושלם – אפשר לנסות שוב");
@@ -1256,14 +1314,15 @@ function validate() {
   // איסוף קבוע (מוגדר בדף הניהול) – השדות מוסתרים מהלקוח, לכן לא בודקים אותם
   const fixedPick = CUSTOMER && CUSTOMER.fixedPickup;
   const nameOpt = CUSTOMER && CUSTOMER.nameOptional;
-  (fixedPick ? ["dName", "dAddr", "dCity"] : ["pName", "pAddr", "dName", "dAddr", "dCity"])
+  syncAddr();
+  (fixedPick ? ["dName", "dStreet", "dNum", "dCity"] : ["pName", "pStreet", "pNum", "pCity", "dName", "dStreet", "dNum", "dCity"])
     .filter(id => !(nameOpt && id === "dName"))
     .forEach(id => { ok = check(id, $(id).value.trim() !== "") && ok; });
   if (!fixedPick) ok = check("pPhone", phoneOk($("pPhone").value)) && ok;
   ok = check("dPhone", phoneOk($("dPhone").value)) && ok;
   const em = $("pEmail").value.trim(); ok = check("pEmail", !em || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) && ok;
   // פרטי האיסוף מוסתרים (שורה למעלה) אבל משהו בהם חסר – פותחים אותם
-  if (!fixedPick && $("pickupCard").style.display === "none" && ["pName", "pAddr", "pPhone"].some(id => $(id).classList.contains("bad"))) showPickup();
+  if (!fixedPick && $("pickupCard").style.display === "none" && ["pName", "pStreet", "pNum", "pCity", "pPhone"].some(id => $(id).classList.contains("bad"))) showPickup();
   if (val("when") === WHEN[2]) {
     syncWhen(); ok = check("wtTime", $("whenTime").value !== "" && new Date($("whenTime").value).getTime() > Date.now() - 5 * 60000) && ok;
     if (wtRange) ok = check("wtTo", $("wtTo").value !== "" && $("wtTo").value > $("wtTime").value) && ok;
@@ -1299,6 +1358,7 @@ $("orderForm").addEventListener("submit", e => {
     when = `מתוזמן – ${pad(t.getDate())}/${pad(t.getMonth() + 1)} ${pad(t.getHours())}:${pad(t.getMinutes())}${$("whenTo").value ? "–" + $("whenTo").value : ""}`;
   }
 
+  const pickFloor = CUSTOMER && CUSTOMER.fixedPickup ? "" : floorOf($("pFloor").value, $("pApt").value);
   const lines = [
     `🚙 *הזמנה חדשה – Aria delivery · ארי משלוחים*`,
     ...(CUSTOMER ? [`${AGREED ? "🤝 *לקוח הסכם" : "⭐ *לקוח"}: ${CUSTOMER.name}*`] : []),
@@ -1307,6 +1367,7 @@ $("orderForm").addEventListener("submit", e => {
     ``,
     `📦 *איסוף:* ${$("pName").value.trim()}`,
     `${$("pAddr").value.trim()}`,
+    ...(pickFloor ? [pickFloor] : []),
     `📞 ${$("pPhone").value.trim()}`,
     `🗺 ${waze($("pAddr").value.trim())}`,
     ``,
@@ -1322,9 +1383,7 @@ $("orderForm").addEventListener("submit", e => {
       : price !== null ? `💵 מחיר: ₪${price}` : `💵 מחיר: לתיאום (${label})`,
   ];
   // קומה ודירה – נכנסים לתחילת ההערות לשליח (מופיעים לארי בכרטיס ובהודעה)
-  const fl = $("dFloor").value.trim(), ap = $("dApt").value.trim();
-  const floorTxt = !fl && !ap ? "⚠️ קומה ודירה לא צוינו"
-    : /^0+$/.test(fl || "0") && /^0+$/.test(ap || "0") ? "בית פרטי" : [fl && "קומה " + fl, ap && "דירה " + ap].filter(Boolean).join(" · ");
+  const floorTxt = floorOf($("dFloor").value, $("dApt").value);
   const notes = [floorTxt, $("notes").value.trim()].filter(Boolean).join(" · ");
   if (notes) lines.push(`📝 ${notes}`);
 
@@ -1332,7 +1391,7 @@ $("orderForm").addEventListener("submit", e => {
     if ($("remember").checked) {
       localStorage.setItem(pickKey(), JSON.stringify(CUSTOMER
         ? { code: CUSTOMER_CODE, pPhone: $("pPhone").value.trim(), pay: val("pay"), email: $("pEmail").value.trim() }
-        : { pName: $("pName").value.trim(), pAddr: $("pAddr").value.trim(),
+        : { pName: $("pName").value.trim(), pAddr: $("pAddr").value.trim(), pFloor: $("pFloor").value.trim(), pApt: $("pApt").value.trim(),
             pPhone: $("pPhone").value.trim(), pay: val("pay"), email: $("pEmail").value.trim() }));
     } else localStorage.removeItem(pickKey());
   } catch (e) {}
@@ -1342,7 +1401,7 @@ $("orderForm").addEventListener("submit", e => {
   const record = {
     no: orderNo, time: now.toISOString(),
     customer: CUSTOMER ? CUSTOMER.name : "לקוח מזדמן – " + $("pName").value.trim(),
-    pickup: $("pAddr").value.trim(), pickupPhone: $("pPhone").value.trim(),
+    pickup: [$("pAddr").value.trim(), pickFloor].filter(Boolean).join(" · "), pickupPhone: $("pPhone").value.trim(),
     recipient: $("dName").value.trim(), dest: label, address: destLine, recipientPhone: $("dPhone").value.trim(),
     item: itemVal(), when,
     pay: isOnline() ? PAY_ONLINE : isPre() ? val("pay") + " (מראש)" : val("pay"),
@@ -1961,12 +2020,12 @@ function renderRecipients() {
   $("recBox").style.display = all.length ? "" : "none";
 }
 function useRecipient(r) {
-  $("dName").value = r.name; $("dAddr").value = r.street; $("dPhone").value = r.phone || "";
-  $("dFloor").value = r.floor || ""; $("dApt").value = r.apt || "";
+  $("dName").value = r.name; setD(r.street); $("dPhone").value = r.phone || "";
+  $("dFloor").value = r.floor || ""; $("dApt").value = r.apt || ""; syncHouse();
   if ([...$("dCity").options].some(o => o.value === r.label)) $("dCity").value = r.label;
   showPrice();
-  ["dName", "dAddr", "dPhone", "dCity"].forEach(id => $(id).classList.remove("bad"));
-  [$("destBtn"), ...["dName", "dAddr", "dPhone"].map(id => $(id).closest(".f"))].forEach(el => {
+  ["dName", "dStreet", "dNum", "dPhone", "dCity"].forEach(id => $(id).classList.remove("bad"));
+  [$("destBtn"), ...["dName", "dStreet", "dNum", "dPhone"].map(id => $(id).closest(".f"))].forEach(el => {
     if (!el) return; el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
   });
 }
@@ -1977,7 +2036,8 @@ $("dName").addEventListener("input", () => {
 });
 
 function resetForm() {
-  ["dName", "dAddr", "dPhone", "dFloor", "dApt", "notes", "greeting", "whenTime", "wtTime", "wtTo", "whenTo"].forEach(id => $(id).value = "");
+  ["dName", "dAddr", "dStreet", "dNum", "dPhone", "dFloor", "dApt", "notes", "greeting", "whenTime", "wtTime", "wtTo", "whenTo"].forEach(id => $(id).value = "");
+  syncHouse();
   $("dCity").value = ""; showPrice(); if ($("whenSched")) $("whenSched").textContent = ""; setWtRange(false);
   $("notesBox").style.display = "none"; $("notesLink").style.display = "";
 }
