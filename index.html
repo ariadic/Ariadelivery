@@ -576,11 +576,11 @@ h2.sh .shi{width:34px;height:34px;border-radius:50%;background:var(--ac-soft);co
 
     <section class="card" id="pickupCard">
       <h2 class="sh"><span class="shi"><svg class="ic"><use href="#i-package"/></svg></span>מקום האיסוף</h2>
-      <div class="f wi" id="pCityF"><svg class="ic fi"><use href="#i-map"/></svg><label for="pCity">עיר</label>
+      <div class="f" id="pCityF"><label for="pCity">עיר</label>
       <input id="pCity" list="cityList" autocomplete="address-level2" required><div class="errmsg">נא למלא עיר</div></div>
       <datalist id="cityList"></datalist>
       <div class="row31">
-      <div class="f wi" id="pStreetF"><svg class="ic fi"><use href="#i-map-pin"/></svg><label for="pStreet">רחוב</label>
+      <div class="f" id="pStreetF"><label for="pStreet">רחוב</label>
       <input id="pStreet" autocomplete="address-line1" required><div class="errmsg">נא למלא רחוב</div></div>
       <div class="f" id="pNumF"><label for="pNum">מספר בניין</label>
       <input id="pNum" inputmode="text" maxlength="8" autocomplete="off" required><div class="errmsg">חובה</div></div>
@@ -590,25 +590,25 @@ h2.sh .shi{width:34px;height:34px;border-radius:50%;background:var(--ac-soft);co
       <select id="pType"><option value="apt">דירה / בית</option><option value="office">משרד</option><option value="hotel">מלון</option><option value="other">אחר</option></select>
       <svg class="ic chevd"><use href="#i-chevron-down"/></svg></div>
       <div class="row2" id="pDet">
-      <div class="f wi" id="pPlaceF"><svg class="ic fi"><use href="#i-briefcase"/></svg><label for="pPlace">שם החברה</label>
+      <div class="f" id="pPlaceF"><label for="pPlace">שם החברה</label>
       <input id="pPlace" maxlength="60" autocomplete="off"></div>
-      <div class="f wi" id="pFloorF"><svg class="ic fi"><use href="#i-layers"/></svg><label for="pFloor">קומה</label>
+      <div class="f" id="pFloorF"><label for="pFloor">קומה</label>
       <input id="pFloor" inputmode="numeric" maxlength="10" autocomplete="off"></div>
-      <div class="f wi" id="pAptF"><svg class="ic fi"><use href="#i-door-closed"/></svg><label for="pApt">דירה</label>
+      <div class="f" id="pAptF"><label for="pApt">דירה</label>
       <input id="pApt" inputmode="text" maxlength="10" autocomplete="off"></div>
       </div>
       <div class="row2">
-      <div class="f wi" id="pEntF"><svg class="ic fi"><use href="#i-door-open"/></svg><label for="pEnt">כניסה</label>
+      <div class="f" id="pEntF"><label for="pEnt">כניסה</label>
       <input id="pEnt" maxlength="20" autocomplete="off"></div>
-      <div class="f wi" id="pCodeF"><svg class="ic fi"><use href="#i-key-round"/></svg><label for="pCode">קוד כניסה</label>
+      <div class="f" id="pCodeF"><label for="pCode">קוד כניסה</label>
       <input id="pCode" maxlength="20" autocomplete="off"></div>
       </div>
-      <div class="f wi" id="pNoteF"><svg class="ic fi"><use href="#i-message-square-text"/></svg><label for="pNote">הוראות לשליח</label>
+      <div class="f" id="pNoteF"><label for="pNote">הוראות לשליח</label>
       <textarea id="pNote" rows="2" maxlength="300"></textarea></div>
       <h3 class="sub3">השולח</h3>
-      <div class="f wi" id="pNameF"><svg class="ic fi"><use href="#i-user"/></svg><label for="pName">שם השולח</label>
+      <div class="f" id="pNameF"><label for="pName">שם השולח</label>
       <input id="pName" autocomplete="organization" required><div class="errmsg">נא למלא שם</div></div>
-      <div class="f wi" id="pPhoneF"><svg class="ic fi"><use href="#i-phone"/></svg><label for="pPhone">טלפון</label>
+      <div class="f" id="pPhoneF"><label for="pPhone">טלפון</label>
       <input id="pPhone" type="tel" inputmode="tel" autocomplete="tel" required><div class="errmsg">מספר טלפון לא תקין</div></div>
       <label class="check" id="rememberRow"><input type="checkbox" id="remember" checked> לזכור את פרטי האיסוף שלי לפעם הבאה</label>
     </section>
@@ -625,7 +625,7 @@ h2.sh .shi{width:34px;height:34px;border-radius:50%;background:var(--ac-soft);co
         <div class="errmsg">נא לבחור יעד</div>
       </div>
       <div class="row31">
-      <div class="f wi" id="dStreetF"><svg class="ic fi"><use href="#i-map-pin"/></svg><label for="dStreet">רחוב</label>
+      <div class="f" id="dStreetF"><label for="dStreet">רחוב</label>
       <input id="dStreet" autocomplete="off" required><div class="errmsg">נא למלא רחוב</div></div>
       <div class="f" id="dNumF"><label for="dNum">מספר בניין</label>
       <input id="dNum" inputmode="text" maxlength="8" autocomplete="off" required><div class="errmsg">חובה</div></div>
@@ -635,27 +635,27 @@ h2.sh .shi{width:34px;height:34px;border-radius:50%;background:var(--ac-soft);co
       <select id="dType"><option value="apt">דירה / בית</option><option value="office">משרד</option><option value="hotel">מלון</option><option value="other">אחר</option></select>
       <svg class="ic chevd"><use href="#i-chevron-down"/></svg></div>
       <div class="row2" id="dDet">
-      <div class="f wi" id="dPlaceF"><svg class="ic fi"><use href="#i-briefcase"/></svg><label for="dPlace">שם החברה</label>
+      <div class="f" id="dPlaceF"><label for="dPlace">שם החברה</label>
       <input id="dPlace" maxlength="60" autocomplete="off"></div>
-      <div class="f wi" id="dFloorF"><svg class="ic fi"><use href="#i-layers"/></svg><label for="dFloor">קומה</label>
+      <div class="f" id="dFloorF"><label for="dFloor">קומה</label>
       <input id="dFloor" inputmode="numeric" maxlength="10" autocomplete="off"></div>
-      <div class="f wi" id="dAptF"><svg class="ic fi"><use href="#i-door-closed"/></svg><label for="dApt">דירה</label>
+      <div class="f" id="dAptF"><label for="dApt">דירה</label>
       <input id="dApt" inputmode="text" maxlength="10" autocomplete="off"></div>
       </div>
       <div class="row2">
-      <div class="f wi" id="dEntF"><svg class="ic fi"><use href="#i-door-open"/></svg><label for="dEnt">כניסה</label>
+      <div class="f" id="dEntF"><label for="dEnt">כניסה</label>
       <input id="dEnt" maxlength="20" autocomplete="off"></div>
-      <div class="f wi" id="dCodeF"><svg class="ic fi"><use href="#i-key-round"/></svg><label for="dCode">קוד כניסה</label>
+      <div class="f" id="dCodeF"><label for="dCode">קוד כניסה</label>
       <input id="dCode" maxlength="20" autocomplete="off"></div>
       </div>
-      <div class="f wi" id="dNoteF"><svg class="ic fi"><use href="#i-message-square-text"/></svg><label for="dNote">הוראות לשליח</label>
+      <div class="f" id="dNoteF"><label for="dNote">הוראות לשליח</label>
       <textarea id="dNote" rows="2" maxlength="300"></textarea></div>
       <h3 class="sub3">המקבל</h3>
-      <div class="f wi" id="dNameF"><svg class="ic fi"><use href="#i-user"/></svg><label for="dName">שם המקבל</label>
+      <div class="f" id="dNameF"><label for="dName">שם המקבל</label>
       <input id="dName" list="recipients" autocomplete="off" required>
       <datalist id="recipients"></datalist>
       <div class="errmsg">נא למלא שם מקבל</div></div>
-      <div class="f wi" id="dPhoneF"><svg class="ic fi"><use href="#i-phone"/></svg><label for="dPhone">טלפון המקבל</label>
+      <div class="f" id="dPhoneF"><label for="dPhone">טלפון המקבל</label>
       <input id="dPhone" type="tel" inputmode="tel" required><div class="errmsg">טלפון לא תקין</div></div>
     </section>
 
