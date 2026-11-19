@@ -443,6 +443,27 @@ button.hcancel{min-height:44px;padding:10px 12px!important}
 .hh{min-height:64px}
 /* יישור לגריד: כותרות הסעיפים על אותו קו כמו הכרטיסים (16 מהקצה) */
 label.lab,#orderForm .card > h2,#orderForm > section > h2{margin-right:0;margin-left:0;padding-right:0;padding-left:0}
+/* "מתי?": שלוש אפשרויות ברורות, ו"עד שעה" עם היום / מחר / תאריך אחר */
+#whenChips.whenList{display:flex;flex-direction:column;background:none;padding:0;gap:8px}
+#whenChips.whenList label{flex:none;display:flex;align-items:center;gap:12px;justify-content:flex-start;text-align:right;min-height:56px;padding:10px 14px;border-radius:16px;background:var(--fill);box-shadow:none;font-size:15px}
+#whenChips.whenList label .rad{flex:none;width:20px;height:20px;border-radius:50%;box-shadow:inset 0 0 0 2px #c4c4cc}
+#whenChips.whenList label .wt{flex:1;min-width:0}#whenChips.whenList label .wt b{display:block;font-weight:700}
+#whenChips.whenList label .wt small{display:block;font-size:12.5px;color:var(--mu);font-weight:400;margin-top:1px}
+#whenChips.whenList label > .ic{flex:none;color:#888}
+#whenChips.whenList label em{font-size:14px}
+#whenChips.whenList input:checked + label{background:var(--ac-soft);box-shadow:inset 0 0 0 2px var(--ac);color:var(--tx)}
+#whenChips.whenList input:checked + label .rad{box-shadow:inset 0 0 0 6px var(--ac)}
+#whenChips.whenList input:checked + label b,#whenChips.whenList input:checked + label > .ic{color:var(--ac)}
+#whenChips.whenList label.dis{opacity:.5;pointer-events:none}#whenChips.whenList label.dis small{color:#9a3412}
+#whenTimeBox{background:#fff;border-radius:16px;box-shadow:0 0 0 1px var(--ln);padding:10px;margin-top:8px}
+.wtDays{display:flex;gap:6px;margin-bottom:10px}
+.wtDays button{flex:1;width:auto;margin:0;min-height:44px;border:0;border-radius:12px;background:var(--fill);color:var(--tx);font:inherit;font-size:14px;font-weight:500;box-shadow:none}
+.wtDays button.on{background:#111;color:#fff;font-weight:700}
+#whenTimeBox .f{margin-bottom:0}#wtDateBox{margin-bottom:8px!important}
+.etaBig.due .eIc{background:#111;color:#fff}
+.qty{display:flex;align-items:center;gap:14px;background:var(--fill);border-radius:16px;padding:6px;width:max-content}
+.qty button{width:48px;height:48px;margin:0;border:0;border-radius:12px;background:#fff;color:var(--tx);font:600 24px/1 inherit;box-shadow:0 1px 3px #0001;cursor:pointer;padding:0}
+.qty button:disabled{opacity:.35}.qty b{min-width:28px;text-align:center;font-size:22px}.qty span{color:var(--mu);font-size:14px;padding-left:10px}
 </style>
 </head>
 <body>
@@ -514,12 +535,15 @@ label.lab,#orderForm .card > h2,#orderForm > section > h2{margin-right:0;margin-
     <section class="card">
       <label class="lab" id="sizeLabel">מה שולחים?</label>
       <div class="chips" id="sizeChips"></div>
+      <div class="qty" id="qtyBox" style="display:none"><button type="button" id="qtyMinus" aria-label="פחות">−</button><b id="qtyN">1</b><button type="button" id="qtyPlus" aria-label="עוד">+</button><span>פריטים</span></div>
       <label class="lab">מתי?</label>
       <div class="chips" id="whenChips"></div>
       <div id="whenTimeBox" style="display:none">
-        <div class="f" style="margin-top:10px"><label for="whenTime">מועד מבוקש</label>
-        <input id="whenTime" type="datetime-local">
-        <div class="errmsg">נא לבחור מועד עתידי</div></div>
+        <div class="wtDays" id="wtDays"><button type="button" data-d="0" class="on">היום</button><button type="button" data-d="1">מחר</button><button type="button" data-d="x">תאריך אחר</button></div>
+        <div class="f" id="wtDateBox" style="display:none"><label for="wtDate">תאריך</label><input id="wtDate" type="date"></div>
+        <div class="f wtTimeF"><label for="wtTime">להגיע עד</label><input id="wtTime" type="time" step="300">
+        <div class="errmsg">נא לבחור שעה שעוד לא עברה</div></div>
+        <input type="hidden" id="whenTime">
       </div>
       <div id="payBox">
         <label class="lab">איך משלמים?</label>
@@ -557,6 +581,7 @@ label.lab,#orderForm .card > h2,#orderForm > section > h2{margin-right:0;margin-
         <div class="st"><span class="sd"><svg class="ic s"><use href="#i-truck"/></svg></span><b>נאספה</b><small></small></div>
         <div class="st"><span class="sd"><svg class="ic s"><use href="#i-package-check"/></svg></span><b>נמסרה</b><small></small></div>
       </div>
+      <div class="etaBig due" id="dueBox" style="display:none"><span class="eIc"><svg class="ic"><use href="#i-calendar-clock"/></svg></span><div><small>צריך להגיע עד</small><b id="dueTime"></b></div></div>
       <div class="etaBig" id="etaBig" style="display:none"><span class="eIc"><svg class="ic"><use id="etaIc" href="#i-clock"/></svg></span><div><small id="etaLbl">זמן הגעה משוער</small><b id="etaTime"></b></div><span class="eLeft" id="etaLeft"></span></div>
       <div class="etaUpd" id="etaUpd" style="display:none"><svg class="ic"><use href="#i-refresh-cw"/></svg><span id="etaUpdT">זמן ההגעה עודכן</span></div>
       <div class="nearBox" id="nearBox" style="display:none"><svg class="ic"><use href="#i-map-pin"/></svg><b>ארי ממש קרוב – עוד כ-5 דקות</b></div>
@@ -723,7 +748,8 @@ const CONFIG = {
     const fix = c => Object.assign({}, c, { prices: c.prices && c.prices.length ? c.prices : undefined,
       sizes: c.sizes && c.sizes.length ? c.sizes : undefined, pay: c.pay || undefined });
     if (code && cfg.customer) CONFIG.customers[code] = fix(cfg.customer);
-    CONFIG.occasionalCash = !!(cfg.defaults && /מזומן/.test(cfg.defaults.pay || ""));   // נקבע בדף הניהול: לקוחות מזדמנים · תשלום
+    CONFIG.occasionalCash = !!(cfg.defaults && /מזומן/.test(cfg.defaults.pay || ""));
+    CONFIG.defaultNoUrgent = !!(cfg.defaults && cfg.defaults.noUrgent);   // נקבע בדף הניהול: לקוחות מזדמנים · תשלום
     if (cfg.defaults && cfg.defaults.prices && cfg.defaults.prices.length) {
       CONFIG.defaultPrices = cfg.defaults.prices;
       CONFIG.urgentExtra = cfg.defaults.urgentExtra || 0;
@@ -786,7 +812,7 @@ const CONFIG = {
 
 function start() {
 const SIZES  = ["מעטפה", "חבילה קטנה", "חבילה גדולה"];
-const WHEN   = ["רגיל", "דחוף ⚡", "מתוזמן"];
+const WHEN   = ["היום", "דחוף ⚡", "עד שעה"];
 // "העברה בנקאית מראש" לא מוצגת ללקוחות – אפשר להגדיר אותה כתשלום קבוע ללקוח שביקש (בדף הניהול)
 const PAY    = ["מזומן (סכום מדויק)", "ביט", "פייבוקס"];
 const PAYER  = ["השולח", "המקבל"];
@@ -809,6 +835,20 @@ const DESTS = CUSTOMER && CUSTOMER.prices
   ? CUSTOMER.prices
   : CONFIG.defaultPrices || Object.entries(CONFIG.cities).map(([c, p]) => ({ label: c, city: c, price: p }));
 const URGENT_EXTRA = CUSTOMER ? (CUSTOMER.urgentExtra || 0) : CONFIG.urgentExtra;
+// אפשרות "דחוף": ארי יכול לכבות ללקוח מסוים (בדף הניהול), או לכולם זמנית ("מקבל דחופים")
+const NO_URGENT = CUSTOMER ? !!CUSTOMER.noUrgent : !!CONFIG.defaultNoUrgent;
+// כמות פריטים במקום "מה שולחים" (מוגדר בדף הניהול, למשל לחוות החיות)
+const QTY = !!(CUSTOMER && CUSTOMER.qty);
+let qtyN = 1;
+const itemVal = () => QTY ? (qtyN === 1 ? "פריט 1" : `${qtyN} פריטים`) : val("size");
+if (QTY) {
+  $("sizeChips").style.display = "none"; $("qtyBox").style.display = "";
+  $("sizeLabel").textContent = "כמה פריטים?";
+  const paint = () => { $("qtyN").textContent = qtyN; $("qtyMinus").disabled = qtyN <= 1; };
+  $("qtyMinus").onclick = () => { if (qtyN > 1) qtyN--; paint(); };
+  $("qtyPlus").onclick = () => { if (qtyN < 99) qtyN++; paint(); };
+  paint();
+}
 const destOf = label => DESTS.find(d => d.label === label) || null;
 
 /* ---------- בניית הטופס ---------- */
@@ -826,8 +866,21 @@ function chipLabel(t) {
   return m ? `${m[1]}<small class="sub">${m[2]}</small>` : t;
 }
 chips("sizeChips", "size", (CUSTOMER && CUSTOMER.sizes) || SIZES, t => ICO(sizeIcon(t)) + `<span>${chipLabel(t)}</span>`);
-chips("whenChips", "when", WHEN, (t, i) => i === 1 ? ICO("zap", "s") + "דחוף" + (URGENT_EXTRA ? `<em>+${URGENT_EXTRA} ₪</em>` : "")
-  : i === 2 ? ICO("calendar-clock", "s") + "מתוזמן" : t);
+const WHEN_TXT = [["היום", "ארי יאשר ויגיד מתי יאסוף", "clock"], ["דחוף", "מגיע עד שעה מרגע האיסוף", "zap"], ["עד שעה מסוימת", "צריך להגיע עד…", "calendar-clock"]];
+chips("whenChips", "when", NO_URGENT ? [WHEN[0], WHEN[2]] : WHEN, t => {
+  const [b, sm, ic] = WHEN_TXT[WHEN.indexOf(t)];
+  const tail = t === WHEN[1] && URGENT_EXTRA ? `<em>+₪${URGENT_EXTRA}</em>` : ICO(ic);
+  return `<span class="rad"></span><span class="wt"><b>${b}</b><small>${sm}</small></span>${tail}`;
+});
+$("whenChips").classList.add("whenList");
+function setUrgentAvailable(on) {           // "מקבל דחופים" כבוי בדף הניהול → "דחוף · לא זמין כרגע"
+  const r = document.querySelector(`input[name=when][value="${WHEN[1]}"]`);
+  if (!r) return;
+  r.disabled = !on;
+  const lb = r.nextElementSibling; lb.classList.toggle("dis", !on);
+  lb.querySelector("small").textContent = on ? WHEN_TXT[1][1] : "לא זמין כרגע";
+  if (!on && r.checked) { document.querySelector("input[name=when]").checked = true; $("whenTimeBox").style.display = "none"; showPrice(); }
+}
 // לקוחות מזדמנים (הדף בלי לינק אישי): ביט / פייבוקס מראש. אם ארי פתח בדף הניהול – גם מזומן
 const CASH_OK = !CUSTOMER && !!CONFIG.occasionalCash;
 const isPre = () => !CUSTOMER && !/מזומן/.test(val("pay"));
@@ -989,7 +1042,26 @@ $("notesLink").addEventListener("click", () => {
 $("hHist").addEventListener("click", () => $("historyBtn").click());
 // מתוזמן: אי אפשר לבחור מועד שעבר
 const localNow = () => { const d = new Date(Date.now() - new Date().getTimezoneOffset() * 60000); return d.toISOString().slice(0, 16); };
-$("whenTime").addEventListener("focus", () => { $("whenTime").min = localNow(); });
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+let wtDay = "0";
+function syncWhen() {
+  const t = $("wtTime").value;
+  let day = new Date();
+  if (wtDay === "1") day.setDate(day.getDate() + 1);
+  const ds = wtDay === "x" ? $("wtDate").value : ymd(day);
+  $("whenTime").value = t && ds ? `${ds}T${t}` : "";
+  $("wtTime").classList.remove("bad");
+}
+$("wtDays").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  wtDay = b.dataset.d;
+  $("wtDays").querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+  $("wtDateBox").style.display = wtDay === "x" ? "" : "none";
+  if (wtDay === "x" && !$("wtDate").value) { const d = new Date(); d.setDate(d.getDate() + 2); $("wtDate").value = ymd(d); }
+  syncWhen();
+});
+["input", "change", "blur"].forEach(ev => { $("wtTime").addEventListener(ev, syncWhen); $("wtDate").addEventListener(ev, syncWhen); });
+$("wtDate").addEventListener("focus", () => { $("wtDate").min = ymd(new Date()); });
 
 function showPickup() {
   $("pickupCard").style.display = "";
@@ -1037,6 +1109,7 @@ function checkAvailability() {
     .then(d => {
       if (!d || typeof d.available !== "boolean") return;          // קוד ישן בגוגל – מתנהגים כרגיל
       arieAvailable = d.available;
+      if (typeof d.urgent === "boolean") setUrgentAvailable(d.urgent);
       const n = $("availNotice");
       n.textContent = d.available ? "" : "ארי לא פנוי כרגע למשלוחים" + (d.message ? ` – ${d.message}` : "");
       n.style.display = d.available ? "none" : "block";
@@ -1061,7 +1134,7 @@ function validate() {
   ok = check("dPhone", phoneOk($("dPhone").value)) && ok;
   // פרטי האיסוף מוסתרים (שורה למעלה) אבל משהו בהם חסר – פותחים אותם
   if (!fixedPick && $("pickupCard").style.display === "none" && ["pName", "pAddr", "pPhone"].some(id => $(id).classList.contains("bad"))) showPickup();
-  if (val("when") === WHEN[2]) ok = check("whenTime", $("whenTime").value !== "" && new Date($("whenTime").value).getTime() > Date.now() - 5 * 60000) && ok;
+  if (val("when") === WHEN[2]) { syncWhen(); ok = check("wtTime", $("whenTime").value !== "" && new Date($("whenTime").value).getTime() > Date.now() - 5 * 60000) && ok; }
   return ok;
 }
 document.querySelectorAll("input,select,textarea").forEach(el => el.addEventListener("input", () => el.classList.remove("bad")));
@@ -1089,8 +1162,8 @@ $("orderForm").addEventListener("submit", e => {
   const price = calcPrice();
   let when = val("when");
   if (when === WHEN[2]) {
-    const t = new Date($("whenTime").value);
-    when += ` – ${pad(t.getDate())}/${pad(t.getMonth() + 1)} ${pad(t.getHours())}:${pad(t.getMinutes())}`;
+    const t = new Date($("whenTime").value), isToday = t.toDateString() === now.toDateString();
+    when = `עד ${isToday ? "" : pad(t.getDate()) + "/" + pad(t.getMonth() + 1) + " "}${pad(t.getHours())}:${pad(t.getMinutes())}`;
   }
 
   const lines = [
@@ -1109,7 +1182,7 @@ $("orderForm").addEventListener("submit", e => {
     `📞 ${$("dPhone").value.trim()}`,
     `🗺 ${waze(fullDest)}`,
     ``,
-    `📏 ${val("size")} | ⏱ ${when}`,
+    `📏 ${itemVal()} | ⏱ ${when}`,
     isPre() ? `💰 ${val("pay")} – תשלום מראש (לבדוק שהתקבל לפני יציאה)`
       : `💰 ${(CUSTOMER && CUSTOMER.pay) || val("pay")}${CUSTOMER && CUSTOMER.hidePayer ? "" : " – משלם " + val("payer")}`,
     AGREED ? `💵 מחיר: לפי הסכם`
@@ -1136,7 +1209,7 @@ $("orderForm").addEventListener("submit", e => {
     customer: CUSTOMER ? CUSTOMER.name : "לקוח מזדמן – " + $("pName").value.trim(),
     pickup: $("pAddr").value.trim(), pickupPhone: $("pPhone").value.trim(),
     recipient: $("dName").value.trim(), dest: label, address: destLine, recipientPhone: $("dPhone").value.trim(),
-    item: val("size"), when,
+    item: itemVal(), when,
     pay: isPre() ? val("pay") + " (מראש)" : (CUSTOMER && CUSTOMER.pay) || val("pay"),
     price: AGREED ? "לפי הסכם" : price !== null ? price : "לתיאום",
     notes, message: text, code: CUSTOMER ? CUSTOMER_CODE : "",
@@ -1144,7 +1217,7 @@ $("orderForm").addEventListener("submit", e => {
 
   saveHistory(record);                     // נשמר במכשיר – אם השליחה תיכשל, הגיבוי ישלח שוב
   saveRecipient({ name: record.recipient, label, street, phone: record.recipientPhone, floor: $("dFloor").value.trim(), apt: $("dApt").value.trim() });
-  lastKept = { size: val("size"), when: val("when") };
+  lastKept = { size: QTY ? "" : val("size"), when: val("when") };
   if (!CONFIG.sheetUrl) {                  // בלי מערכת – ווצאפ כמו פעם
     addPending({ no: orderNo, summary: `${record.recipient} – ${label}`, link: waLink });
     resetForm();
@@ -1218,8 +1291,14 @@ function paintEta(st, eta) {
 // הכותרת הגדולה משתנה לפי השלב
 const DONE_H = { "חדשה": "ההזמנה אצל ארי", "אושרה": "ארי אישר את ההזמנה", "נאסף": "המשלוח בדרך", "נמסר": "המשלוח נמסר",
   "לא פנוי": "ארי לא פנוי הפעם", "בוטלה": "ההזמנה בוטלה" };
+// "עד 14:00" / "עד 19/11 14:00" מתוך "מתי" של ההזמנה
+const dueOf = w => { const m = /^עד (?:(\d{2})\/(\d{2}) )?(\d{1,2}:\d{2})$/.exec(String(w || "")); return m ? { day: m[1] ? `${m[1]}/${m[2]}` : "", time: m[3] } : null; };
+let trackWhen = "";
 function paintTrack(st, eta, steps) {
   paintEta(st, eta);
+  const du = dueOf(trackWhen), showDue = !!du && (st === "חדשה" || st === "אושרה") && !parseEta(eta).time;
+  $("dueBox").style.display = showDue ? "" : "none";
+  if (du) $("dueTime").textContent = (du.day ? du.day + " " : "היום ") + du.time;
   $("doneH").textContent = DONE_H[st] || DONE_H["חדשה"];
   const bad = st === "לא פנוי" || st === "בוטלה";
   document.querySelector("#doneBox .done").classList.toggle("void", bad);
@@ -1255,6 +1334,7 @@ const todayOrders = () => (load(HISTORY_KEY) || []).filter(x => new Date(x.time)
 const money = a => a.reduce((t, x) => t + (typeof x.price === "number" ? x.price : 0), 0);
 
 function showDone(record, waLink) {
+  trackWhen = record.when || "";
   $("doneNo").textContent = `מס' הזמנה ${record.no}`;
   trackCt = record.ct || null;
   $("doneCancel").onclick = () => cancelMyOrder(record.no, record.ct, () => paintTrack("בוטלה"));
@@ -1338,11 +1418,12 @@ window.addEventListener("pageshow", () => { if ($("fallbackBox").style.display =
 // "➕ עוד משלוח": טופס חדש, "מה שולחים" ו"מתי" נשארים כמו בהזמנה הקודמת
 $("doneMore").addEventListener("click", () => {
   if (lastKept) {
+    if (!WHEN.includes(lastKept.when) || lastKept.when === WHEN[2]) lastKept.when = WHEN[0];
     [["size", lastKept.size], ["when", lastKept.when]].forEach(([n, v]) => {
       const r = document.querySelector(`input[name=${n}][value="${v}"]`); if (r) r.checked = true;
     });
     $("whenTimeBox").style.display = val("when") === WHEN[2] ? "block" : "none";
-    $("keptBanner").innerHTML = ICO("history", "s"); $("keptBanner").append(`כמו בפעם הקודמת: ${lastKept.size} · ${String(lastKept.when).replace(/\s*⚡/, "")}`);
+    $("keptBanner").innerHTML = ICO("history", "s"); $("keptBanner").append("כמו בפעם הקודמת: " + [lastKept.size, String(lastKept.when).replace(/\s*⚡/, "")].filter(Boolean).join(" · "));
     $("keptBanner").style.display = "block";
   }
   const today = todayOrders();
@@ -1491,7 +1572,7 @@ function histText(maxLines) {
   const pi = periodInfo(), rows = periodList().filter(x => !VOIDST(stOf(x)));
   const total = rows.reduce((t, x) => t + priceOf(x), 0), paid = rows.filter(x => x.paid === true).reduce((t, x) => t + priceOf(x), 0);
   const lines = rows.slice(0, maxLines).map(x => { const t = new Date(x.time);
-    return `${pad(t.getDate())}/${pad(t.getMonth() + 1)} · ${x.recipient} – ${shortAddr(x.address)} · ${typeof x.price === "number" ? "₪" + x.price : x.price}${x.paid === true ? " ✓" : ""}`; });
+    return `${pad(t.getDate())}/${pad(t.getMonth() + 1)} · ${x.recipient} – ${x.address || ""} · ${typeof x.price === "number" ? "₪" + x.price : x.price}${x.paid === true ? " ✓" : ""}`; });
   return `${bizName() ? bizName() + " – " : ""}משלוחים עם ארי משלוחים · ${pi.label}\n\n📦 ${rows.length} משלוחים · סה״כ ₪${total}\n✅ שולם ₪${paid}` +
     (total - paid ? ` · נשאר ₪${total - paid}` : "") + "\n\n" + lines.join("\n") +
     (rows.length > maxLines ? `\n…ועוד ${rows.length - maxLines}` : "") + "\n\n(✓ = שולם)";
@@ -1507,7 +1588,7 @@ $("histPrint").addEventListener("click", () => {
   const total = valid.reduce((t, x) => t + priceOf(x), 0), paid = valid.filter(x => x.paid === true).reduce((t, x) => t + priceOf(x), 0);
   const esc = v => String(v == null ? "" : v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const tr = rows.map(x => { const t = new Date(x.time), st = stOf(x);
-    return `<tr><td>${pad(t.getDate())}/${pad(t.getMonth() + 1)}</td><td>${esc(x.recipient)}</td><td>${esc(shortAddr(x.address))}</td><td>${esc(x.item)}</td><td>${typeof x.price === "number" ? "₪" + x.price : esc(x.price)}</td><td>${esc(st || "")}</td><td>${x.paid === true ? "✓" : ""}</td></tr>`; }).join("");
+    return `<tr><td>${pad(t.getDate())}/${pad(t.getMonth() + 1)}</td><td>${esc(x.recipient)}</td><td>${esc(x.address || "")}</td><td>${esc(x.item)}</td><td>${typeof x.price === "number" ? "₪" + x.price : esc(x.price)}</td><td>${esc(st || "")}</td><td>${x.paid === true ? "✓" : ""}</td></tr>`; }).join("");
   $("printArea").innerHTML = `<div class="ph-h"><div><b>${esc(bizName() || "ההזמנות שלי")}</b><small>משלוחים עם ארי משלוחים · ${esc(pi.label)}</small></div>` +
     `<div class="tot"><b>${valid.length} משלוחים · ₪${total}</b><small>שולם ₪${paid}${total - paid ? " · נשאר ₪" + (total - paid) : ""}</small></div></div>` +
     `<table><tr><th>תאריך</th><th>מקבל</th><th>יעד</th><th>מה</th><th>מחיר</th><th>סטטוס</th><th>שולם</th></tr>${tr}</table>` +
@@ -1598,7 +1679,9 @@ function paintRow(li, x) {
   const rawDone = parseSteps(histSteps[x.no])["נמסר"] || "", forced = /\*$/.test(rawDone), tDone = rawDone.replace("*", "");
   const doneAt = tDone && tDone !== "-" && (forced || !(CUSTOMER && CUSTOMER.hideDoneTime)) ? tDone : "";
   let head = S ? S.t : "", more = "";
-  if (st === "חדשה") more = "ממתינה לאישור";
+  const du = dueOf(x.when);
+  if (st === "חדשה") more = du ? `צריך להגיע עד ${du.day ? du.day + " " : ""}${du.time}` : "ממתינה לאישור";
+  else if (st === "אושרה" && du && !e.time) more = `צריך להגיע עד ${du.day ? du.day + " " : ""}${du.time}`;
   else if (st === "אושרה") { if (e.time) { head = "ארי בדרך לאיסוף"; more = `בערך ב-${e.time}`; } }
   else if (st === "נאסף") more = e.near ? "ממש קרוב" : e.time ? `מגיע בערך ב-${e.time}` : "";
   else if (st === "נמסר") { if (doneAt) head = `נמסרה ב-${doneAt}`; more = money; }
@@ -1713,7 +1796,7 @@ $("dName").addEventListener("input", () => {
 });
 
 function resetForm() {
-  ["dName", "dAddr", "dPhone", "dFloor", "dApt", "notes", "greeting", "whenTime"].forEach(id => $(id).value = "");
+  ["dName", "dAddr", "dPhone", "dFloor", "dApt", "notes", "greeting", "whenTime", "wtTime"].forEach(id => $(id).value = "");
   $("dCity").value = ""; showPrice();
   $("notesBox").style.display = "none"; $("notesLink").style.display = "";
 }
