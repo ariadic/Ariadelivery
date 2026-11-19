@@ -551,6 +551,12 @@ header .lg,header .ht{cursor:pointer;-webkit-tap-highlight-color:transparent}
 #orderForm .card > h2.sh,h2.sh{display:flex!important;flex-direction:row;align-items:center;gap:10px;font-size:19px}
 h2.sh .shi{width:34px;height:34px;border-radius:50%;background:var(--ac-soft);color:var(--ac);display:grid;place-items:center;flex:none}h2.sh .shi .ic{width:18px;height:18px}
 .sub3{font-size:13px;font-weight:700;color:var(--mu);margin:16px 2px 8px}
+/* אישור תקנון */
+label.terms{display:flex;align-items:flex-start;gap:10px;margin:14px 2px 4px;font-size:14.5px;line-height:1.45;color:#333;cursor:pointer}
+label.terms input{flex:none;width:22px;height:22px;margin:0;accent-color:var(--ac)}
+label.terms a{color:var(--ac);font-weight:600}
+label.terms.bad{box-shadow:none;border:0}label.terms.bad span{color:#be123c}label.terms.bad input{outline:2px solid #e11d48;outline-offset:1px}
+.termsErr{display:none;margin:2px 34px 0 0}
 </style>
 </head>
 <body>
@@ -683,6 +689,8 @@ h2.sh .shi{width:34px;height:34px;border-radius:50%;background:var(--ac-soft);co
         <div class="f" id="emailBox"><label for="pEmail">מייל לקבלה <span class="opt">(לא חובה)</span></label>
         <input id="pEmail" type="email" inputmode="email" autocomplete="email" maxlength="120" dir="ltr">
         <div class="errmsg">מייל לא תקין</div></div>
+        <label class="terms" id="termsRow"><input type="checkbox" id="termsOk"><span>קראתי ואני מאשר/ת את <a href="terms.html" target="_blank" rel="noopener">התקנון ומדיניות הביטולים</a></span></label>
+        <div class="errmsg termsErr" id="termsErr">צריך לאשר את התקנון כדי להמשיך</div>
         <div class="preNote" id="preNote" style="display:none"><svg class="ic s"><use href="#i-wallet"/></svg><span><b>תשלום מראש</b> · פרטי ההעברה יופיעו אחרי השליחה</span></div>
       </div>
 <input type="hidden" id="greeting">
@@ -779,7 +787,7 @@ h2.sh .shi{width:34px;height:34px;border-radius:50%;background:var(--ac-soft);co
 </main>
 
 <footer>
-  Aria delivery · ארי משלוחים · <a href="tel:0504848398">050-4848398</a> · <a href="terms.html">תקנון, פרטיות וביטולים</a>
+  Aria delivery · ארי משלוחים · העצמאות 28, קרית אתא · <a href="tel:0504848398">050-4848398</a> · <a href="terms.html">תקנון, פרטיות וביטולים</a>
 </footer>
 
 <div id="printArea" aria-hidden="true"></div>
@@ -1104,6 +1112,8 @@ function setP(full) { const [st, ...c] = String(full || "").split(","); const [a
 function setD(street) { const [a, b] = splitStreet(street); $("dStreet").value = a; $("dNum").value = b; syncAddr(); }
 ["pStreet", "pNum", "pCity", "dStreet", "dNum"].forEach(id => $(id).addEventListener("input", syncAddr));
 /* ---------- זכור אותי ---------- */
+try { if (localStorage.getItem("ariTermsOk")) $("termsOk").checked = true; } catch (e) {}   // מי שכבר אישר במכשיר הזה
+$("termsOk").addEventListener("change", () => { if ($("termsOk").checked) { $("termsRow").classList.remove("bad"); $("termsErr").style.display = "none"; } });
 try {
   const saved = JSON.parse(localStorage.getItem(pickKey()) || "null");
   if (saved && !CUSTOMER && !saved.code) {
@@ -1370,6 +1380,9 @@ function validate() {
   if (!fixedPick) ok = check("pPhone", phoneOk($("pPhone").value)) && ok;
   ok = check("dPhone", phoneOk($("dPhone").value)) && ok;
   const em = $("pEmail").value.trim(); ok = check("pEmail", !em || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) && ok;
+  // אישור התקנון – חובה לפני הזמנה / תשלום (דרישת חברת הסליקה)
+  const tOk = $("termsOk").checked; $("termsRow").classList.toggle("bad", !tOk); $("termsErr").style.display = tOk ? "none" : "block"; ok = tOk && ok;
+  if (tOk) try { localStorage.setItem("ariTermsOk", "1"); } catch (e) {}
   // פרטי האיסוף מוסתרים (שורה למעלה) אבל משהו בהם חסר – פותחים אותם
   if (!fixedPick && $("pickupCard").style.display === "none" && ["pName", "pStreet", "pNum", "pCity", "pPhone"].some(id => $(id).classList.contains("bad"))) showPickup();
   if (val("when") === WHEN[2]) {
