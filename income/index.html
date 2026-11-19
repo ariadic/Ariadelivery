@@ -70,6 +70,8 @@ td{padding:10px 3px;border-top:1px solid var(--bd)}
 tr.go{cursor:pointer}
 tr.tot td{border-top:2px solid var(--bd);font-weight:600}
 .mut{color:var(--tx2)}
+.dayhead{display:flex;justify-content:space-between;align-items:center;width:100%;padding:9px 10px;margin:6px 0 0;border-radius:8px;background:var(--soft);font-weight:600;font-size:13.5px;text-align:right}
+.dayhead + .row{border-top:0}
 .fab{position:fixed;bottom:max(18px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--pri);color:var(--onpri);border-radius:30px;padding:13px 22px;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 2px 10px rgba(0,0,0,.25)}
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center;z-index:5}
 .sheet{background:var(--card);width:100%;max-width:520px;border-radius:18px 18px 0 0;padding:16px 16px max(16px,env(safe-area-inset-bottom));max-height:94vh;overflow:auto}
@@ -150,13 +152,16 @@ function agg(list){
   return r;
 }
 
-var cur={tab:'month',mi:clampMi(miOf(todayStr()))};
+function clampDay(d){return d<MIN_DATE?MIN_DATE:d>MAX_DATE?MAX_DATE:d}
+function addDays(ds,n){var d=new Date(+ds.slice(0,4),+ds.slice(5,7)-1,+ds.slice(8,10)+n);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+var cur={tab:'month',mi:clampMi(miOf(todayStr())),day:clampDay(todayStr())};
 function readHash(){
   var h=(location.hash||'').slice(1);
   if(h==='year')cur.tab='year';
+  else if(/^day-\d{4}-\d{2}-\d{2}$/.test(h)){cur.tab='day';cur.day=clampDay(h.slice(4))}
   else if(/^month-\d+$/.test(h)){cur.tab='month';cur.mi=clampMi(+h.slice(6))}
 }
-function setHash(){try{history.replaceState(null,'','#'+(cur.tab==='year'?'year':'month-'+cur.mi))}catch(e){}}
+function setHash(){try{history.replaceState(null,'','#'+(cur.tab==='year'?'year':cur.tab==='day'?'day-'+cur.day:'month-'+cur.mi))}catch(e){}}
 readHash();
 window.addEventListener('hashchange',function(){readHash();render()});
 
@@ -167,6 +172,24 @@ var chevR='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="c
 var chevL='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>';
 var plus='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
 var gear='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>';
+
+function rowHtml(e,showDate){
+  return '<button class="row" data-a="edit" data-id="'+esc(e.id)+'"><div><div class="d">'+(showDate?fdate(e.date):'<span class="badge '+e.src+'" style="margin:0">'+(e.src==='w'?'וולט':'פרטי')+'</span>')+(showDate?'<span class="badge '+e.src+'">'+(e.src==='w'?'וולט':'פרטי')+'</span>':'')+'</div><div class="sub">'+(e.tips?'טיפים '+fmt(e.tips)+' ₪':'')+(e.tips&&e.count?' · ':'')+(e.count?e.count+' משלוחים':'')+(e.note?((e.tips||e.count)?' · ':'')+esc(e.note):'')+'</div></div><div style="font-weight:600">'+m(e.income+e.tips)+'</div></button>';
+}
+
+function dayHtml(){
+  var list=live().filter(function(e){return e.date===cur.day}).sort(function(x,y){return x.updated<y.updated?-1:1});
+  var a=agg(list),d=cur.day,y=+d.slice(0,4),mo=+d.slice(5,7),dd=+d.slice(8,10);
+  var h='<div class="mnav"><button data-a="dprev" class="'+(d<=MIN_DATE?'dis':'')+'" aria-label="יום קודם">'+chevR+'</button><div style="text-align:center"><div class="t">'+pad(dd)+'.'+pad(mo)+'.'+y+'</div><div class="mut" style="font-size:13px">יום '+WD[new Date(y,mo-1,dd).getDay()]+(d===todayStr()?' · היום':'')+'</div></div><button data-a="dnext" class="'+(d>=MAX_DATE?'dis':'')+'" aria-label="יום הבא">'+chevL+'</button></div>';
+  h+='<div class="card big"><div class="l">סה"כ היום</div><div class="v">'+m(a.total)+'</div></div>';
+  h+='<div class="g2"><div class="tile tw"><div class="l">וולט</div><div class="v">'+m(a.w)+'</div><div class="s">מזה טיפים '+m(a.wt)+'</div></div><div class="tile tp"><div class="l">פרטי</div><div class="v">'+m(a.p)+'</div><div class="s">מזה טיפים '+m(a.pt)+'</div></div></div>';
+  h+='<div class="g3"><div class="tile ts"><div class="l">טיפים</div><div class="v">'+m(a.tips)+'</div></div><div class="tile ts"><div class="l">משלוחים</div><div class="v">'+a.count+'</div></div><div class="tile ts"><div class="l">ממוצע למשלוח</div><div class="v">'+(a.count?m(a.total/a.count):'-')+'</div></div></div>';
+  h+='<h2>רשומות היום</h2><div class="card" style="padding:4px 14px">';
+  if(!list.length)h+='<div class="empty">אין רשומות ביום הזה</div>';
+  else list.forEach(function(e){h+=rowHtml(e,false)});
+  h+='</div><button class="btn2" data-a="gomonth2">לחודש '+miLabel(clampMi(miOf(d)))+'</button>';
+  return h;
+}
 
 function monthHtml(){
   var list=live().filter(function(e){return miOf(e.date)===cur.mi});
@@ -183,7 +206,7 @@ function monthHtml(){
   for(i=1;i<=days;i++){
     var k=ym[0]+'-'+pad(ym[1]+1)+'-'+pad(i),b2=a.byDay[k],wh=0,ph=0;
     if(b2&&max){wh=Math.round(b2.w/max*84);ph=Math.round(b2.p/max*84);if(b2.w>0&&wh<2)wh=2;if(b2.p>0&&ph<2)ph=2}
-    h+='<div class="c"><i class="w" style="height:'+wh+'px"></i><i class="p" style="height:'+ph+'px"></i></div>';
+    h+='<div class="c" data-a="goday" data-d="'+k+'" style="cursor:pointer"><i class="w" style="height:'+wh+'px"></i><i class="p" style="height:'+ph+'px"></i></div>';
   }
   h+='</div><div class="axis">';
   for(i=1;i<=days;i++){h+='<span>'+((i===1||i%5===0||i===days)?i:'')+'</span>'}
@@ -191,8 +214,13 @@ function monthHtml(){
   h+='<h2>רשומות החודש</h2><div class="card" style="padding:4px 14px">';
   if(!list.length){h+='<div class="empty">אין עדיין רשומות בחודש הזה</div>'}
   else{
-    list.slice().sort(function(x,y){return x.date<y.date?1:x.date>y.date?-1:(x.updated<y.updated?1:-1)}).forEach(function(e){
-      h+='<button class="row" data-a="edit" data-id="'+esc(e.id)+'"><div><div class="d">'+fdate(e.date)+'<span class="badge '+e.src+'">'+(e.src==='w'?'וולט':'פרטי')+'</span></div><div class="sub">'+(e.tips?'טיפים '+fmt(e.tips)+' ₪':'')+(e.tips&&e.count?' · ':'')+(e.count?e.count+' משלוחים':'')+(e.note?((e.tips||e.count)?' · ':'')+esc(e.note):'')+'</div></div><div style="font-weight:600">'+m(e.income+e.tips)+'</div></button>';
+    var sorted=list.slice().sort(function(x,y){return x.date<y.date?1:x.date>y.date?-1:(x.updated<y.updated?1:-1)}),lastD='';
+    sorted.forEach(function(e){
+      if(e.date!==lastD){
+        lastD=e.date;var bd=a.byDay[e.date];
+        h+='<button class="dayhead" data-a="goday" data-d="'+e.date+'"><span>'+fdate(e.date)+'</span><span>'+m(bd.w+bd.p)+'</span></button>';
+      }
+      h+=rowHtml(e,false);
     });
   }
   return h+'</div>';
@@ -216,7 +244,7 @@ function yearHtml(){
 
 function formHtml(){
   var e=form.id?findE(form.id):null;
-  var d=e?e.date:(function(){var t=todayStr();return t<MIN_DATE?MIN_DATE:t>MAX_DATE?MAX_DATE:t})();
+  var d=e?e.date:(form.date||clampDay(todayStr()));
   formSrc=e?e.src:'w';
   return '<div class="ov" data-a="ovclose"><div class="sheet" data-a="stop"><h3><span>'+(e?'עריכת רשומה':'הוספת רשומה')+'</span><button data-a="close" aria-label="סגור" style="font-size:24px;padding:0 6px">×</button></h3>'
   +'<div class="f"><label for="f-date">תאריך</label><input type="date" id="f-date" min="'+MIN_DATE+'" max="'+MAX_DATE+'" value="'+d+'"></div>'
@@ -251,8 +279,8 @@ function render(){
   var h='';
   if(!cfg.url)h+='<button class="banner" data-a="menu">הנתונים נשמרים רק במכשיר הזה ועלולים להימחק. חבר את טבלת הגוגל בהגדרות כדי שלא יימחקו.</button>';
   h+='<div class="top"><h1>הכנסות ממשלוחים</h1><div style="display:flex;gap:8px;align-items:center"><span class="chip '+chipCls+'">'+chipTxt+'</span><button class="icon" data-a="menu" aria-label="הגדרות ונתונים">'+gear+'</button></div></div>';
-  h+='<div class="seg"><button data-a="tab" data-t="month" class="'+(cur.tab==='month'?'on':'')+'">חודשי</button><button data-a="tab" data-t="year" class="'+(cur.tab==='year'?'on':'')+'">שנתי</button></div>';
-  h+=cur.tab==='month'?monthHtml():yearHtml();
+  h+='<div class="seg"><button data-a="tab" data-t="day" class="'+(cur.tab==='day'?'on':'')+'">יומי</button><button data-a="tab" data-t="month" class="'+(cur.tab==='month'?'on':'')+'">חודשי</button><button data-a="tab" data-t="year" class="'+(cur.tab==='year'?'on':'')+'">שנתי</button></div>';
+  h+=cur.tab==='day'?dayHtml():cur.tab==='month'?monthHtml():yearHtml();
   h+='<button class="fab" data-a="add">'+plus+'הוסף רשומה</button>';
   if(form)h+=formHtml();
   if(menuOpen)h+=menuHtml();
@@ -273,7 +301,7 @@ function submitForm(){
   var old=findE(obj.id);
   if(old){entries[entries.indexOf(old)]=obj}else{entries.push(obj)}
   if(!saveLocal()){err.textContent='השמירה במכשיר נכשלה. הרשומה לא נשמרה.';if(old)entries[entries.indexOf(obj)]=old;else entries.pop();return}
-  cur.tab='month';cur.mi=clampMi(miOf(date));
+  cur.mi=clampMi(miOf(date));cur.day=date;
   form=null;confirmDel=false;render();toast('נשמר');syncSoon();
 }
 
@@ -363,7 +391,11 @@ document.addEventListener('click',function(ev){
   else if(a==='prev'){if(cur.mi>0){cur.mi--;render()}}
   else if(a==='next'){if(cur.mi<11){cur.mi++;render()}}
   else if(a==='gomonth'){cur.tab='month';cur.mi=+t.getAttribute('data-i');render();window.scrollTo(0,0)}
-  else if(a==='add'){form={id:null};confirmDel=false;render()}
+  else if(a==='add'){form={id:null,date:cur.tab==='day'?cur.day:null};confirmDel=false;render()}
+  else if(a==='goday'){cur.tab='day';cur.day=clampDay(t.getAttribute('data-d'));render();window.scrollTo(0,0)}
+  else if(a==='dprev'){if(cur.day>MIN_DATE){cur.day=addDays(cur.day,-1);render()}}
+  else if(a==='dnext'){if(cur.day<MAX_DATE){cur.day=addDays(cur.day,1);render()}}
+  else if(a==='gomonth2'){cur.tab='month';cur.mi=clampMi(miOf(cur.day));render();window.scrollTo(0,0)}
   else if(a==='edit'){form={id:t.getAttribute('data-id')};confirmDel=false;render()}
   else if(a==='close'){form=null;menuOpen=false;confirmDel=false;render()}
   else if(a==='src'){formSrc=t.getAttribute('data-s');var bs=document.querySelectorAll('.srcs button');for(var i=0;i<bs.length;i++){bs[i].classList.toggle('on',bs[i].getAttribute('data-s')===formSrc)}}
