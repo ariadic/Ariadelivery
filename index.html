@@ -519,6 +519,7 @@ a.bitGo .bgt small{font-size:13px;font-weight:500;opacity:.8}
 .payCard.bitMode{padding:14px}
 .payCard.bitMode a.bitGo{margin:0}
 .bitCap{font-size:13px;color:var(--mu);text-align:center;margin-top:8px}
+#floorBox input::placeholder{color:#b9b9c2;font-weight:400;font-size:15px}
 </style>
 </head>
 <body>
@@ -579,11 +580,13 @@ a.bitGo .bgt small{font-size:13px;font-weight:500;opacity:.8}
       <input id="dPhone" type="tel" inputmode="tel" required>
       <div class="errmsg">טלפון לא תקין</div></div>
       </div>
-      <div class="row2" id="floorBox" style="display:none">
-      <div class="f"><label for="dFloor">קומה <span class="opt">(לא חובה)</span></label>
-      <input id="dFloor" inputmode="numeric" maxlength="10" autocomplete="off"></div>
-      <div class="f"><label for="dApt">דירה <span class="opt">(לא חובה)</span></label>
-      <input id="dApt" inputmode="numeric" maxlength="10" autocomplete="off"></div>
+      <div class="row2" id="floorBox">
+      <div class="f"><label for="dFloor">קומה</label>
+      <input id="dFloor" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="בית פרטי – 0">
+      <div class="errmsg">חובה למלא</div></div>
+      <div class="f"><label for="dApt">דירה</label>
+      <input id="dApt" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="בית פרטי – 0">
+      <div class="errmsg">חובה למלא</div></div>
       </div>
     </section>
 
@@ -610,12 +613,8 @@ a.bitGo .bgt small{font-size:13px;font-weight:500;opacity:.8}
         <div class="whenHint payHintL" id="payHint" style="display:none"></div>
         <div class="preNote" id="preNote" style="display:none"><svg class="ic s"><use href="#i-wallet"/></svg><span><b>תשלום מראש</b> · פרטי ההעברה יופיעו אחרי השליחה</span></div>
       </div>
-      <div id="payerBox">
-        <label class="lab">מי משלם?</label>
-        <div class="chips" id="payerChips"></div>
-      </div>
 <input type="hidden" id="greeting">
-      <button type="button" class="lnk" id="notesLink"><span class="pl"><svg class="ic s"><use href="#i-plus"/></svg></span><span class="lt"><b>הוספת הערה לשליח</b><small>קומה, קוד לבניין, מה בחבילה… (לא חובה)</small></span></button>
+      <button type="button" class="lnk" id="notesLink"><span class="pl"><svg class="ic s"><use href="#i-plus"/></svg></span><span class="lt"><b>הוספת הערה לשליח</b><small>קוד לבניין, מה בחבילה… (לא חובה)</small></span></button>
       <div id="notesBox" style="display:none">
         <div class="f" style="margin-top:14px"><label for="notes">הערה לשליח <span class="opt">(קומה, קוד לבניין, מה בחבילה…)</span></label>
         <textarea id="notes"></textarea></div>
@@ -975,15 +974,12 @@ chips("payChips", "pay", PAY_ALL, t => PAY_ICON[t] + `<span>${t}</span>`);
 $("payChips").classList.add("payGrid");
 $("payChips").style.setProperty("--n", PAY_ALL.length);
 const PAY_HINT = { "מזומן": "משלמים לארי במזומן, בסכום מדויק", "ביט": "תשלום מראש · כפתור ביט ופרטים אחרי השליחה", "פייבוקס": "תשלום מראש · הפרטים יופיעו אחרי השליחה", [CC]: "תשלום מאובטח בכרטיס אשראי · ההזמנה נשלחת לארי אחרי התשלום" };
-chips("payerChips", "payer", PAYER);
 function updPay() {
   const on = isOnline();
   submitBtn.classList.toggle("payBtn", on);                     // אשראי: כפתור "לתשלום" עם ארנק · אחרת: "שליחה לארי" עם ווצאפ
   if (!submitBtn.disabled) { const ic = submitBtn.querySelector("svg"); if (ic) ic.outerHTML = subSvg(); const sp = submitBtn.querySelector("span:not(.pr)"); if (sp && CONFIG.sheetUrl) sp.textContent = subText(); }
   const h = $("payHint"); if (h) { const t = PAY_HINT[val("pay")]; h.textContent = t || ""; h.style.display = t ? "" : "none"; }
   $("preNote").style.display = "none";
-  if (CUSTOMER) { $("payerBox").style.display = on || CUSTOMER.hidePayer ? "none" : ""; return; }
-  $("payerBox").style.display = isPre() || on ? "none" : "";   // מזומן: מי משלם – השולח או המקבל · מראש / אשראי: תמיד השולח
 }
 $("payChips").addEventListener("change", updPay);
 
@@ -1027,7 +1023,6 @@ if (CUSTOMER) {
     if (!$("hLogo").querySelector("img")) { const sp = document.createElement("span"); sp.className = "emo"; sp.textContent = em[1]; $("hLogo").replaceChildren(sp); }
   }
   document.title = (CUSTOMER.title || CUSTOMER.name) + " – Aria delivery";
-  if (CUSTOMER.floorApt) $("floorBox").style.display = "";
   // שם המקבל לא חובה (מוגדר בדף הניהול) – לא חוסם את ההזמנה
   if (CUSTOMER.nameOptional) { $("dName").required = false; document.querySelector('label[for="dName"]').innerHTML = 'שם המקבל <span class="opt">(לא חובה)</span>'; }
   if (CUSTOMER.fixedPickup) {
@@ -1051,7 +1046,6 @@ if (CUSTOMER) {
     ch.onclick = showPickup;
     document.querySelector("header p").append(ch);
   }
-  if (CUSTOMER.hidePayer) $("payerBox").style.display = "none";
   if (AGREED) $("priceBox").textContent = "מחיר לפי הסכם";
 }
 
@@ -1250,7 +1244,7 @@ function validate() {
   // איסוף קבוע (מוגדר בדף הניהול) – השדות מוסתרים מהלקוח, לכן לא בודקים אותם
   const fixedPick = CUSTOMER && CUSTOMER.fixedPickup;
   const nameOpt = CUSTOMER && CUSTOMER.nameOptional;
-  (fixedPick ? ["dName", "dAddr", "dCity"] : ["pName", "pAddr", "dName", "dAddr", "dCity"])
+  (fixedPick ? ["dName", "dAddr", "dCity", "dFloor", "dApt"] : ["pName", "pAddr", "dName", "dAddr", "dCity", "dFloor", "dApt"])
     .filter(id => !(nameOpt && id === "dName"))
     .forEach(id => { ok = check(id, $(id).value.trim() !== "") && ok; });
   if (!fixedPick) ok = check("pPhone", phoneOk($("pPhone").value)) && ok;
@@ -1310,12 +1304,13 @@ $("orderForm").addEventListener("submit", e => {
     ``,
     `📏 ${itemVal()} | ⏱ ${when}`,
     isPre() ? `💰 ${val("pay")} – תשלום מראש (לבדוק שהתקבל לפני יציאה)`
-      : `💰 ${val("pay")}${CUSTOMER && CUSTOMER.hidePayer ? "" : " – משלם " + val("payer")}`,
+      : `💰 ${val("pay")}`,
     AGREED ? `💵 מחיר: לפי הסכם`
       : price !== null ? `💵 מחיר: ₪${price}` : `💵 מחיר: לתיאום (${label})`,
   ];
   // קומה ודירה – נכנסים לתחילת ההערות לשליח (מופיעים לארי בכרטיס ובהודעה)
-  const floorTxt = [$("dFloor").value.trim() && "קומה " + $("dFloor").value.trim(), $("dApt").value.trim() && "דירה " + $("dApt").value.trim()].filter(Boolean).join(" · ");
+  const fl = $("dFloor").value.trim(), ap = $("dApt").value.trim();
+  const floorTxt = /^0*$/.test(fl) && /^0*$/.test(ap) ? "בית פרטי" : [fl && "קומה " + fl, ap && "דירה " + ap].filter(Boolean).join(" · ");
   const notes = [floorTxt, $("notes").value.trim()].filter(Boolean).join(" · ");
   if (notes) lines.push(`📝 ${notes}`);
 
