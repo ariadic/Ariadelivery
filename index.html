@@ -891,7 +891,7 @@ function chipLabel(t) {
   return m ? `${m[1]}<small class="sub">${m[2]}</small>` : t;
 }
 chips("sizeChips", "size", (CUSTOMER && CUSTOMER.sizes) || SIZES, t => ICO(sizeIcon(t)) + `<span>${chipLabel(t)}</span>`);
-const WHEN_TXT = [["היום", "ארי יאשר ויגיד מתי יאסוף", "clock"], ["דחוף", "<b>תוך שעה</b> מרגע אישור ההזמנה", "zap"], ["מתוזמן", "בוחרים תאריך ושעה", "calendar-clock"]];
+const WHEN_TXT = [["היום", "מגיע <b>עד סוף יום העסקים</b>", "clock"], ["דחוף", "<b>תוך שעה</b> מרגע אישור ההזמנה", "zap"], ["מתוזמן", "לשעה מסוימת שבוחרים", "calendar-clock"]];
 let urgentOff = false;
 chips("whenChips", "when", NO_URGENT ? [WHEN[0], WHEN[2]] : WHEN, t => {
   const [b, , ic] = WHEN_TXT[WHEN.indexOf(t)];
