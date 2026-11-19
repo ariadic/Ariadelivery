@@ -139,17 +139,17 @@ html{-webkit-tap-highlight-color:transparent}
 .preNote b{color:#7c2d12}
 /* כרטיס תשלום בביט / פייבוקס */
 .payCard{border:1.5px solid #c7d2fe;background:#eef2ff;border-radius:18px;padding:14px;margin-bottom:12px;text-align:right}
-.payCard.pb{border-color:#a5f3fc;background:#ecfeff}
+.payCard.pbx{border-color:#a5f3fc;background:#ecfeff}
 .payTop{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .payTop b{font-size:16px;font-weight:800}
-.payAmt{font-size:24px;font-weight:800;color:#3730a3}.payCard.pb .payAmt{color:#0e7490}
+.payAmt{font-size:24px;font-weight:800;color:#3730a3}.payCard.pbx .payAmt{color:#0e7490}
 .cp{display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid #e0e7ff;border-radius:14px;padding:8px 8px 8px 12px;margin-top:9px}
-.payCard.pb .cp{border-color:#cffafe}
+.payCard.pbx .cp{border-color:#cffafe}
 .cp .t{flex:1;min-width:0}
 .cp .lb{display:block;font-size:12px;color:#6b7280}
 .cp .vl{display:block;font-size:18px;font-weight:800;direction:ltr;text-align:right;letter-spacing:.3px}
 button.cpb{flex:none;width:auto;margin:0;border:0;border-radius:11px;padding:10px 13px;background:#4f46e5;color:#fff;font-size:14px;font-weight:700;box-shadow:none}
-.payCard.pb button.cpb{background:#0891b2}
+.payCard.pbx button.cpb{background:#0891b2}
 button.cpb.done{background:#16a34a!important}
 .payHint{font-size:13px;color:#4b5563;line-height:1.6;margin-top:9px}
 button.waOpt,button.waBtn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:14px;padding:12px;margin-top:10px;font-weight:600;font-size:15px}
@@ -274,15 +274,15 @@ button.primary#doneMore .ic{width:22px;height:22px}
 @keyframes pulse{50%{box-shadow:0 0 0 3px var(--ac),0 0 0 12px #ff5a1f0d}}
 .trkNo{background:#fff1f2;color:#be123c;border-radius:12px;padding:10px;font-size:14px;font-weight:600;margin:10px 0 4px}
 /* תשלום בביט / פייבוקס */
-.payCard,.payCard.pb{background:#fff;border:0;box-shadow:0 0 0 1px var(--ln),0 6px 20px #0000000a;border-radius:18px;padding:14px 14px 10px;margin:16px 0 12px}
+.payCard,.payCard.pbx{background:#fff;border:0;box-shadow:0 0 0 1px var(--ln),0 6px 20px #0000000a;border-radius:18px;padding:14px 14px 10px;margin:16px 0 12px}
 .payTop{align-items:center;justify-content:flex-start}
 .payTop .ic{color:var(--ac)}
 .payTop b{font-size:15.5px;font-weight:600;flex:1}
-.payAmt,.payCard.pb .payAmt{font-size:20px;font-weight:700;color:var(--tx)}
-.cp,.payCard.pb .cp{background:none;border:0;border-top:1px solid #f0f0f2;border-radius:0;padding:10px 0 4px;margin-top:8px}
+.payAmt,.payCard.pbx .payAmt{font-size:20px;font-weight:700;color:var(--tx)}
+.cp,.payCard.pbx .cp{background:none;border:0;border-top:1px solid #f0f0f2;border-radius:0;padding:10px 0 4px;margin-top:8px}
 .cp .lb{font-size:11.5px;color:var(--mu)}
 .cp .vl{font-size:18px;font-weight:700}
-button.cpb,.payCard.pb button.cpb{display:inline-flex;align-items:center;gap:5px;background:var(--ac-soft);color:var(--ac);border-radius:999px;padding:8px 13px;font-size:13.5px;font-weight:600}
+button.cpb,.payCard.pbx button.cpb{display:inline-flex;align-items:center;gap:5px;background:var(--ac-soft);color:var(--ac);border-radius:999px;padding:8px 13px;font-size:13.5px;font-weight:600}
 button.cpb.done{background:#e8f8ee!important;color:#15803d}
 button.cpb .ic{width:16px;height:16px}
 .payHint{font-size:12.5px;color:var(--mu)}
@@ -520,6 +520,8 @@ a.bitGo .bgt small{font-size:13px;font-weight:500;opacity:.8}
 .payCard.bitMode a.bitGo{margin:0}
 .bitCap{font-size:13px;color:var(--mu);text-align:center;margin-top:8px}
 #floorBox input::placeholder{color:#b9b9c2;font-weight:400;font-size:15px}
+.trk .st.sNow b{color:#8a8a93}.trk .st.sNow small{display:block;color:var(--ac);font-weight:600;font-size:11.5px;margin-top:1px}
+.floorTip{font-size:12.5px;color:var(--mu);margin:-4px 2px 4px}
 </style>
 </head>
 <body>
@@ -583,11 +585,12 @@ a.bitGo .bgt small{font-size:13px;font-weight:500;opacity:.8}
       <div class="row2" id="floorBox">
       <div class="f"><label for="dFloor">קומה</label>
       <input id="dFloor" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="בית פרטי – 0">
-      <div class="errmsg">חובה למלא</div></div>
+</div>
       <div class="f"><label for="dApt">דירה</label>
       <input id="dApt" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="בית פרטי – 0">
-      <div class="errmsg">חובה למלא</div></div>
+</div>
       </div>
+      <div class="floorTip">לא יודעים קומה או דירה? אפשר להשאיר ריק</div>
     </section>
 
     <section class="card">
@@ -610,7 +613,7 @@ a.bitGo .bgt small{font-size:13px;font-weight:500;opacity:.8}
       <div id="payBox">
         <label class="lab">איך משלמים?</label>
         <div class="chips" id="payChips"></div>
-        <div class="whenHint payHintL" id="payHint" style="display:none"></div>
+        <div class="whenHint payHintL" id="payChoiceHint" style="display:none"></div>
         <div class="preNote" id="preNote" style="display:none"><svg class="ic s"><use href="#i-wallet"/></svg><span><b>תשלום מראש</b> · פרטי ההעברה יופיעו אחרי השליחה</span></div>
       </div>
 <input type="hidden" id="greeting">
@@ -978,7 +981,7 @@ function updPay() {
   const on = isOnline();
   submitBtn.classList.toggle("payBtn", on);                     // אשראי: כפתור "לתשלום" עם ארנק · אחרת: "שליחה לארי" עם ווצאפ
   if (!submitBtn.disabled) { const ic = submitBtn.querySelector("svg"); if (ic) ic.outerHTML = subSvg(); const sp = submitBtn.querySelector("span:not(.pr)"); if (sp && CONFIG.sheetUrl) sp.textContent = subText(); }
-  const h = $("payHint"); if (h) { const t = PAY_HINT[val("pay")]; h.textContent = t || ""; h.style.display = t ? "" : "none"; }
+  const h = $("payChoiceHint"); if (h) { const t = PAY_HINT[val("pay")]; h.textContent = t || ""; h.style.display = t ? "" : "none"; }
   $("preNote").style.display = "none";
 }
 $("payChips").addEventListener("change", updPay);
@@ -1244,7 +1247,7 @@ function validate() {
   // איסוף קבוע (מוגדר בדף הניהול) – השדות מוסתרים מהלקוח, לכן לא בודקים אותם
   const fixedPick = CUSTOMER && CUSTOMER.fixedPickup;
   const nameOpt = CUSTOMER && CUSTOMER.nameOptional;
-  (fixedPick ? ["dName", "dAddr", "dCity", "dFloor", "dApt"] : ["pName", "pAddr", "dName", "dAddr", "dCity", "dFloor", "dApt"])
+  (fixedPick ? ["dName", "dAddr", "dCity"] : ["pName", "pAddr", "dName", "dAddr", "dCity"])
     .filter(id => !(nameOpt && id === "dName"))
     .forEach(id => { ok = check(id, $(id).value.trim() !== "") && ok; });
   if (!fixedPick) ok = check("pPhone", phoneOk($("pPhone").value)) && ok;
@@ -1310,7 +1313,8 @@ $("orderForm").addEventListener("submit", e => {
   ];
   // קומה ודירה – נכנסים לתחילת ההערות לשליח (מופיעים לארי בכרטיס ובהודעה)
   const fl = $("dFloor").value.trim(), ap = $("dApt").value.trim();
-  const floorTxt = /^0*$/.test(fl) && /^0*$/.test(ap) ? "בית פרטי" : [fl && "קומה " + fl, ap && "דירה " + ap].filter(Boolean).join(" · ");
+  const floorTxt = !fl && !ap ? "⚠️ קומה ודירה לא צוינו"
+    : /^0+$/.test(fl || "0") && /^0+$/.test(ap || "0") ? "בית פרטי" : [fl && "קומה " + fl, ap && "דירה " + ap].filter(Boolean).join(" · ");
   const notes = [floorTxt, $("notes").value.trim()].filter(Boolean).join(" · ");
   if (notes) lines.push(`📝 ${notes}`);
 
@@ -1456,6 +1460,7 @@ function paintTrack(st, eta, steps) {
   $("doneCancel").style.display = st === STEP_NEW && trackCt ? "" : "none";
   document.querySelectorAll("#trk .st").forEach((el, i) => {
     el.className = "st" + (off ? (i === 0 ? " sOk" : "") : i < n ? " sOk" : i === n ? " sNow" : "");
+    if (!off && i === n && sm[i]) sm[i].textContent = ["", "ממתין לאישור", "בדרך לאיסוף", "בדרך למקבל"][i] || "";   // השלב הבא: "ממתין…" – שלא ייראה כאילו כבר קרה
   });
   $("trkFill").style.width = (Math.min(n, 3) / 3 * 100) + "%";
   $("trk").classList.toggle("off", off);
@@ -1514,7 +1519,7 @@ function showPayCard(record) {
   const method = /פייבוקס/.test(record.pay) ? "פייבוקס" : /ביט/.test(record.pay) ? "ביט" : "";
   card.style.display = method ? "block" : "none";
   if (!method) return;
-  card.className = "payCard" + (method === "פייבוקס" ? " pb" : "");
+  card.className = "payCard" + (method === "פייבוקס" ? " pbx" : "");
   const amount = typeof record.price === "number" ? "₪" + record.price : "";
   $("payTitle").textContent = `תשלום ב${method}`;
   $("payAmt").textContent = amount;
