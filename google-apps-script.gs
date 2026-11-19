@@ -12,7 +12,7 @@
 const NOTIFY_EMAIL = "";
 
 // גרסת הקוד – מופיעה בבדיקת הכתובת, כדי לדעת שהפריסה באמת עודכנה
-const CODE_VERSION = "2026-11-19e";
+const CODE_VERSION = "2026-11-19f";
 
 // התראות לאייפון דרך אפליקציית Pushover (הכי אמין – עם צלצול חירום ו"קיבלתי" ישר מההתראה).
 // מדביקים כאן את שני המפתחות מ-pushover.net. לא לשמור אותם באתר (הקוד באתר גלוי לכולם).
@@ -238,10 +238,14 @@ function morningDiag() {
   Logger.log("MORNING_ID: " + id.length + " תווים · " + odd(id) + (/^[0-9a-f-]{36}$/i.test(id.trim()) ? " · פורמט נראה נכון" : " · ⚠️ פורמט לא רגיל"));
   Logger.log("MORNING_SECRET: " + sec.length + " תווים · " + odd(sec));
   CacheService.getScriptCache().remove("MORNING_TOKEN");
-  const r = UrlFetchApp.fetch(MORNING_API + "/account/token", { method: "post", contentType: "application/json", muteHttpExceptions: true,
-    payload: JSON.stringify({ id: id.trim(), secret: sec.trim() }) });
-  const body = r.getContentText();
-  Logger.log("תשובת מורנינג: קוד " + r.getResponseCode() + " · " + (/token/.test(body) ? "✅ התקבל אישור (token) – החיבור עובד" : body.slice(0, 300)));
+  [["החשבון האמיתי", MORNING_API], ["חשבון ניסיון (sandbox)", "https://sandbox.d.greeninvoice.co.il/api/v1"]].forEach(([name, base]) => {
+    try {
+      const r = UrlFetchApp.fetch(base + "/account/token", { method: "post", contentType: "application/json", muteHttpExceptions: true,
+        payload: JSON.stringify({ id: id.trim(), secret: sec.trim() }) });
+      const body = r.getContentText();
+      Logger.log(name + ": קוד " + r.getResponseCode() + " · " + (/"token"/.test(body) ? "✅ המפתחות שייכים לכאן – החיבור עובד" : (body.slice(0, 200) || "(בלי פירוט)")));
+    } catch (e) { Logger.log(name + ": " + e.message); }
+  });
 }
 function morningStatus() {
   const p = PropertiesService.getScriptProperties();
