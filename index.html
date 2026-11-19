@@ -457,6 +457,11 @@ label.lab,#orderForm .card > h2,#orderForm > section > h2{margin-right:0;margin-
 #whenTimeBox{background:var(--fill);border-radius:16px;padding:12px;margin-top:8px}
 #whenTimeBox .f{background:#fff}.wtDays button:not(.on){background:#fff}
 .wtDays{display:flex;gap:6px;margin-bottom:10px}
+.wtMode{display:grid;grid-template-columns:1fr 1fr;background:#e4e4e7;border-radius:12px;padding:3px;margin-bottom:10px}
+.wtMode button{width:auto;margin:0;min-height:44px;border:0;border-radius:10px;background:none;color:#444;font:inherit;font-size:14.5px;font-weight:500;box-shadow:none}
+.wtMode button.on{background:#fff;color:var(--tx);font-weight:700;box-shadow:0 2px 8px #0000001f}
+.wtTimes{display:flex;gap:8px}.wtTimes > .f{flex:1;min-width:0}
+#whenSched bdi{white-space:nowrap}
 .wtDays button{flex:1;width:auto;margin:0;min-height:44px;border:0;border-radius:12px;background:var(--fill);color:var(--tx);font:inherit;font-size:14px;font-weight:500;box-shadow:none}
 .wtDays button.on{background:#111;color:#fff;font-weight:700}
 #whenTimeBox .f{margin-bottom:0}#wtDateBox{margin-bottom:8px!important}
@@ -555,11 +560,14 @@ label.lab,#orderForm .card > h2,#orderForm > section > h2{margin-right:0;margin-
       <div class="chips" id="whenChips"></div>
       <div class="whenHint" id="whenHint"></div>
       <div id="whenTimeBox" style="display:none">
+        <div class="wtMode" id="wtMode"><button type="button" data-m="1" class="on">שעה מסוימת</button><button type="button" data-m="2">טווח שעות</button></div>
         <div class="wtDays" id="wtDays"><button type="button" data-d="0" class="on">היום</button><button type="button" data-d="1">מחר</button><button type="button" data-d="x">תאריך אחר</button></div>
         <div class="f" id="wtDateBox" style="display:none"><label for="wtDate">תאריך</label><input id="wtDate" type="date"></div>
-        <div class="f wtTimeF"><label for="wtTime">שעה</label><input id="wtTime" type="time" step="300">
+        <div class="wtTimes"><div class="f wtTimeF"><label for="wtTime" id="wtTimeL">שעה</label><input id="wtTime" type="time" step="300">
         <div class="errmsg">נא לבחור שעה שעוד לא עברה</div></div>
-        <input type="hidden" id="whenTime">
+        <div class="f wtTimeF" id="wtToBox" style="display:none"><label for="wtTo">עד שעה</label><input id="wtTo" type="time" step="300">
+        <div class="errmsg">צריך להיות אחרי "משעה"</div></div></div>
+        <input type="hidden" id="whenTime"><input type="hidden" id="whenTo">
       </div>
       <div id="payBox">
         <label class="lab">איך משלמים?</label>
@@ -1080,7 +1088,7 @@ $("hHist").addEventListener("click", () => $("historyBtn").click());
 // מתוזמן: אי אפשר לבחור מועד שעבר
 const localNow = () => { const d = new Date(Date.now() - new Date().getTimezoneOffset() * 60000); return d.toISOString().slice(0, 16); };
 const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-let wtDay = "0";
+let wtDay = "0", wtRange = false;
 function syncWhen() {
   const t = $("wtTime").value;
   let day = new Date();
@@ -1088,8 +1096,11 @@ function syncWhen() {
   const ds = wtDay === "x" ? $("wtDate").value : ymd(day);
   $("whenTime").value = t && ds ? `${ds}T${t}` : "";
   $("wtTime").classList.remove("bad");
+  $("wtTo").classList.remove("bad");
+  const to = wtRange ? $("wtTo").value : "";
+  $("whenTo").value = to;
   const sc = $("whenSched");
-  if (sc) sc.textContent = t && ds ? (wtDay === "0" ? "היום" : wtDay === "1" ? "מחר" : ds.slice(8, 10) + "/" + ds.slice(5, 7)) + " " + t : "";
+  if (sc) sc.innerHTML = t && ds ? (wtDay === "0" ? "היום" : wtDay === "1" ? "מחר" : ds.slice(8, 10) + "/" + ds.slice(5, 7)) + ` <bdi dir="ltr">${t}${to ? "–" + to : ""}</bdi>` : "";
 }
 $("wtDays").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
@@ -1099,7 +1110,15 @@ $("wtDays").addEventListener("click", e => {
   if (wtDay === "x" && !$("wtDate").value) { const d = new Date(); d.setDate(d.getDate() + 2); $("wtDate").value = ymd(d); }
   syncWhen();
 });
-["input", "change", "blur"].forEach(ev => { $("wtTime").addEventListener(ev, syncWhen); $("wtDate").addEventListener(ev, syncWhen); });
+["input", "change", "blur"].forEach(ev => { ["wtTime", "wtTo", "wtDate"].forEach(id => $(id).addEventListener(ev, syncWhen)); });
+function setWtRange(on) {                 // "שעה מסוימת" / "טווח שעות"
+  wtRange = on;
+  $("wtMode").querySelectorAll("button").forEach(x => x.classList.toggle("on", (x.dataset.m === "2") === on));
+  $("wtToBox").style.display = on ? "" : "none";
+  $("wtTimeL").textContent = on ? "משעה" : "שעה";
+  syncWhen();
+}
+$("wtMode").addEventListener("click", e => { const b = e.target.closest("button"); if (b) setWtRange(b.dataset.m === "2"); });
 $("wtDate").addEventListener("focus", () => { $("wtDate").min = ymd(new Date()); });
 
 function showPickup() {
@@ -1190,7 +1209,10 @@ function validate() {
   ok = check("dPhone", phoneOk($("dPhone").value)) && ok;
   // פרטי האיסוף מוסתרים (שורה למעלה) אבל משהו בהם חסר – פותחים אותם
   if (!fixedPick && $("pickupCard").style.display === "none" && ["pName", "pAddr", "pPhone"].some(id => $(id).classList.contains("bad"))) showPickup();
-  if (val("when") === WHEN[2]) { syncWhen(); ok = check("wtTime", $("whenTime").value !== "" && new Date($("whenTime").value).getTime() > Date.now() - 5 * 60000) && ok; }
+  if (val("when") === WHEN[2]) {
+    syncWhen(); ok = check("wtTime", $("whenTime").value !== "" && new Date($("whenTime").value).getTime() > Date.now() - 5 * 60000) && ok;
+    if (wtRange) ok = check("wtTo", $("wtTo").value !== "" && $("wtTo").value > $("wtTime").value) && ok;
+  }
   return ok;
 }
 document.querySelectorAll("input,select,textarea").forEach(el => el.addEventListener("input", () => el.classList.remove("bad")));
@@ -1219,7 +1241,7 @@ $("orderForm").addEventListener("submit", e => {
   let when = val("when");
   if (when === WHEN[2]) {
     const t = new Date($("whenTime").value), isToday = t.toDateString() === now.toDateString();
-    when = `מתוזמן – ${pad(t.getDate())}/${pad(t.getMonth() + 1)} ${pad(t.getHours())}:${pad(t.getMinutes())}`;
+    when = `מתוזמן – ${pad(t.getDate())}/${pad(t.getMonth() + 1)} ${pad(t.getHours())}:${pad(t.getMinutes())}${$("whenTo").value ? "–" + $("whenTo").value : ""}`;
   }
 
   const lines = [
@@ -1367,10 +1389,10 @@ const DONE_H = { "ממתין לתשלום": "מאשרים את התשלום…",
   "לא פנוי": "ארי לא פנוי הפעם", "בוטלה": "ההזמנה בוטלה" };
 // "עד 14:00" / "עד 19/11 14:00" מתוך "מתי" של ההזמנה
 const dueOf = w => {
-  const m = /^(עד|מתוזמן –) (?:(\d{2})\/(\d{2}) )?(\d{1,2}:\d{2})$/.exec(String(w || ""));
+  const m = /^(עד|מתוזמן –) (?:(\d{2})\/(\d{2}) )?(\d{1,2}:\d{2}(?:–\d{1,2}:\d{2})?)$/.exec(String(w || ""));
   if (!m) return null;
   const tod = new Date(), today = m[2] && +m[2] === tod.getDate() && +m[3] === tod.getMonth() + 1;
-  return { sched: m[1] !== "עד", day: m[2] && !today ? `${m[2]}/${m[3]}` : "", time: m[4] };
+  return { sched: m[1] !== "עד", day: m[2] && !today ? `${m[2]}/${m[3]}` : "", time: /–/.test(m[4]) ? "\u2066" + m[4] + "\u2069" : m[4] };
 };
 const dueTxt = du => (du.sched ? "מתוזמן ל" : "צריך להגיע עד ") + (du.day ? du.day + " " : du.sched ? "היום " : "") + du.time;
 let trackWhen = "";
@@ -1877,8 +1899,8 @@ $("dName").addEventListener("input", () => {
 });
 
 function resetForm() {
-  ["dName", "dAddr", "dPhone", "dFloor", "dApt", "notes", "greeting", "whenTime", "wtTime"].forEach(id => $(id).value = "");
-  $("dCity").value = ""; showPrice(); if ($("whenSched")) $("whenSched").textContent = "";
+  ["dName", "dAddr", "dPhone", "dFloor", "dApt", "notes", "greeting", "whenTime", "wtTime", "wtTo", "whenTo"].forEach(id => $(id).value = "");
+  $("dCity").value = ""; showPrice(); if ($("whenSched")) $("whenSched").textContent = ""; setWtRange(false);
   $("notesBox").style.display = "none"; $("notesLink").style.display = "";
 }
 
