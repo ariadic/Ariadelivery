@@ -565,6 +565,10 @@ label.terms.bad{box-shadow:none;border:0}label.terms.bad span{color:#be123c}labe
 .pbit{font-size:20px!important;line-height:24px!important}.ppb{width:24px!important;height:24px!important}
 #sizeChips label,#whenChips.whenSeg label,#payChips.payGrid label{min-height:76px!important;border-radius:16px!important;gap:6px!important}
 .f{border-radius:16px}
+/* כפתור השליחה – בצבע המותג, סמל שליחה (לא ווצאפ) */
+#orderForm > button[type=submit]{background:var(--ac)!important;box-shadow:0 8px 22px #ff5a1f55!important}
+#orderForm > button[type=submit] .ic{width:20px!important;height:20px!important;fill:none!important;stroke:currentColor;stroke-width:2}
+#orderForm > button[type=submit]:not(.payBtn) .ic{transform:scaleX(-1)}
 </style>
 </head>
 <body>
@@ -1066,7 +1070,7 @@ $("payChips").style.setProperty("--n", PAY_ALL.length);
 const PAY_HINT = { "מזומן": "משלמים לארי במזומן, בסכום מדויק", "ביט": "תשלום מראש · כפתור ביט ופרטים אחרי השליחה", "פייבוקס": "תשלום מראש · הפרטים יופיעו אחרי השליחה", [CC]: "תשלום מאובטח בכרטיס אשראי · ההזמנה נשלחת לארי אחרי התשלום" };
 function updPay() {
   const on = isOnline();
-  submitBtn.classList.toggle("payBtn", on);                     // אשראי: כפתור "לתשלום" עם ארנק · אחרת: "שליחה לארי" עם ווצאפ
+  submitBtn.classList.toggle("payBtn", on);                     // אשראי: כפתור "לתשלום" עם ארנק · אחרת: "שליחת ההזמנה"
   if (!submitBtn.disabled) { const ic = submitBtn.querySelector("svg"); if (ic) ic.outerHTML = subSvg(); const sp = submitBtn.querySelector("span:not(.pr)"); if (sp && CONFIG.sheetUrl) sp.textContent = subText(); }
   const h = $("payChoiceHint"); if (h) { const t = PAY_HINT[val("pay")]; h.textContent = t || ""; h.style.display = t ? "" : "none"; }
   $("preNote").style.display = "none";
@@ -1498,8 +1502,9 @@ $("orderForm").addEventListener("submit", e => {
 
 /* ---------- שליחה חכמה: מחכים לאישור מהמערכת, ואם אין – ווצאפ ---------- */
 const WA_ICON = document.querySelector("#orderForm > button[type=submit] svg").outerHTML;   // סמל ווצאפ – לכפתורי ווצאפ
-const subSvg = () => isOnline() ? '<svg class="ic"><use href="#i-wallet"/></svg>' : WA_ICON;
-const subText = () => isOnline() ? "לתשלום" : "שליחה לארי";
+// כפתור השליחה: "שליחת ההזמנה" עם סמל שליחה (ווצאפ רק כשאין חיבור למערכת ובאמת שולחים בווצאפ)
+const subSvg = () => isOnline() ? '<svg class="ic"><use href="#i-wallet"/></svg>' : CONFIG.sheetUrl ? '<svg class="ic"><use href="#i-send"/></svg>' : WA_ICON;
+const subText = () => isOnline() ? "לתשלום" : "שליחת ההזמנה";
 function payProblem(msg) {
   const n = $("payErr") || Object.assign(document.createElement("div"), { id: "payErr", className: "notice off" });
   n.textContent = msg + " · אפשר גם להתקשר לארי: " + CONFIG.payPhone; n.style.display = "block";
