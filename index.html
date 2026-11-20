@@ -557,6 +557,19 @@ label.terms input{flex:none;width:22px;height:22px;margin:0;accent-color:var(--a
 label.terms a{color:var(--ac);font-weight:600}
 label.terms.bad{box-shadow:none;border:0}label.terms.bad span{color:#be123c}label.terms.bad input{outline:2px solid #e11d48;outline-offset:1px}
 .termsErr{display:none;margin:2px 34px 0 0}
+/* ===== יישור קו: מערכת עיצוב אחידה =====
+   אייקונים: 16 (קטן, בתוך טקסט) · 20 (רגיל) · 24 (אריחים) · פינות: 12 · 16 · 20 */
+.ic.s,button.cpb .ic,.etaUpd .ic,.nearBox .ic,.hch .ic{width:16px!important;height:16px!important}
+.chips label .ic,.two .ic,.two svg,.etaBig .eIc .ic,.hic .ic,.whenHint .ic,.bType button .ic,h2.sh .shi .ic,button.primary#doneMore .ic,#orderForm > button.payBtn[type=submit] .ic,.f.wi > .fi{width:20px!important;height:20px!important}
+#sizeChips label .ic,#whenChips.whenSeg label .ic,#payChips.payGrid label .ic{width:24px!important;height:24px!important}
+.pbit{font-size:20px!important;line-height:24px!important}.ppb{width:24px!important;height:24px!important}
+#sizeChips label,#whenChips.whenSeg label,#payChips.payGrid label{min-height:76px!important;border-radius:16px!important;gap:6px!important}
+.f{border-radius:16px}
+/* כפתור השליחה – בצבע המותג, סמל שליחה (לא ווצאפ) */
+#orderForm > button[type=submit]{background:var(--ac)!important;box-shadow:0 8px 22px #ff5a1f55!important}
+#orderForm > button[type=submit] .ic{width:20px!important;height:20px!important;fill:none!important;stroke:currentColor;stroke-width:2}
+/* המחיר בכפתור – טקסט פשוט, בלי ריבוע */
+#orderForm > button[type=submit] .pr{background:none!important;padding:0!important;border-radius:0!important;font-weight:700;font-size:18px}
 </style>
 </head>
 <body>
@@ -592,8 +605,8 @@ label.terms.bad{box-shadow:none;border:0}label.terms.bad span{color:#be123c}labe
       <input id="pNum" inputmode="text" maxlength="8" autocomplete="off" required><div class="errmsg">חובה</div></div>
       </div>
       <input type="hidden" id="pAddr">
-      <div class="f wi sel" id="pTypeF"><svg class="ic fi"><use href="#i-house" id="pTypeIc"/></svg><label for="pType">סוג המקום</label>
-      <select id="pType"><option value="apt">דירה / בית</option><option value="office">משרד</option><option value="hotel">מלון</option><option value="other">אחר</option></select>
+      <div class="f wi sel" id="pTypeF"><svg class="ic fi"><use href="#i-building-2" id="pTypeIc"/></svg><label for="pType">סוג המקום</label>
+      <select id="pType"><option value="building">בניין</option><option value="house">בית פרטי</option><option value="hotel">מלון</option><option value="other">אחר</option></select>
       <svg class="ic chevd"><use href="#i-chevron-down"/></svg></div>
       <div class="row2" id="pDet">
       <div class="f" id="pPlaceF"><label for="pPlace">שם החברה</label>
@@ -637,8 +650,8 @@ label.terms.bad{box-shadow:none;border:0}label.terms.bad span{color:#be123c}labe
       <input id="dNum" inputmode="text" maxlength="8" autocomplete="off" required><div class="errmsg">חובה</div></div>
       </div>
       <input type="hidden" id="dAddr">
-      <div class="f wi sel" id="dTypeF"><svg class="ic fi"><use href="#i-house" id="dTypeIc"/></svg><label for="dType">סוג המקום</label>
-      <select id="dType"><option value="apt">דירה / בית</option><option value="office">משרד</option><option value="hotel">מלון</option><option value="other">אחר</option></select>
+      <div class="f wi sel" id="dTypeF"><svg class="ic fi"><use href="#i-building-2" id="dTypeIc"/></svg><label for="dType">סוג המקום</label>
+      <select id="dType"><option value="building">בניין</option><option value="house">בית פרטי</option><option value="hotel">מלון</option><option value="other">אחר</option></select>
       <svg class="ic chevd"><use href="#i-chevron-down"/></svg></div>
       <div class="row2" id="dDet">
       <div class="f" id="dPlaceF"><label for="dPlace">שם החברה</label>
@@ -1058,7 +1071,7 @@ $("payChips").style.setProperty("--n", PAY_ALL.length);
 const PAY_HINT = { "מזומן": "משלמים לארי במזומן, בסכום מדויק", "ביט": "תשלום מראש · כפתור ביט ופרטים אחרי השליחה", "פייבוקס": "תשלום מראש · הפרטים יופיעו אחרי השליחה", [CC]: "תשלום מאובטח בכרטיס אשראי · ההזמנה נשלחת לארי אחרי התשלום" };
 function updPay() {
   const on = isOnline();
-  submitBtn.classList.toggle("payBtn", on);                     // אשראי: כפתור "לתשלום" עם ארנק · אחרת: "שליחה לארי" עם ווצאפ
+  submitBtn.classList.toggle("payBtn", on);                     // אשראי: כפתור "לתשלום" עם ארנק · אחרת: "שליחת ההזמנה"
   if (!submitBtn.disabled) { const ic = submitBtn.querySelector("svg"); if (ic) ic.outerHTML = subSvg(); const sp = submitBtn.querySelector("span:not(.pr)"); if (sp && CONFIG.sheetUrl) sp.textContent = subText(); }
   const h = $("payChoiceHint"); if (h) { const t = PAY_HINT[val("pay")]; h.textContent = t || ""; h.style.display = t ? "" : "none"; }
   $("preNote").style.display = "none";
@@ -1075,13 +1088,15 @@ $("cityList").replaceChildren(...[...new Set(DESTS.map(d => String(d.city || d.l
 const numOf = n => String(n).trim();
 // סוג המקום: דירה / בית · משרד · מלון · אחר – השדות משתנים לפי הסוג
 const PLACE_TYPES = {
-  apt:    { ic: "house",      f: { Floor: "קומה", Apt: "דירה" } },
-  office: { ic: "building-2", f: { Place: "שם החברה", Floor: "קומה" } },
-  hotel:  { ic: "bed",        f: { Place: "שם המלון", Apt: "מס׳ חדר" } },
-  other:  { ic: "ellipsis",   f: { Place: "פירוט קצר (למשל: חנות, מחסן, בית ספר)" } },
+  building: { ic: "building-2", f: { Floor: "קומה", Apt: "דירה" } },
+  house:    { ic: "house",      f: {} },
+  hotel:    { ic: "bed",        f: { Place: "שם המלון", Apt: "מס׳ חדר" } },
+  other:    { ic: "ellipsis",   f: { Place: "פירוט קצר (למשל: משרד, חנות, בית ספר)" } },
 };
+const typeOf = v => ({ apt: "building", office: "building" })[v] || (PLACE_TYPES[v] ? v : "building");   // ערכים ישנים שנשמרו במכשיר
 function applyType(k) {
-  const t = PLACE_TYPES[$(k + "Type").value] || PLACE_TYPES.apt;
+  $(k + "Type").value = typeOf($(k + "Type").value);
+  const t = PLACE_TYPES[$(k + "Type").value];
   $(k + "TypeIc").setAttribute("href", "#i-" + t.ic);
   ["Place", "Floor", "Apt"].forEach(x => {
     const box = $(k + x + "F"), on = !!t.f[x];
@@ -1089,15 +1104,16 @@ function applyType(k) {
     if (on) box.querySelector("label").textContent = t.f[x];
   });
   $(k + "Det").classList.toggle("one", Object.keys(t.f).length === 1);
+  $(k + "Det").style.display = Object.keys(t.f).length ? "" : "none";
 }
 ["p", "d"].forEach(k => { $(k + "Type").addEventListener("change", () => applyType(k)); applyType(k); });
 const syncHouse = () => ["p", "d"].forEach(applyType);
 // פרטי המקום כטקסט לארי: "דירה · קומה 3 · דירה 12 · כניסה א · קוד 1234#"
 function placeOf(k, quiet) {
-  const v = id => $(k + id).value.trim(), type = $(k + "Type").value;
+  const v = id => $(k + id).value.trim(), type = typeOf($(k + "Type").value);
   const parts = [];
-  if (type === "apt") parts.push(v("Floor") || v("Apt") ? ["קומה " + v("Floor"), "דירה " + v("Apt")].filter(x => !/ $/.test(x)).join(" · ") : (quiet ? "" : "בית פרטי"));
-  if (type === "office") parts.push("משרד" + (v("Place") ? " " + v("Place") : ""), v("Floor") && "קומה " + v("Floor"));
+  if (type === "building") parts.push(v("Floor") || v("Apt") ? [v("Floor") && "קומה " + v("Floor"), v("Apt") && "דירה " + v("Apt")].filter(Boolean).join(" · ") : (quiet ? "" : "⚠️ קומה ודירה לא צוינו"));
+  if (type === "house") parts.push("בית פרטי");
   if (type === "hotel") parts.push("מלון" + (v("Place") ? " " + v("Place") : ""), v("Apt") && "חדר " + v("Apt"));
   if (type === "other") parts.push(v("Place") || "אחר");
   parts.push(v("Ent") && "כניסה " + v("Ent"), v("Code") && "קוד " + v("Code"));
@@ -1490,8 +1506,9 @@ $("orderForm").addEventListener("submit", e => {
 
 /* ---------- שליחה חכמה: מחכים לאישור מהמערכת, ואם אין – ווצאפ ---------- */
 const WA_ICON = document.querySelector("#orderForm > button[type=submit] svg").outerHTML;   // סמל ווצאפ – לכפתורי ווצאפ
-const subSvg = () => isOnline() ? '<svg class="ic"><use href="#i-wallet"/></svg>' : WA_ICON;
-const subText = () => isOnline() ? "לתשלום" : "שליחה לארי";
+// כפתור השליחה: "שליחת ההזמנה" עם סמל שליחה (ווצאפ רק כשאין חיבור למערכת ובאמת שולחים בווצאפ)
+const subSvg = () => isOnline() ? '<svg class="ic"><use href="#i-wallet"/></svg>' : CONFIG.sheetUrl ? '<svg class="ic"><use href="#i-car"/></svg>' : WA_ICON;   // אותו רכב כמו בלוגו
+const subText = () => isOnline() ? "לתשלום" : "שליחת ההזמנה";
 function payProblem(msg) {
   const n = $("payErr") || Object.assign(document.createElement("div"), { id: "payErr", className: "notice off" });
   n.textContent = msg + " · אפשר גם להתקשר לארי: " + CONFIG.payPhone; n.style.display = "block";
@@ -2087,7 +2104,7 @@ function renderRecipients() {
 }
 function useRecipient(r) {
   $("dName").value = r.name; setD(r.street); $("dPhone").value = r.phone || "";
-  PLACE_IDS.forEach(x => { $("d" + x).value = x === "Type" ? (r.type || "apt") : (r[x.toLowerCase()] || ""); }); syncHouse();
+  PLACE_IDS.forEach(x => { $("d" + x).value = x === "Type" ? typeOf(r.type || "building") : (r[x.toLowerCase()] || ""); }); syncHouse();
   if ([...$("dCity").options].some(o => o.value === r.label)) $("dCity").value = r.label;
   showPrice();
   ["dName", "dStreet", "dNum", "dPhone", "dCity"].forEach(id => $(id).classList.remove("bad"));
@@ -2102,7 +2119,7 @@ $("dName").addEventListener("input", () => {
 });
 
 function resetForm() {
-  $("dType").value = "apt";
+  $("dType").value = "building";
   ["dName", "dAddr", "dStreet", "dNum", "dPhone", "dPlace", "dFloor", "dApt", "dEnt", "dCode", "dNote", "notes", "greeting", "whenTime", "wtTime", "wtTo", "whenTo"].forEach(id => $(id).value = "");
   syncHouse();
   $("dCity").value = ""; showPrice(); if ($("whenSched")) $("whenSched").textContent = ""; setWtRange(false);
