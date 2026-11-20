@@ -776,7 +776,7 @@ function applyList(d, savedAt) {
   if (view === "orders") $("app").style.display = "block";
   render();
   if (savedAt) { $("note").textContent = `מוצגים הנתונים מ-${hhmm(savedAt)} · מתעדכן…`; return; }
-  $("note").textContent = `עודכן ב-${hhmm(Date.now())} · מתעדכן לבד כל חצי דקה`;
+  $("note").textContent = `עודכן ב-${hhmm(Date.now())} · מתעדכן לבד כל 10 שניות`;
   setLed(true, d.mailQuota);
 }
 
@@ -1424,7 +1424,8 @@ $("q").addEventListener("input", render);
 $("qClear").onclick = () => { $("q").value = ""; render(); $("q").focus(); };
 $("tabOpen").onclick = () => { tab = "open"; $("tabOpen").classList.add("on"); $("tabDone").classList.remove("on"); render(); };
 $("tabDone").onclick = () => { tab = "done"; $("tabDone").classList.add("on"); $("tabOpen").classList.remove("on"); render(); };
-setInterval(() => { if (key && !document.hidden && view === "orders") load(); }, 30000);
+// רענון אוטומטי כל 10 שניות (רק כשהמסך פתוח ומוצג, ולא כשבקשה קודמת עוד לא חזרה)
+setInterval(() => { if (key && !document.hidden && view === "orders" && Date.now() - lastLoad > 9000) load(); }, 10000);
 // חוזרים לדף (מאפליקציה אחרת / מסך נעול) – מרעננים מיד
 const loadIfStale = () => { if (key && !document.hidden && view === "orders" && Date.now() - lastLoad > 5000) load(); };
 document.addEventListener("visibilitychange", loadIfStale);
