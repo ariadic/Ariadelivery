@@ -586,6 +586,15 @@ label.chk input[type=checkbox]:checked::after{right:23px}
 .filters select{width:100%;max-width:none;flex:none;min-width:0;min-height:44px;border:0!important;border-radius:12px!important;background:var(--fill) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='3'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat left 10px center;padding:0 12px 0 26px!important;font-size:14px!important;font-weight:600;color:#3a3a3c;text-overflow:ellipsis;white-space:nowrap}
 .filters select.set{background-color:#111;color:#fff}
 .amOther[hidden]{display:none}
+/* הצעה א: שלוש קבוצות – מצב (כרטיס אחד) · מספרים (שורה עם קווים) · רשימה */
+#availBox{display:block!important;padding:0!important;margin:0 0 26px!important;background:#fff!important;border:1px solid var(--line)!important;border-radius:20px!important;overflow:hidden;box-shadow:none!important}
+#availBox .stRow{border-radius:0!important;background:#fff!important;padding:12px 14px!important;flex:1;min-width:0}
+#availBox .stRow + .stRow{border-top:0!important;border-right:1px solid var(--line)!important}
+#availBox .pair{display:flex}
+#availBox > #availMsgBox{border-radius:0!important;background:#fff!important;border-top:1px solid var(--line)!important;min-height:46px}
+.kpi{gap:0!important;margin:0 0 26px!important}
+.kpi div{background:none!important;border-radius:0!important;padding:2px 14px!important}
+.kpi div + div{border-right:1px solid var(--line)}
 </style>
 </head>
 <body>
@@ -607,6 +616,7 @@ label.chk input[type=checkbox]:checked::after{right:23px}
     <div class="alertBox" id="connAlert" style="display:none"><b>אין חיבור לטבלה בגוגל</b><br>הזמנות חדשות יגיעו אליך <b>בווצאפ</b> עד שזה יסתדר.<br><span class="small">כדאי לבדוק: האינטרנט · הקוד בגוגל (פריסה / הרשאה)</span></div>
     <div class="quotaBox" id="quotaWarn" style="display:none"></div>
     <section class="card avail" id="availBox">
+      <div class="pair">
       <div class="stRow" id="availRow">
         <div class="at"><div class="availTitle" id="availTitle"></div><div class="meta" id="availSub"></div><span class="led" id="led" style="display:none"></span></div>
         <button type="button" class="pwr" id="availPw" aria-label="זמין לקבל הזמנות"><svg class="ic" viewBox="0 0 24 24"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></svg></button>
@@ -614,6 +624,7 @@ label.chk input[type=checkbox]:checked::after{right:23px}
       <div class="stRow" id="urgRow">
         <div class="at"><div class="availTitle"><svg class="ic s uic"><use href="#i-zap"/></svg><span id="urgTitle"></span></div><div class="meta" id="urgSub"></div></div>
         <button type="button" class="pwr u" id="urgPw" aria-label="מקבל דחופים"><svg class="ic" viewBox="0 0 24 24"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></svg></button>
+      </div>
       </div>
       <input type="hidden" id="availMsg">
       <button type="button" id="availMsgBox" style="display:none"><svg class="ic s"><use href="#i-message-square-text"/></svg><span id="availPrev"></span><svg class="ic s chev"><use href="#i-chevron-left"/></svg></button>
@@ -817,7 +828,8 @@ function load() {
     const c = cacheGet(LIST_CACHE);
     if (c && c.d && c.d.ok) applyList(c.d, c.t);
   }
-  if (!/מתעדכן…$/.test($("note").textContent)) $("note").textContent = "טוען…";
+  // "טוען…" רק בטעינה הראשונה – ברענון של כל 10 שניות נשארת השורה "עודכן ב-…"
+  if (!$("note").textContent.trim()) $("note").textContent = "טוען…";
   fetch(SHEET_URL + "?action=list&key=" + encodeURIComponent(key))
     .then(r => r.json())
     .then(d => {
