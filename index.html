@@ -605,8 +605,8 @@ label.terms.bad{box-shadow:none;border:0}label.terms.bad span{color:#be123c}labe
       <input id="pNum" inputmode="text" maxlength="8" autocomplete="off" required><div class="errmsg">חובה</div></div>
       </div>
       <input type="hidden" id="pAddr">
-      <div class="f wi sel" id="pTypeF"><svg class="ic fi"><use href="#i-house" id="pTypeIc"/></svg><label for="pType">סוג המקום</label>
-      <select id="pType"><option value="apt">דירה / בית</option><option value="office">משרד</option><option value="hotel">מלון</option><option value="other">אחר</option></select>
+      <div class="f wi sel" id="pTypeF"><svg class="ic fi"><use href="#i-building-2" id="pTypeIc"/></svg><label for="pType">סוג המקום</label>
+      <select id="pType"><option value="building">בניין</option><option value="house">בית פרטי</option><option value="hotel">מלון</option><option value="other">אחר</option></select>
       <svg class="ic chevd"><use href="#i-chevron-down"/></svg></div>
       <div class="row2" id="pDet">
       <div class="f" id="pPlaceF"><label for="pPlace">שם החברה</label>
@@ -650,8 +650,8 @@ label.terms.bad{box-shadow:none;border:0}label.terms.bad span{color:#be123c}labe
       <input id="dNum" inputmode="text" maxlength="8" autocomplete="off" required><div class="errmsg">חובה</div></div>
       </div>
       <input type="hidden" id="dAddr">
-      <div class="f wi sel" id="dTypeF"><svg class="ic fi"><use href="#i-house" id="dTypeIc"/></svg><label for="dType">סוג המקום</label>
-      <select id="dType"><option value="apt">דירה / בית</option><option value="office">משרד</option><option value="hotel">מלון</option><option value="other">אחר</option></select>
+      <div class="f wi sel" id="dTypeF"><svg class="ic fi"><use href="#i-building-2" id="dTypeIc"/></svg><label for="dType">סוג המקום</label>
+      <select id="dType"><option value="building">בניין</option><option value="house">בית פרטי</option><option value="hotel">מלון</option><option value="other">אחר</option></select>
       <svg class="ic chevd"><use href="#i-chevron-down"/></svg></div>
       <div class="row2" id="dDet">
       <div class="f" id="dPlaceF"><label for="dPlace">שם החברה</label>
@@ -1088,13 +1088,15 @@ $("cityList").replaceChildren(...[...new Set(DESTS.map(d => String(d.city || d.l
 const numOf = n => String(n).trim();
 // סוג המקום: דירה / בית · משרד · מלון · אחר – השדות משתנים לפי הסוג
 const PLACE_TYPES = {
-  apt:    { ic: "house",      f: { Floor: "קומה", Apt: "דירה" } },
-  office: { ic: "building-2", f: { Place: "שם החברה", Floor: "קומה" } },
-  hotel:  { ic: "bed",        f: { Place: "שם המלון", Apt: "מס׳ חדר" } },
-  other:  { ic: "ellipsis",   f: { Place: "פירוט קצר (למשל: חנות, מחסן, בית ספר)" } },
+  building: { ic: "building-2", f: { Floor: "קומה", Apt: "דירה" } },
+  house:    { ic: "house",      f: {} },
+  hotel:    { ic: "bed",        f: { Place: "שם המלון", Apt: "מס׳ חדר" } },
+  other:    { ic: "ellipsis",   f: { Place: "פירוט קצר (למשל: משרד, חנות, בית ספר)" } },
 };
+const typeOf = v => ({ apt: "building", office: "building" })[v] || (PLACE_TYPES[v] ? v : "building");   // ערכים ישנים שנשמרו במכשיר
 function applyType(k) {
-  const t = PLACE_TYPES[$(k + "Type").value] || PLACE_TYPES.apt;
+  $(k + "Type").value = typeOf($(k + "Type").value);
+  const t = PLACE_TYPES[$(k + "Type").value];
   $(k + "TypeIc").setAttribute("href", "#i-" + t.ic);
   ["Place", "Floor", "Apt"].forEach(x => {
     const box = $(k + x + "F"), on = !!t.f[x];
@@ -1102,15 +1104,16 @@ function applyType(k) {
     if (on) box.querySelector("label").textContent = t.f[x];
   });
   $(k + "Det").classList.toggle("one", Object.keys(t.f).length === 1);
+  $(k + "Det").style.display = Object.keys(t.f).length ? "" : "none";
 }
 ["p", "d"].forEach(k => { $(k + "Type").addEventListener("change", () => applyType(k)); applyType(k); });
 const syncHouse = () => ["p", "d"].forEach(applyType);
 // פרטי המקום כטקסט לארי: "דירה · קומה 3 · דירה 12 · כניסה א · קוד 1234#"
 function placeOf(k, quiet) {
-  const v = id => $(k + id).value.trim(), type = $(k + "Type").value;
+  const v = id => $(k + id).value.trim(), type = typeOf($(k + "Type").value);
   const parts = [];
-  if (type === "apt") parts.push(v("Floor") || v("Apt") ? ["קומה " + v("Floor"), "דירה " + v("Apt")].filter(x => !/ $/.test(x)).join(" · ") : (quiet ? "" : "בית פרטי"));
-  if (type === "office") parts.push("משרד" + (v("Place") ? " " + v("Place") : ""), v("Floor") && "קומה " + v("Floor"));
+  if (type === "building") parts.push(v("Floor") || v("Apt") ? [v("Floor") && "קומה " + v("Floor"), v("Apt") && "דירה " + v("Apt")].filter(Boolean).join(" · ") : (quiet ? "" : "⚠️ קומה ודירה לא צוינו"));
+  if (type === "house") parts.push("בית פרטי");
   if (type === "hotel") parts.push("מלון" + (v("Place") ? " " + v("Place") : ""), v("Apt") && "חדר " + v("Apt"));
   if (type === "other") parts.push(v("Place") || "אחר");
   parts.push(v("Ent") && "כניסה " + v("Ent"), v("Code") && "קוד " + v("Code"));
@@ -2101,7 +2104,7 @@ function renderRecipients() {
 }
 function useRecipient(r) {
   $("dName").value = r.name; setD(r.street); $("dPhone").value = r.phone || "";
-  PLACE_IDS.forEach(x => { $("d" + x).value = x === "Type" ? (r.type || "apt") : (r[x.toLowerCase()] || ""); }); syncHouse();
+  PLACE_IDS.forEach(x => { $("d" + x).value = x === "Type" ? typeOf(r.type || "building") : (r[x.toLowerCase()] || ""); }); syncHouse();
   if ([...$("dCity").options].some(o => o.value === r.label)) $("dCity").value = r.label;
   showPrice();
   ["dName", "dStreet", "dNum", "dPhone", "dCity"].forEach(id => $(id).classList.remove("bad"));
@@ -2116,7 +2119,7 @@ $("dName").addEventListener("input", () => {
 });
 
 function resetForm() {
-  $("dType").value = "apt";
+  $("dType").value = "building";
   ["dName", "dAddr", "dStreet", "dNum", "dPhone", "dPlace", "dFloor", "dApt", "dEnt", "dCode", "dNote", "notes", "greeting", "whenTime", "wtTime", "wtTo", "whenTo"].forEach(id => $(id).value = "");
   syncHouse();
   $("dCity").value = ""; showPrice(); if ($("whenSched")) $("whenSched").textContent = ""; setWtRange(false);
