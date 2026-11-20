@@ -656,9 +656,10 @@ button.lnkSkip{display:block;margin:10px auto 0;background:none;border:0;color:v
     <div id="ceDefFields" class="grid">
       <label>תוספת דחוף (₪)<input id="ce_urgentDef" inputmode="numeric" placeholder="0"></label>
       <label class="chk wide"><input type="checkbox" id="ce_urgOnDef"> אפשרות "דחוף" ללקוחות מזדמנים</label>
+      <label class="chk wide"><input type="checkbox" id="ce_pbDef"> פייבוקס לכל הלקוחות</label>
       <label class="chk wide"><input type="checkbox" id="ce_ccDef"> כרטיס אשראי לכל הלקוחות (להדליק כשמסוף הסליקה פעיל)</label>
       <label class="chk wide"><input type="checkbox" id="ce_cashDef"> מזומן ללקוחות מזדמנים</label>
-      <p class="meta wide">כל הלקוחות משלמים בביט ובפייבוקס, ובכרטיס אשראי כשהמתג דלוק. מזומן – רק למי שמסמנים.</p>
+      <p class="meta wide">ביט – תמיד, לכל הלקוחות. פייבוקס ואשראי – לכל הלקוחות כשהמתג דלוק. מזומן – רק למי שמסמנים (כפתור "מזומן" ברשימה).</p>
     </div>
 
     <h3 class="sub">מחירון <span class="opt" id="ceCount"></span></h3>
@@ -1548,6 +1549,7 @@ function openEditor(c, dup) {
   $("ce_urgentDef").value = c.urgentExtra || "";
   $("ce_cashDef").checked = isDef && /מזומן/.test(c.pay || "");
   $("ce_ccDef").checked = isDef && /אשראי/.test(c.pay || "");
+  $("ce_pbDef").checked = isDef && /פייבוקס/.test(c.pay || "");
   $("ce_sizes").value = (c.sizes || []).join(", ");
   $("ce_fixed").checked = isNew && !dup ? true : !!c.fixedPickup;
   $("ce_hidePayer").checked = !!c.hidePayer; $("ce_greeting").checked = !!c.greeting;
@@ -1666,7 +1668,7 @@ $("ceSave").onclick = () => {
   const isDef = editing.isDef;
   if (!isDef && !$("ce_name").value.trim()) { $("ce_name").classList.add("bad"); err.textContent = "חסר שם העסק"; return; }
   const customer = isDef
-    ? { urgentExtra: $("ce_urgentDef").value || 0, pay: [$("ce_cashDef").checked && "מזומן", $("ce_ccDef").checked && "אשראי"].filter(Boolean).join(" "), noUrgent: !$("ce_urgOnDef").checked }
+    ? { urgentExtra: $("ce_urgentDef").value || 0, pay: [$("ce_cashDef").checked && "מזומן", $("ce_pbDef").checked && "פייבוקס", $("ce_ccDef").checked && "אשראי"].filter(Boolean).join(" "), noUrgent: !$("ce_urgOnDef").checked }
     : { name: $("ce_name").value, addr: $("ce_addr").value, phone: $("ce_phone").value, title: $("ce_title").value,
         pay: $("ce_cash").checked ? "מזומן" : "", urgentExtra: $("ce_urgent").value || 0, fixedPickup: $("ce_fixed").checked,
         hidePayer: $("ce_hidePayer").checked, greeting: false,

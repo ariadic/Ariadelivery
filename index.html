@@ -894,7 +894,8 @@ const CONFIG = {
     if (code && cfg.customer) CONFIG.customers[code] = fix(cfg.customer);
     CONFIG.occasionalCash = !!(cfg.defaults && /מזומן/.test(cfg.defaults.pay || ""));
     CONFIG.occasionalOnline = !!(cfg.defaults && /אונליין/.test(cfg.defaults.pay || ""));   // תשלום באתר דרך מורנינג
-    CONFIG.ccOn = !!(cfg.defaults && /אשראי/.test(cfg.defaults.pay || ""));                // מתג "כרטיס אשראי" בניהול
+    CONFIG.ccOn = !!(cfg.defaults && /אשראי/.test(cfg.defaults.pay || ""));
+    CONFIG.pbOn = !!(cfg.defaults && /פייבוקס/.test(cfg.defaults.pay || ""));              // מתג "פייבוקס" בניהול                // מתג "כרטיס אשראי" בניהול
     CONFIG.defaultNoUrgent = !!(cfg.defaults && cfg.defaults.noUrgent);   // נקבע בדף הניהול: לקוחות מזדמנים · תשלום
     if (cfg.defaults && cfg.defaults.prices && cfg.defaults.prices.length) {
       CONFIG.defaultPrices = cfg.defaults.prices;
@@ -1050,7 +1051,7 @@ const PAY_TILES = {
 };
 const PAY_BADGES = `<span class="pbd${PAY_METHODS.length === 1 ? " one" : ""}">` + PAY_METHODS.map(k => PAY_TILES[k]).join("") + `</span>`;
 const PAY_ICON = { "מזומן": ICO("banknote"), "ביט": '<b class="pbit">bit</b>', "פייבוקס": '<b class="ppb">P</b>', [CC]: ICO("credit-card") };
-const PAY_ALL = [...(CASH_OK ? ["מזומן"] : []), "ביט", "פייבוקס", ...(CC_OK ? [CC] : [])];
+const PAY_ALL = [...(CASH_OK ? ["מזומן"] : []), "ביט", ...(CONFIG.pbOn ? ["פייבוקס"] : []), ...(CC_OK ? [CC] : [])];
 chips("payChips", "pay", PAY_ALL, t => PAY_ICON[t] + `<span>${t}</span>`);
 $("payChips").classList.add("payGrid");
 $("payChips").style.setProperty("--n", PAY_ALL.length);
