@@ -571,14 +571,18 @@ label.terms.bad{box-shadow:none;border:0}label.terms.bad span{color:#be123c}labe
 /* המחיר בכפתור – טקסט פשוט, בלי ריבוע */
 #orderForm > button[type=submit] .pr{background:none!important;padding:0!important;border-radius:0!important;font-weight:700;font-size:18px}
 /* כניסה / קוד / הוראות – מוסתרים עד שצריך */
-.moreF{display:flex;align-items:center;gap:8px;width:auto;margin:2px 0 10px;padding:10px 4px;border:0;background:none;color:var(--ac);font:inherit;font-size:15px;font-weight:600;cursor:pointer;min-height:44px}
-.moreF .ic{width:16px;height:16px}
+.moreF{display:flex;align-items:center;gap:10px;width:100%;margin:0 0 10px;padding:0 14px;border:1.5px dashed #d4d4d8;border-radius:12px;background:none;color:#3a3a3c;font:inherit;font-size:15px;font-weight:600;cursor:pointer;min-height:52px;text-align:right;-webkit-tap-highlight-color:transparent}
+.moreF:active{background:var(--fill)}
+.moreF .pl{flex:none;width:24px;height:24px;border-radius:50%;background:#fff1eb;color:var(--ac);display:grid;place-items:center}
+.moreF .ic{width:14px;height:14px;stroke-width:2.6}
+.moreF small{color:#a1a1aa;font-weight:500;font-size:14px}
 /* כותרות אחידות לכל קטע */
 #orderForm h2.sh.lab2{margin:18px 0 12px}
 #orderForm .card > h2.sh.lab2:first-child{margin-top:4px}
 /* תשלום מראש – ראשון במסך */
 .payCard.first{margin:14px 0 6px;text-align:right}
 .payCard.first #payPre{margin:0 0 12px}
+.moreF[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -625,7 +629,7 @@ label.terms.bad{box-shadow:none;border:0}label.terms.bad span{color:#be123c}labe
       <div class="f" id="pAptF"><label for="pApt">דירה</label>
       <input id="pApt" inputmode="text" maxlength="10" autocomplete="off"></div>
       </div>
-      <button type="button" class="moreF" id="pMoreBtn"><svg class="ic s"><use href="#i-plus"/></svg><span>כניסה, קוד והוראות לשליח</span></button>
+      <button type="button" class="moreF" id="pMoreBtn"><span class="pl"><svg class="ic s"><use href="#i-plus"/></svg></span><span>כניסה, קוד והוראות לשליח <small>· לא חובה</small></span></button>
       <div class="extraF" id="pExtra" hidden>
       <div class="row2">
       <div class="f" id="pEntF"><label for="pEnt">כניסה</label>
@@ -675,7 +679,7 @@ label.terms.bad{box-shadow:none;border:0}label.terms.bad span{color:#be123c}labe
       <div class="f" id="dAptF"><label for="dApt">דירה</label>
       <input id="dApt" inputmode="text" maxlength="10" autocomplete="off"></div>
       </div>
-      <button type="button" class="moreF" id="dMoreBtn"><svg class="ic s"><use href="#i-plus"/></svg><span>כניסה, קוד והוראות לשליח</span></button>
+      <button type="button" class="moreF" id="dMoreBtn"><span class="pl"><svg class="ic s"><use href="#i-plus"/></svg></span><span>כניסה, קוד והוראות לשליח <small>· לא חובה</small></span></button>
       <div class="extraF" id="dExtra" hidden>
       <div class="row2">
       <div class="f" id="dEntF"><label for="dEnt">כניסה</label>
