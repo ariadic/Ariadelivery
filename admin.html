@@ -533,6 +533,25 @@ button,input,select,textarea,.led{font-family:Rubik,Heebo,system-ui,sans-serif!i
 button.lnkSkip{display:block;margin:10px auto 0;background:none;border:0;color:var(--mu);font:inherit;font-size:13px;text-decoration:underline;padding:10px;min-height:44px;cursor:pointer}
 .cashPill{display:inline-flex;align-items:center;gap:4px;margin-top:6px;min-height:32px;padding:0 11px;border-radius:99px;border:0;background:var(--fill);color:#6b6b73;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
 .cashPill.on{background:#e8f8ee;color:#15803d}.cashPill .ic{width:15px;height:15px}
+/* ===== יישור קו: מערכת עיצוב אחידה =====
+   אייקונים: 14 (תגיות) · 16 (קטן, בתוך טקסט) · 20 (רגיל) · 24 (גדול: אריחים, ניווט, כפתור ראשי)
+   פינות: 12 (קטן) · 16 (שדות, כפתורים, אריחים) · 20 (כרטיסים) · עגול (99) – כפתורי גלולה
+   מתג: אחד בכל המקומות (51×31) */
+.ic.s{width:16px!important;height:16px!important}
+.ic.xs,.dtag .ic{width:14px!important;height:14px!important}
+.cashPill .ic{width:16px;height:16px}
+label.etaBox .ic,.ceSet summary .ic{width:20px;height:20px}
+.bnav button.fab .ic,button.pwr .ic{width:24px;height:24px}
+.grid label{border-radius:16px}
+.prow .pmore,.prow .drag{color:#6b6b73}
+.prow .pmore .ic{width:20px!important;height:20px!important}
+/* מתג אחיד – גם בתוך שדות הלקוח (שם הוסר לו הרקע בטעות) */
+label.chk{display:flex!important;align-items:center;justify-content:space-between;gap:12px;min-height:52px}
+label.chk input[type=checkbox]{order:2;-webkit-appearance:none!important;appearance:none!important;flex:none!important;width:51px!important;height:31px!important;border-radius:99px!important;background:#d4d4d8!important;position:relative!important;margin:0!important;padding:0!important;border:0!important;box-shadow:none!important;cursor:pointer;transition:background .2s}
+label.chk input[type=checkbox]::after{content:"";position:absolute;top:3px;right:3px;width:25px;height:25px;border-radius:50%;background:#fff;box-shadow:0 2px 4px #0003;transition:right .2s}
+label.chk input[type=checkbox]:checked{background:#22c55e!important}
+label.chk input[type=checkbox]:checked::after{right:23px}
+.grid label.chk{font-size:15px;color:var(--tx);font-weight:400;padding:8px 14px}
 </style>
 </head>
 <body>
@@ -654,7 +673,7 @@ button.lnkSkip{display:block;margin:10px auto 0;background:none;border:0;color:v
       </details>
     </div>
     <div id="ceDefFields" class="grid">
-      <label>תוספת דחוף (₪)<input id="ce_urgentDef" inputmode="numeric" placeholder="0"></label>
+      <label class="wide">תוספת דחוף (₪)<input id="ce_urgentDef" inputmode="numeric" placeholder="0"></label>
       <label class="chk wide"><input type="checkbox" id="ce_urgOnDef"> אפשרות "דחוף" ללקוחות מזדמנים</label>
       <label class="chk wide"><input type="checkbox" id="ce_pbDef"> פייבוקס לכל הלקוחות</label>
       <label class="chk wide"><input type="checkbox" id="ce_ccDef"> כרטיס אשראי לכל הלקוחות (להדליק כשמסוף הסליקה פעיל)</label>
