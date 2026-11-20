@@ -34,7 +34,7 @@
   .cust{font-weight:700;font-size:16px}
   .meta{color:var(--muted);font-size:13px}
   .badge{flex:none;font-size:13px;font-weight:700;border-radius:14px;padding:4px 10px;white-space:nowrap}
-  .badge.new{background:#f3f4f6;color:#4b5563}.badge.picked{background:#dbeafe;color:#1d4ed8}.badge.done{background:#dcfce7;color:#15803d}.badge.no{background:#fee2e2;color:#b91c1c}
+  .badge.new{background:#f3f4f6;color:#3a3a3c}.badge.picked{background:#dbeafe;color:#1d4ed8}.badge.done{background:#dcfce7;color:#15803d}.badge.no{background:#fee2e2;color:#be123c}
   .avail{border:2px solid #16a34a}
   .avail.off{border-color:#dc2626;background:#fef2f2}
   .availRow{display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -49,7 +49,7 @@
   .lbl{font-weight:700}
   .acts{display:flex;gap:8px;margin-top:12px}
   .acts button{flex:1;font:inherit;font-size:16px;font-weight:700;padding:12px 6px;border-radius:12px;border:0;color:#fff;cursor:pointer}
-  .acts .picked{background:var(--blue)}.acts .done{background:var(--ok)}.acts .no{background:#fff;color:#b91c1c;border:1.5px solid #fca5a5}
+  .acts .picked{background:var(--blue)}.acts .done{background:var(--ok)}.acts .no{background:#fff;color:#be123c;border:1.5px solid #fca5a5}
   .acts .undo{flex:0 0 auto;background:#fff;color:var(--muted);border:1.5px solid var(--line);font-weight:500}
   .acts button:disabled{opacity:.5}
   .login{max-width:360px;margin:40px auto}
@@ -102,9 +102,9 @@
   .copyFrom{display:flex;gap:8px;margin-top:10px}
   .copyFrom select{flex:1;min-width:0;font:inherit;font-size:15px;padding:9px;border:1px solid var(--line);border-radius:10px;background:#fff}
   .copyFrom button{font:inherit;font-size:15px;padding:9px 14px;border-radius:10px;border:1.5px solid var(--line);background:#fff;cursor:pointer}
-  button.danger{width:100%;font:inherit;font-size:15px;padding:11px;border-radius:12px;border:1.5px solid #fca5a5;background:#fff;color:#b91c1c;cursor:pointer;margin-top:18px}
+  button.danger{width:100%;font:inherit;font-size:15px;padding:11px;border-radius:12px;border:1.5px solid #fca5a5;background:#fff;color:#be123c;cursor:pointer;margin-top:18px}
   .sheetLink{display:block;text-align:center;font-weight:600;color:#15803d;background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:11px;margin-bottom:12px;text-decoration:none}
-  .delOrder{display:block;margin:10px auto 0;font:inherit;font-size:13px;color:#b91c1c;background:none;border:0;cursor:pointer;padding:4px 8px}
+  .delOrder{display:block;margin:10px auto 0;font:inherit;font-size:13px;color:#be123c;background:none;border:0;cursor:pointer;padding:4px 8px}
   .delOrder:disabled{opacity:.5}
   .empty{text-align:center;color:var(--muted);padding:30px 0}
 
@@ -114,7 +114,7 @@ body{font-family:Heebo,system-ui,sans-serif;background:var(--bg);-webkit-font-sm
 header{background:#fff;color:var(--text);border-bottom:1px solid #eef0f4;padding:16px;box-shadow:0 1px 0 #eef0f4}
 header::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;background:var(--grad)}
 header h1{font-size:19px;font-weight:800}
-header button{background:var(--bg);color:#374151;border:1px solid var(--line);border-radius:11px;font-family:Heebo,sans-serif;font-weight:600;font-size:13px}
+header button{background:var(--bg);color:#3a3a3c;border:1px solid var(--line);border-radius:11px;font-family:Heebo,sans-serif;font-weight:600;font-size:13px}
 button,input,select,textarea{font-family:Heebo,sans-serif}
 .card{border-radius:18px;padding:16px;box-shadow:var(--shadow)}
 .tabs{background:#eceef3;border-radius:14px;padding:4px;gap:4px}
@@ -125,7 +125,7 @@ button,input,select,textarea{font-family:Heebo,sans-serif}
 .avail.off{border-color:#fca5a5;background:#fef2f2}
 #availToggle{border-radius:12px;font-size:14px}
 .cust{font-size:15.5px}
-.row{font-size:14px;color:#374151}
+.row{font-size:14px;color:#3a3a3c}
 .acts button{border-radius:12px;font-size:15px}
 .acts .picked{background:#2563eb}.acts .edit{background:var(--grad)}
 .acts .undo{border-radius:12px}
@@ -141,7 +141,7 @@ button,input,select,textarea{font-family:Heebo,sans-serif}
 .login button{background:var(--grad);border-radius:14px;box-shadow:0 8px 20px #ff6a4d44}
 .saveBtn{border-radius:14px}
 #ceSave{background:var(--grad);box-shadow:0 8px 20px #ff6a4d44}
-button.secondary{border-radius:12px;color:#374151;font-size:15px}
+button.secondary{border-radius:12px;color:#3a3a3c;font-size:15px}
 .sheetLink{border-radius:14px}
 .prow .drag{border-radius:10px}
 details.quick{border-radius:12px}
@@ -151,15 +151,15 @@ header .ht{display:flex;flex-direction:column;gap:4px;min-width:0}
 .led{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;font:600 11.5px Heebo,sans-serif;border-radius:20px;padding:3px 10px 3px 9px;white-space:nowrap}
 .led::before{content:"";width:8px;height:8px;border-radius:50%}
 .led.g{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}.led.g::before{background:#22c55e;box-shadow:0 0 0 3px #22c55e33}
-.led.r{background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5}.led.r::before{background:#ef4444;box-shadow:0 0 0 3px #ef444433}
-.alertBox{background:#fef2f2;border:1.5px solid #fca5a5;color:#991b1b;border-radius:16px;padding:12px 14px;font-size:14px;line-height:1.6;margin-bottom:12px}
-.alertBox .small{color:#7f1d1d;font-size:13px}
-.quotaBox{background:#fffbeb;border:1.5px solid #fcd34d;color:#92400e;border-radius:16px;padding:11px 14px;font-size:14px;margin-bottom:12px}
+.led.r{background:#fef2f2;color:#be123c;border:1px solid #fca5a5}.led.r::before{background:#ef4444;box-shadow:0 0 0 3px #ef444433}
+.alertBox{background:#fef2f2;border:1.5px solid #fca5a5;color:#be123c;border-radius:16px;padding:12px 14px;font-size:14px;line-height:1.6;margin-bottom:12px}
+.alertBox .small{color:#be123c;font-size:13px}
+.quotaBox{background:#fffbeb;border:1.5px solid #fcd34d;color:#b45309;border-radius:16px;padding:11px 14px;font-size:14px;margin-bottom:12px}
 .acts .ok{background:#7c3aed}
 .waitPay{background:#fff7ed;border:1.5px solid #fdba74;color:#c2410c;border-radius:12px;padding:8px 10px;font-weight:700;font-size:13.5px;margin-top:10px}
 .badge.ok{background:#ede9fe;color:#6d28d9}
 /* ===== עיצוב 2026: נקי בסגנון אפליקציית משלוחים ===== */
-:root{--ac:#ff5a1f;--ac-soft:#fff1eb;--okc:#1fbf5a;--fill:#f4f4f5;--ln:#ececef;--tx:#111;--mu:#70707a;--brand:#ff5a1f;--brand-soft:#fff1eb;--bg:#fff;--text:#111;--muted:#70707a;--ring:#ff5a1f2e}
+:root{--ac:#ff5a1f;--ac-soft:#fff1eb;--okc:#22c55e;--fill:#f4f4f5;--ln:#ececef;--tx:#111;--mu:#70707a;--brand:#ff5a1f;--brand-soft:#fff1eb;--bg:#fff;--text:#111;--muted:#70707a;--ring:#ff5a1f2e}
 body{font-family:Rubik,Heebo,system-ui,sans-serif;background:#fff;color:var(--tx);padding-bottom:calc(84px + env(safe-area-inset-bottom))}
 button,input,select,textarea{font-family:Rubik,Heebo,sans-serif}
 .ic{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -185,9 +185,9 @@ main{padding:8px 16px 24px}
 .avail.off .adot{background:#e11d48;box-shadow:0 0 0 4px #e11d4833}
 .availRow .at{flex:1;min-width:0}
 .availTitle{font-size:15px;font-weight:600}
-#availSub{font-size:12px;color:#5a7a66}
-.avail.off #availSub{color:#9f1239}
-.at .led,.at .led.g,.at .led.r{display:block;background:none;border:0;padding:0;font-weight:400;font-size:11.5px;color:#5a7a66;margin-top:1px}
+#availSub{font-size:12px;color:#6b6b73}
+.avail.off #availSub{color:#be123c}
+.at .led,.at .led.g,.at .led.r{display:block;background:none;border:0;padding:0;font-weight:400;font-size:11.5px;color:#6b6b73;margin-top:1px}
 .at .led::before{display:none}
 .at .led.r{color:#be123c;font-weight:600}
 #availToggle,.avail.off #availToggle{position:relative;width:52px;height:31px;border-radius:99px;padding:0;background:var(--okc);font-size:0;color:transparent;flex:none}
@@ -204,13 +204,13 @@ main{padding:8px 16px 24px}
 .kpi small{font-size:11.5px;color:var(--mu)}
 /* לשוניות וסינון */
 .tabs{background:var(--fill);border-radius:12px;padding:3px;gap:3px;margin-bottom:10px}
-.tabs button{border:0;background:none;color:#555;border-radius:10px;font-size:14.5px;font-weight:500;padding:9px}
+.tabs button{border:0;background:none;color:#3a3a3c;border-radius:10px;font-size:14.5px;font-weight:500;padding:9px}
 .tabs button.on{background:#fff;color:var(--tx);font-weight:600;box-shadow:0 2px 8px #00000018}
 .tabs em{font-style:normal;background:var(--ac);color:#fff;font-size:11px;font-weight:700;padding:1px 7px;border-radius:99px;margin-right:4px}
 .filters{flex-wrap:nowrap;gap:6px;overflow-x:auto;margin-bottom:12px;scrollbar-width:none}
-.filters select{flex:0 0 auto;width:auto;-webkit-appearance:none;appearance:none;border:1px solid #e4e4e8;border-radius:99px;padding:8px 14px;font-size:13.5px;font-weight:500;color:#333;background:#fff;max-width:60%}
+.filters select{flex:0 0 auto;width:auto;-webkit-appearance:none;appearance:none;border:1px solid #e4e4e8;border-radius:99px;padding:8px 14px;font-size:13.5px;font-weight:500;color:#3a3a3c;background:#fff;max-width:60%}
 .filters select.set{background:#111;color:#fff;border-color:#111}
-.note{font-size:12px;color:#a0a0a8;margin:0 0 10px}
+.note{font-size:12px;color:#a1a1aa;margin:0 0 10px}
 .summary{background:var(--fill);box-shadow:none;border-radius:14px}
 .summary .money{font-weight:600}
 .addBtn{display:none}
@@ -218,8 +218,8 @@ main{padding:8px 16px 24px}
 .card.oc{padding:12px 14px;margin-bottom:10px}
 .card.oc.dim1{opacity:.75}
 .r1{display:flex;align-items:center;gap:6px;font-size:12.5px;flex-wrap:wrap}
-.r1 .cust{font-weight:600;color:#555;font-size:12.5px}
-.r1 .tm{margin-right:auto;color:#999}
+.r1 .cust{font-weight:600;color:#3a3a3c;font-size:12.5px}
+.r1 .tm{margin-right:auto;color:#6b6b73}
 .badge{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:99px}
 .badge.new{background:var(--ac-soft);color:var(--ac)}
 .badge.ok{background:var(--fill);color:var(--tx)}
@@ -232,16 +232,16 @@ main{padding:8px 16px 24px}
 .dst b{display:block;font-size:16.5px;font-weight:600}
 .dst small{color:var(--mu);font-size:13px}
 a.qi{width:38px;height:38px;border-radius:50%;background:var(--fill);color:var(--tx);display:grid;place-items:center;flex:none}
-.nt{display:flex;align-items:flex-start;gap:5px;font-size:13px;color:#444;background:#fffbea;border-radius:10px;padding:6px 9px;margin:-2px 0 9px}
-.nt .ic{margin-top:3px;color:#b7791f}
-.waitPay{border:0;background:#fff7e0;color:#a16207;border-radius:10px;padding:6px 9px;font-size:12.5px;font-weight:600;margin:-2px 0 9px}
+.nt{display:flex;align-items:flex-start;gap:5px;font-size:13px;color:#3a3a3c;background:#fffbea;border-radius:10px;padding:6px 9px;margin:-2px 0 9px}
+.nt .ic{margin-top:3px;color:#b45309}
+.waitPay{border:0;background:#fff7e0;color:#b45309;border-radius:10px;padding:6px 9px;font-size:12.5px;font-weight:600;margin:-2px 0 9px}
 .r3{display:flex;align-items:center;gap:8px}
-.py{font-size:12.5px;font-weight:500;color:#555;background:var(--fill);padding:5px 9px;border-radius:9px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.py.wait{background:#fff7e0;color:#a16207}.py.paid{background:#e8f8ee;color:#15803d}
+.py{font-size:12.5px;font-weight:500;color:#3a3a3c;background:var(--fill);padding:5px 9px;border-radius:9px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.py.wait{background:#fff7e0;color:#b45309}.py.paid{background:#e8f8ee;color:#15803d}
 button.act{margin-right:auto;display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border-radius:12px;border:0;font-weight:600;font-size:14.5px;color:#fff;background:var(--ac);flex:none;cursor:pointer}
 button.act.grn{background:var(--okc)}
 button.act:disabled{opacity:.55}
-button.more{width:40px;height:40px;border-radius:12px;background:var(--fill);border:0;display:grid;place-items:center;color:#555;flex:none;cursor:pointer;padding:0}
+button.more{width:40px;height:40px;border-radius:12px;background:var(--fill);border:0;display:grid;place-items:center;color:#3a3a3c;flex:none;cursor:pointer;padding:0}
 .r3 .py + button.more{margin-right:auto}
 /* חלונית פעולות */
 .dim{position:fixed;inset:0;background:#0007;opacity:0;pointer-events:none;transition:opacity .25s;z-index:50}
@@ -255,21 +255,21 @@ body.sheetOpen{overflow:hidden}
 .shh small{color:var(--mu);font-size:12px}
 .shh h2{font-size:21px;font-weight:700;margin:2px 0 0}
 .shh button.ib{width:36px;height:36px}
-.det{display:flex;flex-direction:column;gap:8px;margin:12px 0;font-size:14px;color:#333}
+.det{display:flex;flex-direction:column;gap:8px;margin:12px 0;font-size:14px;color:#3a3a3c}
 .det .dr{display:flex;align-items:flex-start;gap:8px}
 .det .dr .ic{color:var(--ac);margin-top:2px}
 .det a{color:var(--tx);font-weight:600;text-decoration:none}
 .qrow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px}
 .qrow button{display:flex;flex-direction:column;align-items:center;gap:5px;background:var(--fill);border:0;border-radius:14px;padding:11px 2px;font-size:12px;font-weight:600;color:var(--tx);cursor:pointer}
-.qrow button.wa{color:#169c48}
+.qrow button.wa{color:#15803d}
 button.al{width:100%;display:flex;align-items:center;gap:12px;padding:14px 4px;border:0;border-top:1px solid #f0f0f2;background:none;font-size:15.5px;font-weight:500;color:var(--tx);text-align:right;cursor:pointer;border-radius:0}
-button.al .ic{color:#555}
+button.al .ic{color:#3a3a3c}
 button.al.warn,button.al.warn .ic{color:#b45309}
 button.al.del,button.al.del .ic{color:#e11d48}
 button.al:active{transform:none;background:var(--fill)}
 /* ניווט תחתון */
 .bnav{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;align-items:flex-start;justify-content:space-around;padding:8px max(30px,calc(50% - 260px)) calc(10px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #eee}
-.bnav button{position:relative;flex:1;max-width:120px;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;font-size:11.5px;font-weight:500;color:#999;cursor:pointer;padding:4px 0}
+.bnav button{position:relative;flex:1;max-width:120px;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;font-size:11.5px;font-weight:500;color:#6b6b73;cursor:pointer;padding:4px 0}
 .bnav button.on{color:var(--ac)}
 .bnav em{position:absolute;top:-2px;right:calc(50% - 22px);background:var(--ac);color:#fff;font-style:normal;font-size:10px;font-weight:700;padding:1px 5px;border-radius:99px}
 .bnav em:empty{display:none}
@@ -285,7 +285,7 @@ button.al:active{transform:none;background:var(--fill)}
 .custCard .ct{flex:1;min-width:0}
 .custCard .cust{font-size:15.5px;font-weight:600}
 .custCard .meta{font-size:12.5px;color:var(--mu)}
-.custCard .chev{color:#b0b0b8;width:18px;height:18px}
+.custCard .chev{color:#a1a1aa;width:18px;height:18px}
 .sheetLink{background:var(--fill);border:0;color:#15803d;border-radius:14px}
 /* עורך לקוח והוספה ידנית */
 #custEdit,#addBox{box-shadow:none;padding:4px 0 0;background:none}
@@ -301,7 +301,7 @@ h3.sub{font-size:17px;font-weight:700;margin:20px 0 4px}
 .prow:last-child{border-bottom:0}
 .prow input{background:var(--fill)!important;border:0!important;border-radius:10px}
 .prow .pp{font-weight:600}
-.prow .drag{background:none!important;border:0!important;color:#c4c4cc}
+.prow .drag{background:none!important;border:0!important;color:#a1a1aa}
 .prow button{border:0;background:var(--fill)}
 .chk input{accent-color:var(--ac)}
 button.secondary{border:0;background:var(--fill);border-radius:14px;color:var(--tx)}
@@ -332,7 +332,7 @@ button.lateQ .ic,.etarow .nearTag .ic{vertical-align:-3px;margin-left:4px}
 button.lateQ{display:block;width:100%;border:0;background:none;color:#c2410c;font:inherit;font-weight:700;font-size:14px;text-align:right;padding:2px 4px 8px;cursor:pointer}
 .lateChips{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 button.lateChip{border:1.5px solid #ffd2bf;background:#fff;color:#c2410c;border-radius:11px;padding:7px 0;font:inherit;font-weight:700;font-size:14px;line-height:1.15;cursor:pointer}
-button.lateChip small{display:block;font-size:11px;font-weight:500;color:#9a3412}
+button.lateChip small{display:block;font-size:11px;font-weight:500;color:#c2410c}
 button.lateChip:disabled{opacity:.5}
 .etarow .nearTag{flex:none;color:#15803d;font-size:12.5px;padding:0 8px}
 .etaHint{color:var(--mu);font-size:13.5px;margin:6px 0 14px}
@@ -345,7 +345,7 @@ button.etaSkip{display:block;margin:12px auto 0;border:0;background:none;color:v
 .fromSel{display:block;background:var(--ac-soft);border-radius:14px;padding:8px 12px 9px;margin:4px 0 14px;font-size:12px;color:#c2410c}
 .fromSel span{display:block}
 .fromSel select{display:block;width:100%;border:0;background:none;font:inherit;font-size:16px;font-weight:600;color:var(--tx);padding:2px 0 0;outline:0}
-.qbox{display:flex;align-items:center;gap:8px;background:var(--fill);border-radius:14px;padding:0 12px;margin:0 0 12px;color:#8a8a94}
+.qbox{display:flex;align-items:center;gap:8px;background:var(--fill);border-radius:14px;padding:0 12px;margin:0 0 12px;color:#6b6b73}
 .qbox input{flex:1;min-width:0;border:0;background:none;padding:12px 0;font:inherit;font-size:16px;color:var(--tx);outline:0;-webkit-appearance:none;appearance:none}
 .qbox input::-webkit-search-cancel-button{display:none}
 .qbox button{border:0;background:#d4d4d8;color:#fff;width:22px;height:22px;border-radius:50%;font-size:11px;padding:0;cursor:pointer}
@@ -360,16 +360,16 @@ button.py:disabled{opacity:.55}
 .rls{border-radius:14px;box-shadow:0 0 0 1px var(--ln);overflow:hidden;max-height:38vh;overflow-y:auto}
 .rl{display:flex;align-items:center;gap:8px;padding:9px 11px;font-size:13.5px}
 .rl + .rl{border-top:1px solid #f0f0f2}
-.rl .d{color:#999;font-size:12px;flex:none}
+.rl .d{color:#6b6b73;font-size:12px;flex:none}
 .rl .w{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pd{font-size:11px;font-weight:600;padding:2px 7px;border-radius:99px;background:#fff7e0;color:#a16207;flex:none}
+.pd{font-size:11px;font-weight:600;padding:2px 7px;border-radius:99px;background:#fff7e0;color:#b45309;flex:none}
 .pd.y{background:#e8f8ee;color:#15803d}
 .rl.mm{justify-content:center;color:var(--mu)}
-button.waRep{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:#1fbf5a;color:#fff;border:0;border-radius:16px;padding:15px;font-size:16px;font-weight:600;margin-top:4px;cursor:pointer}
+button.waRep{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:#22c55e;color:#fff;border:0;border-radius:16px;padding:15px;font-size:16px;font-weight:600;margin-top:4px;cursor:pointer}
 button.waRep:disabled{opacity:.5}
 #oBody button.secondary{display:flex;align-items:center;justify-content:center;gap:6px}
 @media (display-mode:standalone){header{padding-top:calc(16px + env(safe-area-inset-top));background:#fff}}
-input::placeholder,textarea::placeholder{color:#a8a8b0;font-weight:400;opacity:1}
+input::placeholder,textarea::placeholder{color:#a1a1aa;font-weight:400;opacity:1}
 
 /* ===== האפליקציה "קבועה" במסך: בלי זום, בלי קפיצות, בלי תזוזה הצידה ===== */
 html{overscroll-behavior-y:none}
@@ -382,7 +382,7 @@ body.typing{padding-bottom:24px}
 .py.wait,button.py.wait{background:var(--ac-soft);color:#c2410c;box-shadow:none}
 .waitPay{background:var(--ac-soft);color:#c2410c}
 .sheetLink{color:var(--tx);font-size:14px;font-weight:500;padding:12px}.sheetLink .ic{color:var(--mu)}
-.quotaBox{background:var(--ac-soft);color:#9a3412}
+.quotaBox{background:var(--ac-soft);color:#c2410c}
 .pd{background:var(--ac-soft);color:#c2410c}
 .nt .ic{color:var(--mu)}
 /* ---------- אוברול: זמינות בשורה אחת, סינון בכפתור, קבוצות, מתגים, מחירון בשורה ---------- */
@@ -465,7 +465,7 @@ label.chk{padding-right:12px;padding-left:4px}
 .rcp{display:flex;align-items:center;gap:8px;background:var(--fill);border-radius:12px;padding:0 12px;min-height:44px;margin:-2px 0 9px;font-size:13.5px}
 .rcp span{flex:1;font-weight:600}.rcp a{color:var(--ac);font-weight:700;text-decoration:none;padding:12px 4px}
 .pdEmail{width:100%;box-sizing:border-box;min-height:48px;border:0;border-radius:14px;background:var(--fill);padding:0 14px;font:inherit;font-size:15px;margin-bottom:10px;direction:ltr;text-align:right}
-.pdTest{background:var(--ac-soft);color:#9a3412;border-radius:12px;padding:10px 12px;font-size:13px;margin:0 0 6px}
+.pdTest{background:var(--ac-soft);color:#c2410c;border-radius:12px;padding:10px 12px;font-size:13px;margin:0 0 6px}
 .pdMsg{color:#be123c;font-size:13.5px;min-height:4px;margin-bottom:6px}
 a.pdOpen{display:block;text-align:center;text-decoration:none}
 /* ===== היררכיית טקסט לפי Apple HIG =====
@@ -493,7 +493,7 @@ button.more{width:46px;height:46px}
 .kpi div{padding:11px 13px}.kpi b{font-size:22px}.kpi small{font-size:13px}
 .tabs button{font-size:15px;min-height:44px}.tabs em{font-size:12px}
 .grpH{font-size:13px;color:var(--mu);margin:16px 4px 8px}
-.note{font-size:13px;color:#8e8e93}
+.note{font-size:13px;color:#6b6b73}
 #availSub,.urgRow .meta,.at .led,.at .led.g,.at .led.r{font-size:13px}
 .filters select{font-size:14px}
 .shh small{font-size:13px}.shh h2{font-size:22px}
@@ -515,7 +515,7 @@ header .ht small{font-size:13px}
 .stRow .uic{width:16px;height:16px;color:var(--ac)}.stRow.off .uic{color:#a1a1aa}
 .stRow .meta{font-size:13px;color:var(--mu);margin-top:2px}
 .seg2{flex:none;display:grid;grid-template-columns:1fr 1fr;background:#0000000d;border-radius:12px;padding:3px;gap:2px}
-.seg2 button{min-width:74px;min-height:42px;border:0;border-radius:10px;background:none;color:#555;font:inherit;font-size:15px;font-weight:600;padding:0 10px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s,color .15s}
+.seg2 button{min-width:74px;min-height:42px;border:0;border-radius:10px;background:none;color:#3a3a3c;font:inherit;font-size:15px;font-weight:600;padding:0 10px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s,color .15s}
 .seg2 button:active{transform:scale(.96)}
 #availOn.on{background:var(--okc);color:#fff;box-shadow:0 2px 6px #1fbf5a55}
 #availOff.on{background:#e11d48;color:#fff;box-shadow:0 2px 6px #e11d4855}
@@ -553,6 +553,23 @@ label.chk input[type=checkbox]:checked{background:#22c55e!important}
 label.chk input[type=checkbox]:checked::after{right:23px}
 .grid label.chk{font-size:15px;color:var(--tx);font-weight:400;padding:8px 14px}
 .fixSel{direction:rtl;text-align:right;-webkit-appearance:none;appearance:none}
+/* תגית תשלום: אפורה עם נקודת צבע – לא מתחרה בכפתור הפעולה */
+.py,button.py,.py.unp,.py.paid{background:var(--fill)!important;color:#3a3a3c!important;box-shadow:none!important;font-weight:600}
+.pdot{width:8px;height:8px;border-radius:50%;flex:none;background:#e11d48}
+.py.wait .pdot{background:#b45309}.py.paid .pdot{background:#22c55e}
+/* רשימת לקוחות: שורה נקייה – לינק + ⋯ */
+.custCard .ib.sm{background:var(--fill);color:#3a3a3c}
+.lnkBtn{flex:none;border:0;border-radius:99px;background:var(--fill);color:#3a3a3c;font:inherit;font-size:14px;font-weight:600;min-height:36px;padding:0 14px;cursor:pointer}
+/* כותרת ניהול קומפקטית: שני שבבים בשורה אחת */
+#availBox{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;padding:0;background:none!important;box-shadow:none!important;border:0!important}
+#availBox > #availMsgBox{grid-column:1/-1}
+#availBox .stRow{min-height:0;padding:10px 12px;border:0!important;border-radius:16px;background:var(--fill);gap:8px}
+#availBox .stRow .availTitle{font-size:15px}
+#availBox .stRow .meta{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#availBox button.pwr{width:40px;height:40px}
+#availBox button.pwr .ic{width:20px;height:20px}
+#availBox button.pwr.on{box-shadow:0 0 0 3px #1fbf5a2e}
+#availBox button.pwr.u.on{box-shadow:0 0 0 3px #ff5a1f2e}
 </style>
 </head>
 <body>
@@ -918,7 +935,7 @@ function card(o) {
     : el("button", { type: "button", className: "py " + (o.paid ? "paid" : prepay ? "wait" : "unp"),
         title: o.paid ? "לחיצה = לא שולם" : "לחיצה = שולם",
         onclick: e => !o.paid && morning.keys ? openPaid(o) : setPaid(o, !o.paid, e.currentTarget) },
-        o.paid ? ico("check", "xs") : null, payTxt + (o.paid ? " · שולם" : prepay ? " · ממתין" : " · לא שולם"));
+        el("span", { className: "pdot" }), payTxt + (o.paid ? " · שולם" : prepay ? " · לבדוק" : " · לא שולם"));
   const nx = NEXT[o.status];
   const act = nx ? el("button", { type: "button", className: "act " + nx[3],
     onclick: e => nx[0] === "נאסף" ? openEta(o) : nx[0] === "אושרה" ? openPick(o) : update(o, nx[0], e.currentTarget) }, ico(nx[1], "s"), nx[2]) : null;
@@ -959,7 +976,7 @@ function card(o) {
       o.phone ? qi("phone", "tel:" + o.phone, "חיוג למקבל") : null,
       o.address ? qi("navigation", waze(navAddr(o)), "ניווט בווייז") : null),
     o.notes ? el("div", { className: "nt" }, ico("message-square-text", "xs"), el("span", { textContent: o.notes })) : null,
-    prepay && !o.paid && !off ? el("div", { className: "waitPay", textContent: "תשלום מראש – לבדוק שהתקבל לפני יציאה" }) : null,
+    null,   // תשלום מראש – מסומן בתגית התשלום עצמה (ענבר), בלי שורה כפולה
     pickLine, etaLine, rcptRow(o),
     el("div", { className: "r3" }, py, act, more));
 }
@@ -1100,7 +1117,7 @@ function etaMin(t) {            // דקות עד השעה; שעה "אחרי חצ
   if (m < -720) m += 1440; else if (m > 720) m -= 1440;
   return m;
 }
-function etaLeft(t) { const min = etaMin(t); return min > 0 ? ` · עוד ${min} דק׳` : " · הזמן עבר – לעדכן?"; }
+function etaLeft(t) { const min = etaMin(t); return min <= 0 ? " · הזמן עבר – לעדכן?" : min < 60 ? ` · עוד ${min} דק׳` : ` · עוד ${Math.floor(min / 60)}:${String(min % 60).padStart(2, "0")} שעות`; }
 // "עוד X דק'" – שעה חדשה = עכשיו + X. עוד 5 = גם "ממש קרוב" אצל הלקוח
 function bumpEta(o, mins, btn) {
   const d = new Date(Date.now() + mins * 60000), t = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
@@ -1305,12 +1322,12 @@ function renderAvail() {
   const on = avail.available, urg = avail.urgent !== false;
   $("availBox").classList.toggle("off", !on);
   $("availPw").classList.toggle("on", on); $("availPw").setAttribute("aria-pressed", on);
-  $("availTitle").textContent = on ? "הזמנות · זמין" : "הזמנות · לא פנוי";
+  $("availTitle").textContent = on ? "זמין" : "לא פנוי";
   $("urgRow").classList.toggle("off", !urg);
   $("urgPw").classList.toggle("on", urg); $("urgPw").setAttribute("aria-pressed", urg);
-  $("urgTitle").textContent = urg ? "דחופים · מקבל" : "דחופים · לא מקבל";
-  $("urgSub").textContent = urg ? "תוך שעה מאישור ההזמנה" : "הלקוחות רואים \"דחוף · לא זמין כרגע\"";
-  $("availSub").textContent = on ? "הלקוחות יכולים להזמין" : "הלקוחות רואים הודעה שאתה לא פנוי";
+  $("urgTitle").textContent = urg ? "דחופים" : "בלי דחופים";
+  $("urgSub").textContent = urg ? "מקבל · תוך שעה" : "כבוי ללקוחות";
+  $("availSub").textContent = on ? "מקבל הזמנות" : "הזמנות סגורות";
   const m = avail.message || "";
   $("availPrev").replaceChildren("הלקוחות רואים: ", el("b", { textContent: `"ארי לא פנוי כרגע${m ? " – " + m : ""}"` }));
   $("availMsgBox").style.display = on ? "none" : "flex";
@@ -1506,11 +1523,22 @@ function custCard(c) {
     el("div", { className: "ct" },
       el("div", { className: "cust", textContent: isDef ? "לקוחות מזדמנים" : c.name }),
       el("div", { className: "meta", textContent: (isDef ? "הדף הכללי · " : c.code + " · ") + meta }), cash),
-    isDef ? null : btn("file-text", "דוח חודשי", () => openReport(c)),
-    btn("link", "העתק לינק", b => copyText(link, b)),
-    isDef ? null : btn("send", "שלח הודעת הצטרפות בווצאפ",
-      () => window.open(waTo(c.phone) + encodeURIComponent(welcomeMsg(c, link)), "_blank")),
-    ico("chevron-left", "chev"));
+    el("button", { type: "button", className: "lnkBtn", onclick: e => { e.stopPropagation(); copyText(link, e.currentTarget); } }, "לינק"),
+    isDef ? null : btn("ellipsis", "עוד פעולות", () => openCustMenu(c, link)));
+}
+// ⋯ – פעולות פחות שכיחות על לקוח
+function openCustMenu(c, link) {
+  const list = el("div", {});
+  const A = (i, t, fn) => list.append(el("button", { type: "button", className: "al", onclick: () => { closeOrder(); fn(); } }, ico(i), el("span", { textContent: t })));
+  A("file-text", "דוח חודשי", () => setTimeout(() => openReport(c), 350));
+  A("send", "הודעת הצטרפות בווצאפ", () => window.open(waTo(c.phone) + encodeURIComponent(welcomeMsg(c, link)), "_blank"));
+  A("pencil", "עריכת הלקוח", () => setTimeout(() => openEditor(c), 350));
+  $("oBody").replaceChildren(
+    el("div", { className: "shh" },
+      el("div", {}, el("small", { textContent: c.code }), el("h2", { textContent: c.name || "" })),
+      aria(el("button", { type: "button", className: "ib", onclick: closeOrder }, ico("x", "s")), "סגירה")),
+    list);
+  document.body.classList.add("sheetOpen");
 }
 // ווצאפ ישר ללקוח אם יש לו נייד, אחרת בוחרים איש קשר
 function waTo(phone) {
