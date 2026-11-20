@@ -12,7 +12,7 @@
 const NOTIFY_EMAIL = "";
 
 // גרסת הקוד – מופיעה בבדיקת הכתובת, כדי לדעת שהפריסה באמת עודכנה
-const CODE_VERSION = "2026-11-20e";
+const CODE_VERSION = "2026-11-20d";
 
 // התראות לאייפון דרך אפליקציית Pushover (הכי אמין – עם צלצול חירום ו"קיבלתי" ישר מההתראה).
 // מדביקים כאן את שני המפתחות מ-pushover.net. לא לשמור אותם באתר (הקוד באתר גלוי לכולם).
@@ -362,16 +362,11 @@ function makeReceipt(o) {
   const today = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd");
   const email = okEmail(o.email) || okEmail(g(COL.email));   // מהחלון "שולם", ואם אין – מהמייל שהלקוח מילא בהזמנה
   const payment = Object.assign({ date: today, price: price, currency: "ILS" }, pm);
-  // מה רואים על הקבלה: סוג המשלוח, מאיפה לאן, תאריך ומס' הזמנה
-  const pickCity = (g(COL.pickup).split(" · ")[0].split(",")[1] || "").trim();
-  const what = "משלוח " + (g(COL.item) || "") + (pickCity || g(COL.dest) ? " · " + [pickCity, g(COL.dest)].filter(String).join(" ← ") : "");
-  const remarks = ["הזמנה #" + o.no, g(COL.date), g(COL.when) && !/^היום|^רגיל/.test(g(COL.when)) ? g(COL.when) : "",
-    g(COL.recipient) && "מקבל: " + g(COL.recipient), g(COL.address) && "מסירה: " + g(COL.address)].filter(Boolean).join(" · ");
   const doc = {
-    description: what.trim(), remarks: remarks, type: 400, date: today, lang: "he", currency: "ILS", vatType: 0,
+    description: "משלוח #" + o.no, type: 400, date: today, lang: "he", currency: "ILS", vatType: 0,
     client: Object.assign({ name: String(o.name || "").trim().slice(0, 80) || g(COL.customer).replace(/^לקוח מזדמן – /, "") || "לקוח" },
       email ? { emails: [email] } : {}, /^\d{9}$/.test(String(o.taxId || "")) ? { taxId: String(o.taxId) } : {}),   // עוסק פטור: קבלה בלבד
-    income: [{ description: what.trim() + " · #" + o.no, quantity: 1, price: price, currency: "ILS", vatType: 0 }],
+    income: [{ description: "משלוח " + g(COL.dest) + " · " + g(COL.recipient) + " · #" + o.no, quantity: 1, price: price, currency: "ILS", vatType: 0 }],
     payment: [payment],
   };
   try {
