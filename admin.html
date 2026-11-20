@@ -570,6 +570,22 @@ label.chk input[type=checkbox]:checked::after{right:23px}
 #availBox button.pwr .ic{width:20px;height:20px}
 #availBox button.pwr.on{box-shadow:0 0 0 3px #1fbf5a2e}
 #availBox button.pwr.u.on{box-shadow:0 0 0 3px #ff5a1f2e}
+/* "לא פנוי": שורה אחת + חלון בחירה */
+#availBox > #availMsgBox{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;margin:0;padding:0 14px;border:0;border-radius:14px;background:var(--fill);font:inherit;font-size:14px;color:#3a3a3c;text-align:right;cursor:pointer;flex-direction:row}
+#availBox > #availMsgBox[style*="none"]{display:none}
+#availMsgBox #availPrev{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#availMsgBox .ic{color:#6b6b73;flex:none}#availMsgBox .chev{color:#a1a1aa}
+.amOpt{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;border:0;border-bottom:1px solid var(--line);background:none;font:inherit;font-size:16px;color:#111;text-align:right;cursor:pointer;padding:0 4px}
+.amOpt .rd{flex:none;width:22px;height:22px;border-radius:50%;box-shadow:inset 0 0 0 2px #d4d4d8}
+.amOpt.on .rd{box-shadow:inset 0 0 0 7px var(--ac)}
+.amOther{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.amOther .amIn{font:inherit;font-size:16px;min-height:48px;padding:0 12px;border:1.5px solid var(--line);border-radius:12px}
+/* מסננים: 3 עמודות שוות, מיושרות לקצוות */
+.filters{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;overflow:visible}
+.filters[style*="none"]{display:none!important}
+.filters select{width:100%;max-width:none;flex:none;min-width:0;min-height:44px;border:0!important;border-radius:12px!important;background:var(--fill) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='3'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat left 10px center;padding:0 12px 0 26px!important;font-size:14px!important;font-weight:600;color:#3a3a3c;text-overflow:ellipsis;white-space:nowrap}
+.filters select.set{background-color:#111;color:#fff}
+.amOther[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -599,19 +615,15 @@ label.chk input[type=checkbox]:checked::after{right:23px}
         <div class="at"><div class="availTitle"><svg class="ic s uic"><use href="#i-zap"/></svg><span id="urgTitle"></span></div><div class="meta" id="urgSub"></div></div>
         <button type="button" class="pwr u" id="urgPw" aria-label="מקבל דחופים"><svg class="ic" viewBox="0 0 24 24"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></svg></button>
       </div>
-      <div id="availMsgBox" style="display:none">
-        <div class="amRow"><input id="availMsg" maxlength="120" placeholder="הודעה ללקוחות (לא חובה), למשל: חוזר ב-16:00">
-        <button type="button" id="availMsgSave">שמירה</button></div>
-        <div class="amQuick" id="availQuick"></div>
-        <div class="amPrev" id="availPrev"></div>
-      </div>
+      <input type="hidden" id="availMsg">
+      <button type="button" id="availMsgBox" style="display:none"><svg class="ic s"><use href="#i-message-square-text"/></svg><span id="availPrev"></span><svg class="ic s chev"><use href="#i-chevron-left"/></svg></button>
     </section>
     <div class="kpi" id="kpi"></div>
     <div class="srow"><div class="qbox"><svg class="ic s"><use href="#i-search"/></svg><input id="q" type="search" placeholder="חיפוש: שם, טלפון, כתובת, מס' הזמנה" autocomplete="off"><button type="button" id="qClear" aria-label="ניקוי">✕</button></div><button type="button" class="ib fbtn" id="filtBtn" aria-label="סינון"><svg class="ic s"><use href="#i-sliders"/></svg></button></div>
     <div class="filters" id="filters">
-      <select id="custFilter" aria-label="סינון לפי לקוח"><option value="">כל הלקוחות</option></select>
+      <select id="custFilter" aria-label="סינון לפי לקוח"><option value="">לקוח</option></select>
       <select id="paidFilter" aria-label="תשלום">
-        <option value="">כל התשלומים</option><option value="no">לא שולם</option><option value="yes">שולם</option>
+        <option value="">תשלום</option><option value="no">לא שולם</option><option value="yes">שולם</option>
       </select>
       <select id="rangeFilter" aria-label="טווח זמן">
         <option value="90">90 יום</option><option value="month">החודש</option><option value="lastMonth">חודש שעבר</option>
@@ -844,7 +856,7 @@ function inRange(o) {
 function fillCustomers() {
   const sel = $("custFilter"), cur = sel.value;
   const names = [...new Set(orders.map(o => o.customer).filter(Boolean))].sort((a, b) => a.localeCompare(b, "he"));
-  sel.replaceChildren(el("option", { value: "", textContent: "כל הלקוחות" }), ...names.map(n => el("option", { value: n, textContent: n })));
+  sel.replaceChildren(el("option", { value: "", textContent: "לקוח" }), ...names.map(n => el("option", { value: n, textContent: n })));
   sel.value = names.indexOf(cur) !== -1 ? cur : "";
 }
 
@@ -1330,8 +1342,8 @@ function renderAvail() {
   $("availSub").textContent = on ? "מקבל הזמנות" : "הזמנות סגורות";
   const m = avail.message || "";
   $("availPrev").replaceChildren("הלקוחות רואים: ", el("b", { textContent: `"ארי לא פנוי כרגע${m ? " – " + m : ""}"` }));
-  $("availMsgBox").style.display = on ? "none" : "flex";
-  if (document.activeElement !== $("availMsg")) $("availMsg").value = avail.message || "";
+  $("availMsgBox").style.display = on ? "none" : "";
+  $("availMsg").value = avail.message || "";
 }
 // שינוי מיידי במסך (בלי לחכות לגוגל); אם השליחה נכשלה – חוזרים למצב הקודם
 let availHoldUntil = 0;
@@ -1346,9 +1358,24 @@ function saveAvail(available, message, urgent) {
 $("availRow").onclick = () => { const v = !avail.available; saveAvail(v, v ? "" : $("availMsg").value.trim()); };
 $("urgRow").onclick = () => saveAvail(avail.available, avail.message || "", avail.urgent === false);
 // הודעות מוכנות ללקוחות כשלא פנוי
-["חוזר בעוד שעה", "סגור להיום", "חוזר מחר בבוקר"].forEach(t => $("availQuick").append(
-  el("button", { type: "button", textContent: t, onclick: () => { $("availMsg").value = t; saveAvail(false, t); } })));
-$("availMsgSave").onclick = () => saveAvail(false, $("availMsg").value.trim());
+// "לא פנוי": שורה אחת – לחיצה פותחת חלון קטן לבחירת ההודעה
+const AVAIL_QUICK = ["חוזר בעוד שעה", "סגור להיום", "חוזר מחר בבוקר"];
+$("availMsgBox").onclick = () => {
+  const cur = avail.message || "", custom = cur && AVAIL_QUICK.indexOf(cur) === -1;
+  const inp = el("input", { className: "amIn", maxLength: 120, placeholder: "למשל: חוזר ב-16:00", value: custom ? cur : "" });
+  const save = el("button", { type: "button", className: "etaGo", textContent: "שמירה", onclick: () => { closeOrder(); saveAvail(false, inp.value.trim()); } });
+  const box = el("div", { className: "amOther" }, inp, save); box.hidden = !custom;
+  const opt = (t, m, on, fn) => el("button", { type: "button", className: "amOpt" + (on ? " on" : ""), onclick: fn }, el("span", { className: "rd" }), el("span", { textContent: t }));
+  const pick = m => { closeOrder(); $("availMsg").value = m; saveAvail(false, m); };
+  $("oBody").replaceChildren(
+    el("div", { className: "shh" }, el("div", {}, el("h2", { textContent: "מה הלקוחות יראו" })),
+      aria(el("button", { type: "button", className: "ib", onclick: closeOrder }, ico("x", "s")), "סגירה")),
+    opt("ארי לא פנוי כרגע", "", !cur, () => pick("")),
+    ...AVAIL_QUICK.map(t => opt(t, t, cur === t, () => pick(t))),
+    opt("הודעה אחרת…", null, custom, e => { box.hidden = false; e.currentTarget.parentNode.querySelectorAll(".amOpt").forEach(b => b.classList.toggle("on", b === e.currentTarget)); inp.focus(); }),
+    box);
+  document.body.classList.add("sheetOpen");
+};
 
 /* ---------- הוספת הזמנה ידנית ---------- */
 const F = ["no", "time", "customer", "recipient", "address", "phone", "item", "when", "price", "pay", "pickup", "pickupPhone", "notes"];
