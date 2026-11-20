@@ -12,7 +12,7 @@
 const NOTIFY_EMAIL = "";
 
 // גרסת הקוד – מופיעה בבדיקת הכתובת, כדי לדעת שהפריסה באמת עודכנה
-const CODE_VERSION = "2026-11-20c";
+const CODE_VERSION = "2026-11-20d";
 
 // התראות לאייפון דרך אפליקציית Pushover (הכי אמין – עם צלצול חירום ו"קיבלתי" ישר מההתראה).
 // מדביקים כאן את שני המפתחות מ-pushover.net. לא לשמור אותם באתר (הקוד באתר גלוי לכולם).
@@ -53,6 +53,7 @@ function doPost(e) {
     if (o && o.action === "setDoneTime") return setDoneTime(o);
     if (o && o.action === "setAvailability") return setAvailability(o);
     if (o && o.action === "setPaid") return setPaid(o);
+    if (o && o.action === "editOrder") return editOrder(o);
     if (o && o.action === "receipt") return makeReceipt(o);
     if (o && o.action === "deleteOrder") return deleteOrder(o);
     if (o && o.action === "saveCustomer") return saveCustomer(o);
@@ -392,6 +393,29 @@ function setPaid(o) {
   return json({ ok: true });
 }
 
+// תיקון יעד / מחיר להזמנה (מדף הניהול). לא נוגעים בהזמנה ששולמה באתר.
+function editOrder(o) {
+  if (!checkPassword(o.key)) return json({ ok: false, error: "סיסמה שגויה" });
+  const sheet = getSheet();
+  const row = findRow(sheet, o.no);
+  if (!row) return json({ ok: false, error: "הזמנה לא נמצאה" });
+  const g = c => sheet.getRange(row, c).getDisplayValue();
+  if (/שולם באתר/.test(g(COL.pay))) return json({ ok: false, error: "ההזמנה שולמה באתר – אי אפשר לשנות את המחיר" });
+  const price = Number(String(o.price).replace(/[^\d.]/g, ""));
+  if (!(price >= 0) || String(o.price).trim() === "") return json({ ok: false, error: "מחיר לא תקין" });
+  const dest = clean(o.dest || g(COL.dest));
+  if (dest !== g(COL.dest)) {                                       // יעד חדש – גם בכתובת: "רחוב, יעד"
+    const addr = g(COL.address), street = addr.split(",")[0].trim();
+    sheet.getRange(row, COL.dest).setValue(dest);
+    sheet.getRange(row, COL.address).setValue(street ? street + ", " + dest : dest);
+  }
+  sheet.getRange(row, COL.price).setValue(price);
+  const t = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "HH:mm");
+  const steps = g(COL.steps).split("|").filter(x => x && !/^תוקן /.test(x));
+  sheet.getRange(row, COL.steps).setValue(steps.concat("תוקן " + t).join("|"));
+  return json({ ok: true, price: price, dest: dest });
+}
+
 /* ---------- לקוחות ומחירונים ----------
    שתי לשוניות בטבלה, שאפשר לערוך גם ידנית וגם מדף הניהול:
    "לקוחות"   – שורה לכל לקוח (קוד, שם, כתובת, טלפון, הגדרות)
@@ -668,7 +692,7 @@ function doGetInner(e) {
     const orders = rows.map(r => ({
       date: r[0], time: r[1], no: r[2], customer: r[3], recipient: r[4], dest: r[5], address: r[6],
       phone: r[7], item: r[8], when: r[9], pay: r[10], price: r[11], notes: r[12], eta: r[COL.eta - 1] || "",
-      steps: r[COL.steps - 1] || "", receipt: r[COL.receipt - 1] || "", email: r[COL.email - 1] || "",
+      steps: r[COL.steps - 1] || "", receipt: r[COL.receipt - 1] || "", email: r[COL.email - 1] || "", code: r[COL.code - 1] || "",
       pickup: r[13], pickupPhone: r[14], status: r[15], paid: r[COL.paid - 1] === "כן",
     })).filter(o => o.status !== PENDING_PAY && (CLOSED.indexOf(o.status) === -1 || parseDate(o.date, o.time) > cutoff));
     return json(Object.assign({ ok: true, orders: orders.reverse(), mailQuota: mailQuota(), morning: morningStatus() }, getAvailability()));
