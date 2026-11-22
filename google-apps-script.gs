@@ -1,5 +1,5 @@
 /**
- * Ari delivery – גיבוי הזמנות לטבלה + מייל + סטטוס משלוח
+ * Ari Delivery – גיבוי הזמנות לטבלה + מייל + סטטוס משלוח
  *
  * מדביקים את הקוד הזה ב-Apps Script של גיליון Google Sheets
  * (בגיליון: תוספים ← Apps Script), ופורסים כ-Web App.
@@ -16,7 +16,7 @@ const CODE_VERSION = "2026-11-20d";
 
 // התראות לאייפון דרך אפליקציית Pushover (הכי אמין – עם צלצול חירום ו"קיבלתי" ישר מההתראה).
 // מדביקים כאן את שני המפתחות מ-pushover.net. לא לשמור אותם באתר (הקוד באתר גלוי לכולם).
-const PUSHOVER_TOKEN = "";   // API Token של האפליקציה "Ari delivery" (מתחיל ב-a)
+const PUSHOVER_TOKEN = "";   // API Token של האפליקציה "Ari Delivery" (מתחיל ב-a)
 const PUSHOVER_USER = "";    // Your User Key – מופיע בעמוד הראשי אחרי התחברות (מתחיל ב-u)
 
 // גיבוי ישן: ntfy בחינם. משמש רק אם אין מפתחות Pushover. (בחינם הוא נחסם הרבה פעמים מגוגל)
@@ -703,14 +703,14 @@ function doGetInner(e) {
 
 /* ---------- עזר ---------- */
 // עובד גם אם הסקריפט נוצר מתוך הגיליון וגם אם נוצר בנפרד ב-script.google.com:
-// אם אין גיליון מחובר – נוצר גיליון "הזמנות Ari delivery" ב-Google Drive ונשמר לפעמים הבאות.
+// אם אין גיליון מחובר – נוצר גיליון "הזמנות Ari Delivery" ב-Google Drive ונשמר לפעמים הבאות.
 function getSpreadsheet() {
   const active = SpreadsheetApp.getActiveSpreadsheet();
   if (active) return active;
   const props = PropertiesService.getScriptProperties();
   const id = props.getProperty("SHEET_ID");
   if (id) return SpreadsheetApp.openById(id);
-  const ss = SpreadsheetApp.create("הזמנות Ari delivery");
+  const ss = SpreadsheetApp.create("הזמנות Ari Delivery");
   props.setProperty("SHEET_ID", ss.getId());
   return ss;
 }
@@ -925,7 +925,7 @@ function morningReport() {
   ];
   MailApp.sendEmail({
     to: NOTIFY_EMAIL || Session.getEffectiveUser().getEmail(),
-    subject: "☀️ בוקר טוב – Ari delivery: המערכת תקינה",
+    subject: "☀️ בוקר טוב – Ari Delivery: המערכת תקינה",
     body: lines.join("\n"),
   });
 }
@@ -1078,7 +1078,7 @@ function ackPage(r) {
     '<p style="font-size:20px;line-height:1.5">' + msg + '</p>' +
     // target=_top: דף הניהול נפתח כדף רגיל ולא בתוך המסגרת של גוגל (שם שדות כמו בחירת שעה לא עובדים טוב)
     '<a href="' + ADMIN_URL + '" target="_top" style="display:inline-block;margin-top:12px;background:#ff5a1f;color:#fff;text-decoration:none;padding:14px 22px;border-radius:14px;font-weight:600">פתיחת דף הניהול</a></body></html>';
-  return HtmlService.createHtmlOutput(html).setTitle("Ari delivery").addMetaTag("viewport", "width=device-width, initial-scale=1");
+  return HtmlService.createHtmlOutput(html).setTitle("Ari Delivery").addMetaTag("viewport", "width=device-width, initial-scale=1");
 }
 
 // להרצה מהעורך: שולח התראת בדיקה לאייפון
