@@ -583,6 +583,10 @@ label.terms.bad{box-shadow:none;border:0}label.terms.bad span{color:#be123c}labe
 .payCard.first{margin:14px 0 6px;text-align:right}
 .payCard.first #payPre{margin:0 0 12px}
 .moreF[hidden]{display:none}
+/* "שלחת לאחרונה": × להסרה */
+.rc{position:relative}
+.rc .rcx{flex:none;width:28px;height:28px;margin-inline-start:4px;margin-inline-end:-6px;border-radius:50%;display:grid;place-items:center;color:#6b6b73;background:#0000000d;cursor:pointer}
+.rc .rcx .ic{width:12px;height:12px;stroke-width:3}
 </style>
 </head>
 <body>
@@ -1160,11 +1164,12 @@ function setP(full) { const [st, ...c] = String(full || "").split(","); const [a
 function setD(street) { const [a, b] = splitStreet(street); $("dStreet").value = a; $("dNum").value = b; syncAddr(); }
 ["pStreet", "pNum", "pCity", "dStreet", "dNum"].forEach(id => $(id).addEventListener("input", syncAddr));
 /* ---------- זכור אותי ---------- */
+if (!CUSTOMER) { $("rememberRow").style.display = "none"; try { localStorage.removeItem(pickKey()); } catch (e) {} }
 try { if (localStorage.getItem("ariTermsOk")) $("termsOk").checked = true; } catch (e) {}   // מי שכבר אישר במכשיר הזה
 $("termsOk").addEventListener("change", () => { if ($("termsOk").checked) { $("termsRow").classList.remove("bad"); $("termsErr").style.display = "none"; } });
 try {
   const saved = JSON.parse(localStorage.getItem(pickKey()) || "null");
-  if (saved && !CUSTOMER && !saved.code) {
+  if (false) {   // לקוחות מזדמנים: מקום האיסוף נפתח ריק בכל פעם (לא משחזרים)
     ["pName", "pPhone", ...PLACE_IDS.map(x => "p" + x)].forEach(k => { if (saved[k]) $(k).value = saved[k]; });
     if (saved.pAddr) setP(saved.pAddr);
     syncHouse();
@@ -1175,7 +1180,7 @@ try {
 } catch (e) {}
 
 // לקוח מזדמן חוזר (הפרטים שמורים במכשיר): שורה אחת למעלה במקום שלושה שדות – פחות גלילה
-if (!CUSTOMER && $("pName").value.trim() && $("pAddr").value.trim() &&
+if (false && !CUSTOMER && $("pName").value.trim() && $("pAddr").value.trim() &&
     /^0\d{8,9}$/.test($("pPhone").value.replace(/\D/g, "").replace(/^972/, "0"))) {
   $("pickupCard").style.display = "none";
   const hp = document.querySelector("header p"), sp = document.createElement("span");
@@ -1500,7 +1505,8 @@ $("orderForm").addEventListener("submit", e => {
   if (notes) lines.push(`📝 ${notes}`);
 
   try {
-    if ($("remember").checked) {
+    if (!CUSTOMER) localStorage.removeItem(pickKey());   // לקוחות מזדמנים: לא שומרים פרטי איסוף
+    else if ($("remember").checked) {
       localStorage.setItem(pickKey(), JSON.stringify(CUSTOMER
         ? { code: CUSTOMER_CODE, pPhone: $("pPhone").value.trim(), pay: val("pay"), email: $("pEmail").value.trim() }
         : { pName: $("pName").value.trim(), pAddr: $("pAddr").value.trim(), ...Object.fromEntries(PLACE_IDS.map(x => ["p" + x, $("p" + x).value.trim()])),
@@ -2134,6 +2140,11 @@ function renderRecipients() {
     t.append(n, d);
     b.innerHTML = ICO("history", "s"); b.append(t);
     b.onclick = () => useRecipient(r);
+    // × – מוחק רק מהרשימה בטלפון הזה (לא נוגע בהזמנות)
+    const x = document.createElement("span"); x.className = "rcx"; x.setAttribute("role", "button"); x.setAttribute("aria-label", "הסרה מהרשימה");
+    x.innerHTML = ICO("x", "xs");
+    x.onclick = e => { e.stopPropagation(); save(RECIP_KEY, (load(RECIP_KEY) || []).filter(y => recipKey(y) !== recipKey(r))); renderRecipients(); };
+    b.append(x);
     return b;
   }));
   $("recBox").style.display = all.length ? "" : "none";
