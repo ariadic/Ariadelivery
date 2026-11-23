@@ -12,7 +12,7 @@
 const NOTIFY_EMAIL = "";
 
 // גרסת הקוד – מופיעה בבדיקת הכתובת, כדי לדעת שהפריסה באמת עודכנה
-const CODE_VERSION = "2026-11-20d";
+const CODE_VERSION = "2026-11-23a";
 
 // התראות לאייפון דרך אפליקציית Pushover (הכי אמין – עם צלצול חירום ו"קיבלתי" ישר מההתראה).
 // מדביקים כאן את שני המפתחות מ-pushover.net. לא לשמור אותם באתר (הקוד באתר גלוי לכולם).
@@ -49,6 +49,7 @@ function doPost(e) {
     const o = JSON.parse(e.postData.contents);
     if (o && o.action === "setStatus") return setStatus(o);
     if (o && o.action === "cancelOrder") return cancelOrder(o);
+    if (o && o.action === "customerEdit") return customerEdit(o);
     if (o && o.action === "setNear") return setNear(o);
     if (o && o.action === "setDoneTime") return setDoneTime(o);
     if (o && o.action === "setAvailability") return setAvailability(o);
@@ -404,16 +405,55 @@ function editOrder(o) {
   const price = Number(String(o.price).replace(/[^\d.]/g, ""));
   if (!(price >= 0) || String(o.price).trim() === "") return json({ ok: false, error: "מחיר לא תקין" });
   const dest = clean(o.dest || g(COL.dest));
-  if (dest !== g(COL.dest)) {                                       // יעד חדש – גם בכתובת: "רחוב, יעד"
-    const addr = g(COL.address), street = addr.split(",")[0].trim();
+  const street = o.street !== undefined ? clean(o.street) : g(COL.address).split(",")[0].trim();
+  if (dest !== g(COL.dest) || o.street !== undefined) {           // כתובת = "רחוב מספר, יעד"
     sheet.getRange(row, COL.dest).setValue(dest);
     sheet.getRange(row, COL.address).setValue(street ? street + ", " + dest : dest);
   }
   sheet.getRange(row, COL.price).setValue(price);
+  setRecipientFields(sheet, row, o);
+  markFixed(sheet, row, g);
+  return json({ ok: true, price: price, dest: dest, address: g(COL.address) });
+}
+// שם / טלפון / הערות של המקבל, ואיסוף – רק שדות שנשלחו
+function setRecipientFields(sheet, row, o) {
+  if (o.recipient !== undefined) sheet.getRange(row, COL.recipient).setValue(clean(o.recipient));
+  if (o.phone !== undefined) sheet.getRange(row, COL.phone).setValue("'" + clean(o.phone));
+  if (o.notes !== undefined) sheet.getRange(row, COL.notes).setValue(clean(o.notes));
+  if (o.pickup !== undefined) sheet.getRange(row, COL.pickup).setValue(clean(o.pickup));
+  if (o.pickupPhone !== undefined) sheet.getRange(row, COL.pickupPhone).setValue("'" + clean(o.pickupPhone));
+}
+function markFixed(sheet, row, g) {
   const t = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "HH:mm");
   const steps = g(COL.steps).split("|").filter(x => x && !/^תוקן /.test(x));
   sheet.getRange(row, COL.steps).setValue(steps.concat("תוקן " + t).join("|"));
-  return json({ ok: true, price: price, dest: dest });
+}
+// הלקוח מתקן פרטים בעצמו – רק כל עוד ההזמנה "חדשה" (לפני שארי אישר), עם קוד הביטול שנשמר בטלפון שלו.
+// יעד ומחיר לא משתנים מכאן.
+function customerEdit(o) {
+  const no = str(o.no, 30);
+  const tok = cancelToken(no);
+  if (!no || !tok || String(o.t || "") !== tok) return json({ ok: false, error: "קוד לא תקין" });
+  const sheet = getSheet();
+  const row = findRow(sheet, no);
+  if (!row) return json({ ok: false, error: "ההזמנה לא נמצאה" });
+  const g = c => sheet.getRange(row, c).getDisplayValue();
+  if (g(COL.status) !== STATUSES[0]) return json({ ok: false, error: "כבר בטיפול", status: g(COL.status) });
+  const phoneOk = v => v === undefined || /^0\d{8,9}$/.test(String(v).replace(/\D/g, "").replace(/^972/, "0"));
+  if (!phoneOk(o.phone) || !phoneOk(o.pickupPhone)) return json({ ok: false, error: "מספר טלפון לא תקין" });
+  if (o.street !== undefined && clean(o.street)) {
+    const dest = g(COL.dest);
+    sheet.getRange(row, COL.address).setValue(clean(o.street) + ", " + dest);
+  }
+  setRecipientFields(sheet, row, o);
+  markFixed(sheet, row, g);
+  const what = g(COL.recipient) + " · " + g(COL.phone) + "\n" + g(COL.address) + (g(COL.notes) ? "\n📝 " + g(COL.notes) : "") + "\n#" + no;
+  pushNote("✏️ הלקוח תיקן פרטים – " + g(COL.customer), what);
+  try {
+    MailApp.sendEmail({ to: NOTIFY_EMAIL || Session.getEffectiveUser().getEmail(),
+      subject: "✏️ תיקון פרטים בהזמנה #" + no + " – " + g(COL.customer), body: "הלקוח תיקן את פרטי ההזמנה:\n" + what });
+  } catch (e) {}
+  return json({ ok: true, address: g(COL.address) });
 }
 
 /* ---------- לקוחות ומחירונים ----------

@@ -595,6 +595,13 @@ label.chk input[type=checkbox]:checked::after{right:23px}
 .kpi{gap:0!important;margin:0 0 26px!important}
 .kpi div{background:none!important;border-radius:0!important;padding:2px 14px!important}
 .kpi div + div{border-right:1px solid var(--line)}
+/* תיקון פרטים */
+.fxH{font-size:13px;font-weight:700;color:#6b6b73;margin:14px 2px 6px}
+.fx2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+.fxF{display:flex;flex-direction:column;gap:2px;background:var(--fill);border-radius:12px;padding:7px 12px 6px;margin-bottom:8px;box-shadow:inset 0 0 0 1.5px transparent;min-width:0}
+.fxF span{font-size:12px;color:#6b6b73}
+.fxF .fxIn{border:0!important;background:none!important;box-shadow:none!important;padding:0!important;margin:0;font:inherit;font-size:16px;color:#111;min-height:26px;width:100%;resize:none;-webkit-appearance:none;appearance:none;outline:0}
+.fxF.ch{background:#fff;box-shadow:inset 0 0 0 2px var(--ac)}
 </style>
 </head>
 <body>
@@ -1026,7 +1033,7 @@ function openOrder(o) {
   }
   if (o.status === "נמסר") { const d = doneOf(o); A("clock", d.hide ? "שעת מסירה: לא מוצגת · לשינוי" : d.time ? `שעת מסירה: ${d.time} · לתיקון` : "שעת מסירה · לתיקון", "", () => setTimeout(() => openDone(o), 350)); }
   if (!VOID(o.status)) A("banknote", o.paid ? "סמן כלא שולם" : "סמן כשולם", "", b => setPaid(o, !o.paid, b));
-  if (!/שולם באתר/.test(o.pay || "") && !VOID(o.status)) A("pencil", "תיקון יעד / מחיר", "", () => setTimeout(() => openFix(o), 350));
+  if (!/שולם באתר/.test(o.pay || "") && !VOID(o.status)) A("pencil", "תיקון פרטים", "", () => setTimeout(() => openFix(o), 350));
   if (o.status === "חדשה") A("circle-x", "לא פנוי – להחזיר ללקוח", "warn", b => {
     if (confirm(`לסמן שאתה לא פנוי להזמנה של ${o.recipient}? הלקוח יראה שצריך משלוח אחר.`)) update(o, "לא פנוי", b); });
   if (o.status !== "חדשה") A("undo-2", "ביטול סטטוס (שלב אחורה)", "", b => update(o, PREV[o.status] || "חדשה", b));
@@ -1059,42 +1066,68 @@ function openFix(o) {
   const cust = customers.find(c => c.code && c.code === o.code) || customers.find(c => c.code === DEFAULT_CODE) || { prices: [] };
   const prices = (cust.prices || []).slice();
   if (o.dest && !prices.some(p => p.label === o.dest)) prices.unshift({ label: o.dest, price: o.price });
-  const sel = el("select", { className: "pdEmail fixSel" }, ...prices.map(p => el("option", { value: p.label, textContent: `${p.label} · ₪${p.price}` })));
+  // שדה עם תווית קטנה; שדה ששונה מסומן בכתום
+  const F = (label, value, attrs) => {
+    const inp = el(attrs && attrs.tag || "input", Object.assign({ className: "fxIn", value: value == null ? "" : String(value) }, attrs || {}));
+    const f = el("label", { className: "fxF" }, el("span", { textContent: label }), inp);
+    const v0 = inp.value; inp.addEventListener("input", () => f.classList.toggle("ch", inp.value !== v0));
+    inp.addEventListener("change", () => f.classList.toggle("ch", inp.value !== v0));
+    return [f, inp];
+  };
+  const street0 = String(o.address || "").split(",")[0].trim();
+  const [fName, name] = F("שם המקבל", o.recipient);
+  const [fPhone, phone] = F("טלפון", String(o.phone || "").replace(/^'/, ""), { inputMode: "tel" });
+  const [fStreet, street] = F("רחוב ומספר", street0);
+  const [fNotes, notes] = F("קומה, דירה והערות לשליח", o.notes, { tag: "textarea", rows: 2 });
+  const [fDest, sel] = F("יעד", "", { tag: "select" });
+  sel.append(...prices.map(p => el("option", { value: p.label, textContent: `${p.label} · ₪${p.price}` })));
   sel.value = o.dest || (prices[0] && prices[0].label) || "";
-  const price = el("input", { className: "pdEmail", inputMode: "numeric", value: o.price !== undefined && o.price !== "" ? o.price : "", placeholder: "מחיר ₪" });
-  sel.onchange = () => { const p = prices.find(x => x.label === sel.value); if (p) price.value = p.price; };
+  const [fPrice, price] = F("מחיר ₪", o.price !== undefined && o.price !== "" ? o.price : "", { inputMode: "numeric" });
+  sel.addEventListener("change", () => { const p = prices.find(x => x.label === sel.value); if (p) { price.value = p.price; price.dispatchEvent(new Event("input")); } });
   const msg = el("div", { className: "pdMsg" });
-  const go = el("button", { type: "button", className: "etaGo", textContent: "שמירת התיקון" });
+  const go = el("button", { type: "button", className: "etaGo", textContent: "שמירה" });
   go.onclick = () => {
     const pr = String(price.value).replace(/[^\d.]/g, "");
     if (pr === "") { msg.textContent = "צריך מחיר"; return; }
+    const ph = phone.value.trim();
+    if (ph && !/^0\d{8,9}$/.test(ph.replace(/\D/g, "").replace(/^972/, "0"))) { msg.textContent = "מספר הטלפון לא תקין"; return; }
     go.disabled = true; go.textContent = "שומר…"; msg.textContent = "";
-    fetch(SHEET_URL, { method: "POST", body: JSON.stringify({ action: "editOrder", key, no: o.no, dest: sel.value, price: Number(pr) }) })
+    const body = { action: "editOrder", key, no: o.no, dest: sel.value, price: Number(pr),
+      recipient: name.value.trim(), phone: ph, street: street.value.trim(), notes: notes.value.trim() };
+    fetch(SHEET_URL, { method: "POST", body: JSON.stringify(body) })
       .then(r => r.json())
       .then(d => {
         if (!d || !d.ok) throw new Error((d && d.error) || "לא התקבלה תשובה");
-        const old = o.dest;
-        o.price = d.price; o.dest = d.dest;
-        if (old !== d.dest) o.address = (String(o.address || "").split(",")[0].trim() ? String(o.address).split(",")[0].trim() + ", " : "") + d.dest;
+        const was = { recipient: o.recipient, phone: String(o.phone || ""), address: o.address, notes: o.notes || "", dest: o.dest, price: o.price };
+        o.price = d.price; o.dest = d.dest; o.recipient = body.recipient; o.phone = body.phone; o.notes = body.notes;
+        o.address = d.address || ((body.street ? body.street + ", " : "") + d.dest);
         o.steps = [String(o.steps || "").split("|").filter(x => x && !/^תוקן /.test(x)), "תוקן"].flat().join("|");
         render(); setTimeout(load, 1500);
-        const phone = String(o.pickupPhone || "").replace(/\D/g, "").replace(/^0/, "972");
-        const txt = `עדכון להזמנה ${o.no} (${o.recipient || ""}):\nהיעד: ${d.dest}\nהמחיר: ₪${d.price}\nתודה! ארי`;
+        const lines = [];
+        if (was.recipient !== o.recipient) lines.push("המקבל: " + o.recipient);
+        if (was.phone.replace(/\D/g, "") !== o.phone.replace(/\D/g, "")) lines.push("טלפון: " + o.phone);
+        if (was.address !== o.address) lines.push("כתובת: " + o.address);
+        if (String(was.notes) !== o.notes) lines.push("הערות: " + (o.notes || "—"));
+        if (was.dest !== o.dest || String(was.price) !== String(o.price)) lines.push(`מחיר: ₪${o.price}`);
+        const wa = String(o.pickupPhone || "").replace(/\D/g, "").replace(/^0/, "972");
+        const txt = `עדכון להזמנה ${o.no} (${o.recipient || ""}):\n${lines.join("\n") || "הפרטים עודכנו"}\nתודה! ארי`;
         $("oBody").replaceChildren(
           el("div", { className: "shh" }, el("div", {}, el("small", { textContent: `#${o.no}` }), el("h2", { textContent: "התיקון נשמר" })),
             aria(el("button", { type: "button", className: "ib", onclick: closeOrder }, ico("x", "s")), "סגירה")),
-          el("p", { className: "etaHint", textContent: `${d.dest} · ₪${d.price} – נכנס גם לדוח החודשי ולקבלה.` }),
-          phone ? el("button", { type: "button", className: "etaGo", onclick: () => { window.open("https://wa.me/" + phone + "?text=" + encodeURIComponent(txt), "_blank"); closeOrder(); } }, "לשלוח עדכון ללקוח בווצאפ") : "",
-          el("button", { type: "button", className: "lnkSkip", textContent: "סגירה בלי לשלוח", onclick: closeOrder }));
+          el("p", { className: "etaHint", textContent: lines.length ? lines.join(" · ") : "לא היה שינוי" }),
+          wa && lines.length ? el("button", { type: "button", className: "etaGo", onclick: () => { window.open("https://wa.me/" + wa + "?text=" + encodeURIComponent(txt), "_blank"); closeOrder(); } }, "לשלוח עדכון ללקוח בווצאפ") : "",
+          el("button", { type: "button", className: "lnkSkip", textContent: lines.length ? "סגירה בלי לשלוח" : "סגירה", onclick: closeOrder }));
       })
-      .catch(err => { go.disabled = false; go.textContent = "שמירת התיקון"; msg.textContent = err.message; });
+      .catch(err => { go.disabled = false; go.textContent = "שמירה"; msg.textContent = err.message; });
   };
   $("oBody").replaceChildren(
     el("div", { className: "shh" },
-      el("div", {}, el("small", { textContent: `${o.customer || "לקוח"} · #${o.no}` }), el("h2", { textContent: "תיקון יעד / מחיר" })),
+      el("div", {}, el("small", { textContent: `${o.customer || "לקוח"} · #${o.no}` }), el("h2", { textContent: "תיקון פרטים" })),
       aria(el("button", { type: "button", className: "ib", onclick: closeOrder }, ico("x", "s")), "סגירה")),
-    el("p", { className: "etaHint", textContent: `היעד הנכון (מהמחירון של ${cust.code === DEFAULT_CODE ? "לקוחות מזדמנים" : (cust.name || "הלקוח")})` }), sel,
-    el("p", { className: "etaHint", textContent: "מחיר (₪)" }), price, msg, go);
+    el("div", { className: "fxH", textContent: "המקבל" }),
+    el("div", { className: "fx2" }, fName, fPhone), fStreet, fNotes,
+    el("div", { className: "fxH", textContent: "יעד ומחיר" }),
+    el("div", { className: "fx2" }, fDest, fPrice), msg, go);
   document.body.classList.add("sheetOpen");
 }
 
