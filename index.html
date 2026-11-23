@@ -608,6 +608,9 @@ button.fixBtn{display:flex;align-items:center;justify-content:center;gap:8px;wid
 button.fixBtn .ic{width:16px;height:16px}
 .fixCall{text-align:center;font-size:13.5px;color:#6b6b73;margin:10px 0 0}
 .fixCall a{color:inherit;font-weight:600}
+/* רחוב → יעד */
+.zoneNote{display:flex;margin:-2px 0 10px;padding:10px 12px;border-radius:12px;background:var(--brand-soft,#fff1eb);color:#c2410c;font-size:14px;font-weight:600;line-height:1.4}
+.zoneNote[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -692,6 +695,7 @@ button.fixBtn .ic{width:16px;height:16px}
       <div class="f" id="dNumF"><label for="dNum">מספר בניין</label>
       <input id="dNum" inputmode="text" maxlength="8" autocomplete="off" required><div class="errmsg">חובה</div></div>
       </div>
+      <p class="zoneNote" id="zoneNote" hidden></p>
       <input type="hidden" id="dAddr">
       <div class="f wi sel" id="dTypeF"><svg class="ic fi"><use href="#i-building-2" id="dTypeIc"/></svg><label for="dType">סוג המקום</label>
       <select id="dType"><option value="building">בניין</option><option value="house">בית פרטי</option><option value="hotel">מלון</option><option value="other">אחר</option></select>
@@ -1337,8 +1341,10 @@ function buildDestList(q) {
 function openDest() { $("destQ").value = ""; buildDestList(""); document.body.classList.add("sheetOpen"); $("destList").scrollTop = 0; }
 function closeDest() { document.body.classList.remove("sheetOpen"); }
 function pickDest(label) {
+  autoFrom = ""; $("zoneNote").hidden = true;
   $("dCity").value = label; $("dCity").classList.remove("bad");
   $("dCity").dispatchEvent(new Event("change"));
+  streetZone();
   closeDest();
 }
 $("destBtn").addEventListener("click", openDest);
@@ -1407,6 +1413,31 @@ function showPrice() {
   box.innerHTML = `מחיר המשלוח: <b>₪${calcPrice()}</b>${extra}`;
 }
 $("dCity").addEventListener("change", showPrice);
+
+/* ---------- רחוב → יעד: רחובות שארי שייך ליעד מסוים (למשל צור שלום בקרית ביאליק) ---------- */
+const normSt = t => String(t || "").replace(/["'׳״`]/g, "").replace(/^(שדרות|שד|רחוב|רח|דרך|סמטת)\s+/, "").replace(/\s+/g, " ").trim();
+const cityOf = l => String(l || "").split(/\s+[–-]\s+/)[0].trim();
+const zoneName = l => { const p = String(l || "").split(/\s+[–-]\s+/); return p.length > 1 ? p.slice(1).join(" – ") : l; };
+let autoFrom = "";                       // היעד שהלקוח בחר לפני שהמערכת העבירה לפי הרחוב
+function streetZone() {
+  const cur = $("dCity").value, st = normSt($("dStreet").value), note = $("zoneNote");
+  const has = (d, x) => (d && d.streets || []).some(y => normSt(y) === x);
+  if (autoFrom && !has(destOf(cur), st)) {                 // הרחוב השתנה – חוזרים ליעד שהלקוח בחר
+    const back = autoFrom; autoFrom = ""; note.hidden = true;
+    if (destOf(back)) { $("dCity").value = back; showPrice(); }
+  }
+  const now = $("dCity").value;
+  if (!now || !st || has(destOf(now), st)) return;
+  const c = cityOf(now);
+  const hit = DESTS.find(d => d.label !== now && has(d, st) && (cityOf(d.label) === c || String(d.city || "").includes(c)));
+  if (!hit) return;
+  autoFrom = now;
+  $("dCity").value = hit.label; showPrice();
+  note.textContent = `הרחוב ${$("dStreet").value.trim()} נמצא ב${zoneName(hit.label)} – היעד והמחיר עודכנו`;
+  note.hidden = false;
+  const b = $("destBtn"); b.classList.remove("flash"); void b.offsetWidth; b.classList.add("flash");
+}
+$("dStreet").addEventListener("change", streetZone);
 document.querySelectorAll("input[name=when]").forEach(r => r.addEventListener("change", () => {
   $("whenTimeBox").style.display = val("when") === WHEN[2] ? "block" : "none";
   whenHint(); showPrice();
@@ -1532,6 +1563,7 @@ $("orderForm").addEventListener("submit", e => {
     ``,
     `📍 *מסירה:* ${$("dName").value.trim() || "—"}`,
     destLine,
+    ...(autoFrom ? [`↪ היעד עודכן לפי הרחוב (הלקוח בחר: ${autoFrom})`] : []),
     `📞 ${$("dPhone").value.trim()}`,
     `🗺 ${waze(fullDest)}`,
     ``,
@@ -2255,7 +2287,8 @@ function useRecipient(r) {
   $("dName").value = r.name; setD(r.street); $("dPhone").value = r.phone || "";
   PLACE_IDS.forEach(x => { $("d" + x).value = x === "Type" ? typeOf(r.type || "building") : (r[x.toLowerCase()] || ""); }); syncHouse();
   if ([...$("dCity").options].some(o => o.value === r.label)) $("dCity").value = r.label;
-  showPrice();
+  autoFrom = ""; $("zoneNote").hidden = true;
+  showPrice(); streetZone();
   ["dName", "dStreet", "dNum", "dPhone", "dCity"].forEach(id => $(id).classList.remove("bad"));
   [$("destBtn"), ...["dName", "dStreet", "dNum", "dPhone"].map(id => $(id).closest(".f"))].forEach(el => {
     if (!el) return; el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");

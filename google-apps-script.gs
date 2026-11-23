@@ -12,7 +12,7 @@
 const NOTIFY_EMAIL = "";
 
 // גרסת הקוד – מופיעה בבדיקת הכתובת, כדי לדעת שהפריסה באמת עודכנה
-const CODE_VERSION = "2026-11-23a";
+const CODE_VERSION = "2026-11-23b";
 
 // התראות לאייפון דרך אפליקציית Pushover (הכי אמין – עם צלצול חירום ו"קיבלתי" ישר מההתראה).
 // מדביקים כאן את שני המפתחות מ-pushover.net. לא לשמור אותם באתר (הקוד באתר גלוי לכולם).
@@ -459,7 +459,7 @@ function customerEdit(o) {
 /* ---------- לקוחות ומחירונים ----------
    שתי לשוניות בטבלה, שאפשר לערוך גם ידנית וגם מדף הניהול:
    "לקוחות"   – שורה לכל לקוח (קוד, שם, כתובת, טלפון, הגדרות)
-   "מחירונים" – שורה לכל יעד: קוד לקוח | לקוח | יעד | מחיר | כתובת לווייז
+   "מחירונים" – שורה לכל יעד: קוד לקוח | לקוח | יעד | מחיר | כתובת לווייז | רחובות (לקוח שכותב אחד מהם עובר ליעד הזה)
    הקוד "מזדמנים" (או "כללי", השם הישן) הוא המחירון של לקוחות מזדמנים – הדף בלי לינק אישי. */
 const CUST_SHEET = "לקוחות";
 const PRICE_SHEET = "מחירונים";
@@ -470,7 +470,7 @@ const DEFAULT_NAME = "לקוחות מזדמנים";
 const CUST_HEADERS = ["קוד", "שם העסק", "כתובת איסוף", "טלפון", "כותרת בדף", "איסוף קבוע", "אמצעי תשלום קבוע",
   "בלי \"מי משלם\"", "ברכה לכרטיס", "תוספת דחוף", "מה שולחים (מופרד בפסיקים)", "עודכן",
   "שם מקבל לא חובה", "קומה ודירה", "בלי שעת מסירה", "בלי דחוף", "כמות פריטים"];
-const PRICE_HEADERS = ["קוד לקוח", "לקוח", "יעד", "מחיר", "כתובת לווייז (לא חובה)"];
+const PRICE_HEADERS = ["קוד לקוח", "לקוח", "יעד", "מחיר", "כתובת לווייז (לא חובה)", "רחובות ששייכים ליעד (מופרד בפסיקים)"];
 
 function getTab(name, headers) {
   const ss = getSpreadsheet();
@@ -506,7 +506,13 @@ function migrateJsonCustomers(sh) {
   sh.getRange(1, 1, 1, CUST_HEADERS.length).setValues([CUST_HEADERS]).setFontWeight("bold");
   old.forEach(x => saveCustomerData(x.code, x.c));
 }
-const getPriceSheet = () => getTab(PRICE_SHEET, PRICE_HEADERS);
+function getPriceSheet() {
+  const sh = getTab(PRICE_SHEET, PRICE_HEADERS);
+  const top = sh.getRange(1, 1, 1, PRICE_HEADERS.length).getDisplayValues()[0];      // עמודת "רחובות" נוספה אחר כך
+  top.forEach((v, i) => { if (v === "") sh.getRange(1, i + 1).setValue(PRICE_HEADERS[i]).setFontWeight("bold"); });
+  return sh;
+}
+const streetsOf = v => String(v || "").split(/[,،\n]/).map(x => x.trim()).filter(String).slice(0, 100).map(x => x.slice(0, 40));
 
 // קורא את השורות מתחת לכותרת. עובד גם אם בלשונית יש פחות עמודות ממה שהקוד מצפה
 // (למשל אחרי מחיקת עמודות ריקות) – חסרים מושלמים כריקים.
@@ -538,7 +544,9 @@ function readCustomers() {
     if (!code || !label || String(r[3]).trim() === "" || !isFinite(price)) return;
     if (!map[code] && code === DEFAULT_CODE) map[code] = Object.assign(sanitizeCustomer({ name: DEFAULT_NAME }), { code: code });
     if (!map[code] || map[code].prices.length >= 150) return;
-    map[code].prices.push({ label: label, price: num(price, 10000), city: str(r[4], 80) || label });
+    const p = { label: label, price: num(price, 10000), city: str(r[4], 80) || label };
+    const st = streetsOf(r[5]); if (st.length) p.streets = st;
+    map[code].prices.push(p);
   });
   return Object.keys(map).map(k => map[k]);
 }
@@ -556,6 +564,7 @@ function sanitizeCustomer(c) {
     sizes: (Array.isArray(c.sizes) ? c.sizes : []).map(s => str(s, 30)).filter(String).slice(0, 10),
     prices: (Array.isArray(c.prices) ? c.prices : []).map(p => ({
       label: str(p.label, 60), city: str(p.city, 80) || str(p.label, 60), price: num(p.price, 10000),
+      streets: streetsOf(Array.isArray(p.streets) ? p.streets.join(",") : p.streets),
     })).filter(p => p.label).slice(0, 150),
   };
 }
@@ -564,7 +573,7 @@ function sanitizeCustomer(c) {
 function writePrices(code, name, prices) {
   const sh = getPriceSheet();
   const keep = body(sh, PRICE_HEADERS.length).filter(r => toCode(r[0]) && toCode(r[0]) !== code);
-  const add = (prices || []).map(p => [fromCode(code), name, p.label, p.price, p.city && p.city !== p.label ? p.city : ""]);
+  const add = (prices || []).map(p => [fromCode(code), name, p.label, p.price, p.city && p.city !== p.label ? p.city : "", (p.streets || []).join(", ")]);
   const all = keep.concat(add);
   const n = sh.getLastRow();
   if (n > 1) sh.getRange(2, 1, n - 1, PRICE_HEADERS.length).clearContent();
