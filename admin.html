@@ -602,6 +602,13 @@ label.chk input[type=checkbox]:checked::after{right:23px}
 .fxF span{font-size:12px;color:#6b6b73}
 .fxF .fxIn{border:0!important;background:none!important;box-shadow:none!important;padding:0!important;margin:0;font:inherit;font-size:16px;color:#111;min-height:26px;width:100%;resize:none;-webkit-appearance:none;appearance:none;outline:0}
 .fxF.ch{background:#fff;box-shadow:inset 0 0 0 2px var(--ac)}
+/* רחובות ליעד */
+.prow .pst{display:none}
+.prow.open .pst{display:flex;flex-direction:column;gap:4px;flex:1 1 100%}
+.prow .pst span{font-size:12px;color:#6b6b73}
+.prow .pst textarea{font:inherit;font-size:15px;line-height:1.5;border:1.5px solid var(--line)!important;border-radius:12px;padding:10px 12px;resize:vertical;background:#fff;box-shadow:none!important}
+.prow .pst textarea:focus{outline:0!important;border-color:var(--ac)!important}
+.prow .pst small{font-size:12px;color:#6b6b73}
 </style>
 </head>
 <body>
@@ -1743,8 +1750,11 @@ function addRow(p) {
     el("input", { className: "pp", value: p.price !== undefined ? p.price : "", inputMode: "numeric", placeholder: "מחיר ₪", "aria-label": "מחיר" }),
     aria(el("button", { type: "button", className: "pmore", onclick: () => row.classList.toggle("open") }, ico("ellipsis", "s")), "עוד – כתובת לווייז ומחיקה"),
     el("input", { className: "pc", value: p.city && p.city !== p.label ? p.city : "", placeholder: "כתובת לווייז (לא חובה)", maxLength: 80, "aria-label": "כתובת לווייז" }),
+    el("label", { className: "pst" }, el("span", { textContent: "רחובות ששייכים ליעד הזה (לא חובה)" }),
+      el("textarea", { className: "pstIn", rows: 2, value: (p.streets || []).join(", "), placeholder: "למשל: הגליל, הכרמל, התבור", maxLength: 2000 }),
+      el("small", { textContent: "לקוח שבוחר יעד אחר באותה עיר וכותב אחד מהרחובות – עובר לבד ליעד הזה" })),
     el("button", { type: "button", className: "pdel", textContent: "מחיקת היעד", onclick: () => { row.remove(); countRows(); } }));
-  if (p.city && p.city !== p.label) row.classList.add("hasCity");
+  if ((p.city && p.city !== p.label) || (p.streets || []).length) row.classList.add("hasCity");
   row.querySelectorAll("input").forEach(i => i.addEventListener("input", countRows));
   handle.addEventListener("pointerdown", e => startDrag(e, row, handle));
   handle.addEventListener("keydown", e => {                     // מקלדת: חיצים למעלה/למטה
@@ -1794,7 +1804,9 @@ function startDrag(e, row, handle) {
 function readRows() {
   return [...$("ceRows").querySelectorAll(".prow")].map(r => {
     const [l, p, c] = r.querySelectorAll("input");
-    return { label: l.value.trim(), price: p.value.trim(), city: c.value.trim(), row: r };
+    const st = r.querySelector(".pstIn");
+    return { label: l.value.trim(), price: p.value.trim(), city: c.value.trim(),
+      streets: st ? st.value.split(/[,،\n]/).map(x => x.trim()).filter(Boolean) : [], row: r };
   });
 }
 function countRows() { const n = readRows().filter(r => r.label).length; $("ceCount").textContent = n ? `(${n} יעדים)` : ""; }
@@ -1842,7 +1854,7 @@ $("ceSave").onclick = () => {
         nameOptional: $("ce_nameOpt").checked, floorApt: $("ce_floor").checked, hideDoneTime: $("ce_hideDone").checked,
         noUrgent: !$("ce_urgOn").checked, qty: $("ce_qty").checked,
         sizes: $("ce_sizes").value.split(",").map(x => x.trim()).filter(Boolean) };
-  customer.prices = rows.map(r => ({ label: r.label, price: Number(r.price), city: r.city || r.label }));
+  customer.prices = rows.map(r => ({ label: r.label, price: Number(r.price), city: r.city || r.label, streets: r.streets }));
   const btn = $("ceSave"), orig = btn.innerHTML; btn.disabled = true; btn.textContent = "שומר…";
   post({ action: "saveCustomer", code: editing.code, customer })
     .then(() => new Promise(r => setTimeout(r, 1200)))
