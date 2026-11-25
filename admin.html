@@ -627,6 +627,10 @@ button.more{width:48px!important;height:48px!important;border-radius:14px!import
 .prow .pp{width:60px!important;padding-inline:4px!important}
 .prow .pmore{width:34px!important;background:none!important}
 .prow .drag{width:22px!important;font-size:15px}
+/* "דחוף" הוסר: בלי השבב בראש מסך ההזמנות ובלי ההגדרות בעריכת לקוח */
+#urgRow{display:none!important}
+#availBox .pair #availRow{flex:1}
+label:has(#ce_urgent),label:has(#ce_urgOn),label:has(#ce_urgentDef),label:has(#ce_urgOnDef){display:none!important}
 </style>
 </head>
 <body>
@@ -1912,7 +1916,7 @@ $("ceDelete").onclick = () => {
 };
 $("custNew").onclick = () => openEditor(null);
 // מה דלוק – בשורת הכותרת של "הגדרות הדף", כדי לראות בלי לפתוח
-const SET_NAMES = [["ce_cash", "מזומן"], ["ce_fixed", "איסוף קבוע"], ["ce_nameOpt", "שם מקבל לא חובה"], ["ce_hideDone", "בלי שעת מסירה"], ["ce_urgOn", "דחוף"], ["ce_qty", "כמות פריטים"]];
+const SET_NAMES = [["ce_cash", "מזומן"], ["ce_fixed", "איסוף קבוע"], ["ce_nameOpt", "שם מקבל לא חובה"], ["ce_hideDone", "בלי שעת מסירה"], ["ce_qty", "כמות פריטים"]];
 function setSum() { const on = SET_NAMES.filter(([id]) => $(id).checked).map(x => x[1]); $("ceSetSum").textContent = on.length ? "פועל: " + on.join(" · ") : "הכול כבוי"; }
 SET_NAMES.forEach(([id]) => $(id).addEventListener("change", setSum));
 $("ceFrom").onchange = () => {
