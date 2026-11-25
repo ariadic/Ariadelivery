@@ -660,6 +660,19 @@ button.fixBtn.red{color:#be123c}button.fixBtn.red .ic{color:#be123c}
 #historyCard #histBack .ic{width:16px!important;height:16px!important}
 #historyCard .hseg{margin:0 0 14px!important}
 #historyCard .stats{gap:10px!important;margin:0 0 18px!important}
+/* ההזמנות שלי: עכשיו · קודמות · סיכום */
+.hsec{font-size:13px;font-weight:800;color:#6b6b73;margin:18px 2px 8px}
+#historyCard .hhead + .hsec{margin-top:4px}
+#histNow{border-radius:16px;box-shadow:0 0 0 1px var(--ln);overflow:hidden;padding:0;margin:0}
+#histNow li.ho{display:block;padding:0;border-bottom:0}
+#histNow li.ho + li.ho{border-top:1px solid #f0f0f2}
+#historyToday{margin-top:0!important}
+#histSum{margin-top:6px}
+.hrange{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 12px}
+.hrange label{min-width:0;overflow:hidden;display:flex;flex-direction:column;gap:2px;background:var(--fill);border-radius:12px;padding:7px 12px 6px}
+.hrange span{font-size:12px;color:#6b6b73}
+.hrange input{min-width:0;max-width:100%;-webkit-appearance:none;appearance:none;border:0!important;background:none!important;box-shadow:none!important;padding:0!important;font:inherit;font-size:15px;min-height:26px;width:100%}
+.stats b.u{color:#b45309}
 </style>
 </head>
 <body>
@@ -883,20 +896,30 @@ button.fixBtn.red{color:#be123c}button.fixBtn.red .ic{color:#be123c}
 
   <section class="card" id="historyCard" style="display:none">
     <div class="hhead"><h2>ההזמנות שלי</h2><button type="button" class="ib" id="histBack" aria-label="חזרה להזמנה"><svg class="ic s"><use href="#i-x"/></svg></button></div>
-    <div class="hseg" id="histPeriod">
-      <button type="button" data-p="today">היום</button><button type="button" data-p="month" class="on">החודש</button><button type="button" data-p="last">חודש קודם</button><button type="button" data-p="90">90 יום</button>
-    </div>
-    <div class="stats" id="historyStats"></div>
+    <h3 class="hsec" id="histNowH">עכשיו</h3>
+    <ul class="hist" id="histNow"></ul>
+    <h3 class="hsec" id="histPastH">קודמות</h3>
     <ul class="hist" id="historyToday"></ul>
     <div id="historyOlderBox" style="display:none">
       <h3 class="sub">ימים קודמים שעוד לא נמסרו</h3>
       <ul class="hist" id="historyOlder"></ul>
     </div>
     <div class="statusNote" id="statusNote"></div>
-    <div class="hact">
-      <button type="button" class="wa" id="histWa"></button>
-      <button type="button" id="histMail"><svg class="ic s"><use href="#i-mail"/></svg><span>במייל</span></button>
-      <button type="button" id="histPrint"><svg class="ic s"><use href="#i-printer"/></svg><span>הדפסה / PDF</span></button>
+    <div id="histSum">
+      <h3 class="hsec" id="histSumH">סיכום</h3>
+      <div class="hseg" id="histPeriod">
+        <button type="button" data-p="today">היום</button><button type="button" data-p="month" class="on">החודש</button><button type="button" data-p="last">חודש קודם</button><button type="button" data-p="range">טווח</button>
+      </div>
+      <div class="hrange" id="histRange" style="display:none">
+        <label><span>מתאריך</span><input type="date" id="histFrom"></label>
+        <label><span>עד תאריך</span><input type="date" id="histTo"></label>
+      </div>
+      <div class="stats" id="historyStats"></div>
+      <div class="hact">
+        <button type="button" class="wa" id="histWa"></button>
+        <button type="button" id="histMail"><svg class="ic s"><use href="#i-mail"/></svg><span>במייל</span></button>
+        <button type="button" id="histPrint"><svg class="ic s"><use href="#i-printer"/></svg><span>הדפסה / PDF</span></button>
+      </div>
     </div>
     <button type="button" class="secondary" id="historyRefresh" style="display:none"></button>
     <button type="button" class="secondary" id="historyClose" style="display:none">חזרה להזמנה</button>
@@ -1999,7 +2022,12 @@ function periodInfo() {
     const lm = new Date(n.getFullYear(), n.getMonth() - 1, 1);
     return { label: `${HMONTHS[lm.getMonth()]} ${lm.getFullYear()}`, ok: d => d.getMonth() === lm.getMonth() && d.getFullYear() === lm.getFullYear() };
   }
-  if (histPeriod === "90") return { label: "90 הימים האחרונים", ok: d => n - d < 90 * 24 * 3600 * 1000 };
+  if (histPeriod === "range") {
+    const f = $("histFrom").value, t = $("histTo").value;
+    const a = f ? new Date(f + "T00:00:00") : new Date(0), b = t ? new Date(t + "T23:59:59") : n;
+    const dm = d => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+    return { label: f || t ? `${f ? dm(a) : "…"} – ${dm(b)}` : "כל התאריכים", ok: d => d >= a && d <= b };
+  }
   return { label: `${HMONTHS[n.getMonth()]} ${n.getFullYear()}`, ok: d => d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear() };
 }
 const priceOf = x => typeof x.price === "number" ? x.price : 0;
@@ -2027,35 +2055,52 @@ function drawHistory(list) {
     paintRow(li, x);
     return li;
   };
-  const rows = periodList(), out = [];
+  // "עכשיו" = לא נמסרו / לא בוטלו (כל התאריכים) · "קודמות" = השאר. בעל עסק: הקודמות לפי התקופה שבסיכום
+  const isNow = x => { const st = stOf(x); return st ? !(st === "נמסר" || VOIDST(st) || st === "נמחקה") : Date.now() - new Date(x.time) < 3 * 24 * 3600 * 1000; };
+  const all = histList.slice().sort((a, b) => new Date(b.time) - new Date(a.time));
+  const now = all.filter(isNow);
+  const past = (CUSTOMER ? periodList() : all).filter(x => !isNow(x));
+  const openOf = x => histOpen[x.no] !== undefined ? histOpen[x.no] : now.includes(x) && (now.length === 1 || stOf(x) === "נאסף");   // ברירת מחדל: מה שבדרך – פתוח
+  const out = [];
   let lastDay = "";
-  rows.forEach(x => {
+  past.forEach(x => {
     const t = new Date(x.time), day = `${pad(t.getDate())}/${pad(t.getMonth() + 1)}`;
-    if (histPeriod !== "today" && day !== lastDay) {
+    if (day !== lastDay) {
       const h = document.createElement("div"); h.className = "dh"; h.textContent = sameDay(t) ? "היום · " + day : day;
       out.push(h); lastDay = day;
     }
     out.push(item(x));
   });
+  $("histNow").replaceChildren(...now.map(item));
+  $("histNow").style.display = $("histNowH").style.display = now.length ? "" : "none";
   $("historyToday").replaceChildren(...(out.length ? out
-    : [Object.assign(document.createElement("li"), { className: "emptyh", textContent: "אין הזמנות בתקופה הזו" })]));
+    : [Object.assign(document.createElement("li"), { className: "emptyh", textContent: CUSTOMER ? "אין הזמנות קודמות בתקופה הזו" : "אין הזמנות קודמות" })]));
+  $("historyToday").style.display = $("histPastH").style.display = out.length || !now.length ? "" : "none";
   $("historyOlder").replaceChildren();
   $("historyOlderBox").style.display = "none";
+  $("histSum").style.display = CUSTOMER ? "" : "none";          // סיכום ודוח – לבעלי עסקים
+  document.querySelectorAll("#histNow li.ho, #historyToday li.ho").forEach(li => { const x = all.find(y => y.no === li.dataset.no); if (x) { const o = openOf(x); if (histOpen[x.no] === undefined && o) histOpen[x.no] = true; paintRow(li, x); } });
   renderStats();
 }
 function renderStats() {
   const rows = periodList().filter(x => !VOIDST(stOf(x)));
   const total = rows.reduce((t, x) => t + priceOf(x), 0), paid = rows.filter(x => x.paid === true).reduce((t, x) => t + priceOf(x), 0);
   const stat = (n, txt, cls) => { const d = document.createElement("div"); const b = document.createElement("b"); b.textContent = n; if (cls) b.className = cls; d.append(b, txt); return d; };
-  $("historyStats").replaceChildren(stat(rows.length, "משלוחים"), stat("₪" + total, "סה״כ"), stat("₪" + paid, "שולם", "g"));
+  $("historyStats").replaceChildren(stat("₪" + total, "סה״כ"), stat("₪" + paid, "שולם", "g"), stat("₪" + (total - paid), "לא שולם", total - paid ? "u" : ""));
+  $("histSumH").textContent = `סיכום · ${rows.length} משלוחים`;
   $("histWa").innerHTML = WA_ICON + "<span>לעצמי בווצאפ</span>";
   ["histWa", "histMail", "histPrint"].forEach(id => { $(id).disabled = !rows.length; });
 }
 document.querySelectorAll("#histPeriod button").forEach(b => b.addEventListener("click", () => {
   histPeriod = b.dataset.p;
   document.querySelectorAll("#histPeriod button").forEach(x => x.classList.toggle("on", x === b));
+  $("histRange").style.display = histPeriod === "range" ? "" : "none";
+  if (histPeriod === "range" && !$("histFrom").value) {           // ברירת מחדל: מתחילת החודש עד היום
+    const n = new Date(); $("histFrom").value = ymd(new Date(n.getFullYear(), n.getMonth(), 1)); $("histTo").value = ymd(n);
+  }
   drawHistory(histList);
 }));
+["histFrom", "histTo"].forEach(id => $(id).addEventListener("change", () => drawHistory(histList)));
 // סיכום טקסט לווצאפ / מייל
 const bizName = () => CUSTOMER ? (CUSTOMER.name || "") : ($("pName").value.trim() || "");
 const shortAddr = a => String(a || "").split(", ").pop().split(" – ").pop();
@@ -2065,7 +2110,7 @@ function histText(maxLines) {
   const lines = rows.slice(0, maxLines).map(x => { const t = new Date(x.time);
     return `${pad(t.getDate())}/${pad(t.getMonth() + 1)} · ${x.recipient} – ${x.address || ""} · ${typeof x.price === "number" ? "₪" + x.price : x.price}${x.paid === true ? " ✓" : ""}`; });
   return `${bizName() ? bizName() + " – " : ""}משלוחים עם Ari Delivery · ${pi.label}\n\n📦 ${rows.length} משלוחים · סה״כ ₪${total}\n✅ שולם ₪${paid}` +
-    (total - paid ? ` · נשאר ₪${total - paid}` : "") + "\n\n" + lines.join("\n") +
+    (total - paid ? `\n⏳ לא שולם ₪${total - paid}` : "") + "\n\n" + lines.join("\n") +
     (rows.length > maxLines ? `\n…ועוד ${rows.length - maxLines}` : "") + "\n\n(✓ = שולם)";
 }
 $("histWa").addEventListener("click", () => { window.location.href = "https://wa.me/?text=" + encodeURIComponent(histText(60)); });
@@ -2081,7 +2126,7 @@ $("histPrint").addEventListener("click", () => {
   const tr = rows.map(x => { const t = new Date(x.time), st = stOf(x);
     return `<tr><td>${pad(t.getDate())}/${pad(t.getMonth() + 1)}</td><td>${esc(x.recipient)}</td><td>${esc(x.address || "")}</td><td>${esc(x.item)}</td><td>${typeof x.price === "number" ? "₪" + x.price : esc(x.price)}</td><td>${esc(st || "")}</td><td>${x.paid === true ? "✓" : ""}</td></tr>`; }).join("");
   $("printArea").innerHTML = `<div class="ph-h"><div><b>${esc(bizName() || "ההזמנות שלי")}</b><small>משלוחים עם Ari Delivery · ${esc(pi.label)}</small></div>` +
-    `<div class="tot"><b>${valid.length} משלוחים · ₪${total}</b><small>שולם ₪${paid}${total - paid ? " · נשאר ₪" + (total - paid) : ""}</small></div></div>` +
+    `<div class="tot"><b>${valid.length} משלוחים · ₪${total}</b><small>שולם ₪${paid}${total - paid ? " · לא שולם ₪" + (total - paid) : ""}</small></div></div>` +
     `<table><tr><th>תאריך</th><th>מקבל</th><th>יעד</th><th>מה</th><th>מחיר</th><th>סטטוס</th><th>שולם</th></tr>${tr}</table>` +
     `<div class="foot">הופק מ"ההזמנות שלי" · Ari Delivery · 050-4848398</div>`;
   window.print();
@@ -2281,9 +2326,7 @@ function paintBadges(statuses) {
     // הזמנה שבדרך נפתחת לבד (עד שהלקוח סוגר אותה)
     Object.keys(statuses).forEach(no => { if (statuses[no] === "נאסף" && histOpen[no] === undefined) histOpen[no] = true; });
   }
-  const byNo = new Map(histList.map(x => [x.no, x]));
-  document.querySelectorAll("#historyToday li.ho").forEach(li => { const x = byNo.get(li.dataset.no); if (x) paintRow(li, x); });
-  renderStats();
+  drawHistory(histList);                 // הסטטוסים קובעים מה ב"עכשיו" ומה ב"קודמות"
 }
 function loadStatuses(nos) {
   if (!CONFIG.sheetUrl || !nos.length) { $("statusNote").textContent = ""; return; }
