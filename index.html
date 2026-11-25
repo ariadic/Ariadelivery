@@ -611,6 +611,47 @@ button.fixBtn .ic{width:16px;height:16px}
 /* רחוב → יעד */
 .zoneNote{display:flex;margin:-2px 0 10px;padding:10px 12px;border-radius:12px;background:var(--brand-soft,#fff1eb);color:#c2410c;font-size:14px;font-weight:600;line-height:1.4}
 .zoneNote[hidden]{display:none}
+/* בחירה בלי טבעת כתומה: רקע צבעוני + סימן ✓ קטן */
+.chips input:checked + label,#whenChips.whenSeg input:checked + label,#payChips.payGrid input:checked + label{background:#ffe9dd!important;box-shadow:none!important;color:#c2410c!important;font-weight:700;position:relative}
+.chips input:checked + label .ic{color:#c2410c!important}
+.chips input:checked + label::after{content:"";position:absolute;top:8px;left:8px;width:18px;height:18px;border-radius:50%;background:var(--brand) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/11px no-repeat}
+/* אמצעי תשלום אחד */
+#payChips.payOne{display:block}
+#payChips.payOne label{flex-direction:row!important;justify-content:flex-start;gap:12px!important;min-height:0!important;padding:12px 14px!important;background:var(--fill)!important;color:var(--tx)!important;cursor:default;text-align:right}
+#payChips.payOne input:checked + label::after{display:none}
+#payChips.payOne input:checked + label{background:var(--fill)!important;color:var(--tx)!important;font-weight:400}
+#payChips.payOne .p1{display:flex;flex-direction:column;gap:1px;font-weight:400}
+#payChips.payOne .p1 b{font-size:15.5px;font-weight:700;color:#111}
+#payChips.payOne .p1 small{font-size:13px;color:#6b6b73}
+/* מסך סיום: "משלוח נוסף" משני עד שמשלמים */
+#doneMore.sec{background:var(--fill)!important;color:#111!important;box-shadow:none!important}
+#doneMore.sec .ic{color:#111}
+/* תחתית */
+footer .fl{display:block}
+/* מסך סיום: מס' הזמנה מעל הפס · משלוח נוסף · תיקון | ביטול */
+#doneNo{text-align:center;color:#6b6b73;font-size:14px;margin:4px 0 14px}
+#doneBox button.primary#doneMore{position:static!important;width:100%;max-width:none;margin:18px 0 0;left:auto;right:auto;bottom:auto}
+#doneBox .sbarBg,#doneHistory{display:none!important}
+.fixRow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.fixRow button.fixBtn{margin:0;min-height:50px}
+button.fixBtn.red{color:#be123c}button.fixBtn.red .ic{color:#be123c}
+.fixHint2{text-align:center;font-size:13px;color:#6b6b73;margin:8px 0 0}
+/* ההזמנות שלי: בלי קופסה בתוך קופסה, גדלים כמו במסך הסיום */
+.hex{margin:0!important;background:none!important;border-radius:0!important;padding:4px 14px 16px!important}
+.hh{padding:14px!important}
+.hic{width:44px!important;height:44px!important;border-radius:14px!important}
+.hic .ic{width:21px!important;height:21px!important}
+.htx b{font-size:17px!important;font-weight:700!important}
+.hst{font-size:14px!important;margin-top:3px!important}
+.hch{width:32px!important;height:32px!important}
+.hno{text-align:center;color:#6b6b73;font-size:14px;margin:2px 0 12px}
+.trk.mini{margin:4px 0 6px!important}
+.trk.mini .sd{width:40px!important;height:40px!important;margin-bottom:6px!important}.trk.mini .line{top:20px!important}
+.trk.mini b{font-size:13.5px!important}
+.hex .etaBig{margin:14px 0 0!important}
+.hdet{display:block!important;font-size:15px!important;color:#111!important;margin-top:14px!important;padding:0!important;line-height:1.5}
+.hdet b{font-weight:700}
+.hbar{margin:-6px 72px 14px 60px!important}
 </style>
 </head>
 <body>
@@ -778,6 +819,7 @@ button.fixBtn .ic{width:16px;height:16px}
       <div class="okic"><span class="okin"><svg class="ic"><use id="okUse" href="#i-check"/></svg></span></div>
       <h2 id="doneH">ההזמנה אצל ארי</h2>
       <div class="doneSum" id="doneSum"></div>
+      <p id="doneNo"></p>
       <div class="trk" id="trk">
         <div class="line"><i id="trkFill"></i></div>
         <div class="st"><span class="sd"><svg class="ic s"><use href="#i-send"/></svg></span><b>נשלחה</b><small id="trkTime"></small></div>
@@ -790,9 +832,12 @@ button.fixBtn .ic{width:16px;height:16px}
       <div class="etaUpd" id="etaUpd" style="display:none"><svg class="ic"><use href="#i-refresh-cw"/></svg><span id="etaUpdT">זמן ההגעה עודכן</span></div>
       <div class="nearBox" id="nearBox" style="display:none"><svg class="ic"><use href="#i-map-pin"/></svg><b>ארי ממש קרוב – עוד כ-5 דקות</b></div>
       <div class="trkNo" id="trkNo" style="display:none">ארי לא פנוי למשלוח הזה – צריך לתאם משלוח אחר</div>
-      <p id="doneNo"></p>
-      <button type="button" class="fixBtn" id="doneFix" style="display:none"><svg class="ic s"><use href="#i-pencil"/></svg><span>תיקון פרטים</span></button>
-      <button type="button" class="lnkc cancel" id="doneCancel" style="display:none">ביטול ההזמנה</button>
+      <button type="button" class="primary" id="doneMore"><svg class="ic"><use href="#i-plus"/></svg><span>משלוח נוסף</span></button>
+      <div class="fixRow" id="doneFixRow" style="display:none">
+        <button type="button" class="fixBtn" id="doneFix"><svg class="ic s"><use href="#i-pencil"/></svg><span>תיקון פרטים</span></button>
+        <button type="button" class="fixBtn red" id="doneCancel"><svg class="ic s"><use href="#i-x"/></svg><span>ביטול</span></button>
+      </div>
+      <p class="fixHint2" id="doneFixHint" style="display:none">אפשר לתקן או לבטל עד שארי מאשר</p>
       <p class="fixCall" id="doneCall" style="display:none">צריך לתקן משהו? <a href="tel:0504848398">050-4848398</a></p>
     </div>
     <div class="payCard" id="payCard" style="display:none">
@@ -813,8 +858,6 @@ button.fixBtn .ic{width:16px;height:16px}
       <ul class="hist" id="todayList"></ul>
     </div>
     <button type="button" class="lnkc" id="doneFinish" style="display:none">סיימתי</button>
-    <div class="sbarBg"></div>
-    <button type="button" class="primary" id="doneMore"><svg class="ic"><use href="#i-plus"/></svg><span>משלוח נוסף</span></button>
   </section>
 
   <!-- המערכת לא אישרה – עוברים לווצאפ -->
@@ -854,7 +897,8 @@ button.fixBtn .ic{width:16px;height:16px}
 </main>
 
 <footer>
-  Ari Delivery · העצמאות 28, קרית אתא · <a href="tel:0504848398">050-4848398</a> · <a href="terms.html">תקנון, פרטיות וביטולים</a>
+  <span class="fl">Ari Delivery · העצמאות 28, קרית אתא</span>
+  <span class="fl"><a href="tel:0504848398">050-4848398</a> · <a href="terms.html">תקנון, פרטיות וביטולים</a></span>
 </footer>
 
 <div id="printArea" aria-hidden="true"></div>
@@ -1088,6 +1132,7 @@ function chips(boxId, name, items, deco) {
     `<input type="radio" name="${name}" id="${name}${i}" value="${t}" ${i === 0 ? "checked" : ""}>` +
     `<label for="${name}${i}">${(deco || chipLabel)(t, i)}</label>`).join("");
 }
+const STEP_DONE = ["נשלחה", "אושרה", "נאספה", "נמסרה"], STEP_NEXT = ["שליחה", "אישור", "איסוף", "מסירה"];
 const ICO = (n, c) => `<svg class="ic${c ? " " + c : ""}"><use href="#i-${n}"/></svg>`;
 const sizeIcon = t => /זר|פרח/.test(t) ? "flower-2" : /עציץ|צמח/.test(t) ? "sprout" : /סל|סידור/.test(t) ? "shopping-basket"
   : /מעטפ|מסמ/.test(t) ? "mail" : /מתנ/.test(t) ? "gift" : "package";
@@ -1138,15 +1183,20 @@ const PAY_TILES = {
 const PAY_BADGES = `<span class="pbd${PAY_METHODS.length === 1 ? " one" : ""}">` + PAY_METHODS.map(k => PAY_TILES[k]).join("") + `</span>`;
 const PAY_ICON = { "מזומן": ICO("banknote"), "ביט": '<b class="pbit">bit</b>', "פייבוקס": '<b class="ppb">P</b>', [CC]: ICO("credit-card") };
 const PAY_ALL = [...(CASH_OK ? ["מזומן"] : []), "ביט", ...(CONFIG.pbOn ? ["פייבוקס"] : []), ...(CC_OK ? [CC] : [])];
-chips("payChips", "pay", PAY_ALL, t => PAY_ICON[t] + `<span>${t}</span>`);
+const PAY_ONE_TXT = { "ביט": ["תשלום בביט, מראש", "כפתור ביט יופיע אחרי שליחת ההזמנה"], "מזומן": ["תשלום במזומן", "משלמים לארי בסכום מדויק"],
+  "פייבוקס": ["תשלום בפייבוקס, מראש", "הפרטים יופיעו אחרי שליחת ההזמנה"], [CC]: ["תשלום בכרטיס אשראי", "בדף תשלום מאובטח"] };
+chips("payChips", "pay", PAY_ALL, t => PAY_ALL.length === 1
+  ? PAY_ICON[t] + `<span class="p1"><b>${(PAY_ONE_TXT[t] || [t])[0]}</b><small>${(PAY_ONE_TXT[t] || ["", ""])[1]}</small></span>`
+  : PAY_ICON[t] + `<span>${t}</span>`);
 $("payChips").classList.add("payGrid");
+$("payChips").classList.toggle("payOne", PAY_ALL.length === 1);   // אמצעי אחד: שורה אחת, לא "בחירה"
 $("payChips").style.setProperty("--n", PAY_ALL.length);
 const PAY_HINT = { "מזומן": "משלמים לארי במזומן, בסכום מדויק", "ביט": "תשלום מראש · כפתור ביט ופרטים אחרי השליחה", "פייבוקס": "תשלום מראש · הפרטים יופיעו אחרי השליחה", [CC]: "תשלום מאובטח בכרטיס אשראי · ההזמנה נשלחת לארי אחרי התשלום" };
 function updPay() {
   const on = isOnline();
   submitBtn.classList.toggle("payBtn", on);                     // אשראי: כפתור "לתשלום" עם ארנק · אחרת: "שליחת ההזמנה"
   if (!submitBtn.disabled) { const ic = submitBtn.querySelector("svg"); if (ic) ic.outerHTML = subSvg(); const sp = submitBtn.querySelector("span:not(.pr)"); if (sp && CONFIG.sheetUrl) sp.textContent = subText(); }
-  const h = $("payChoiceHint"); if (h) { const t = PAY_HINT[val("pay")]; h.textContent = t || ""; h.style.display = t ? "" : "none"; }
+  const h = $("payChoiceHint"); if (h) { const t = PAY_ALL.length > 1 && PAY_HINT[val("pay")]; h.textContent = t || ""; h.style.display = t ? "" : "none"; }
   $("preNote").style.display = "none";
 }
 $("payChips").addEventListener("change", updPay);
@@ -1691,7 +1741,7 @@ function paintEta(st, eta) {
     $("etaIc").setAttribute("href", pick ? "#i-package" : "#i-clock");
     $("etaTime").textContent = e.time;
     const m = etaMins(e.time);
-    $("etaLeft").textContent = m > 1 ? `עוד ${m} דק׳` : "בכל רגע";
+    $("etaLeft").textContent = leftTxt(m);
   }
 }
 // הכותרת הגדולה משתנה לפי השלב
@@ -1720,12 +1770,12 @@ function paintTrack(st, eta, steps) {
   const off = st === "לא פנוי" || st === "בוטלה", n = off ? 0 : (STEP[st] || 1);
   $("trkNo").textContent = st === "בוטלה" ? "ההזמנה בוטלה – ארי קיבל הודעה" : "ארי לא פנוי למשלוח הזה – צריך לתאם משלוח אחר";
   $("trkNo").classList.toggle("cx", st === "בוטלה");
-  $("doneCancel").style.display = st === STEP_NEW && trackCt ? "" : "none";
-  $("doneFix").style.display = st === STEP_NEW && trackCt ? "" : "none";
+  $("doneFixRow").style.display = $("doneFixHint").style.display = st === STEP_NEW && trackCt ? "" : "none";
   $("doneCall").style.display = trackCt && (st === "אושרה" || st === "נאסף") ? "" : "none";
   document.querySelectorAll("#trk .st").forEach((el, i) => {
     el.className = "st" + (off ? (i === 0 ? " sOk" : "") : i < n ? " sOk" : i === n ? " sNow" : "");
-    if (!off && i === n && sm[i]) sm[i].textContent = ["", "ממתין לאישור", "בדרך לאיסוף", "בדרך למקבל"][i] || "";   // השלב הבא: "ממתין…" – שלא ייראה כאילו כבר קרה
+    if (!off && i === n && sm[i]) sm[i].textContent = ["", "ממתין לארי", "בדרך לאיסוף", "בדרך למקבל"][i] || "";
+    const lb = el.querySelector("b"); if (lb) lb.textContent = (!off && i < n) || i === 0 ? STEP_DONE[i] : STEP_NEXT[i];   // מה שקרה – בעבר, מה שעוד לא – כשם   // השלב הבא: "ממתין…" – שלא ייראה כאילו כבר קרה
   });
   $("trkFill").style.width = (Math.min(n, 3) / 3 * 100) + "%";
   $("trk").classList.toggle("off", off);
@@ -1780,6 +1830,7 @@ function showPayCard(record) {
   const card = $("payCard");
   const method = /פייבוקס/.test(record.pay) ? "פייבוקס" : /ביט/.test(record.pay) ? "ביט" : "";
   card.style.display = method ? "block" : "none";
+  $("doneMore").classList.toggle("sec", !!method);      // עד שמשלמים – כפתור התשלום הוא הבולט היחיד
   if (!method) return;
   card.className = "payCard" + (method === "פייבוקס" ? " pbx" : "");
   const amount = typeof record.price === "number" ? "₪" + record.price : "";
@@ -2136,6 +2187,7 @@ let histEtas = {}, histSteps = {}, histOpen = {};
 const parseSteps = s => { const o = {}; String(s || "").split("|").forEach(p => { const [k, v] = p.split(" "); if (k && v) o[k] = v; }); return o; };
 const hhmm = t => `${pad(t.getHours())}:${pad(t.getMinutes())}`;
 function svgUse(id, cls) { return `<svg class="ic${cls ? " " + cls : ""}"><use href="#i-${id}"/></svg>`; }
+const leftTxt = m => m >= 60 ? `עוד ${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")} שעות` : m > 1 ? `עוד ${m} דק׳` : "בכל רגע";
 function etaCard(st, eta) {
   const e = parseEta(eta), pick = st === "אושרה";
   if (!(st === "נאסף" || pick) || !e.time) return null;
@@ -2144,7 +2196,7 @@ function etaCard(st, eta) {
   d.innerHTML = `<span class="eIc">${svgUse(pick ? "package" : "clock")}</span><div><small></small><b></b></div><span class="eLeft"></span>`;
   d.querySelector("small").textContent = pick ? "שעת איסוף משוערת" : "זמן הגעה משוער";
   d.querySelector("b").textContent = e.time;
-  d.querySelector(".eLeft").textContent = m > 1 ? `עוד ${m} דק׳` : "בכל רגע";
+  d.querySelector(".eLeft").textContent = leftTxt(m);
   return d;
 }
 function miniTrack(x, st) {
@@ -2152,8 +2204,8 @@ function miniTrack(x, st) {
   const S = HST[st] || HST["חדשה"], off = !S.n, n = off ? 0 : S.n;
   const w = document.createElement("div"); w.className = "trk mini" + (off ? " off" : "");
   w.innerHTML = `<div class="line"><i style="width:${Math.min(n, 3) / 3 * 100}%"></i></div>` +
-    [["send", "נשלחה"], ["thumbs-up", "אושרה"], ["truck", "נאספה"], ["package-check", "נמסרה"]].map(([ic, t], i) =>
-      `<div class="st${off ? (i === 0 ? " sOk" : "") : i < n ? " sOk" : i === n ? " sNow" : ""}"><span class="sd">${svgUse(ic, "s")}</span><b>${t}</b></div>`).join("");
+    ["send", "thumbs-up", "truck", "package-check"].map((ic, i) =>
+      `<div class="st${off ? (i === 0 ? " sOk" : "") : i < n ? " sOk" : i === n ? " sNow" : ""}"><span class="sd">${svgUse(ic, "s")}</span><b>${(!off && i < n) || i === 0 ? STEP_DONE[i] : STEP_NEXT[i]}</b></div>`).join("");
   return w;
 }
 function paintRow(li, x) {
@@ -2173,7 +2225,7 @@ function paintRow(li, x) {
   if (st === "חדשה") more = du ? dueTxt(du) : "ממתינה לאישור";
   else if (st === "אושרה" && du && !e.time) more = dueTxt(du);
   else if (st === "אושרה") { if (e.time) { head = "ארי בדרך לאיסוף"; more = `בערך ב-${e.time}`; } }
-  else if (st === "נאסף") more = e.near ? "ממש קרוב" : e.time ? `מגיע בערך ב-${e.time}` : "";
+  else if (st === "נאסף") more = e.near ? "ממש קרוב" : e.time ? `בערך ב-${e.time}` : "";
   else if (st === "נמסר") { if (doneAt) head = `נמסרה ב-${doneAt}`; more = money; }
   else if (!S) more = [hhmm(t), money].filter(Boolean).join(" · ");
   if (head) { const em = document.createElement("em"); em.textContent = head; hs.append(em); }
@@ -2184,6 +2236,7 @@ function paintRow(li, x) {
   [...bar.children].forEach((b, i) => b.classList.toggle("on", !!S && i < S.n));   // לא "f" – זה שם של שדות הטופס
   // פתוח: כל השלבים + שעה + פרטים
   const ex = li.querySelector(".hex"); ex.replaceChildren();
+  const hno = document.createElement("div"); hno.className = "hno"; hno.textContent = "מס׳ הזמנה " + x.no; ex.append(hno);
   if (st === "נמסר") {                         // נמסרה: בלי סרגל – רק הוכחה שנמסר
     const dc = document.createElement("div"); dc.className = "etaBig dn";
     const day = t.toDateString() === new Date().toDateString() ? "היום" : `${pad(t.getDate())}/${pad(t.getMonth() + 1)}`;
@@ -2197,19 +2250,21 @@ function paintRow(li, x) {
   if (st === "נאסף" && e.near) { const nb = document.createElement("div"); nb.className = "nearBox"; nb.innerHTML = svgUse("map-pin") + "<b>ארי ממש קרוב – עוד כ-5 דקות</b>"; ex.append(nb); }
   if (st === "לא פנוי") { const w = document.createElement("div"); w.className = "warn"; w.textContent = "ארי לא פנוי למשלוח הזה – צריך לתאם משלוח אחר"; ex.append(w); }
   const det = document.createElement("div"); det.className = "hdet";
-  const l = document.createElement("span"); l.textContent = [`#${x.no}`, x.item].filter(Boolean).join(" · ");
-  const r = document.createElement("b");
-  r.textContent = [money, x.pay, typeof x.paid === "boolean" && st !== "בוטלה" && st !== "לא פנוי" ? (x.paid ? "שולם" : "לא שולם") : ""].filter(Boolean).join(" · ");
-  if (x.paid === true && st !== "בוטלה" && st !== "לא פנוי") r.className = "py";
-  det.append(l, r); ex.append(det);
+  const paidTxt = typeof x.paid === "boolean" && st !== "בוטלה" && st !== "לא פנוי" ? (x.paid ? "שולם" : "לא שולם") : "";
+  det.textContent = [x.item, money, x.pay].filter(Boolean).join(" · ");
+  if (paidTxt) { const b = document.createElement("b"); b.textContent = " · " + paidTxt; if (x.paid) b.className = "py"; det.append(b); }
+  ex.append(det);
   const ct = st === "חדשה" ? ctOf(x.no) : null;
   if (ct) {
-    const cx = document.createElement("button"); cx.type = "button"; cx.className = "hcancel"; cx.textContent = "ביטול ההזמנה";
+    const cx = document.createElement("button"); cx.type = "button"; cx.className = "fixBtn red";
+    cx.innerHTML = svgUse("x", "s") + "<span>ביטול</span>";
     cx.onclick = () => cancelMyOrder(x.no, ct, renderHistory);
     const fx = document.createElement("button"); fx.type = "button"; fx.className = "fixBtn";
-    fx.innerHTML = svgUse("pencil") + "<span>תיקון פרטים</span>";
+    fx.innerHTML = svgUse("pencil", "s") + "<span>תיקון פרטים</span>";
     fx.onclick = () => openMyFix(x.no, ct, renderHistory);
-    ex.append(fx, cx);
+    const row = document.createElement("div"); row.className = "fixRow"; row.append(fx, cx);
+    const hint = document.createElement("p"); hint.className = "fixHint2"; hint.textContent = "אפשר לתקן או לבטל עד שארי מאשר";
+    ex.append(row, hint);
   }
 }
 function paintBadges(statuses) {
