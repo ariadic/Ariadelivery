@@ -637,6 +637,11 @@ main{padding:8px 20px 24px!important}
 .kpi{margin-bottom:22px!important}
 .custCard .meta{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .custCard .ct{min-width:0}
+/* חלונית מלמטה בספארי (iOS 26): גובה לפי המסך שבאמת נראה, ורקע שממשיך מתחת לסרגל הצף */
+.sheet{max-height:calc(100svh - 60px)!important}
+.sheet{box-shadow:0 120px 0 #fff,0 -8px 30px #0002}
+.dim,#oDim{bottom:-140px!important}
+.sheet{padding-bottom:calc(72px + env(safe-area-inset-bottom))!important}
 </style>
 </head>
 <body>
