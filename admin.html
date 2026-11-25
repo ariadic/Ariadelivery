@@ -916,7 +916,8 @@ function fillCustomers() {
 
 let filtOpen = false;
 function render() {
-  const closed = o => CLOSED.indexOf(o.status) !== -1;
+  // נמסרה אבל לא שולמה – נשארת בפתוחות עד שמסמנים "שולם"
+  const closed = o => CLOSED.indexOf(o.status) !== -1 && !(o.status === "נמסר" && !o.paid);
   const cust = $("custFilter").value;
   const mine = orders.filter(o => !cust || o.customer === cust);
   const openN = mine.filter(o => !closed(o)).length;
@@ -972,7 +973,7 @@ function render() {
   if (tab !== "open" || q) { $("list").replaceChildren(...shown.map(card)); return; }
   // פתוחות: קודם מה שצריך לטפל בו עכשיו (חדשות + שעה שעברה), אחר כך בדרך, ואז שאושרו
   const late = o => { const t = parseEta(o.eta).time, dl = deadlineOf(o); return (o.status === "אושרה" || o.status === "נאסף") && ((t && etaMin(t) <= 0) || (dl && dl.d < Date.now())); };
-  const groups = [["צריך לטפל עכשיו", o => o.status === "חדשה" || late(o)], ["בדרך", o => o.status === "נאסף"], ["אושרו · לאיסוף", o => o.status === "אושרה"], ["", () => true]];
+  const groups = [["צריך לטפל עכשיו", o => o.status === "חדשה" || late(o)], ["בדרך", o => o.status === "נאסף"], ["אושרו · לאיסוף", o => o.status === "אושרה"], ["נמסרו · מחכים לתשלום", o => o.status === "נמסר"], ["", () => true]];
   const used = new Set(), out = [];
   groups.forEach(([title, f]) => {
     const g = shown.filter(o => !used.has(o) && f(o));
@@ -1004,7 +1005,9 @@ function card(o) {
         el("span", { className: "pdot" }), payTxt + (o.paid ? " · שולם" : prepay ? " · לבדוק" : " · לא שולם"));
   const nx = NEXT[o.status];
   const act = nx ? el("button", { type: "button", className: "act " + nx[3],
-    onclick: e => nx[0] === "נאסף" ? openEta(o) : nx[0] === "אושרה" ? openPick(o) : update(o, nx[0], e.currentTarget) }, ico(nx[1], "s"), nx[2]) : null;
+    onclick: e => nx[0] === "נאסף" ? openEta(o) : nx[0] === "אושרה" ? openPick(o) : update(o, nx[0], e.currentTarget) }, ico(nx[1], "s"), nx[2])
+    : o.status === "נמסר" && !o.paid && !off ? el("button", { type: "button", className: "act grn",           // נמסרה ולא שולמה – הפעולה הבאה היא "שולם"
+        onclick: e => morning.keys ? openPaid(o) : setPaid(o, true, e.currentTarget) }, ico("banknote", "s"), "שולם") : null;
   // בדרך: זמן הגעה משוער + "עוד 5 דק'"; כשהשעה מגיעה – עוד 5 / 10 / 15 / 20
   const et = parseEta(o.eta);
   const late = o.status === "נאסף" && et.time && etaMin(et.time) <= 0;
@@ -1626,21 +1629,11 @@ function custCard(c) {
   if (isDef) av.append(ico("users")); else av.textContent = em ? em[1] : (c.name || "?").trim().charAt(0);
   const btn = (i, l, fn) => aria(el("button", { type: "button", className: "ib sm", onclick: e => { e.stopPropagation(); fn(e.currentTarget); } }, ico(i, "s")), l);
   const meta = n ? `${n} יעדים · ${priceRange(c.prices)}` : (isDef ? "אין מחירון – \"המחיר ייקבע בשיחה\"" : "מחיר לפי הסכם");
-  // מזומן – הדלקה / כיבוי בלחיצה אחת מהרשימה (נשמר מיד)
-  const cashOn = /מזומן/.test(c.pay || "");
-  const cash = el("button", { type: "button", className: "cashPill" + (cashOn ? " on" : ""), title: "מזומן – לחיצה מדליקה / מכבה",
-    onclick: e => { e.stopPropagation();
-      const on = !/מזומן/.test(c.pay || ""), rest = String(c.pay || "").replace(/מזומן/g, "").trim();
-      c.pay = [on ? "מזומן" : "", rest].filter(Boolean).join(" ");
-      cash.classList.toggle("on", on); cash.lastChild.textContent = on ? "מזומן ✓" : "בלי מזומן";
-      const customer = Object.assign({}, c); delete customer.code;
-      post({ action: "saveCustomer", code: c.code, customer }).catch(() => { alert("השמירה לא נשלחה – בדוק חיבור"); }); } },
-    ico("banknote", "xs"), el("span", { textContent: cashOn ? "מזומן ✓" : "בלי מזומן" }));
   return el("section", { className: "custCard", onclick: () => openEditor(c) },
     av,
     el("div", { className: "ct" },
       el("div", { className: "cust", textContent: isDef ? "לקוחות מזדמנים" : c.name }),
-      el("div", { className: "meta", textContent: (isDef ? "הדף הכללי · " : "") + meta }), cash),
+      el("div", { className: "meta", textContent: (isDef ? "הדף הכללי · " : "") + meta })),
     el("button", { type: "button", className: "lnkBtn", onclick: e => { e.stopPropagation(); copyText(link, e.currentTarget); } }, "לינק"),
     isDef ? null : btn("ellipsis", "עוד פעולות", () => openCustMenu(c, link)));
 }
