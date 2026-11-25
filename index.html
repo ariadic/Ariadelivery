@@ -1163,7 +1163,7 @@ function chips(boxId, name, items, deco) {
     `<input type="radio" name="${name}" id="${name}${i}" value="${t}" ${i === 0 ? "checked" : ""}>` +
     `<label for="${name}${i}">${(deco || chipLabel)(t, i)}</label>`).join("");
 }
-const STEP_DONE = ["נשלחה", "אושרה", "נאספה", "נמסרה"], STEP_NEXT = ["שליחה", "אישור", "איסוף", "מסירה"];
+const STEP_DONE = ["נשלחה", "אושרה", "נאספה", "נמסרה"], STEP_NEXT = ["שליחה", "אישור", "איסוף", "נמסרה"];
 const ICO = (n, c) => `<svg class="ic${c ? " " + c : ""}"><use href="#i-${n}"/></svg>`;
 const sizeIcon = t => /זר|פרח/.test(t) ? "flower-2" : /עציץ|צמח/.test(t) ? "sprout" : /סל|סידור/.test(t) ? "shopping-basket"
   : /מעטפ|מסמ/.test(t) ? "mail" : /מתנ/.test(t) ? "gift" : "package";
