@@ -232,7 +232,7 @@ button.lnk b{display:block;font-weight:600;font-size:15px}
 button.lnk small{display:block;color:var(--mu);font-size:12.5px;font-weight:400;margin-top:1px}
 #historyBtn{display:none}
 /* כפתור השליחה – קבוע בתחתית, עם המחיר בתוכו */
-#orderForm > button[type=submit],button.primary#doneMore{position:fixed;z-index:30;left:16px;right:16px;bottom:calc(14px + env(safe-area-inset-bottom));width:auto;max-width:488px;margin:0 auto;display:flex;align-items:center;gap:10px;border-radius:16px;padding:16px 18px;font-size:17px;font-weight:600;color:#fff}
+#orderForm > button[type=submit],button.primary#doneMore{position:fixed;z-index:30;left:24px;right:24px;bottom:calc(14px + env(safe-area-inset-bottom));width:auto;max-width:488px;margin:0 auto;display:flex;align-items:center;gap:10px;border-radius:16px;padding:16px 18px;font-size:17px;font-weight:600;color:#fff}
 #orderForm > button[type=submit]{background:var(--ok);box-shadow:0 8px 22px #1fbf5a55;justify-content:flex-start}
 #orderForm > button[type=submit] > span:not(.pr):not(.spin){flex:1;text-align:right}
 #orderForm > button[type=submit] svg{width:22px;height:22px}
@@ -614,7 +614,6 @@ button.fixBtn .ic{width:16px;height:16px}
 /* בחירה בלי טבעת כתומה: רקע צבעוני + סימן ✓ קטן */
 .chips input:checked + label,#whenChips.whenSeg input:checked + label,#payChips.payGrid input:checked + label{background:#ffe9dd!important;box-shadow:none!important;color:#c2410c!important;font-weight:700;position:relative}
 .chips input:checked + label .ic{color:#c2410c!important}
-.chips input:checked + label::after{content:"";position:absolute;top:8px;left:8px;width:18px;height:18px;border-radius:50%;background:var(--brand) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/11px no-repeat}
 /* אמצעי תשלום אחד */
 #payChips.payOne{display:block}
 #payChips.payOne label{flex-direction:row!important;justify-content:flex-start;gap:12px!important;min-height:0!important;padding:12px 14px!important;background:var(--fill)!important;color:var(--tx)!important;cursor:default;text-align:right}
@@ -652,6 +651,40 @@ button.fixBtn.red{color:#be123c}button.fixBtn.red .ic{color:#be123c}
 .hdet{display:block!important;font-size:15px!important;color:#111!important;margin-top:14px!important;padding:0!important;line-height:1.5}
 .hdet b{font-weight:700}
 .hbar{margin:-6px 72px 14px 60px!important}
+/* ההזמנות שלי: אוויר בראש המסך, × קטן ולא צמוד */
+#historyCard{padding:22px 18px 18px!important}
+#historyCard .hhead{margin:0 0 18px;align-items:center}
+#historyCard .hhead h2{font-size:26px!important;margin:0!important}
+#historyCard #histBack{width:36px!important;height:36px!important;min-height:0!important;border-radius:50%;background:var(--fill)!important;flex:none}
+#historyCard #histBack .ic{width:16px!important;height:16px!important}
+#historyCard .hseg{margin:0 0 14px!important}
+#historyCard .stats{gap:10px!important;margin:0 0 18px!important}
+/* ההזמנות שלי: עכשיו · קודמות · סיכום */
+.hsec{font-size:13px;font-weight:800;color:#6b6b73;margin:18px 2px 8px}
+#historyCard .hhead + .hsec{margin-top:4px}
+#histNow{border-radius:16px;box-shadow:0 0 0 1px var(--ln);overflow:hidden;padding:0;margin:0}
+#histNow li.ho{display:block;padding:0;border-bottom:0}
+#histNow li.ho + li.ho{border-top:1px solid #f0f0f2}
+#historyToday{margin-top:0!important}
+#histSum{margin-top:6px}
+.hrange{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 12px}
+.hrange label{min-width:0;overflow:hidden;display:flex;flex-direction:column;gap:2px;background:var(--fill);border-radius:12px;padding:7px 12px 6px}
+.hrange span{font-size:12px;color:#6b6b73}
+.hrange input{min-width:0;max-width:100%;-webkit-appearance:none;appearance:none;border:0!important;background:none!important;box-shadow:none!important;padding:0!important;font:inherit;font-size:15px;min-height:26px;width:100%}
+.stats b.u{color:#b45309}
+/* אוויר: יותר רווח בצדדים, בין שדות ובין חלקים */
+main{padding:8px 24px 24px!important}
+#orderForm .card{margin:0 0 26px!important}
+#orderForm .card > h2.sh,h2.sh{margin:30px 0 16px!important}
+.f{margin-bottom:14px!important}
+.row2,.row31,.fl3{gap:12px!important}
+.chips,#whenChips.whenSeg,#payChips.payGrid{gap:12px!important}
+h3.sub3{margin:18px 2px 10px!important}
+.whenHint{margin-top:10px!important}
+#doneBox .done{padding-top:8px}
+#doneNo{margin:8px 0 20px!important}
+#doneBox button.primary#doneMore{margin-top:26px!important}
+.fixRow{gap:12px!important;margin-top:12px!important}
 </style>
 </head>
 <body>
@@ -835,7 +868,7 @@ button.fixBtn.red{color:#be123c}button.fixBtn.red .ic{color:#be123c}
       <button type="button" class="primary" id="doneMore"><svg class="ic"><use href="#i-plus"/></svg><span>משלוח נוסף</span></button>
       <div class="fixRow" id="doneFixRow" style="display:none">
         <button type="button" class="fixBtn" id="doneFix"><svg class="ic s"><use href="#i-pencil"/></svg><span>תיקון פרטים</span></button>
-        <button type="button" class="fixBtn red" id="doneCancel"><svg class="ic s"><use href="#i-x"/></svg><span>ביטול</span></button>
+        <button type="button" class="fixBtn red" id="doneCancel"><svg class="ic s"><use href="#i-x"/></svg><span>ביטול הזמנה</span></button>
       </div>
       <p class="fixHint2" id="doneFixHint" style="display:none">אפשר לתקן או לבטל עד שארי מאשר</p>
       <p class="fixCall" id="doneCall" style="display:none">צריך לתקן משהו? <a href="tel:0504848398">050-4848398</a></p>
@@ -875,20 +908,30 @@ button.fixBtn.red{color:#be123c}button.fixBtn.red .ic{color:#be123c}
 
   <section class="card" id="historyCard" style="display:none">
     <div class="hhead"><h2>ההזמנות שלי</h2><button type="button" class="ib" id="histBack" aria-label="חזרה להזמנה"><svg class="ic s"><use href="#i-x"/></svg></button></div>
-    <div class="hseg" id="histPeriod">
-      <button type="button" data-p="today">היום</button><button type="button" data-p="month" class="on">החודש</button><button type="button" data-p="last">חודש קודם</button><button type="button" data-p="90">90 יום</button>
-    </div>
-    <div class="stats" id="historyStats"></div>
+    <h3 class="hsec" id="histNowH">עכשיו</h3>
+    <ul class="hist" id="histNow"></ul>
+    <h3 class="hsec" id="histPastH">קודמות</h3>
     <ul class="hist" id="historyToday"></ul>
     <div id="historyOlderBox" style="display:none">
       <h3 class="sub">ימים קודמים שעוד לא נמסרו</h3>
       <ul class="hist" id="historyOlder"></ul>
     </div>
     <div class="statusNote" id="statusNote"></div>
-    <div class="hact">
-      <button type="button" class="wa" id="histWa"></button>
-      <button type="button" id="histMail"><svg class="ic s"><use href="#i-mail"/></svg><span>במייל</span></button>
-      <button type="button" id="histPrint"><svg class="ic s"><use href="#i-printer"/></svg><span>הדפסה / PDF</span></button>
+    <div id="histSum">
+      <h3 class="hsec" id="histSumH">סיכום</h3>
+      <div class="hseg" id="histPeriod">
+        <button type="button" data-p="today">היום</button><button type="button" data-p="month" class="on">החודש</button><button type="button" data-p="last">חודש קודם</button><button type="button" data-p="range">טווח</button>
+      </div>
+      <div class="hrange" id="histRange" style="display:none">
+        <label><span>מתאריך</span><input type="date" id="histFrom"></label>
+        <label><span>עד תאריך</span><input type="date" id="histTo"></label>
+      </div>
+      <div class="stats" id="historyStats"></div>
+      <div class="hact">
+        <button type="button" class="wa" id="histWa"></button>
+        <button type="button" id="histMail"><svg class="ic s"><use href="#i-mail"/></svg><span>במייל</span></button>
+        <button type="button" id="histPrint"><svg class="ic s"><use href="#i-printer"/></svg><span>הדפסה / PDF</span></button>
+      </div>
     </div>
     <button type="button" class="secondary" id="historyRefresh" style="display:none"></button>
     <button type="button" class="secondary" id="historyClose" style="display:none">חזרה להזמנה</button>
@@ -1111,7 +1154,7 @@ const DESTS = CUSTOMER && CUSTOMER.prices
   : CONFIG.defaultPrices || Object.entries(CONFIG.cities).map(([c, p]) => ({ label: c, city: c, price: p }));
 const URGENT_EXTRA = CUSTOMER ? (CUSTOMER.urgentExtra || 0) : CONFIG.urgentExtra;
 // אפשרות "דחוף": ארי יכול לכבות ללקוח מסוים (בדף הניהול), או לכולם זמנית ("מקבל דחופים")
-const NO_URGENT = CUSTOMER ? !!CUSTOMER.noUrgent : !!CONFIG.defaultNoUrgent;
+const NO_URGENT = true;   // "דחוף" הוסר מהאתר (אף אחד לא השתמש). הקוד נשאר אם ירצו להחזיר
 // כמות פריטים במקום "מה שולחים" (מוגדר בדף הניהול, למשל לחוות החיות)
 const QTY = !!(CUSTOMER && CUSTOMER.qty);
 let qtyN = 1;
@@ -1132,7 +1175,7 @@ function chips(boxId, name, items, deco) {
     `<input type="radio" name="${name}" id="${name}${i}" value="${t}" ${i === 0 ? "checked" : ""}>` +
     `<label for="${name}${i}">${(deco || chipLabel)(t, i)}</label>`).join("");
 }
-const STEP_DONE = ["נשלחה", "אושרה", "נאספה", "נמסרה"], STEP_NEXT = ["שליחה", "אישור", "איסוף", "מסירה"];
+const STEP_DONE = ["נשלחה", "אושרה", "נאספה", "נמסרה"], STEP_NEXT = ["שליחה", "אישור", "איסוף", "נמסרה"];
 const ICO = (n, c) => `<svg class="ic${c ? " " + c : ""}"><use href="#i-${n}"/></svg>`;
 const sizeIcon = t => /זר|פרח/.test(t) ? "flower-2" : /עציץ|צמח/.test(t) ? "sprout" : /סל|סידור/.test(t) ? "shopping-basket"
   : /מעטפ|מסמ/.test(t) ? "mail" : /מתנ/.test(t) ? "gift" : "package";
@@ -1991,7 +2034,12 @@ function periodInfo() {
     const lm = new Date(n.getFullYear(), n.getMonth() - 1, 1);
     return { label: `${HMONTHS[lm.getMonth()]} ${lm.getFullYear()}`, ok: d => d.getMonth() === lm.getMonth() && d.getFullYear() === lm.getFullYear() };
   }
-  if (histPeriod === "90") return { label: "90 הימים האחרונים", ok: d => n - d < 90 * 24 * 3600 * 1000 };
+  if (histPeriod === "range") {
+    const f = $("histFrom").value, t = $("histTo").value;
+    const a = f ? new Date(f + "T00:00:00") : new Date(0), b = t ? new Date(t + "T23:59:59") : n;
+    const dm = d => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+    return { label: f || t ? `${f ? dm(a) : "…"} – ${dm(b)}` : "כל התאריכים", ok: d => d >= a && d <= b };
+  }
   return { label: `${HMONTHS[n.getMonth()]} ${n.getFullYear()}`, ok: d => d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear() };
 }
 const priceOf = x => typeof x.price === "number" ? x.price : 0;
@@ -2019,35 +2067,52 @@ function drawHistory(list) {
     paintRow(li, x);
     return li;
   };
-  const rows = periodList(), out = [];
+  // "עכשיו" = לא נמסרו / לא בוטלו (כל התאריכים) · "קודמות" = השאר. בעל עסק: הקודמות לפי התקופה שבסיכום
+  const isNow = x => { const st = stOf(x); return st ? !(st === "נמסר" || VOIDST(st) || st === "נמחקה") : Date.now() - new Date(x.time) < 3 * 24 * 3600 * 1000; };
+  const all = histList.slice().sort((a, b) => new Date(b.time) - new Date(a.time));
+  const now = all.filter(isNow);
+  const past = (CUSTOMER ? periodList() : all).filter(x => !isNow(x));
+  const openOf = x => histOpen[x.no] !== undefined ? histOpen[x.no] : now.includes(x) && (now.length === 1 || stOf(x) === "נאסף");   // ברירת מחדל: מה שבדרך – פתוח
+  const out = [];
   let lastDay = "";
-  rows.forEach(x => {
+  past.forEach(x => {
     const t = new Date(x.time), day = `${pad(t.getDate())}/${pad(t.getMonth() + 1)}`;
-    if (histPeriod !== "today" && day !== lastDay) {
+    if (day !== lastDay) {
       const h = document.createElement("div"); h.className = "dh"; h.textContent = sameDay(t) ? "היום · " + day : day;
       out.push(h); lastDay = day;
     }
     out.push(item(x));
   });
+  $("histNow").replaceChildren(...now.map(item));
+  $("histNow").style.display = $("histNowH").style.display = now.length ? "" : "none";
   $("historyToday").replaceChildren(...(out.length ? out
-    : [Object.assign(document.createElement("li"), { className: "emptyh", textContent: "אין הזמנות בתקופה הזו" })]));
+    : [Object.assign(document.createElement("li"), { className: "emptyh", textContent: CUSTOMER ? "אין הזמנות קודמות בתקופה הזו" : "אין הזמנות קודמות" })]));
+  $("historyToday").style.display = $("histPastH").style.display = out.length || !now.length ? "" : "none";
   $("historyOlder").replaceChildren();
   $("historyOlderBox").style.display = "none";
+  $("histSum").style.display = CUSTOMER ? "" : "none";          // סיכום ודוח – לבעלי עסקים
+  document.querySelectorAll("#histNow li.ho, #historyToday li.ho").forEach(li => { const x = all.find(y => y.no === li.dataset.no); if (x) { const o = openOf(x); if (histOpen[x.no] === undefined && o) histOpen[x.no] = true; paintRow(li, x); } });
   renderStats();
 }
 function renderStats() {
   const rows = periodList().filter(x => !VOIDST(stOf(x)));
   const total = rows.reduce((t, x) => t + priceOf(x), 0), paid = rows.filter(x => x.paid === true).reduce((t, x) => t + priceOf(x), 0);
   const stat = (n, txt, cls) => { const d = document.createElement("div"); const b = document.createElement("b"); b.textContent = n; if (cls) b.className = cls; d.append(b, txt); return d; };
-  $("historyStats").replaceChildren(stat(rows.length, "משלוחים"), stat("₪" + total, "סה״כ"), stat("₪" + paid, "שולם", "g"));
+  $("historyStats").replaceChildren(stat("₪" + total, "סה״כ"), stat("₪" + paid, "שולם", "g"), stat("₪" + (total - paid), "לא שולם", total - paid ? "u" : ""));
+  $("histSumH").textContent = `סיכום · ${rows.length} משלוחים`;
   $("histWa").innerHTML = WA_ICON + "<span>לעצמי בווצאפ</span>";
   ["histWa", "histMail", "histPrint"].forEach(id => { $(id).disabled = !rows.length; });
 }
 document.querySelectorAll("#histPeriod button").forEach(b => b.addEventListener("click", () => {
   histPeriod = b.dataset.p;
   document.querySelectorAll("#histPeriod button").forEach(x => x.classList.toggle("on", x === b));
+  $("histRange").style.display = histPeriod === "range" ? "" : "none";
+  if (histPeriod === "range" && !$("histFrom").value) {           // ברירת מחדל: מתחילת החודש עד היום
+    const n = new Date(); $("histFrom").value = ymd(new Date(n.getFullYear(), n.getMonth(), 1)); $("histTo").value = ymd(n);
+  }
   drawHistory(histList);
 }));
+["histFrom", "histTo"].forEach(id => $(id).addEventListener("change", () => drawHistory(histList)));
 // סיכום טקסט לווצאפ / מייל
 const bizName = () => CUSTOMER ? (CUSTOMER.name || "") : ($("pName").value.trim() || "");
 const shortAddr = a => String(a || "").split(", ").pop().split(" – ").pop();
@@ -2057,7 +2122,7 @@ function histText(maxLines) {
   const lines = rows.slice(0, maxLines).map(x => { const t = new Date(x.time);
     return `${pad(t.getDate())}/${pad(t.getMonth() + 1)} · ${x.recipient} – ${x.address || ""} · ${typeof x.price === "number" ? "₪" + x.price : x.price}${x.paid === true ? " ✓" : ""}`; });
   return `${bizName() ? bizName() + " – " : ""}משלוחים עם Ari Delivery · ${pi.label}\n\n📦 ${rows.length} משלוחים · סה״כ ₪${total}\n✅ שולם ₪${paid}` +
-    (total - paid ? ` · נשאר ₪${total - paid}` : "") + "\n\n" + lines.join("\n") +
+    (total - paid ? `\n⏳ לא שולם ₪${total - paid}` : "") + "\n\n" + lines.join("\n") +
     (rows.length > maxLines ? `\n…ועוד ${rows.length - maxLines}` : "") + "\n\n(✓ = שולם)";
 }
 $("histWa").addEventListener("click", () => { window.location.href = "https://wa.me/?text=" + encodeURIComponent(histText(60)); });
@@ -2073,7 +2138,7 @@ $("histPrint").addEventListener("click", () => {
   const tr = rows.map(x => { const t = new Date(x.time), st = stOf(x);
     return `<tr><td>${pad(t.getDate())}/${pad(t.getMonth() + 1)}</td><td>${esc(x.recipient)}</td><td>${esc(x.address || "")}</td><td>${esc(x.item)}</td><td>${typeof x.price === "number" ? "₪" + x.price : esc(x.price)}</td><td>${esc(st || "")}</td><td>${x.paid === true ? "✓" : ""}</td></tr>`; }).join("");
   $("printArea").innerHTML = `<div class="ph-h"><div><b>${esc(bizName() || "ההזמנות שלי")}</b><small>משלוחים עם Ari Delivery · ${esc(pi.label)}</small></div>` +
-    `<div class="tot"><b>${valid.length} משלוחים · ₪${total}</b><small>שולם ₪${paid}${total - paid ? " · נשאר ₪" + (total - paid) : ""}</small></div></div>` +
+    `<div class="tot"><b>${valid.length} משלוחים · ₪${total}</b><small>שולם ₪${paid}${total - paid ? " · לא שולם ₪" + (total - paid) : ""}</small></div></div>` +
     `<table><tr><th>תאריך</th><th>מקבל</th><th>יעד</th><th>מה</th><th>מחיר</th><th>סטטוס</th><th>שולם</th></tr>${tr}</table>` +
     `<div class="foot">הופק מ"ההזמנות שלי" · Ari Delivery · 050-4848398</div>`;
   window.print();
@@ -2257,7 +2322,7 @@ function paintRow(li, x) {
   const ct = st === "חדשה" ? ctOf(x.no) : null;
   if (ct) {
     const cx = document.createElement("button"); cx.type = "button"; cx.className = "fixBtn red";
-    cx.innerHTML = svgUse("x", "s") + "<span>ביטול</span>";
+    cx.innerHTML = svgUse("x", "s") + "<span>ביטול הזמנה</span>";
     cx.onclick = () => cancelMyOrder(x.no, ct, renderHistory);
     const fx = document.createElement("button"); fx.type = "button"; fx.className = "fixBtn";
     fx.innerHTML = svgUse("pencil", "s") + "<span>תיקון פרטים</span>";
@@ -2273,9 +2338,7 @@ function paintBadges(statuses) {
     // הזמנה שבדרך נפתחת לבד (עד שהלקוח סוגר אותה)
     Object.keys(statuses).forEach(no => { if (statuses[no] === "נאסף" && histOpen[no] === undefined) histOpen[no] = true; });
   }
-  const byNo = new Map(histList.map(x => [x.no, x]));
-  document.querySelectorAll("#historyToday li.ho").forEach(li => { const x = byNo.get(li.dataset.no); if (x) paintRow(li, x); });
-  renderStats();
+  drawHistory(histList);                 // הסטטוסים קובעים מה ב"עכשיו" ומה ב"קודמות"
 }
 function loadStatuses(nos) {
   if (!CONFIG.sheetUrl || !nos.length) { $("statusNote").textContent = ""; return; }
