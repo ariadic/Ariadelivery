@@ -232,7 +232,7 @@ button.lnk b{display:block;font-weight:600;font-size:15px}
 button.lnk small{display:block;color:var(--mu);font-size:12.5px;font-weight:400;margin-top:1px}
 #historyBtn{display:none}
 /* כפתור השליחה – קבוע בתחתית, עם המחיר בתוכו */
-#orderForm > button[type=submit],button.primary#doneMore{position:fixed;z-index:30;left:16px;right:16px;bottom:calc(14px + env(safe-area-inset-bottom));width:auto;max-width:488px;margin:0 auto;display:flex;align-items:center;gap:10px;border-radius:16px;padding:16px 18px;font-size:17px;font-weight:600;color:#fff}
+#orderForm > button[type=submit],button.primary#doneMore{position:fixed;z-index:30;left:24px;right:24px;bottom:calc(14px + env(safe-area-inset-bottom));width:auto;max-width:488px;margin:0 auto;display:flex;align-items:center;gap:10px;border-radius:16px;padding:16px 18px;font-size:17px;font-weight:600;color:#fff}
 #orderForm > button[type=submit]{background:var(--ok);box-shadow:0 8px 22px #1fbf5a55;justify-content:flex-start}
 #orderForm > button[type=submit] > span:not(.pr):not(.spin){flex:1;text-align:right}
 #orderForm > button[type=submit] svg{width:22px;height:22px}
@@ -614,7 +614,6 @@ button.fixBtn .ic{width:16px;height:16px}
 /* בחירה בלי טבעת כתומה: רקע צבעוני + סימן ✓ קטן */
 .chips input:checked + label,#whenChips.whenSeg input:checked + label,#payChips.payGrid input:checked + label{background:#ffe9dd!important;box-shadow:none!important;color:#c2410c!important;font-weight:700;position:relative}
 .chips input:checked + label .ic{color:#c2410c!important}
-.chips input:checked + label::after{content:"";position:absolute;top:8px;left:8px;width:18px;height:18px;border-radius:50%;background:var(--brand) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/11px no-repeat}
 /* אמצעי תשלום אחד */
 #payChips.payOne{display:block}
 #payChips.payOne label{flex-direction:row!important;justify-content:flex-start;gap:12px!important;min-height:0!important;padding:12px 14px!important;background:var(--fill)!important;color:var(--tx)!important;cursor:default;text-align:right}
@@ -673,6 +672,19 @@ button.fixBtn.red{color:#be123c}button.fixBtn.red .ic{color:#be123c}
 .hrange span{font-size:12px;color:#6b6b73}
 .hrange input{min-width:0;max-width:100%;-webkit-appearance:none;appearance:none;border:0!important;background:none!important;box-shadow:none!important;padding:0!important;font:inherit;font-size:15px;min-height:26px;width:100%}
 .stats b.u{color:#b45309}
+/* אוויר: יותר רווח בצדדים, בין שדות ובין חלקים */
+main{padding:8px 24px 24px!important}
+#orderForm .card{margin:0 0 26px!important}
+#orderForm .card > h2.sh,h2.sh{margin:30px 0 16px!important}
+.f{margin-bottom:14px!important}
+.row2,.row31,.fl3{gap:12px!important}
+.chips,#whenChips.whenSeg,#payChips.payGrid{gap:12px!important}
+h3.sub3{margin:18px 2px 10px!important}
+.whenHint{margin-top:10px!important}
+#doneBox .done{padding-top:8px}
+#doneNo{margin:8px 0 20px!important}
+#doneBox button.primary#doneMore{margin-top:26px!important}
+.fixRow{gap:12px!important;margin-top:12px!important}
 </style>
 </head>
 <body>

@@ -631,6 +631,12 @@ button.more{width:48px!important;height:48px!important;border-radius:14px!import
 #urgRow{display:none!important}
 #availBox .pair #availRow{flex:1}
 label:has(#ce_urgent),label:has(#ce_urgOn),label:has(#ce_urgentDef),label:has(#ce_urgOnDef){display:none!important}
+/* אוויר: שוליים רחבים יותר ורווח בין כרטיסים */
+main{padding:8px 20px 24px!important}
+#list .card.oc{margin-bottom:14px!important}
+.kpi{margin-bottom:22px!important}
+.custCard .meta{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.custCard .ct{min-width:0}
 </style>
 </head>
 <body>
@@ -1634,7 +1640,7 @@ function custCard(c) {
     av,
     el("div", { className: "ct" },
       el("div", { className: "cust", textContent: isDef ? "לקוחות מזדמנים" : c.name }),
-      el("div", { className: "meta", textContent: (isDef ? "הדף הכללי · " : c.code + " · ") + meta }), cash),
+      el("div", { className: "meta", textContent: (isDef ? "הדף הכללי · " : "") + meta }), cash),
     el("button", { type: "button", className: "lnkBtn", onclick: e => { e.stopPropagation(); copyText(link, e.currentTarget); } }, "לינק"),
     isDef ? null : btn("ellipsis", "עוד פעולות", () => openCustMenu(c, link)));
 }
