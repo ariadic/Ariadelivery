@@ -655,6 +655,8 @@ a.lk{color:#c2410c;font-weight:600;text-decoration:none;padding:3px 0}
 .r3 .py{flex:1!important}
 .r3 button.act{margin:0!important}
 .al.fixA{color:#c2410c;font-weight:700}
+.fxn{display:flex;flex-direction:column;gap:6px;font-size:14px;color:#3a3a3c;margin-top:8px}
+.fxn input{min-height:44px}
 </style>
 </head>
 <body>
@@ -771,6 +773,7 @@ a.lk{color:#c2410c;font-weight:600;text-decoration:none;padding:3px 0}
       <label class="chk"><input type="checkbox" id="ce_hideDone"> בלי שעת מסירה (הלקוח רואה רק "נמסרה")</label>
       <label class="chk"><input type="checkbox" id="ce_urgOn"> אפשרות "דחוף" (תוך שעה מאישור ההזמנה)</label>
       <label class="chk"><input type="checkbox" id="ce_qty"> כמות פריטים במקום "מה שולחים"</label>
+      <label class="wide fxn">הסבר מתחת ל"היום" (ריק = "עד סוף יום העסקים")<input id="ce_todayNote" maxlength="60" placeholder="למשל: עד שעתיים מהאיסוף"></label>
       </details>
     </div>
     <div id="ceDefFields" class="grid">
@@ -1783,7 +1786,8 @@ function openEditor(c, dup) {
   $("ce_hidePayer").checked = !!c.hidePayer; $("ce_greeting").checked = !!c.greeting;
   $("ce_nameOpt").checked = !!c.nameOptional; $("ce_floor").checked = !!c.floorApt; $("ce_hideDone").checked = !!c.hideDoneTime;
   $("ce_urgOn").checked = isNew && !dup ? false : !c.noUrgent;
-  $("ceSet").open = false; setSum();   // לקוח חדש: בלי דחוף, מדליקים רק למי שצריך $("ce_urgOnDef").checked = !c.noUrgent; $("ce_qty").checked = !!c.qty;
+  $("ceSet").open = false; setSum();
+  $("ce_qty").checked = !!c.qty; $("ce_todayNote").value = c.todayNote || "";
   $("ceRows").replaceChildren();
   (c.prices || []).forEach(p => addRow(p));
   if (!(c.prices || []).length && isNew) addRow();
@@ -1906,7 +1910,7 @@ $("ceSave").onclick = () => {
         pay: $("ce_cash").checked ? "מזומן" : "", urgentExtra: $("ce_urgent").value || 0, fixedPickup: $("ce_fixed").checked,
         hidePayer: $("ce_hidePayer").checked, greeting: false,
         nameOptional: $("ce_nameOpt").checked, floorApt: $("ce_floor").checked, hideDoneTime: $("ce_hideDone").checked,
-        noUrgent: !$("ce_urgOn").checked, qty: $("ce_qty").checked,
+        noUrgent: !$("ce_urgOn").checked, qty: $("ce_qty").checked, todayNote: $("ce_todayNote").value.trim(),
         sizes: $("ce_sizes").value.split(",").map(x => x.trim()).filter(Boolean) };
   customer.prices = rows.map(r => ({ label: r.label, price: Number(r.price), city: r.city || r.label, streets: r.streets }));
   const btn = $("ceSave"), orig = btn.innerHTML; btn.disabled = true; btn.textContent = "שומר…";
