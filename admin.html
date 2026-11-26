@@ -642,6 +642,10 @@ main{padding:8px 20px 24px!important}
 .sheet{box-shadow:0 120px 0 #fff,0 -8px 30px #0002}
 .dim,#oDim{bottom:-140px!important}
 .sheet{padding-bottom:calc(72px + env(safe-area-inset-bottom))!important}
+/* נמסרה ולא שולמה: התגית היא הפעולה – כתומה עם חץ */
+.py.act2,button.py.act2{background:#fff1eb!important;color:#c2410c!important;font-weight:700;flex:1}
+.py.act2 .pdot{display:none}
+.py.act2 .pgo{margin-right:auto;font-size:20px;line-height:1}
 </style>
 </head>
 <body>
@@ -1003,17 +1007,18 @@ function card(o) {
   const d = orderTime(o), today = d && d.toDateString() === new Date().toDateString();
   const prepay = /מראש/.test(o.pay || ""), off = VOID(o.status);
   const payTxt = [String(o.pay || "").replace(/\s*\(מראש\)/, ""), priceTxt(o) + (/(^|\|)תוקן/.test(o.steps || "") ? " (תוקן)" : "")].filter(Boolean).join(" · ");
+  const delivUnpaid = o.status === "נמסר" && !o.paid && !off;   // נמסרה ולא שולמה: התגית עצמה היא הפעולה
   // "שולם" בלחיצה אחת: לחיצה על התגית מחליפה שולם / לא שולם
   const py = off ? el("span", { className: "py", textContent: payTxt })
-    : el("button", { type: "button", className: "py " + (o.paid ? "paid" : prepay ? "wait" : "unp"),
+    : el("button", { type: "button", className: "py " + (o.paid ? "paid" : prepay ? "wait" : "unp") + (delivUnpaid ? " act2" : ""),
         title: o.paid ? "לחיצה = לא שולם" : "לחיצה = שולם",
         onclick: e => !o.paid && morning.keys ? openPaid(o) : setPaid(o, !o.paid, e.currentTarget) },
-        el("span", { className: "pdot" }), payTxt + (o.paid ? " · שולם" : prepay ? " · לבדוק" : " · לא שולם"));
+        el("span", { className: "pdot" }), payTxt + (o.paid ? " · שולם" : delivUnpaid ? " · סמנו כשולם" : prepay ? " · לבדוק" : " · לא שולם"),
+        delivUnpaid ? el("span", { className: "pgo", textContent: "›" }) : null);
   const nx = NEXT[o.status];
   const act = nx ? el("button", { type: "button", className: "act " + nx[3],
     onclick: e => nx[0] === "נאסף" ? openEta(o) : nx[0] === "אושרה" ? openPick(o) : update(o, nx[0], e.currentTarget) }, ico(nx[1], "s"), nx[2])
-    : o.status === "נמסר" && !o.paid && !off ? el("button", { type: "button", className: "act grn",           // נמסרה ולא שולמה – הפעולה הבאה היא "שולם"
-        onclick: e => morning.keys ? openPaid(o) : setPaid(o, true, e.currentTarget) }, ico("banknote", "s"), "שולם") : null;
+    : null;
   // בדרך: זמן הגעה משוער + "עוד 5 דק'"; כשהשעה מגיעה – עוד 5 / 10 / 15 / 20
   const et = parseEta(o.eta);
   const late = o.status === "נאסף" && et.time && etaMin(et.time) <= 0;
