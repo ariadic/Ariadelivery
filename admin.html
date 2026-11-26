@@ -646,6 +646,15 @@ main{padding:8px 20px 24px!important}
 .py.act2,button.py.act2{background:#fff1eb!important;color:#c2410c!important;font-weight:700;flex:1}
 .py.act2 .pdot{display:none}
 .py.act2 .pgo{margin-right:auto;font-size:20px;line-height:1}
+/* כרטיס הזמנה: כתובת וטלפון כקישורים, הכרטיס כולו לחיץ */
+.card.tapc{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.card.tapc:active{background:#fafafa}
+.r2 .dln{display:flex;flex-wrap:wrap;gap:0 12px;margin-top:5px;font-size:15px;color:#3a3a3c;align-items:center}
+.r2 .dst{flex:1;min-width:0}
+a.lk{color:#c2410c;font-weight:600;text-decoration:none;padding:3px 0}
+.r3 .py{flex:1!important}
+.r3 button.act{margin:0!important}
+.al.fixA{color:#c2410c;font-weight:700}
 </style>
 </head>
 <body>
@@ -1041,9 +1050,10 @@ function card(o) {
       el("span", { textContent: et.time ? `מגיע ב-${et.time}` + etaLeft(et.time) : "בלי זמן הגעה · להוספה" })),
     et.near ? el("b", { className: "nearTag" }, ico("map-pin", "s"), "ממש קרוב") : nearBtn);
   if (o.status === "חדשה" && act) act.title = "הלקוח יראה שאישרת";
-  const more = aria(el("button", { type: "button", className: "more", onclick: () => openOrder(o) }, ico("ellipsis")), "עוד פעולות");
-  const qi = (icon, href, l) => aria(el("a", { className: "qi", href, target: href.startsWith("http") ? "_blank" : "" }, ico(icon, "s")), l);
-  return el("section", { className: "card oc" + (off ? " dim1" : "") },
+  // בלי עיגולים ובלי ⋯: כתובת וטלפון הם קישורים (כתום), ולחיצה על שאר הכרטיס פותחת את הפרטים
+  const lnk = (href, t, l) => aria(el("a", { className: "lk", href, target: href.startsWith("http") ? "_blank" : "", textContent: t }), l);
+  return el("section", { className: "card oc tapc" + (off ? " dim1" : ""),
+    onclick: e => { if (!e.target.closest("a,button,input,select,textarea")) openOrder(o); } },
     el("div", { className: "r1" },
       el("span", { className: "cust", textContent: o.customer || "לקוח" }),
       null,
@@ -1052,14 +1062,15 @@ function card(o) {
       el("span", { className: "tm", textContent: today ? o.time : `${(o.date || "").slice(0, 5)} ${o.time || ""}` })),
     el("div", { className: "r2" },
       el("div", { className: "dst" }, el("b", { textContent: area || "—" }),
-        el("small", { textContent: [o.recipient, street].filter(Boolean).join(" · ") })),
-      o.phone ? qi("phone", "tel:" + o.phone, "חיוג למקבל") : null,
-      o.address ? qi("navigation", waze(navAddr(o)), "ניווט בווייז") : null),
+        el("div", { className: "dln" },
+          o.recipient ? el("span", { textContent: o.recipient }) : null,
+          street ? lnk(waze(navAddr(o)), street, "ניווט בווייז") : null,
+          o.phone ? lnk("tel:" + o.phone, o.phone, "חיוג למקבל") : null))),
     missTag(o),
     noMiss(o.notes) ? el("div", { className: "nt" }, ico("message-square-text", "xs"), el("span", { textContent: noMiss(o.notes) })) : null,
     null,   // תשלום מראש – מסומן בתגית התשלום עצמה (ענבר), בלי שורה כפולה
     pickLine, etaLine, rcptRow(o),
-    el("div", { className: "r3" }, py, act, more));
+    el("div", { className: "r3" }, py, act));
 }
 
 /* ---------- חלונית פעולות להזמנה (⋯) ---------- */
@@ -1083,6 +1094,7 @@ function openOrder(o) {
   const list = el("div", {});
   const A = (i, t, cls, fn) => list.append(el("button", { type: "button", className: "al " + (cls || ""),
     onclick: e => { const b = e.currentTarget; closeOrder(); fn(b); } }, ico(i), el("span", { textContent: t })));
+  if (!/שולם באתר/.test(o.pay || "") && !VOID(o.status)) A("pencil", "תיקון פרטים", "fixA", () => setTimeout(() => openFix(o), 350));
   if (!closed) {
     if (o.status === "חדשה") A("thumbs-up", "קיבלתי את ההזמנה", "", () => setTimeout(() => openPick(o), 350));
     if (o.status === "אושרה") A("package", "עדכון שעת איסוף", "", () => setTimeout(() => openPick(o), 350));
@@ -1092,7 +1104,6 @@ function openOrder(o) {
   }
   if (o.status === "נמסר") { const d = doneOf(o); A("clock", d.hide ? "שעת מסירה: לא מוצגת · לשינוי" : d.time ? `שעת מסירה: ${d.time} · לתיקון` : "שעת מסירה · לתיקון", "", () => setTimeout(() => openDone(o), 350)); }
   if (!VOID(o.status)) A("banknote", o.paid ? "סמן כלא שולם" : "סמן כשולם", "", b => setPaid(o, !o.paid, b));
-  if (!/שולם באתר/.test(o.pay || "") && !VOID(o.status)) A("pencil", "תיקון פרטים", "", () => setTimeout(() => openFix(o), 350));
   if (o.status === "חדשה") A("circle-x", "לא פנוי – להחזיר ללקוח", "warn", b => {
     if (confirm(`לסמן שאתה לא פנוי להזמנה של ${o.recipient}? הלקוח יראה שצריך משלוח אחר.`)) update(o, "לא פנוי", b); });
   if (o.status !== "חדשה") A("undo-2", "ביטול סטטוס (שלב אחורה)", "", b => update(o, PREV[o.status] || "חדשה", b));
