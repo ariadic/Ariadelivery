@@ -695,6 +695,8 @@ h3.sub3{margin:18px 2px 10px!important}
 .dim{bottom:-140px!important}
 .sheet .dl,#destList{padding-bottom:72px}
 .fixBody{padding-bottom:12px}
+.fixCall a,.fixHint2 a{color:#c2410c;font-weight:700;text-decoration:none}
+.fixCall{line-height:1.8}
 </style>
 </head>
 <body>
@@ -881,7 +883,7 @@ h3.sub3{margin:18px 2px 10px!important}
         <button type="button" class="fixBtn red" id="doneCancel"><svg class="ic s"><use href="#i-x"/></svg><span>ביטול הזמנה</span></button>
       </div>
       <p class="fixHint2" id="doneFixHint" style="display:none">אפשר לתקן או לבטל עד שארי מאשר</p>
-      <p class="fixCall" id="doneCall" style="display:none">צריך לתקן משהו? <a href="tel:0504848398">050-4848398</a></p>
+      <p class="fixCall" id="doneCall" style="display:none">ארי כבר אישר. צריך לשנות משהו?<br><a id="doneCallWa" target="_blank" rel="noopener">שליחת הודעה בווצאפ</a> · <a href="tel:0504848398">התקשרות</a></p>
     </div>
     <div class="payCard" id="payCard" style="display:none">
       <div class="payTop"><svg class="ic s"><use href="#i-wallet"/></svg><b id="payTitle"></b><span class="payAmt" id="payAmt"></span></div>
@@ -1857,6 +1859,7 @@ function showDone(record, waLink) {
   trackCt = record.ct || null;
   $("doneCancel").onclick = () => cancelMyOrder(record.no, record.ct, () => paintTrack("בוטלה"));
   $("doneFix").onclick = () => openMyFix(record.no, record.ct, r => { Object.assign(record, r); paintDoneSum(record); });
+  $("doneCallWa").href = changeWa(record.no);
   const tn = new Date(record.time);
   $("trkTime").textContent = "";
   paintDoneSum(record);
@@ -2176,6 +2179,8 @@ function renameNo(from, to) {
   if (x) { x.no = to; save(HISTORY_KEY, h); }
 }
 const ctOf = no => ((load(HISTORY_KEY) || []).find(r => r.no === no) || {}).ct;
+// בקשת שינוי אחרי שארי אישר: ווצאפ מוכן עם מספר ההזמנה – רק להוסיף מה לשנות
+const changeWa = no => `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(`שלום ארי, אני צריך/ה לשנות משהו בהזמנה ${no}:\n`)}`;
 function paintDoneSum(record) {
   const sum = $("doneSum"); sum.replaceChildren();
   const l1 = document.createElement("div"); const b = document.createElement("b"); b.textContent = record.recipient; l1.append(b, ` · ${record.address}`);
@@ -2329,6 +2334,11 @@ function paintRow(li, x) {
   det.textContent = [x.item, money, x.pay].filter(Boolean).join(" · ");
   if (paidTxt) { const b = document.createElement("b"); b.textContent = " · " + paidTxt; if (x.paid) b.className = "py"; det.append(b); }
   ex.append(det);
+  if (st === "אושרה" || st === "נאסף") {
+    const cw = document.createElement("p"); cw.className = "fixHint2";
+    cw.innerHTML = 'צריך לשנות משהו? <a target="_blank" rel="noopener">שליחת הודעה בווצאפ</a>';
+    cw.querySelector("a").href = changeWa(x.no); ex.append(cw);
+  }
   const ct = st === "חדשה" ? ctOf(x.no) : null;
   if (ct) {
     const cx = document.createElement("button"); cx.type = "button"; cx.className = "fixBtn red";
