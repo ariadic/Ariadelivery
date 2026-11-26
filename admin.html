@@ -933,8 +933,9 @@ function render() {
   const fActive = !!($("custFilter").value || $("paidFilter").value) || (tab === "done" && $("rangeFilter").value !== "90");
   $("filtBtn").classList.toggle("set", fActive);
   $("filtBtn").classList.toggle("on", filtOpen && !fActive);
-  $("filtBtn").setAttribute("aria-expanded", filtOpen || fActive ? "true" : "false");
-  $("filters").style.display = filtOpen || fActive || tab === "done" ? "" : "none";
+  // הכפתור פותח וסוגר את שורת המסננים תמיד. שחור = יש מסנן פעיל (גם כשהשורה סגורה)
+  $("filtBtn").setAttribute("aria-expanded", filtOpen ? "true" : "false");
+  $("filters").style.display = filtOpen ? "" : "none";
   // מספרים למעלה: פתוחות · לא שולם · היום (בלי "לא פנוי")
   const sumP = a => a.reduce((t, o) => t + (isNaN(o.price) || o.price === "" ? 0 : Number(o.price)), 0);
   const valid = mine.filter(o => !VOID(o.status));
@@ -1566,7 +1567,7 @@ $("paidFilter").onchange = render;
 $("q").addEventListener("input", render);
 $("qClear").onclick = () => { $("q").value = ""; render(); $("q").focus(); };
 $("tabOpen").onclick = () => { tab = "open"; $("tabOpen").classList.add("on"); $("tabDone").classList.remove("on"); render(); };
-$("tabDone").onclick = () => { tab = "done"; $("tabDone").classList.add("on"); $("tabOpen").classList.remove("on"); render(); };
+$("tabDone").onclick = () => { if (tab !== "done") filtOpen = true; tab = "done"; $("tabDone").classList.add("on"); $("tabOpen").classList.remove("on"); render(); };
 // רענון אוטומטי כל 10 שניות (רק כשהמסך פתוח ומוצג, ולא כשבקשה קודמת עוד לא חזרה)
 setInterval(() => { if (key && !document.hidden && view === "orders" && Date.now() - lastLoad > 9000) load(); }, 10000);
 // חוזרים לדף (מאפליקציה אחרת / מסך נעול) – מרעננים מיד
