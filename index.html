@@ -697,6 +697,19 @@ h3.sub3{margin:18px 2px 10px!important}
 .fixBody{padding-bottom:12px}
 .fixCall a,.fixHint2 a{color:#c2410c;font-weight:700;text-decoration:none}
 .fixCall{line-height:1.8}
+/* לשלוח שוב */
+.againBox{background:#fff7f2;border-radius:20px;padding:14px;margin:0 0 22px}
+.againT{font-size:14px;font-weight:800;color:#c2410c;margin:0 2px 8px}
+.againRow{display:flex;align-items:center;gap:12px;width:100%;background:#fff;border:0;border-radius:14px;padding:12px 14px;margin:0 0 8px;text-align:right;font:inherit;color:inherit;box-shadow:0 1px 3px #0001}
+.againRow .x{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.againRow b{font-size:15.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.againRow small{font-size:13px;color:#6b6b73;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.againRow .p{font-weight:800;color:#c2410c;font-size:16px}
+.againH{font-size:12.5px;color:#6b6b73;margin:2px 2px 0}
+/* מה חסר */
+button.missL{position:fixed;z-index:31;left:24px;right:24px;max-width:472px;margin:0 auto;bottom:calc(84px + env(safe-area-inset-bottom));width:auto;background:#fff;color:#be123c;border:0;border-radius:99px;padding:9px 16px;font:inherit;font-size:14px;font-weight:700;box-shadow:0 4px 16px #00000026;text-align:center}
+button.missL[hidden]{display:none}
+body.typing button.missL,body:has(#doneBox[style*="block"]) button.missL{display:none!important}
 </style>
 </head>
 <body>
@@ -720,6 +733,11 @@ h3.sub3{margin:18px 2px 10px!important}
       <div id="pickupFixedText"></div>
     </section>
 
+    <div class="againBox" id="againBox" hidden>
+      <div class="againT">לשלוח שוב?</div>
+      <div id="againList"></div>
+      <div class="againH">אפשר לשנות כל פרט אחרי המילוי</div>
+    </div>
     <section class="card" id="pickupCard">
       <h2 class="sh"><span class="shi"><svg class="ic"><use href="#i-package"/></svg></span>מקום האיסוף</h2>
       <div class="f" id="pCityF"><label for="pCity">עיר</label>
@@ -757,7 +775,7 @@ h3.sub3{margin:18px 2px 10px!important}
       <h3 class="sub3">השולח</h3>
       <div class="row2">
       <div class="f" id="pNameF"><label for="pName">שם השולח</label>
-      <input id="pName" autocomplete="organization" required><div class="errmsg">נא למלא שם</div></div>
+      <input id="pName" autocomplete="name" required><div class="errmsg">נא למלא שם</div></div>
       <div class="f" id="pPhoneF"><label for="pPhone">טלפון</label>
       <input id="pPhone" type="tel" inputmode="tel" autocomplete="tel" required><div class="errmsg">מספר טלפון לא תקין</div></div>
       </div>
@@ -859,6 +877,7 @@ h3.sub3{margin:18px 2px 10px!important}
   </form>
 
   <!-- ההזמנה נקלטה במערכת -->
+  <button type="button" class="missL" id="missLine" hidden></button>
   <section id="doneBox" style="display:none">
     <div class="done">
       <div class="okic"><span class="okin"><svg class="ic"><use id="okUse" href="#i-check"/></svg></span></div>
@@ -1197,7 +1216,8 @@ function chipLabel(t) {
   return m ? `${m[1]}<small class="sub">${m[2]}</small>` : t;
 }
 chips("sizeChips", "size", (CUSTOMER && CUSTOMER.sizes) || SIZES, t => ICO(sizeIcon(t)) + `<span>${chipLabel(t)}</span>`);
-const WHEN_TXT = [["היום", "מגיע <b>עד סוף יום העסקים</b>", "clock"], ["דחוף", "<b>תוך שעה</b> מרגע אישור ההזמנה", "zap"], ["מתוזמן", "לשעה מסוימת שבוחרים", "calendar-clock"]];
+const TODAY_NOTE = (CUSTOMER && CUSTOMER.todayNote ? String(CUSTOMER.todayNote) : "").replace(/[<>&]/g, "").trim();   // לכל לקוח אפשר להגדיר בניהול מה כתוב מתחת ל"היום"
+const WHEN_TXT = [["היום", "מגיע <b>" + (TODAY_NOTE || "עד סוף יום העסקים") + "</b>", "clock"], ["דחוף", "<b>תוך שעה</b> מרגע אישור ההזמנה", "zap"], ["מתוזמן", "לשעה מסוימת שבוחרים", "calendar-clock"]];
 let urgentOff = false;
 chips("whenChips", "when", NO_URGENT ? [WHEN[0], WHEN[2]] : WHEN, t => {
   const [b, , ic] = WHEN_TXT[WHEN.indexOf(t)];
@@ -1624,6 +1644,69 @@ function validate() {
 }
 document.querySelectorAll("input,select,textarea").forEach(el => el.addEventListener("input", () => el.classList.remove("bad")));
 
+/* ---------- "מה חסר": שורה מעל כפתור השליחה, אחרי ניסיון שליחה שנכשל ---------- */
+const MISS_LABELS = { pCity: "עיר האיסוף", pStreet: "רחוב האיסוף", pNum: "מספר בניין באיסוף", pName: "שם השולח", pPhone: "טלפון השולח",
+  dCity: "יעד", dStreet: "רחוב המסירה", dNum: "מספר בניין במסירה", dName: "שם המקבל", dPhone: "טלפון המקבל", termsOk: "אישור התקנון" };
+function missing() {
+  const fixedPick = CUSTOMER && CUSTOMER.fixedPickup, nameOpt = CUSTOMER && CUSTOMER.nameOptional;
+  const ids = (fixedPick ? [] : ["pCity", "pStreet", "pNum", "pName", "pPhone"]).concat(["dCity", "dStreet", "dNum", "dName", "dPhone"])
+    .filter(id => !(nameOpt && id === "dName"));
+  const out = ids.filter(id => (id === "pPhone" || id === "dPhone") ? !phoneOk($(id).value) : $(id).value.trim() === "");
+  if (!$("termsOk").checked) out.push("termsOk");
+  return out;
+}
+let missOn = false;
+function paintMiss() {
+  const m = missing(), b = $("missLine");
+  if (!missOn || !m.length) { b.hidden = true; return; }
+  b.hidden = false;
+  b.textContent = "חסר: " + MISS_LABELS[m[0]] + (m.length > 1 ? ` (ועוד ${m.length - 1})` : "") + " ←";
+  b.dataset.id = m[0];
+}
+$("missLine").addEventListener("click", () => {
+  const id = $("missLine").dataset.id, e = $(id);
+  if (id === "dCity") { $("destBtn").scrollIntoView({ behavior: "smooth", block: "center" }); openDest(); return; }
+  if (id === "pCity" || id.startsWith("p")) showPickup();
+  (e.closest(".f") || e).scrollIntoView({ behavior: "smooth", block: "center" }); if (e.focus) e.focus();
+});
+document.querySelectorAll("input,select,textarea").forEach(el => { el.addEventListener("input", paintMiss); el.addEventListener("change", paintMiss); });
+
+/* ---------- "לשלוח שוב?": הזמנות קודמות במכשיר הזה (רק לחיצה ממלאת – שום דבר לא ממולא מראש) ---------- */
+const AGAIN_P = ["pCity", "pStreet", "pNum", "pName", "pPhone", "pType", "pPlace", "pFloor", "pApt", "pEnt", "pCode", "pNote"];
+const AGAIN_D = ["dCity", "dStreet", "dNum", "dName", "dPhone", "dType", "dPlace", "dFloor", "dApt", "dEnt", "dCode", "dNote"];
+const AGAIN_KEY = "ariDelivery.again." + (typeof CUSTOMER_CODE !== "undefined" && CUSTOMER ? CUSTOMER_CODE : "_");
+const againLoad = () => { try { return JSON.parse(localStorage.getItem(AGAIN_KEY) || "[]"); } catch (e) { return []; } };
+function againSave() {
+  if (CUSTOMER) return;
+  const snap = {}; [...AGAIN_P, ...AGAIN_D].forEach(id => { snap[id] = $(id).value.trim(); });
+  const same = x => x.dName === snap.dName && x.dStreet === snap.dStreet && x.dNum === snap.dNum && x.pStreet === snap.pStreet && x.pNum === snap.pNum;
+  const list = [snap, ...againLoad().filter(x => !same(x))].slice(0, 3);
+  try { localStorage.setItem(AGAIN_KEY, JSON.stringify(list)); } catch (e) {}
+}
+function againApply(snap) {
+  [...AGAIN_P, ...AGAIN_D].forEach(id => { if (snap[id] !== undefined && $(id)) $(id).value = snap[id]; });
+  if (snap.dCity && ![...$("dCity").options].some(o => o.value === snap.dCity)) $("dCity").value = "";
+  syncAddr(); syncHouse(); showPrice(); paintMiss();
+  document.querySelectorAll(".bad").forEach(e => e.classList.remove("bad"));
+  $("againBox").hidden = true;
+  $("whenChips").scrollIntoView({ behavior: "smooth", block: "center" });
+  [$("destBtn"), ...["pName", "pPhone", "dName", "dPhone"].map(id => $(id).closest(".f"))].forEach(el => { if (!el) return; el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); });
+}
+function againRender() {
+  const list = CUSTOMER ? [] : againLoad().filter(x => x.dCity && DESTS.some(d => d.label === x.dCity));
+  const box = $("againBox"); box.hidden = !list.length;
+  $("againList").replaceChildren(...list.map(x => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "againRow";
+    const t = document.createElement("span"), n = document.createElement("b"), sm = document.createElement("small"), pr = document.createElement("span");
+    n.textContent = `${x.dName || "—"} · ${x.dCity}`;
+    sm.textContent = `מ${[x.pStreet, x.pNum].filter(Boolean).join(" ")}${x.pCity ? ", " + x.pCity : ""}`;
+    t.append(n, sm); t.className = "x";
+    const d = DESTS.find(d => d.label === x.dCity); pr.className = "p"; pr.textContent = !AGREED && d ? "₪" + d.price : "";
+    b.append(t, pr); b.onclick = () => againApply(x); return b;
+  }));
+}
+againRender();
+
 /* ---------- שליחה ---------- */
 const pad = n => String(n).padStart(2, "0");
 const waze = addr => "https://waze.com/ul?q=" + encodeURIComponent(addr) + "&navigate=yes";
@@ -1631,9 +1714,10 @@ const waze = addr => "https://waze.com/ul?q=" + encodeURIComponent(addr) + "&nav
 $("orderForm").addEventListener("submit", e => {
   e.preventDefault();
   if (!validate()) {
+    missOn = true; paintMiss();
     const first = document.querySelector(".bad");
     if (first && first.id === "dCity") { $("destBtn").scrollIntoView({ behavior: "smooth", block: "center" }); openDest(); }
-    else if (first) { first.scrollIntoView({ behavior: "smooth", block: "center" }); first.focus(); }
+    else if (first) { (first.closest(".f") || first).scrollIntoView({ behavior: "smooth", block: "center" }); }   // בלי פתיחת מקלדת – שורת "חסר: …" מעל הכפתור מכוונת
     return;
   }
   if (!arieAvailable && !confirm("ארי לא פנוי כרגע למשלוחים. לשלוח את ההזמנה בכל זאת?")) return;
@@ -1646,6 +1730,7 @@ $("orderForm").addEventListener("submit", e => {
   const destLine = d && d.label !== d.city ? `${street}, ${d.label}` : fullDest;
   const price = calcPrice();
   let when = val("when");
+  if (when === WHEN[0] && TODAY_NOTE) when = "היום – " + TODAY_NOTE;
   if (when === WHEN[2]) {
     const t = new Date($("whenTime").value), isToday = t.toDateString() === now.toDateString();
     when = `מתוזמן – ${pad(t.getDate())}/${pad(t.getMonth() + 1)} ${pad(t.getHours())}:${pad(t.getMinutes())}${$("whenTo").value ? "–" + $("whenTo").value : ""}`;
@@ -1707,6 +1792,7 @@ $("orderForm").addEventListener("submit", e => {
   };
   if (isOnline()) { record.payOnline = true; record.returnUrl = location.origin + location.pathname; }
 
+  againSave();
   saveHistory(record);                     // נשמר במכשיר – אם השליחה תיכשל, הגיבוי ישלח שוב
   saveRecipient({ name: record.recipient, label, street, phone: record.recipientPhone, type: $("dType").value, place: $("dPlace").value.trim(), floor: $("dFloor").value.trim(), apt: $("dApt").value.trim(),
     ent: $("dEnt").value.trim(), code: $("dCode").value.trim(), note: $("dNote").value.trim() });
